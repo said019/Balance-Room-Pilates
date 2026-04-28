@@ -22,8 +22,6 @@ import {
     Gift,
     Settings,
     Dumbbell,
-    UserCog,
-    ChevronLeft,
     ChevronRight,
     LogOut,
     Menu,
@@ -83,6 +81,7 @@ const sidebarItems: SidebarItem[] = [
         children: [
             { href: '/admin/classes/schedules', label: 'Horarios' },
             { href: '/admin/classes/types', label: 'Disciplinas' },
+            { href: '/admin/classes/prices', label: 'Precios y paquetes' },
             { href: '/admin/classes/templates', label: 'Rutinas' },
         ],
     },
@@ -95,10 +94,10 @@ const sidebarItems: SidebarItem[] = [
         ],
     },
     {
-        label: 'Paquetes',
+        label: 'Membresías',
         icon: BadgeCheck,
         children: [
-            { href: '/admin/memberships/all', label: 'Membresías' },
+            { href: '/admin/memberships/all', label: 'Activas e historial' },
             { href: '/admin/memberships/paquetes', label: 'Planes' },
         ],
     },
@@ -157,7 +156,7 @@ const pageNames: Record<string, string> = {
     bookings: 'Reservas',
     classes: 'Clases',
     members: 'Comunidad',
-    memberships: 'Paquetes',
+    memberships: 'Membresías',
     instructors: 'Coaches',
     videos: 'Contenido',
     pos: 'Caja',
@@ -282,8 +281,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
     const SidebarContent = ({ mobile = false }: { mobile?: boolean }) => (
         <div className="h-full overflow-y-auto overflow-x-hidden px-3 py-4">
-            <div className={cn('mb-4 rounded-[1.35rem] border border-balance-sand/50 bg-balance-cream/55 p-3', sidebarCollapsed && !mobile && 'hidden')}>
-                <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-balance-gold">
+            <div className={cn('mb-4 rounded-[1.35rem] border border-balance-olive/25 bg-balance-olive/10 p-3', sidebarCollapsed && !mobile && 'hidden')}>
+                <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-balance-olive">
                     <Sparkles className="h-3.5 w-3.5" />
                     Studio vivo
                 </div>
@@ -293,7 +292,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </div>
 
             <nav className="space-y-1.5" aria-label="Navegación de administración">
-                {sidebarItems.map((item, index) => {
+                {sidebarItems.map((item) => {
                     const Icon = item.icon;
 
                     if (item.children) {
@@ -301,25 +300,20 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                         const hasActiveChild = isParentActive(item.children);
 
                         return (
-                            <motion.div
-                                key={item.label}
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.18, delay: Math.min(index * 0.015, 0.12) }}
-                            >
+                            <div key={item.label}>
                                 <button
                                     onClick={() => toggleExpand(item.label)}
                                     className={cn(
                                         'group flex w-full items-center justify-between rounded-[1rem] px-3 py-2.5 text-sm font-semibold transition-[background,color,transform] duration-200 ease-admin-flow active:scale-[0.99]',
                                         hasActiveChild
-                                            ? 'bg-balance-dark text-balance-cream shadow-[0_14px_34px_-24px_rgba(51,42,34,0.55)]'
+                                            ? 'bg-balance-olive text-balance-cream shadow-[0_14px_34px_-24px_rgba(126,133,121,0.65)]'
                                             : 'text-balance-dark/62 hover:bg-balance-cream/80 hover:text-balance-dark'
                                     )}
                                 >
                                     <span className="flex min-w-0 items-center gap-3">
                                         <span className={cn(
                                             'flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.85rem] transition-colors',
-                                            hasActiveChild ? 'bg-balance-cream/12 text-balance-cream' : 'bg-balance-sand/25 text-balance-dark/65 group-hover:bg-balance-sand/45'
+                                            hasActiveChild ? 'bg-balance-cream/16 text-balance-cream' : 'bg-balance-olive/10 text-balance-olive group-hover:bg-balance-olive/16'
                                         )}>
                                             <Icon className="h-[18px] w-[18px]" />
                                         </span>
@@ -358,36 +352,31 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
-                            </motion.div>
+                            </div>
                         );
                     }
 
                     return (
-                        <motion.div
-                            key={item.href}
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.18, delay: Math.min(index * 0.015, 0.12) }}
-                        >
+                        <div key={item.href}>
                             <Link
                                 to={item.href!}
                                 onClick={() => setMobileMenuOpen(false)}
                                 className={cn(
                                     'group flex items-center gap-3 rounded-[1rem] px-3 py-2.5 text-sm font-semibold transition-[background,color,transform] duration-200 ease-admin-flow active:scale-[0.99]',
                                     isActive(item.href!)
-                                        ? 'bg-balance-dark text-balance-cream shadow-[0_14px_34px_-24px_rgba(51,42,34,0.55)]'
+                                        ? 'bg-balance-olive text-balance-cream shadow-[0_14px_34px_-24px_rgba(126,133,121,0.65)]'
                                         : 'text-balance-dark/62 hover:bg-balance-cream/80 hover:text-balance-dark'
                                 )}
                             >
                                 <span className={cn(
                                     'flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.85rem] transition-colors',
-                                    isActive(item.href!) ? 'bg-balance-cream/12 text-balance-cream' : 'bg-balance-sand/25 text-balance-dark/65 group-hover:bg-balance-sand/45'
+                                    isActive(item.href!) ? 'bg-balance-cream/16 text-balance-cream' : 'bg-balance-olive/10 text-balance-olive group-hover:bg-balance-olive/16'
                                 )}>
                                     <Icon className="h-[18px] w-[18px]" />
                                 </span>
                                 {(!sidebarCollapsed || mobile) && <span className="truncate">{item.label}</span>}
                             </Link>
-                        </motion.div>
+                        </div>
                     );
                 })}
             </nav>
@@ -396,7 +385,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
     return (
         <div className="admin-shell min-h-screen bg-[hsl(var(--admin-bg))] text-balance-dark">
-            <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_14%_6%,rgba(126,133,121,0.18),transparent_34%),radial-gradient(circle_at_82%_12%,rgba(207,200,184,0.44),transparent_30%)]" />
+            <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_14%_6%,rgba(126,133,121,0.26),transparent_34%),radial-gradient(circle_at_82%_12%,rgba(126,133,121,0.16),transparent_28%),radial-gradient(circle_at_72%_88%,rgba(207,200,184,0.42),transparent_32%)]" />
 
             <aside
                 className={cn(
@@ -414,7 +403,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                             />
                             <div className="min-w-0">
                                 <span className="block truncate text-[0.95rem] font-semibold tracking-[-0.02em] text-balance-dark">Balance Room</span>
-                                <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-balance-gold">Studio admin</span>
+                                <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-balance-olive">Studio admin</span>
                             </div>
                         </Link>
                     )}
@@ -423,7 +412,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                         size="icon"
                         onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                         className={cn(
-                            'h-10 w-10 rounded-full border border-balance-sand/70 bg-balance-cream/70 text-balance-dark/70 transition-all duration-200 hover:bg-balance-dark hover:text-balance-cream active:scale-[0.96]',
+                            'h-10 w-10 rounded-full border border-balance-olive/25 bg-balance-olive/10 text-balance-olive transition-all duration-200 hover:bg-balance-olive hover:text-balance-cream active:scale-[0.96]',
                             sidebarCollapsed && 'mx-auto'
                         )}
                         aria-label={sidebarCollapsed ? 'Expandir navegación' : 'Contraer navegación'}
@@ -460,7 +449,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                                     />
                                     <div>
                                         <span className="block text-sm font-semibold text-balance-dark">Balance Room</span>
-                                        <span className="block text-[10px] uppercase tracking-[0.22em] text-balance-gold">Admin</span>
+                                        <span className="block text-[10px] uppercase tracking-[0.22em] text-balance-olive">Admin</span>
                                     </div>
                                 </Link>
                                 <Button
@@ -498,7 +487,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                         </Button>
 
                         <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-balance-gold">
+                            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-balance-olive">
                                 <Command className="h-3.5 w-3.5" />
                                 Operación
                             </div>
@@ -672,18 +661,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 </header>
 
                 <main className="flex-1 px-4 py-5 md:px-6 md:py-7">
-                    <motion.div
-                        key={location.pathname}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                        className="mx-auto max-w-[1480px]"
-                    >
+                    <div className="mx-auto max-w-[1480px]">
                         <div className="mb-5">
                             <AdminBreadcrumbs />
                         </div>
                         {children}
-                    </motion.div>
+                    </div>
                 </main>
             </div>
         </div>

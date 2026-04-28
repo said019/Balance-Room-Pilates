@@ -227,19 +227,20 @@ export default function PlansList() {
         <AuthGuard requiredRoles={['admin']}>
             <AdminLayout>
                 <div className="space-y-6">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col gap-4 rounded-[1.6rem] border border-balance-olive/25 bg-balance-olive/10 p-5 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.45)] sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h1 className="text-2xl font-heading font-bold">Paquetes</h1>
-                            <p className="text-muted-foreground">
-                                Edita precios y vigencia. Los cambios de vigencia se aplican a membresías activas existentes.
+                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-balance-olive">Visible en venta</p>
+                            <h1 className="mt-1 text-2xl font-bold tracking-tight text-balance-dark">Precios y paquetes</h1>
+                            <p className="max-w-2xl text-sm text-balance-dark/65">
+                                Edita clase suelta, paquetes, vigencia y créditos. Estos precios se reflejan en la landing, checkout y /app.
                             </p>
                         </div>
-                        <Button onClick={handleCreate}>
-                            <Plus className="mr-2 h-4 w-4" /> Nuevo Paquete
+                        <Button onClick={handleCreate} className="bg-balance-olive text-balance-cream hover:bg-balance-olive/90">
+                            <Plus className="mr-2 h-4 w-4" /> Nuevo paquete
                         </Button>
                     </div>
 
-                    <div className="rounded-md border bg-card">
+                    <div className="overflow-hidden rounded-[1.35rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] shadow-[0_18px_58px_-50px_rgba(51,42,34,0.45)]">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -285,7 +286,10 @@ export default function PlansList() {
                                                         : plan.class_limit}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Badge variant={plan.is_active ? 'default' : 'secondary'}>
+                                                    <Badge
+                                                        variant={plan.is_active ? 'default' : 'secondary'}
+                                                        className={plan.is_active ? 'bg-balance-olive text-balance-cream hover:bg-balance-olive' : ''}
+                                                    >
                                                         {plan.is_active ? 'Activo' : 'Inactivo'}
                                                     </Badge>
                                                 </TableCell>
@@ -305,7 +309,7 @@ export default function PlansList() {
                                                             {plan.is_active ? (
                                                                 <DropdownMenuItem
                                                                     onSelect={() => {
-                                                                        if (confirm(`¿Desactivar "${plan.name}"? Dejará de mostrarse en la landing. Las membresías existentes no se afectan.`)) {
+                                                                        if (confirm(`¿Desactivar "${plan.name}"? Dejará de mostrarse en landing, checkout y /app. Las membresías existentes no se afectan.`)) {
                                                                             deactivatePlanMutation.mutate(plan.id);
                                                                         }
                                                                     }}
@@ -320,7 +324,7 @@ export default function PlansList() {
                                                             <DropdownMenuItem
                                                                 className="text-destructive focus:text-destructive"
                                                                 onSelect={() => {
-                                                                    if (confirm(`⚠ ¿Eliminar "${plan.name}" PERMANENTEMENTE?\n\nSolo funciona si no tiene membresías asociadas. Si tiene, usa "Desactivar".`)) {
+                                                                    if (confirm(`¿Eliminar "${plan.name}" permanentemente?\n\nSolo funciona si no tiene membresías asociadas. Si tiene, usa "Desactivar".`)) {
                                                                         hardDeletePlanMutation.mutate(plan.id);
                                                                     }
                                                                 }}
@@ -341,9 +345,9 @@ export default function PlansList() {
                     <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
                         <DialogContent className="max-w-lg">
                             <DialogHeader>
-                                <DialogTitle>{editingPlan ? 'Editar Paquete' : 'Crear Nuevo Paquete'}</DialogTitle>
+                                <DialogTitle>{editingPlan ? 'Editar precio o paquete' : 'Crear precio o paquete'}</DialogTitle>
                                 <DialogDescription>
-                                    Los cambios de precio y vigencia se reflejan en la landing. La vigencia actualiza el fin de membresías activas.
+                                    Los cambios se reflejan en la landing, checkout y /app. La vigencia actualiza el fin de membresías activas.
                                 </DialogDescription>
                             </DialogHeader>
 
@@ -351,7 +355,7 @@ export default function PlansList() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="name">Nombre</Label>
-                                        <Input id="name" {...register('name')} placeholder="Ej. Pack 10 Clases" />
+                                        <Input id="name" {...register('name')} placeholder="Ej. Paquete 8 clases" />
                                         {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
                                     </div>
                                     <div className="space-y-2">
@@ -378,7 +382,7 @@ export default function PlansList() {
                                         )}
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="classLimit">Clases incluidas (vacío = ilimitado)</Label>
+                                        <Label htmlFor="classLimit">Créditos incluidos (vacío = ilimitado)</Label>
                                         <Input id="classLimit" type="number" {...register('classLimit')} placeholder="Ilimitado" />
                                         {errors.classLimit && <p className="text-xs text-destructive">{errors.classLimit.message as string}</p>}
                                     </div>
@@ -396,9 +400,9 @@ export default function PlansList() {
 
                                 <div className="flex items-center justify-between space-x-2 border p-3 rounded-md">
                                     <Label htmlFor="isActive" className="flex flex-col space-y-1">
-                                        <span>Paquete Activo</span>
+                                        <span>Visible y disponible</span>
                                         <span className="font-normal text-xs text-muted-foreground">
-                                            Visible en la landing y disponible para compra
+                                            Visible en landing, checkout y /app
                                         </span>
                                     </Label>
                                     <Controller
@@ -419,7 +423,7 @@ export default function PlansList() {
                                     <Button type="button" variant="outline" onClick={() => handleDialogChange(false)}>
                                         Cancelar
                                     </Button>
-                                    <Button type="submit" disabled={isSubmitting || savePlanMutation.isPending}>
+                                    <Button type="submit" disabled={isSubmitting || savePlanMutation.isPending} className="bg-balance-olive text-balance-cream hover:bg-balance-olive/90">
                                         {(isSubmitting || savePlanMutation.isPending) && (
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         )}

@@ -207,6 +207,7 @@ const App = () => (
 
             <Route path="/admin/classes/schedules" element={<WeeklySchedule />} />
             <Route path="/admin/classes/types" element={<ClassTypesList />} />
+            <Route path="/admin/classes/prices" element={<PlansList />} />
             <Route path="/admin/classes/generate" element={<GenerateClasses />} />
             <Route path="/admin/classes/templates" element={<WorkoutTemplates />} />
 

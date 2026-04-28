@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import api, { getErrorMessage } from '@/lib/api';
@@ -65,16 +65,17 @@ export default function ClassTypesList() {
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
-    const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm<ClassTypeForm>({
+    const { register, handleSubmit, reset, setValue, watch, control, formState: { errors, isSubmitting } } = useForm<ClassTypeForm>({
         resolver: zodResolver(classTypeSchema),
         defaultValues: {
             level: 'all',
             durationMinutes: 60,
-            maxCapacity: 8,
-            color: '#000000',
+            maxCapacity: 6,
+            color: '#7E8579',
             isActive: true,
         },
     });
+    const selectedColor = watch('color');
 
     const { data: classTypes, isLoading } = useQuery<ClassType[]>({
         queryKey: ['class-types'],
@@ -143,7 +144,7 @@ export default function ClassTypesList() {
         setValue('level', item.level);
         setValue('durationMinutes', item.duration_minutes);
         setValue('maxCapacity', item.max_capacity);
-        setValue('color', item.color || '#000000');
+        setValue('color', item.color || '#7E8579');
         setValue('isActive', item.is_active);
         setIsDialogOpen(true);
     };
@@ -158,13 +159,16 @@ export default function ClassTypesList() {
         <AuthGuard requiredRoles={['admin']}>
             <AdminLayout>
                 <div className="space-y-6">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col gap-4 rounded-[1.6rem] border border-balance-olive/25 bg-balance-olive/10 p-5 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h1 className="text-2xl font-heading font-bold">Tipos de Clase</h1>
-                            <p className="text-muted-foreground">Define la oferta y formatos de clases.</p>
+                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-balance-olive">Visible para clientas</p>
+                            <h1 className="mt-1 text-2xl font-bold tracking-tight text-balance-dark">Disciplinas y clases</h1>
+                            <p className="max-w-2xl text-sm text-balance-dark/65">
+                                Edita las clases que se ofrecen en el studio. Las disciplinas activas se usan para agenda, reservas en `/app` y se pueden reflejar en el landing.
+                            </p>
                         </div>
-                        <Button onClick={handleCreate}>
-                            <Plus className="mr-2 h-4 w-4" /> Nuevo Tipo
+                        <Button onClick={handleCreate} className="bg-balance-olive text-balance-cream hover:bg-balance-olive/90">
+                            <Plus className="mr-2 h-4 w-4" /> Nueva disciplina
                         </Button>
                     </div>
 
@@ -251,14 +255,16 @@ export default function ClassTypesList() {
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogContent>
                             <DialogHeader>
-                                <DialogTitle>{editingType ? 'Editar Tipo' : 'Nuevo Tipo de Clase'}</DialogTitle>
-                                <DialogDescription>Configura los detalles de la clase.</DialogDescription>
+                                <DialogTitle>{editingType ? 'Editar disciplina' : 'Nueva disciplina'}</DialogTitle>
+                                <DialogDescription>
+                                    Nombre, color, duración y cupo. Usa 6 lugares para respetar el formato boutique de Balance Room.
+                                </DialogDescription>
                             </DialogHeader>
 
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="name">Nombre</Label>
-                                    <Input id="name" {...register('name')} placeholder="Ej. Balance Room Pilates" />
+                                    <Input id="name" {...register('name')} placeholder="Ej. Hot Pilates" />
                                     {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
                                 </div>
 
@@ -273,7 +279,7 @@ export default function ClassTypesList() {
                                         <Input type="number" id="duration" {...register('durationMinutes')} />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="capacity">Capacidad Máxima</Label>
+                                        <Label htmlFor="capacity">Cupo por clase</Label>
                                         <Input type="number" id="capacity" {...register('maxCapacity')} />
                                     </div>
                                 </div>
@@ -281,37 +287,46 @@ export default function ClassTypesList() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label>Nivel</Label>
-                                        <Select
-                                            onValueChange={(val: any) => setValue('level', val)}
-                                            defaultValue={editingType?.level || 'all'}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Seleccionar nivel" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="beginner">Principiante</SelectItem>
-                                                <SelectItem value="intermediate">Intermedio</SelectItem>
-                                                <SelectItem value="advanced">Avanzado</SelectItem>
-                                                <SelectItem value="all">Todos los niveles</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                        <Controller
+                                            control={control}
+                                            name="level"
+                                            render={({ field }) => (
+                                                <Select value={field.value} onValueChange={field.onChange}>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Seleccionar nivel" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="beginner">Principiante</SelectItem>
+                                                        <SelectItem value="intermediate">Intermedio</SelectItem>
+                                                        <SelectItem value="advanced">Avanzado</SelectItem>
+                                                        <SelectItem value="all">Todos los niveles</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="color">Color (Hex)</Label>
+                                        <Label htmlFor="color">Color en agenda</Label>
                                         <div className="flex gap-2">
-                                            <Input id="color" {...register('color')} placeholder="#000000" />
+                                            <Input id="color" {...register('color')} placeholder="#7E8579" />
                                             <div
                                                 className="w-10 h-10 rounded-md border shrink-0"
-                                                style={{ backgroundColor: isDialogOpen ? (document.getElementById('color') as HTMLInputElement)?.value : '#000' }} // Simple preview
+                                                style={{ backgroundColor: selectedColor || '#7E8579' }}
                                             />
                                         </div>
                                         {errors.color && <p className="text-xs text-destructive">{errors.color.message}</p>}
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between space-x-2 border p-3 rounded-md">
-                                    <Label htmlFor="isActive">Activo</Label>
-                                    <Switch id="isActive" {...register('isActive')} />
+                                <div className="flex items-center justify-between space-x-2 rounded-md border p-3">
+                                    <Label htmlFor="isActive">Visible y disponible</Label>
+                                    <Controller
+                                        control={control}
+                                        name="isActive"
+                                        render={({ field }) => (
+                                            <Switch id="isActive" checked={!!field.value} onCheckedChange={field.onChange} />
+                                        )}
+                                    />
                                 </div>
 
                                 <DialogFooter>
@@ -320,7 +335,7 @@ export default function ClassTypesList() {
                                     </Button>
                                     <Button type="submit" disabled={isSubmitting}>
                                         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                        Guardar
+                                        Guardar disciplina
                                     </Button>
                                 </DialogFooter>
                             </form>

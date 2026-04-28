@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useAuthStore } from '@/stores/authStore';
@@ -30,11 +29,6 @@ import {
     Dumbbell,
     BadgeCheck,
 } from 'lucide-react';
-
-const panelMotion = {
-    hidden: { opacity: 0, y: 14 },
-    visible: { opacity: 1, y: 0 },
-};
 
 export default function AdminDashboard() {
     const { user } = useAuthStore();
@@ -125,22 +119,13 @@ export default function AdminDashboard() {
     return (
         <AuthGuard requiredRoles={['admin', 'instructor']}>
             <AdminLayout>
-                <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    transition={{ staggerChildren: 0.055 }}
-                    className="space-y-6"
-                >
-                    <motion.section
-                        variants={panelMotion}
-                        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-                        className="grid gap-4 lg:grid-cols-[1.45fr_0.55fr]"
-                    >
+                <div className="space-y-6">
+                    <section className="grid gap-4 lg:grid-cols-[1.45fr_0.55fr]">
                         <div className="relative overflow-hidden rounded-[2rem] bg-balance-dark p-6 text-balance-cream shadow-[0_24px_80px_-48px_rgba(51,42,34,0.9)] sm:p-8">
                             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_14%_12%,rgba(207,200,184,0.26),transparent_28%),radial-gradient(circle_at_86%_2%,rgba(126,133,121,0.34),transparent_32%)]" />
                             <div className="relative grid gap-8 xl:grid-cols-[1fr_21rem]">
                                 <div>
-                                    <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-balance-cream/12 bg-balance-cream/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-balance-sand">
+                                    <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-balance-olive/40 bg-balance-olive/20 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-balance-cream">
                                         <Sparkles className="h-3.5 w-3.5" />
                                         Studio en movimiento
                                     </div>
@@ -152,9 +137,9 @@ export default function AdminDashboard() {
                                     </p>
                                 </div>
 
-                                <div className="rounded-[1.5rem] border border-balance-cream/12 bg-balance-cream/8 p-4">
+                                <div className="rounded-[1.5rem] border border-balance-olive/35 bg-balance-olive/14 p-4">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-balance-sand">Atención</span>
+                                        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-balance-cream">Atención</span>
                                         <span className="rounded-full bg-balance-cream px-2.5 py-1 text-xs font-bold text-balance-dark">{totalAttention}</span>
                                     </div>
                                     <div className="mt-5 space-y-3">
@@ -178,7 +163,7 @@ export default function AdminDashboard() {
                         <div className="rounded-[2rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] p-5 shadow-[0_20px_70px_-54px_rgba(51,42,34,0.65)]">
                             <div className="flex items-center justify-between gap-3">
                                 <div>
-                                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-balance-gold">Capacidad</p>
+                                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-balance-olive">Capacidad</p>
                                     <h3 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-balance-dark">Estudios pequeños</h3>
                                 </div>
                                 <div className="flex h-11 w-11 items-center justify-center rounded-[1.1rem] bg-balance-olive/12 text-balance-olive">
@@ -197,14 +182,10 @@ export default function AdminDashboard() {
                                 La navegación prioriza agenda, clientas, paquetes y pagos para operar el studio sin perder contexto entre pantallas.
                             </p>
                         </div>
-                    </motion.section>
+                    </section>
 
                     {totalAttention > 0 && (
-                        <motion.div
-                            variants={panelMotion}
-                            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                            className="grid gap-3 lg:grid-cols-2"
-                        >
+                        <div className="grid gap-3 lg:grid-cols-2">
                             {pendingVerificationOrders.length > 0 && (
                                 <AttentionBanner
                                     icon={Banknote}
@@ -222,21 +203,17 @@ export default function AdminDashboard() {
                                     action="Ver paquetes"
                                 />
                             )}
-                        </motion.div>
+                        </div>
                     )}
 
-                    <motion.section
-                        variants={panelMotion}
-                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                        className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
-                    >
-                        {kpis.map((kpi, index) => (
-                            <MetricCard key={kpi.title} kpi={kpi} loading={statsLoading} index={index} />
+                    <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                        {kpis.map((kpi) => (
+                            <MetricCard key={kpi.title} kpi={kpi} loading={statsLoading} />
                         ))}
-                    </motion.section>
+                    </section>
 
                     <section className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-                        <motion.div variants={panelMotion} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
+                        <div>
                             <PanelShell
                                 title="Movimientos recientes"
                                 description="Asignaciones y cambios de paquetes"
@@ -276,9 +253,9 @@ export default function AdminDashboard() {
                                     )}
                                 </div>
                             </PanelShell>
-                        </motion.div>
+                        </div>
 
-                        <motion.div variants={panelMotion} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
+                        <div>
                             <PanelShell
                                 title="Cobros por resolver"
                                 description="Transferencias, eventos y pagos en físico"
@@ -321,22 +298,18 @@ export default function AdminDashboard() {
                                     )}
                                 </div>
                             </PanelShell>
-                        </motion.div>
+                        </div>
                     </section>
 
                     {birthdays.length > 0 && (
-                        <motion.section
-                            variants={panelMotion}
-                            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                            className="rounded-[2rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] p-5 shadow-[0_20px_70px_-54px_rgba(51,42,34,0.65)]"
-                        >
+                        <section className="rounded-[2rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] p-5 shadow-[0_20px_70px_-54px_rgba(51,42,34,0.65)]">
                             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                                 <div className="flex items-center gap-3">
                                     <div className="flex h-11 w-11 items-center justify-center rounded-[1.1rem] bg-balance-olive/12 text-balance-olive">
                                         <Cake className="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-balance-gold">Comunidad</p>
+                                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-balance-olive">Comunidad</p>
                                         <h3 className="text-lg font-semibold tracking-[-0.03em] text-balance-dark">Cumpleaños del mes</h3>
                                     </div>
                                 </div>
@@ -379,9 +352,9 @@ export default function AdminDashboard() {
                                     );
                                 })}
                             </div>
-                        </motion.section>
+                        </section>
                     )}
-                </motion.div>
+                </div>
             </AdminLayout>
         </AuthGuard>
     );
@@ -432,7 +405,6 @@ function AttentionBanner({
 function MetricCard({
     kpi,
     loading,
-    index,
 }: {
     kpi: {
         title: string;
@@ -442,7 +414,6 @@ function MetricCard({
         tone: string;
     };
     loading: boolean;
-    index: number;
 }) {
     const Icon = kpi.icon;
     const toneClass = {
@@ -453,12 +424,7 @@ function MetricCard({
     }[kpi.tone] || 'bg-balance-cream text-balance-dark';
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.24, delay: index * 0.035, ease: [0.22, 1, 0.36, 1] }}
-            className="group rounded-[1.6rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] p-4 shadow-[0_18px_58px_-48px_rgba(51,42,34,0.72)] transition-all duration-200 hover:-translate-y-0.5 hover:border-balance-olive/35"
-        >
+        <div className="group rounded-[1.6rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] p-4 shadow-[0_18px_58px_-48px_rgba(51,42,34,0.72)] transition-all duration-200 hover:-translate-y-0.5 hover:border-balance-olive/35">
             <div className="flex items-center justify-between gap-3">
                 <span className="text-sm font-semibold text-balance-dark/62">{kpi.title}</span>
                 <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] ${toneClass}`}>
@@ -473,7 +439,7 @@ function MetricCard({
                 </p>
             )}
             <p className="mt-1 text-xs font-medium text-balance-dark/50">{kpi.detail}</p>
-        </motion.div>
+        </div>
     );
 }
 
