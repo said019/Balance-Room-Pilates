@@ -6,10 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, CheckCircle, XCircle, RefreshCw, Send, QrCode, PowerOff, Smartphone } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, RefreshCw, Send, QrCode, PowerOff, Smartphone, KeyRound } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import api from '@/lib/api';
+import api, { getAdminApiToken, setAdminApiToken, removeAdminApiToken } from '@/lib/api';
 
 interface WhatsAppStatus {
     provider: string;
@@ -32,6 +32,28 @@ export default function WhatsAppSettings() {
     const [testPhone, setTestPhone] = useState('');
     const [testMessage, setTestMessage] = useState('');
     const [qrCode, setQrCode] = useState<string | null>(null);
+    const [adminTokenInput, setAdminTokenInput] = useState('');
+    const [hasAdminToken, setHasAdminToken] = useState(() => Boolean(getAdminApiToken()));
+
+    const handleSaveAdminToken = () => {
+        const value = adminTokenInput.trim();
+        if (!value) {
+            toast({ title: 'Token vacío', description: 'Pega el ADMIN_API_TOKEN del backend.', variant: 'destructive' });
+            return;
+        }
+        setAdminApiToken(value);
+        setHasAdminToken(true);
+        setAdminTokenInput('');
+        toast({ title: 'Token guardado', description: 'Reintentando estado…' });
+        queryClient.invalidateQueries({ queryKey: ['whatsapp-status'] });
+    };
+
+    const handleClearAdminToken = () => {
+        removeAdminApiToken();
+        setHasAdminToken(false);
+        toast({ title: 'Token eliminado' });
+        queryClient.invalidateQueries({ queryKey: ['whatsapp-status'] });
+    };
 
     // Query: Estado de conexión
     const { data: status, isLoading: isLoadingStatus, refetch: refetchStatus } = useQuery<WhatsAppStatus>({
@@ -158,6 +180,55 @@ export default function WhatsAppSettings() {
                     Configura la conexión de WhatsApp para enviar notificaciones automáticas
                 </p>
             </div>
+
+            {/* Admin API token (acceso a balance-room-api /evolution/*) */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <KeyRound className="w-5 h-5" />
+                        Admin API Token
+                    </CardTitle>
+                    <CardDescription>
+                        Token compartido que protege los endpoints <code>/api/evolution/*</code> del backend.
+                        Lo encuentras en Railway → variable <code>ADMIN_API_TOKEN</code>. Se guarda solo en este navegador.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                    {hasAdminToken ? (
+                        <Alert>
+                            <CheckCircle className="w-4 h-4" />
+                            <AlertTitle>Token configurado</AlertTitle>
+                            <AlertDescription>
+                                Las llamadas a Evolution se autorizan correctamente desde este navegador.
+                            </AlertDescription>
+                        </Alert>
+                    ) : (
+                        <Alert variant="destructive">
+                            <XCircle className="w-4 h-4" />
+                            <AlertTitle>Token no configurado</AlertTitle>
+                            <AlertDescription>
+                                Pega el token para poder ver el estado y generar el QR.
+                            </AlertDescription>
+                        </Alert>
+                    )}
+                    <div className="flex gap-2">
+                        <Input
+                            type="password"
+                            placeholder="ADMIN_API_TOKEN"
+                            value={adminTokenInput}
+                            onChange={(e) => setAdminTokenInput(e.target.value)}
+                        />
+                        <Button onClick={handleSaveAdminToken} disabled={!adminTokenInput.trim()}>
+                            Guardar
+                        </Button>
+                        {hasAdminToken && (
+                            <Button variant="outline" onClick={handleClearAdminToken}>
+                                Limpiar
+                            </Button>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Estado de conexión */}
             <Card>

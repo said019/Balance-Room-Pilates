@@ -15,6 +15,20 @@ const api = axios.create({
 
 // Token storage key
 const TOKEN_KEY = 'forma_pilates_token';
+// Admin API token (separate from JWT) used by /evolution endpoints in balance-room-api
+const ADMIN_TOKEN_KEY = 'balance_room_admin_token';
+
+export function getAdminApiToken(): string | null {
+    return localStorage.getItem(ADMIN_TOKEN_KEY);
+}
+
+export function setAdminApiToken(token: string): void {
+    localStorage.setItem(ADMIN_TOKEN_KEY, token);
+}
+
+export function removeAdminApiToken(): void {
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
+}
 
 // Get stored token
 export function getStoredToken(): string | null {
@@ -38,6 +52,11 @@ api.interceptors.request.use(
         if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+        // Attach admin token for /evolution/* endpoints (balance-room-api)
+        const adminToken = getAdminApiToken();
+        if (adminToken && config.headers && (config.url || '').startsWith('/evolution')) {
+            config.headers['x-admin-token'] = adminToken;
+        }
         return config;
     },
     (error) => {
@@ -51,10 +70,14 @@ api.interceptors.response.use(
     (error: AxiosError<ApiError>) => {
         // Handle 401 - unauthorized
         if (error.response?.status === 401) {
-            removeStoredToken();
-            // Redirect to login if not already there
-            if (window.location.pathname !== '/login') {
-                window.location.href = '/login';
+            // Skip session bust for admin-token endpoints (Evolution): a 401 there
+            // means "wrong/missing admin token", not "expired user session".
+            const reqUrl = (error.config?.url || '').toString();
+            if (!reqUrl.startsWith('/evolution')) {
+                removeStoredToken();
+                if (window.location.pathname !== '/login') {
+                    window.location.href = '/login';
+                }
             }
         }
         return Promise.reject(error);
