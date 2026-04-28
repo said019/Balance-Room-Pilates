@@ -196,6 +196,7 @@ const App = () => (
             <Route path="/app/events" element={<ClientEvents />} />
 
             {/* Admin Routes */}
+            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/events" element={<EventsManager />} />
             <Route path="/admin/discount-codes" element={<DiscountCodes />} />

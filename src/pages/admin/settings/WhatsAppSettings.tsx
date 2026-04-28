@@ -44,7 +44,7 @@ export default function WhatsAppSettings() {
         setAdminApiToken(value);
         setHasAdminToken(true);
         setAdminTokenInput('');
-        toast({ title: 'Token guardado', description: 'Reintentando estado…' });
+        toast({ title: 'Token guardado', description: 'Reintentando estado...' });
         queryClient.invalidateQueries({ queryKey: ['whatsapp-status'] });
     };
 
@@ -190,7 +190,7 @@ export default function WhatsAppSettings() {
                     </CardTitle>
                     <CardDescription>
                         Token compartido que protege los endpoints <code>/api/evolution/*</code> del backend.
-                        Lo encuentras en Railway → variable <code>ADMIN_API_TOKEN</code>. Se guarda solo en este navegador.
+                        Lo encuentras en Railway, variable <code>ADMIN_API_TOKEN</code>. Se guarda solo en este navegador.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
