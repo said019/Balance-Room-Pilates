@@ -22,7 +22,6 @@ import { AuthGuard } from '@/components/layout/AuthGuard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
     Select,
     SelectContent,
@@ -50,7 +49,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
 import {
     Loader2, ChevronLeft, ChevronRight, Calendar as CalendarIcon,
-    Plus, Repeat, Users, Trash2, QrCode, Check, X, Edit, Phone, Mail
+    Plus, Repeat, Users, Trash2, Check, Edit, Phone, Clock, MapPin, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -87,12 +86,6 @@ type GenerateForm = z.infer<typeof generateSchema>;
 type ClassForm = z.infer<typeof classSchema>;
 type EditClassForm = z.infer<typeof editClassSchema>;
 
-const qrSchema = z.object({
-    qrPayload: z.string().min(1, 'Escanea o pega el QR'),
-});
-
-type QrForm = z.infer<typeof qrSchema>;
-
 interface Attendee {
     booking_id: string;
     status: string;
@@ -115,10 +108,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const [isGenerateOpen, setIsGenerateOpen] = useState(initialGenerateOpen);
     const [isClassOpen, setIsClassOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
-    const [isQrOpen, setIsQrOpen] = useState(false);
     const [isAttendeesOpen, setIsAttendeesOpen] = useState(false);
     const [selectedClass, setSelectedClass] = useState<Class | null>(null);
-    const [qrResult, setQrResult] = useState<any>(null);
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
@@ -247,18 +238,6 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
     });
 
-    const qrCheckinMutation = useMutation({
-        mutationFn: async (data: QrForm) => api.post('/checkin/qr', data),
-        onSuccess: (response) => {
-            setQrResult(response.data);
-            toast({ title: 'Check-in realizado', description: response.data?.message || 'Asistencia registrada.' });
-        },
-        onError: (err) => {
-            setQrResult(null);
-            toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) });
-        },
-    });
-
     // Forms
     // Calculate next full week (Sunday to Saturday)
     const nextSunday = startOfWeek(addDays(new Date(), 7), { weekStartsOn: 0 });
@@ -274,16 +253,11 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
 
     const classForm = useForm<ClassForm>({
         resolver: zodResolver(classSchema),
-        defaultValues: { maxCapacity: 8 }
+        defaultValues: { maxCapacity: 6 }
     });
 
     const editForm = useForm<EditClassForm>({
         resolver: zodResolver(editClassSchema),
-    });
-
-    const qrForm = useForm<QrForm>({
-        resolver: zodResolver(qrSchema),
-        defaultValues: { qrPayload: '' }
     });
 
     const handlePrevWeek = () => setCurrentDate(addDays(currentDate, -7));
@@ -291,7 +265,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const handleToday = () => setCurrentDate(new Date());
 
     const handleDayClick = (day: Date) => {
-        classForm.reset({ date: day, maxCapacity: 8, startTime: '09:00', endTime: '10:00' });
+        classForm.reset({ date: day, maxCapacity: 6, startTime: '09:00', endTime: '10:00' });
         setIsClassOpen(true);
     };
 
@@ -346,131 +320,178 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
     });
 
-    // ... existing logic ...
+    const weekDays = Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
+    const activeClasses = classes?.filter((c) => c.status !== 'cancelled') || [];
+    const totalBookings = activeClasses.reduce((sum, c) => sum + Number(c.current_bookings || 0), 0);
+    const totalCapacity = activeClasses.reduce((sum, c) => sum + Number(c.max_capacity || 0), 0);
+    const openSpots = Math.max(totalCapacity - totalBookings, 0);
+    const weekRange = `${format(weekStart, 'd MMM', { locale: es })} al ${format(addDays(weekStart, 6), 'd MMM yyyy', { locale: es })}`;
+    const occupancy = totalCapacity > 0 ? Math.round((totalBookings / totalCapacity) * 100) : 0;
 
     return (
         <AuthGuard requiredRoles={['admin', 'instructor']}>
             <AdminLayout>
-                <div className="space-y-6 h-[calc(100vh-140px)] flex flex-col">
-                    <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
-                        <div className="flex items-center gap-2">
-                            <h1 className="text-2xl font-heading font-bold capitalize">
-                                {format(currentDate, 'MMMM yyyy', { locale: es })}
-                            </h1>
-                            <div className="flex items-center border rounded-md bg-card ml-4">
-                                <Button variant="ghost" size="icon" onClick={handlePrevWeek}>
-                                    <ChevronLeft className="h-4 w-4" />
+                <div className="space-y-5">
+                    <section className="overflow-hidden rounded-[2rem] border border-balance-olive/25 bg-balance-olive/10 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)]">
+                        <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-end lg:justify-between">
+                            <div className="min-w-0">
+                                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-balance-olive/25 bg-balance-cream/55 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-balance-olive">
+                                    <Sparkles className="h-3.5 w-3.5" />
+                                    Semana activa
+                                </div>
+                                <h1 className="text-3xl font-semibold capitalize tracking-[-0.04em] text-balance-dark">
+                                    {format(currentDate, 'MMMM yyyy', { locale: es })}
+                                </h1>
+                                <p className="mt-1 text-sm text-balance-dark/62">{weekRange}</p>
+                            </div>
+
+                            <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[29rem]">
+                                <CalendarStat label="Clases" value={activeClasses.length} />
+                                <CalendarStat label="Reservas" value={totalBookings} />
+                                <CalendarStat label="Cupos libres" value={openSpots} />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-3 border-t border-balance-olive/18 bg-balance-cream/36 p-4 xl:flex-row xl:items-center xl:justify-between">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <div className="flex items-center overflow-hidden rounded-full border border-balance-sand/65 bg-balance-cream/75">
+                                    <Button variant="ghost" size="icon" className="rounded-full" onClick={handlePrevWeek}>
+                                        <ChevronLeft className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" className="rounded-full px-4 font-semibold" onClick={handleToday}>
+                                        Hoy
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="rounded-full" onClick={handleNextWeek}>
+                                        <ChevronRight className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                <Badge variant="outline" className="rounded-full border-balance-olive/30 bg-balance-olive/10 px-3 py-1 text-balance-olive">
+                                    {occupancy}% ocupación
+                                </Badge>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                                <Button
+                                    variant="outline"
+                                    className="border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                    onClick={() => {
+                                        if (confirm('¿Borrar todas las clases vacías de esta semana visible?')) {
+                                            bulkDeleteMutation.mutate();
+                                        }
+                                    }}
+                                    disabled={bulkDeleteMutation.isPending}
+                                >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    {bulkDeleteMutation.isPending ? 'Borrando...' : 'Limpiar semana'}
                                 </Button>
-                                <Button variant="ghost" className="px-3" onClick={handleToday}>
-                                    Hoy
+
+                                <Button variant="outline" className="border-balance-sand/70 bg-balance-cream/70" onClick={() => setIsGenerateOpen(true)}>
+                                    <Repeat className="mr-2 h-4 w-4" /> Generar semana
                                 </Button>
-                                <Button variant="ghost" size="icon" onClick={handleNextWeek}>
-                                    <ChevronRight className="h-4 w-4" />
+                                <Button className="bg-balance-olive text-balance-cream hover:bg-balance-olive/90" onClick={() => handleDayClick(new Date())}>
+                                    <Plus className="mr-2 h-4 w-4" /> Nueva clase
                                 </Button>
                             </div>
                         </div>
-                        <div className="flex gap-2">
-                            <Button variant="outline" onClick={() => setIsQrOpen(true)}>
-                                <QrCode className="mr-2 h-4 w-4" /> Check-in QR
-                            </Button>
+                    </section>
 
-                            <Button
-                                variant="outline"
-                                className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
-                                onClick={() => {
-                                    if (confirm('¿Estás seguro de BORRAR todas las clases vacías de esta semana visible?')) {
-                                        bulkDeleteMutation.mutate();
-                                    }
-                                }}
-                                disabled={bulkDeleteMutation.isPending}
-                            >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                {bulkDeleteMutation.isPending ? 'Borrando...' : 'Limpiar Semana'}
-                            </Button>
-
-                            <Button variant="outline" onClick={() => setIsGenerateOpen(true)}>
-                                <Repeat className="mr-2 h-4 w-4" /> Generar Semanal
-                            </Button>
-                            <Button onClick={() => handleDayClick(new Date())}>
-                                <Plus className="mr-2 h-4 w-4" /> Nueva Clase
-                            </Button>
-                        </div>
-                    </div>
-
-                    <div className="flex-1 border rounded-lg bg-card overflow-hidden flex flex-col">
-                        {/* Header Days */}
-                        <div className="grid grid-cols-7 border-b divide-x">
-                            {Array.from({ length: 7 }).map((_, i) => {
-                                const day = addDays(weekStart, i);
-                                const isToday = isSameDay(day, new Date());
-                                const isClosed = closedDaySet.has(format(day, 'yyyy-MM-dd'));
-                                return (
-                                    <div key={i} className={cn("p-3 text-center", isToday && "bg-primary/5", isClosed && "bg-destructive/5")}>
-                                        <div className="text-sm font-medium text-muted-foreground">{DAYS[i]}</div>
-                                        <div className={cn("text-xl font-bold rounded-full w-8 h-8 mx-auto flex items-center justify-center mt-1", isToday && "bg-primary text-primary-foreground")}>
-                                            {format(day, 'd')}
-                                        </div>
-                                        {isClosed && (
-                                            <div className="text-[10px] font-semibold text-destructive mt-1">Cerrado</div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        {/* Calendar Grid */}
-                        <div className="grid grid-cols-7 flex-1 divide-x overflow-y-auto">
-                            {Array.from({ length: 7 }).map((_, i) => {
-                                const day = addDays(weekStart, i);
-                                const dayClasses = getClassesForDay(day);
-                                const isClosed = closedDaySet.has(format(day, 'yyyy-MM-dd'));
-                                const closedReason = getClosedReason(day);
-                                return (
-                                    <div key={i} className={cn("min-h-[500px] p-2 space-y-2 hover:bg-muted/10 transition-colors", isClosed && "bg-destructive/5")}>
-                                        {isClosed && (
-                                            <div className="text-xs text-destructive font-medium text-center py-1.5 bg-destructive/10 rounded-md">
-                                                {closedReason || 'Cerrado'}
-                                            </div>
-                                        )}
-                                        {dayClasses.map(c => (
-                                            <div
-                                                key={c.id}
-                                                onClick={() => handleClassClick(c)}
+                    <div className="overflow-hidden rounded-[1.75rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)]">
+                        <div className="overflow-x-auto">
+                            <div className="min-w-[980px]">
+                                <div className="grid grid-cols-7 border-b border-balance-sand/60 bg-balance-cream/55">
+                                    {weekDays.map((day, i) => {
+                                        const isToday = isSameDay(day, new Date());
+                                        const isClosed = closedDaySet.has(format(day, 'yyyy-MM-dd'));
+                                        const dayClasses = getClassesForDay(day);
+                                        return (
+                                            <button
+                                                key={format(day, 'yyyy-MM-dd')}
+                                                type="button"
+                                                onClick={() => handleDayClick(day)}
                                                 className={cn(
-                                                    "p-2 rounded-md border text-sm shadow-sm transition-all hover:shadow-md cursor-pointer group hover:scale-[1.02]",
-                                                    c.status === 'cancelled' ? "opacity-50 bg-muted" : "bg-card"
+                                                    'min-h-[6.75rem] border-r border-balance-sand/55 p-4 text-left transition-colors last:border-r-0 hover:bg-balance-olive/8',
+                                                    isToday && 'bg-balance-olive/12',
+                                                    isClosed && 'bg-destructive/5'
                                                 )}
-                                                style={{ borderLeftColor: c.class_type_color || '#ccc', borderLeftWidth: '4px' }}
                                             >
-                                                <div className="flex justify-between items-start">
-                                                    <div className="font-semibold">{c.start_time}</div>
-                                                    {c.status === 'cancelled' && (
-                                                        <Badge variant="destructive" className="text-[10px] h-4">Cancelada</Badge>
-                                                    )}
-                                                </div>
-                                                <div className="font-medium truncate mt-1">{c.class_type_name}</div>
-                                                <div className="text-xs text-muted-foreground truncate">{c.instructor_name}</div>
-                                                <div className="text-xs mt-2 flex items-center justify-between">
-                                                    <span className="flex items-center gap-1 text-muted-foreground">
-                                                        <Users className="h-3 w-3" /> {c.current_bookings}/{c.max_capacity}
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div>
+                                                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-balance-dark/50">{DAYS[i]}</p>
+                                                        <div className="mt-2 flex items-center gap-2">
+                                                            <span className={cn(
+                                                                'flex h-10 w-10 items-center justify-center rounded-full text-xl font-semibold tabular-nums text-balance-dark',
+                                                                isToday && 'bg-balance-olive text-balance-cream'
+                                                            )}>
+                                                                {format(day, 'd')}
+                                                            </span>
+                                                            {isClosed && (
+                                                                <Badge variant="destructive" className="rounded-full text-[10px]">Cerrado</Badge>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <span className="rounded-full bg-balance-cream px-2.5 py-1 text-[11px] font-semibold text-balance-dark/58">
+                                                        {dayClasses.length} clase{dayClasses.length === 1 ? '' : 's'}
                                                     </span>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
 
-                                        <Button
-                                            variant="ghost"
-                                            className="w-full h-8 text-xs border-dashed border opacity-0 hover:opacity-100"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDayClick(day);
-                                            }}
-                                        >
-                                            <Plus className="h-3 w-3" />
-                                        </Button>
-                                    </div>
-                                );
-                            })}
+                                <div className="grid grid-cols-7">
+                                    {weekDays.map((day) => {
+                                        const dayClasses = getClassesForDay(day);
+                                        const isClosed = closedDaySet.has(format(day, 'yyyy-MM-dd'));
+                                        const closedReason = getClosedReason(day);
+                                        return (
+                                            <div
+                                                key={format(day, 'yyyy-MM-dd')}
+                                                className={cn(
+                                                    'min-h-[34rem] border-r border-balance-sand/55 bg-balance-cream/18 p-3 last:border-r-0',
+                                                    isClosed && 'bg-destructive/5'
+                                                )}
+                                            >
+                                                {isClosed && (
+                                                    <div className="mb-3 rounded-[1rem] border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
+                                                        {closedReason || 'Studio cerrado'}
+                                                    </div>
+                                                )}
+
+                                                <div className="space-y-2.5">
+                                                    {dayClasses.map(c => (
+                                                        <ClassEventCard key={c.id} item={c} onClick={() => handleClassClick(c)} />
+                                                    ))}
+                                                </div>
+
+                                                {dayClasses.length === 0 && !isClosed && (
+                                                    <button
+                                                        type="button"
+                                                        className="mt-2 flex min-h-[10rem] w-full flex-col items-center justify-center rounded-[1.1rem] border border-dashed border-balance-sand/70 bg-balance-cream/35 text-center text-balance-dark/48 transition-colors hover:border-balance-olive/40 hover:bg-balance-olive/8 hover:text-balance-olive"
+                                                        onClick={() => handleDayClick(day)}
+                                                    >
+                                                        <Plus className="mb-2 h-4 w-4" />
+                                                        <span className="text-xs font-semibold">Agregar clase</span>
+                                                    </button>
+                                                )}
+
+                                                {dayClasses.length > 0 && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        className="mt-3 h-9 w-full rounded-full border border-dashed border-balance-sand/65 text-xs text-balance-dark/55 hover:border-balance-olive/40 hover:bg-balance-olive/8 hover:text-balance-olive"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDayClick(day);
+                                                        }}
+                                                    >
+                                                        <Plus className="mr-1.5 h-3.5 w-3.5" />
+                                                        Agregar
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -881,69 +902,81 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                         </DialogContent>
                     </Dialog>
 
-                    {/* QR Check-in Dialog */}
-                    <Dialog
-                        open={isQrOpen}
-                        onOpenChange={(open) => {
-                            setIsQrOpen(open);
-                            if (!open) {
-                                setQrResult(null);
-                                qrForm.reset();
-                            }
-                        }}
-                    >
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Check-in con QR</DialogTitle>
-                                <DialogDescription>
-                                    Escanea o pega el QR del pase del cliente para registrar asistencia.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <form
-                                onSubmit={qrForm.handleSubmit((data) => qrCheckinMutation.mutate(data))}
-                                className="space-y-4"
-                            >
-                                <div className="space-y-2">
-                                    <Label>QR Payload</Label>
-                                    <Textarea
-                                        rows={4}
-                                        placeholder="Pega el contenido del QR aqui"
-                                        {...qrForm.register('qrPayload')}
-                                    />
-                                    {qrForm.formState.errors.qrPayload && (
-                                        <p className="text-xs text-destructive">
-                                            {qrForm.formState.errors.qrPayload.message}
-                                        </p>
-                                    )}
-                                </div>
-
-                                {qrResult?.success && qrResult.member && qrResult.class && (
-                                    <div className="rounded-lg border border-success/30 bg-success/10 p-3 text-sm text-success">
-                                        <div className="font-medium">Check-in exitoso: {qrResult.member.name}</div>
-                                        <div>
-                                            {qrResult.class.name} - {qrResult.class.date} - {qrResult.class.start_time}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <DialogFooter>
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        onClick={() => setIsQrOpen(false)}
-                                    >
-                                        Cerrar
-                                    </Button>
-                                    <Button type="submit" disabled={qrCheckinMutation.isPending}>
-                                        {qrCheckinMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                        Registrar Check-in
-                                    </Button>
-                                </DialogFooter>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
                 </div>
             </AdminLayout>
         </AuthGuard>
     );
+}
+
+function CalendarStat({ label, value }: { label: string; value: number }) {
+    return (
+        <div className="rounded-[1.15rem] border border-balance-olive/16 bg-balance-cream/55 px-4 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-balance-dark/48">{label}</p>
+            <p className="mt-1 text-2xl font-semibold tabular-nums tracking-[-0.04em] text-balance-dark">{value}</p>
+        </div>
+    );
+}
+
+function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void }) {
+    const color = item.class_type_color || '#7E8579';
+    const bookings = Number(item.current_bookings || 0);
+    const capacity = Number(item.max_capacity || 0);
+    const ratio = capacity > 0 ? Math.min((bookings / capacity) * 100, 100) : 0;
+    const isCancelled = item.status === 'cancelled';
+
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className={cn(
+                'group w-full rounded-[1.1rem] border p-3 text-left shadow-[0_14px_42px_-34px_rgba(51,42,34,0.7)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_52px_-36px_rgba(51,42,34,0.82)]',
+                isCancelled && 'opacity-55'
+            )}
+            style={{
+                borderColor: `${color}66`,
+                background: `linear-gradient(180deg, ${color}1F 0%, rgba(243,238,226,0.68) 100%)`,
+            }}
+        >
+            <div className="flex items-start justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2">
+                    <span className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
+                    <span className="truncate text-sm font-semibold text-balance-dark">{formatClassTime(item.start_time)}</span>
+                </div>
+                {isCancelled ? (
+                    <Badge variant="destructive" className="rounded-full text-[10px]">Cancelada</Badge>
+                ) : (
+                    <span className="rounded-full bg-balance-cream/75 px-2 py-0.5 text-[10px] font-semibold text-balance-dark/55">
+                        {bookings}/{capacity}
+                    </span>
+                )}
+            </div>
+
+            <p className="mt-2 truncate text-sm font-semibold leading-5 text-balance-dark">{item.class_type_name}</p>
+            <div className="mt-2 space-y-1.5 text-[11px] text-balance-dark/56">
+                <p className="flex min-w-0 items-center gap-1.5">
+                    <Users className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{item.instructor_name || 'Coach por asignar'}</span>
+                </p>
+                <p className="flex min-w-0 items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{item.facility_name || 'Studio'}</span>
+                </p>
+                <p className="flex min-w-0 items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5 shrink-0" />
+                    <span>{formatClassTime(item.start_time)} a {formatClassTime(item.end_time)}</span>
+                </p>
+            </div>
+
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-balance-dark/10">
+                <div
+                    className="h-full rounded-full transition-[width] duration-300"
+                    style={{ width: `${ratio}%`, backgroundColor: color }}
+                />
+            </div>
+        </button>
+    );
+}
+
+function formatClassTime(value?: string) {
+    return value?.slice(0, 5) || '--:--';
 }
