@@ -1,9 +1,9 @@
 export const walletRewards = [
-  { id: '1', name: 'Calcetines antideslizantes', points: 200, icon: '🧦', category: 'Merch' },
-  { id: '2', name: 'Clase gratis', points: 500, icon: '🎁', category: 'Clases' },
-  { id: '3', name: 'Masaje 30 min', points: 1000, icon: '💆', category: 'Wellness' },
-  { id: '4', name: 'Botella termo', points: 350, icon: '🥤', category: 'Merch' },
-  { id: '5', name: 'Clase privada', points: 1500, icon: '⭐', category: 'Premium' },
+  { id: '1', name: 'Calcetines antideslizantes', points: 200, icon: 'socks', category: 'Merch' },
+  { id: '2', name: 'Clase gratis', points: 500, icon: 'gift', category: 'Clases' },
+  { id: '3', name: 'Masaje 30 min', points: 1000, icon: 'wellness', category: 'Wellness' },
+  { id: '4', name: 'Botella termo', points: 350, icon: 'bottle', category: 'Merch' },
+  { id: '5', name: 'Clase privada', points: 1500, icon: 'premium', category: 'Premium' },
 ];
 
 export const walletActivity = [

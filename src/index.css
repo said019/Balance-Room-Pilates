@@ -198,6 +198,20 @@
     font-family: var(--font-body);
   }
 
+  .client-app-shell {
+    font-family: var(--font-body);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .client-app-shell h1,
+  .client-app-shell h2,
+  .client-app-shell h3,
+  .client-app-shell h4,
+  .client-app-shell h5,
+  .client-app-shell h6 {
+    font-family: var(--font-body);
+  }
+
   .admin-shell::after {
     content: "";
     position: fixed;

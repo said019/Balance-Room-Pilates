@@ -8,7 +8,7 @@ import type { BookingClient } from '@/types/booking';
 import { ClientLayout } from '@/components/layout/ClientLayout';
 import { AuthGuard } from '@/components/layout/AuthGuard';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Clock, Users, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, Users, Check, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,7 +26,7 @@ export default function BookClasses() {
     const startStr = format(weekStart, 'yyyy-MM-dd');
     const endStr = format(addDays(weekStart, 6), 'yyyy-MM-dd');
 
-    const { data: classes } = useQuery<Class[]>({
+    const { data: classes, isLoading } = useQuery<Class[]>({
         queryKey: ['classes-public', startStr, endStr],
         queryFn: async () => {
             const { data } = await api.get(`/classes?start=${startStr}&end=${endStr}`);
@@ -56,37 +56,69 @@ export default function BookClasses() {
         const classDateTime = parseISO(`${c.date.slice(0, 10)}T${c.start_time}`);
         return classDateTime.getTime() <= Date.now();
     };
+    const weekDays = Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
+    const activeClasses = classes?.filter((c) => c.status !== 'cancelled') || [];
+    const availableClasses = activeClasses.filter((c) => c.current_bookings < c.max_capacity && !isClassPast(c));
+    const weekRange = `${format(weekStart, 'd MMM', { locale: es })} al ${format(addDays(weekStart, 6), 'd MMM yyyy', { locale: es })}`;
 
     return (
         <AuthGuard requiredRoles={['client']}>
             <ClientLayout>
-                <div className="space-y-6 pb-8">
-                    {/* Header */}
-                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                        <div>
-                            <h1 className="text-2xl font-bold font-heading">Reservar Clases</h1>
-                            <p className="text-muted-foreground text-sm">Selecciona una clase para reservar</p>
+                <div className="space-y-5 pb-8">
+                    <section className="overflow-hidden rounded-[2rem] border border-balance-olive/25 bg-balance-olive/10 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)]">
+                        <div className="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between">
+                            <div>
+                                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-balance-olive/25 bg-balance-cream/65 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-balance-olive">
+                                    <Sparkles className="h-3.5 w-3.5" />
+                                    Agenda boutique
+                                </div>
+                                <h1 className="text-3xl font-semibold tracking-[-0.04em] text-balance-dark sm:text-4xl">Reservar clase</h1>
+                                <p className="mt-1 text-sm text-balance-dark/62">{weekRange}</p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2 sm:min-w-[18rem]">
+                                <div className="rounded-[1.15rem] border border-balance-olive/16 bg-balance-cream/60 px-4 py-3">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-balance-dark/46">Disponibles</p>
+                                    <p className="mt-1 text-2xl font-semibold tabular-nums text-balance-dark">{availableClasses.length}</p>
+                                </div>
+                                <div className="rounded-[1.15rem] border border-balance-olive/16 bg-balance-cream/60 px-4 py-3">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-balance-dark/46">Semana</p>
+                                    <p className="mt-1 text-2xl font-semibold tabular-nums text-balance-dark">{activeClasses.length}</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="flex items-center gap-2 bg-muted/50 rounded-full p-1">
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={handlePrevWeek}>
-                                <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <span className="px-3 font-medium text-sm min-w-[120px] text-center capitalize">
+                        <div className="flex items-center justify-between border-t border-balance-olive/18 bg-balance-cream/36 p-4">
+                            <div className="text-sm font-medium capitalize text-balance-dark/64">
                                 {format(currentDate, 'MMMM yyyy', { locale: es })}
-                            </span>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={handleNextWeek}>
-                                <ChevronRight className="h-4 w-4" />
-                            </Button>
+                            </div>
+                            <div className="flex items-center overflow-hidden rounded-full border border-balance-sand/65 bg-balance-cream/75">
+                                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full" onClick={handlePrevWeek}>
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" className="h-9 rounded-full px-4 text-sm font-semibold" onClick={() => setCurrentDate(new Date())}>
+                                    Hoy
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full" onClick={handleNextWeek}>
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
+                            </div>
                         </div>
-                    </div>
+                    </section>
 
-                    {/* Calendar Grid - Desktop: 7 cols, Mobile: horizontal scroll */}
-                    {/* Mobile: horizontal scroll view */}
+                    {isLoading && (
+                        <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-7">
+                            {Array.from({ length: 7 }).map((_, i) => (
+                                <div key={i} className="h-64 animate-pulse rounded-[1.5rem] bg-balance-cream/55" />
+                            ))}
+                        </div>
+                    )}
+
+                    {!isLoading && (
+                    <>
                     <div className="sm:hidden">
                         <div className="flex overflow-x-auto gap-2 pb-3 snap-x snap-mandatory -mx-4 px-4">
-                            {Array.from({ length: 7 }).map((_, i) => {
-                                const day = addDays(weekStart, i);
+                            {weekDays.map((day, i) => {
                                 const isToday = isSameDay(day, new Date());
                                 const isPastDay = isPast(day) && !isToday;
                                 const dayClasses = getClassesForDay(day);
@@ -95,34 +127,34 @@ export default function BookClasses() {
                                     <div 
                                         key={`mobile-${i}`}
                                         className={cn(
-                                            "flex-shrink-0 w-[160px] snap-start rounded-xl border overflow-hidden",
-                                            isToday && "border-primary ring-2 ring-primary/20",
-                                            !isToday && "border-border",
+                                            "w-[170px] flex-shrink-0 snap-start overflow-hidden rounded-[1.4rem] border bg-[hsl(var(--card))]/90 shadow-[0_16px_46px_-38px_rgba(51,42,34,0.7)]",
+                                            isToday && "border-balance-olive ring-2 ring-balance-olive/15",
+                                            !isToday && "border-balance-sand/65",
                                             isPastDay && "opacity-50"
                                         )}
                                     >
                                         {/* Day header */}
                                         <div className={cn(
-                                            "text-center py-2",
-                                            isToday && "bg-primary text-primary-foreground",
-                                            !isToday && "bg-muted/50"
+                                            "px-3 py-3 text-left",
+                                            isToday && "bg-balance-olive text-balance-cream",
+                                            !isToday && "bg-balance-cream/55"
                                         )}>
                                             <div className={cn(
                                                 "text-[10px] font-medium tracking-wider",
-                                                isToday ? "text-primary-foreground/80" : "text-muted-foreground"
+                                                isToday ? "text-balance-cream/80" : "text-balance-dark/52"
                                             )}>
                                                 {DAYS[i]}
                                             </div>
                                             <div className={cn(
                                                 "text-lg font-bold",
-                                                isToday ? "text-primary-foreground" : "text-foreground"
+                                                isToday ? "text-balance-cream" : "text-balance-dark"
                                             )}>
                                                 {format(day, 'd')}
                                             </div>
                                         </div>
 
                                         {/* Classes */}
-                                        <div className="p-2 space-y-2 min-h-[200px]">
+                                        <div className="min-h-[220px] space-y-2 p-2">
                                             {dayClasses.map(c => {
                                                 const booked = isBooked(c.id);
                                                 const full = c.current_bookings >= c.max_capacity;
@@ -136,10 +168,10 @@ export default function BookClasses() {
                                                         disabled={cancelled || full || pastTime}
                                                         onClick={() => !booked && !full && !cancelled && !pastTime && navigate(`/app/book/${c.id}`)}
                                                         className={cn(
-                                                            "w-full rounded-lg transition-all text-left overflow-hidden border shadow-sm",
-                                                            booked && "bg-gradient-to-r from-success/10 to-success/10 border-success/30",
-                                                            !booked && !full && !cancelled && !pastTime && "bg-card hover:shadow-md cursor-pointer border-border",
-                                                            (full || cancelled || pastTime) && !booked && "bg-muted/50 border-border/50 cursor-not-allowed opacity-60"
+                                                            "w-full overflow-hidden rounded-[1rem] border text-left transition-all duration-200",
+                                                            booked && "border-balance-olive/30 bg-balance-olive/10",
+                                                            !booked && !full && !cancelled && !pastTime && "cursor-pointer border-balance-sand/65 bg-balance-cream/50 hover:-translate-y-0.5 hover:border-balance-olive/35 hover:bg-balance-cream/80",
+                                                            (full || cancelled || pastTime) && !booked && "cursor-not-allowed border-balance-sand/45 bg-muted/40 opacity-60"
                                                         )}
                                                     >
                                                         <div className="h-1 w-full" style={{ backgroundColor: c.class_type_color || '#9ca3af' }} />
@@ -178,8 +210,7 @@ export default function BookClasses() {
                     {/* Desktop: 7-column grid */}
                     <div className="hidden sm:grid grid-cols-7 gap-2">
                         {/* Day Headers */}
-                        {Array.from({ length: 7 }).map((_, i) => {
-                            const day = addDays(weekStart, i);
+                        {weekDays.map((day, i) => {
                             const isToday = isSameDay(day, new Date());
                             const isPastDay = isPast(day) && !isToday;
 
@@ -187,21 +218,21 @@ export default function BookClasses() {
                                 <div 
                                     key={`header-${i}`} 
                                     className={cn(
-                                        "text-center py-3 rounded-t-xl",
-                                        isToday && "bg-primary text-primary-foreground",
-                                        !isToday && "bg-muted/50"
+                                        "rounded-t-[1.4rem] border border-balance-sand/60 px-3 py-3 text-left",
+                                        isToday && "border-balance-olive bg-balance-olive text-balance-cream",
+                                        !isToday && "bg-balance-cream/55"
                                     )}
                                 >
                                     <div className={cn(
                                         "text-[10px] font-medium tracking-wider",
-                                        isToday ? "text-primary-foreground/80" : "text-muted-foreground",
+                                        isToday ? "text-balance-cream/80" : "text-balance-dark/52",
                                         isPastDay && "opacity-50"
                                     )}>
                                         {DAYS[i]}
                                     </div>
                                     <div className={cn(
                                         "text-lg font-bold",
-                                        isToday ? "text-primary-foreground" : "text-foreground",
+                                        isToday ? "text-balance-cream" : "text-balance-dark",
                                         isPastDay && "opacity-50"
                                     )}>
                                         {format(day, 'd')}
@@ -211,8 +242,7 @@ export default function BookClasses() {
                         })}
 
                         {/* Classes for each day */}
-                        {Array.from({ length: 7 }).map((_, i) => {
-                            const day = addDays(weekStart, i);
+                        {weekDays.map((day, i) => {
                             const isToday = isSameDay(day, new Date());
                             const isPastDay = isPast(day) && !isToday;
                             const dayClasses = getClassesForDay(day);
@@ -221,9 +251,9 @@ export default function BookClasses() {
                                 <div 
                                     key={`classes-${i}`} 
                                     className={cn(
-                                        "min-h-[280px] p-1 sm:p-2 rounded-b-xl border-x border-b",
-                                        isToday && "bg-primary/5 border-primary/20",
-                                        !isToday && "bg-card",
+                                        "min-h-[30rem] rounded-b-[1.4rem] border-x border-b border-balance-sand/60 p-2",
+                                        isToday && "border-balance-olive/35 bg-balance-olive/8",
+                                        !isToday && "bg-[hsl(var(--card))]/88",
                                         isPastDay && "opacity-60"
                                     )}
                                 >
@@ -241,11 +271,10 @@ export default function BookClasses() {
                                                     disabled={cancelled || full || pastTime}
                                                     onClick={() => !booked && !full && !cancelled && !pastTime && navigate(`/app/book/${c.id}`)}
                                                     className={cn(
-                                                        "w-full rounded-lg transition-all text-left overflow-hidden",
-                                                        "border shadow-sm",
-                                                        booked && "bg-gradient-to-r from-success/10 to-success/10 border-success/30 dark:from-success/40 dark:to-success/40 dark:border-success/30",
-                                                        !booked && !full && !cancelled && !pastTime && "bg-card hover:shadow-md hover:scale-[1.02] cursor-pointer border-border",
-                                                        (full || cancelled || pastTime) && !booked && "bg-muted/50 border-border/50 cursor-not-allowed opacity-60"
+                                                        "w-full overflow-hidden rounded-[1rem] border text-left transition-all duration-200",
+                                                        booked && "border-balance-olive/30 bg-balance-olive/10",
+                                                        !booked && !full && !cancelled && !pastTime && "cursor-pointer border-balance-sand/65 bg-balance-cream/45 hover:-translate-y-0.5 hover:border-balance-olive/35 hover:bg-balance-cream/80",
+                                                        (full || cancelled || pastTime) && !booked && "cursor-not-allowed border-balance-sand/45 bg-muted/40 opacity-60"
                                                     )}
                                                 >
                                                     {/* Color bar */}
@@ -266,7 +295,7 @@ export default function BookClasses() {
                                                             {booked && (
                                                                 <div className="flex items-center gap-0.5 text-success dark:text-success">
                                                                     <Check className="h-3 w-3" />
-                                                                    <span className="text-[10px] font-medium hidden sm:inline">Reservado</span>
+                                                                    <span className="hidden text-[10px] font-medium sm:inline">Reservado</span>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -305,7 +334,7 @@ export default function BookClasses() {
                     </div>
 
                     {/* Legend */}
-                    <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground pt-2">
+                    <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-xs text-balance-dark/55">
                         <div className="flex items-center gap-1.5">
                             <div className="w-3 h-3 rounded bg-gradient-to-r from-success/10 to-success/10 border border-success/30" />
                             <span>Reservado</span>
@@ -319,6 +348,8 @@ export default function BookClasses() {
                             <span>Lleno / Pasado</span>
                         </div>
                     </div>
+                    </>
+                    )}
                 </div>
             </ClientLayout>
         </AuthGuard>

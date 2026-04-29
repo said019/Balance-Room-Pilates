@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import {
-    Loader2, Calendar, Clock, User
+    Loader2, Calendar, Clock, User, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -53,30 +53,27 @@ export default function MyBookings() {
     const history = bookings?.filter(b => isPast(parseISO(`${b.date}T${b.end_time}`)) || b.booking_status === 'cancelled') || [];
 
     const BookingCard = ({ booking, isHistory = false }: { booking: BookingClient, isHistory?: boolean }) => (
-        <div className={cn("flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg bg-card gap-4 overflow-hidden relative",
+        <div className={cn("flex flex-col gap-4 rounded-[1.4rem] border border-balance-sand/65 bg-[hsl(var(--card))]/88 p-4 shadow-[0_16px_48px_-40px_rgba(51,42,34,0.68)] transition-all duration-200 md:flex-row md:items-center md:justify-between",
             booking.booking_status === 'cancelled' && "opacity-60 bg-muted/20"
         )}>
-            {/* Color indicator bar */}
-            {booking.class_type_color && (
+            <div className="flex items-start gap-4">
                 <div 
-                    className="absolute left-0 top-0 bottom-0 w-1"
-                    style={{ backgroundColor: booking.class_type_color }}
-                />
-            )}
-            <div className="flex gap-4 items-start pl-2">
-                <div 
-                    className="flex flex-col items-center justify-center min-w-[60px] p-2 rounded-md"
+                    className="flex min-w-[64px] flex-col items-center justify-center rounded-[1.1rem] border px-3 py-2"
                     style={{ 
                         backgroundColor: booking.class_type_color ? `${booking.class_type_color}20` : 'hsl(var(--muted) / 0.2)',
+                        borderColor: booking.class_type_color ? `${booking.class_type_color}55` : 'hsl(var(--border))',
                         color: booking.class_type_color || 'inherit'
                     }}
                 >
                     <span className="text-xs uppercase font-medium">{format(parseISO(booking.date), 'MMM', { locale: es })}</span>
                     <span className="text-xl font-bold">{format(parseISO(booking.date), 'd')}</span>
                 </div>
-                <div>
-                    <h3 className="font-semibold text-lg">{booking.class_type_name}</h3>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1">
+                <div className="min-w-0">
+                    <div className="mb-1 flex items-center gap-2">
+                        <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: booking.class_type_color || '#7E8579' }} />
+                        <h3 className="truncate text-lg font-semibold tracking-[-0.02em] text-balance-dark">{booking.class_type_name}</h3>
+                    </div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-balance-dark/58">
                         <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
                             {booking.start_time.slice(0, 5)} - {booking.end_time.slice(0, 5)}
@@ -92,14 +89,14 @@ export default function MyBookings() {
                 </div>
             </div>
 
-            <div className="flex items-center gap-3">
-                <Button variant="ghost" size="sm" asChild>
+            <div className="flex items-center gap-2 md:justify-end">
+                <Button variant="ghost" size="sm" className="rounded-full" asChild>
                     <Link to={`/app/classes/${booking.booking_id}`}>Ver detalle</Link>
                 </Button>
                 {!isHistory && booking.booking_status === 'confirmed' && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                            <Button variant="outline" size="sm" className="rounded-full border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive">
                                 Cancelar
                             </Button>
                         </AlertDialogTrigger>
@@ -128,24 +125,38 @@ export default function MyBookings() {
         <AuthGuard requiredRoles={['client']}>
             <ClientLayout>
                 <div className="space-y-6">
-                    <h1 className="text-2xl font-bold font-heading">Mis Clases</h1>
+                    <section className="rounded-[2rem] border border-balance-olive/25 bg-balance-olive/10 p-5 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)] sm:p-6">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                            <div>
+                                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-balance-olive/25 bg-balance-cream/65 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-balance-olive">
+                                    <Sparkles className="h-3.5 w-3.5" />
+                                    Tu asistencia
+                                </div>
+                                <h1 className="text-3xl font-semibold tracking-[-0.04em] text-balance-dark sm:text-4xl">Mis clases</h1>
+                                <p className="mt-1 text-sm text-balance-dark/62">Consulta próximas reservas, historial y cancelaciones.</p>
+                            </div>
+                            <Button asChild className="bg-balance-olive text-balance-cream hover:bg-balance-olive/90">
+                                <Link to="/app/book">Reservar clase</Link>
+                            </Button>
+                        </div>
+                    </section>
 
                     <Tabs defaultValue="upcoming">
-                        <TabsList>
+                        <TabsList className="rounded-full bg-balance-cream/65 p-1">
                             <TabsTrigger value="upcoming">Próximas ({upcoming.length})</TabsTrigger>
                             <TabsTrigger value="history">Historial</TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="upcoming" className="mt-4 space-y-4">
-                            {isLoading && <div className="text-center py-8"><Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" /></div>}
+                            {isLoading && <div className="py-8 text-center"><Loader2 className="mx-auto h-8 w-8 animate-spin text-balance-olive" /></div>}
 
                             {!isLoading && upcoming.length === 0 && (
-                                <div className="text-center py-12 border rounded-lg bg-muted/10">
-                                    <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                                <div className="rounded-[1.5rem] border border-dashed border-balance-sand/70 bg-balance-cream/35 py-12 text-center">
+                                    <Calendar className="mx-auto mb-4 h-12 w-12 text-balance-olive/55" />
                                     <h3 className="text-lg font-medium">No tienes clases próximas</h3>
                                     <p className="text-muted-foreground mb-4">Explora el calendario y reserva tu próxima sesión.</p>
-                                    <Button asChild>
-                                        <Link to="/app/book">Reservar Clase</Link>
+                                    <Button asChild className="bg-balance-olive text-balance-cream hover:bg-balance-olive/90">
+                                        <Link to="/app/book">Reservar clase</Link>
                                     </Button>
                                 </div>
                             )}

@@ -24,6 +24,7 @@ import {
   RefreshCw,
   Sparkles,
   Play,
+  Leaf,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -125,33 +126,41 @@ export default function ClientDashboard() {
     <AuthGuard requiredRoles={['client']}>
       <ClientLayout>
         <div className="space-y-6">
-          {/* Header with gradient */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-balance-dark via-[#3D3229] to-balance-dark p-6">
-            <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-balance-gold/[0.08] blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full bg-balance-olive/[0.1] blur-3xl" />
-            <div className="relative z-10">
-              <h1 className="text-2xl font-heading font-bold text-white">
-                ¡Hola, {user?.display_name?.split(' ')[0] || 'bienvenido'}! 👋
-              </h1>
-              <p className="text-balance-sand/60 font-body text-sm mt-1">
-                Bienvenido de vuelta a Balance Room Pilates
-              </p>
+          <section className="relative overflow-hidden rounded-[2rem] border border-balance-olive/25 bg-balance-olive/10 p-5 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)] sm:p-7">
+            <div className="relative grid gap-6 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
+              <div>
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-balance-olive/25 bg-balance-cream/65 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-balance-olive">
+                  <Leaf className="h-3.5 w-3.5" />
+                  Tu espacio Balance
+                </div>
+                <h1 className="max-w-2xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-balance-dark sm:text-4xl">
+                  Hola, {user?.display_name?.split(' ')[0] || 'bienvenida'}. Tu siguiente clase empieza desde aquí.
+                </h1>
+                <p className="mt-3 max-w-[58ch] text-sm leading-6 text-balance-dark/62">
+                  Reserva, revisa tus créditos y consulta tus recompensas en una experiencia pensada para clases pequeñas.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <DashboardMiniStat label="Clases" value={upcomingClasses.length} />
+                <DashboardMiniStat label="Puntos" value={pointsBalance} />
+                <DashboardMiniStat label="Créditos" value={classesRemaining ?? 0} />
+              </div>
             </div>
-          </div>
+          </section>
 
           {/* Membership Card — Premium feel */}
-          <Card className={`relative overflow-hidden ${isExpiredOrCancelled || isOutOfCredits ? 'border-amber-300/40 bg-gradient-to-br from-amber-50/80 via-white to-orange-50/30' : 'border-balance-gold/20 bg-gradient-to-br from-balance-cream via-white to-balance-sand/10'}`}>
-            <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-balance-gold/[0.06] blur-2xl" />
+          <Card className={`relative overflow-hidden rounded-[1.75rem] shadow-[0_18px_58px_-50px_rgba(51,42,34,0.58)] ${isExpiredOrCancelled || isOutOfCredits ? 'border-amber-300/40 bg-amber-50/70' : 'border-balance-olive/22 bg-[hsl(var(--card))]/88'}`}>
             <CardHeader className="pb-2 relative z-10">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-heading">Tu Membresía</CardTitle>
+                <CardTitle className="text-lg">Tu membresía</CardTitle>
                 <Badge
                   variant={membership?.status === 'active' ? 'default' : 'secondary'}
                   className={
                     isOutOfCredits
                       ? 'bg-amber-100 text-amber-700 border border-amber-300 rounded-lg'
                       : membership?.status === 'active'
-                        ? 'bg-emerald-600 rounded-lg'
+                        ? 'bg-balance-olive rounded-lg text-balance-cream'
                         : isExpiredOrCancelled
                           ? 'bg-amber-100 text-amber-700 border border-amber-300 rounded-lg'
                           : 'rounded-lg'
@@ -160,7 +169,7 @@ export default function ClientDashboard() {
                   {isOutOfCredits ? 'Sin créditos' : membership ? statusLabel[membership.status] : 'Sin membresía'}
                 </Badge>
               </div>
-              <CardDescription className="font-body">{membership?.plan_name || 'Activa tu plan para comenzar'}</CardDescription>
+              <CardDescription>{membership?.plan_name || 'Activa tu plan para comenzar'}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 relative z-10">
               {membershipLoading ? (
@@ -182,7 +191,7 @@ export default function ClientDashboard() {
                       </p>
                     </div>
                   </div>
-                  <Button asChild className="w-full rounded-xl bg-balance-gold hover:bg-balance-gold/90 shadow-md">
+                  <Button asChild className="w-full rounded-xl bg-balance-olive text-balance-cream hover:bg-balance-olive/90">
                     <Link to="/app/checkout">
                       <Plus className="h-4 w-4 mr-2" />
                       Comprar más clases
@@ -202,7 +211,7 @@ export default function ClientDashboard() {
                       </p>
                     </div>
                   </div>
-                  <Button asChild className="w-full rounded-xl bg-balance-gold hover:bg-balance-gold/90 shadow-md">
+                  <Button asChild className="w-full rounded-xl bg-balance-olive text-balance-cream hover:bg-balance-olive/90">
                     <Link to="/app/checkout">
                       <RefreshCw className="h-4 w-4 mr-2" />
                       Renovar membresía
@@ -255,25 +264,25 @@ export default function ClientDashboard() {
           </Card>
 
           <div className="grid grid-cols-2 gap-3">
-            <Button asChild size="lg" className="h-auto py-5 flex-col gap-2 rounded-xl bg-balance-gold hover:bg-balance-gold/90 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+            <Button asChild size="lg" className="h-auto rounded-[1.35rem] bg-balance-olive py-5 text-balance-cream shadow-[0_18px_40px_-30px_rgba(51,42,34,0.85)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-balance-olive/90">
               <Link to="/app/book">
                 <Plus className="h-5 w-5" />
-                <span className="font-body font-semibold">Reservar Clase</span>
+                <span className="font-semibold">Reservar clase</span>
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="h-auto py-5 flex-col gap-2 rounded-xl border-balance-sand/40 hover:border-balance-gold/40 hover:bg-balance-gold/5 transition-all duration-300 hover:-translate-y-0.5">
+            <Button asChild variant="outline" size="lg" className="h-auto rounded-[1.35rem] border-balance-olive/25 bg-balance-cream/55 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-balance-olive/40 hover:bg-balance-olive/8">
               <Link to="/app/wallet">
-                <Gift className="h-5 w-5 text-balance-gold" />
-                <span className="font-body font-semibold">Lealtad</span>
+                <Gift className="h-5 w-5 text-balance-olive" />
+                <span className="font-semibold">Lealtad</span>
               </Link>
             </Button>
           </div>
 
-          <Card className="border-border/60 hover:shadow-md transition-shadow duration-300">
+          <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.58)] transition-shadow duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-heading">Próximas Clases</CardTitle>
-                <Button variant="ghost" size="sm" className="font-body rounded-xl" asChild>
+                <CardTitle className="text-lg">Próximas clases</CardTitle>
+                <Button variant="ghost" size="sm" className="rounded-xl" asChild>
                   <Link to="/app/classes">
                     Ver todas
                     <ChevronRight className="ml-1 h-4 w-4" />
@@ -292,17 +301,11 @@ export default function ClientDashboard() {
                   {upcomingClasses.map((cls) => (
                     <div
                       key={cls.booking_id}
-                      className="flex items-center justify-between p-3 rounded-xl bg-muted/40 overflow-hidden relative hover:bg-muted/60 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm"
+                      className="flex items-center justify-between rounded-[1.15rem] border border-balance-sand/55 bg-balance-cream/45 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:bg-balance-cream/70"
                     >
-                      {cls.class_type_color && (
+                      <div className="flex min-w-0 items-center gap-3">
                         <div 
-                          className="absolute left-0 top-0 bottom-0 w-1"
-                          style={{ backgroundColor: cls.class_type_color }}
-                        />
-                      )}
-                      <div className="flex items-center gap-3 pl-2">
-                        <div 
-                          className="h-10 w-10 rounded-full flex items-center justify-center"
+                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem]"
                           style={{ 
                             backgroundColor: cls.class_type_color ? `${cls.class_type_color}20` : 'hsl(var(--primary) / 0.1)'
                           }}
@@ -313,9 +316,9 @@ export default function ClientDashboard() {
                           />
                         </div>
                         <div>
-                          <p className="font-medium">{cls.class_type_name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {format(parseISO(cls.date), 'EEE d MMM', { locale: es })} • {cls.start_time.slice(0, 5)} • {cls.instructor_name}
+                          <p className="truncate font-semibold text-balance-dark">{cls.class_type_name}</p>
+                          <p className="truncate text-sm text-balance-dark/55">
+                            {format(parseISO(cls.date), 'EEE d MMM', { locale: es })} · {cls.start_time.slice(0, 5)} · {cls.instructor_name}
                           </p>
                         </div>
                       </div>
@@ -327,9 +330,9 @@ export default function ClientDashboard() {
                 </div>
               ) : (
                 <div className="text-center py-6">
-                  <Calendar className="h-10 w-10 mx-auto text-muted-foreground/50" />
-                  <p className="mt-2 text-muted-foreground">No tienes clases próximas</p>
-                  <Button asChild className="mt-4">
+                  <Calendar className="mx-auto h-10 w-10 text-balance-olive/60" />
+                  <p className="mt-2 text-balance-dark/58">No tienes clases próximas</p>
+                  <Button asChild className="mt-4 bg-balance-olive text-balance-cream hover:bg-balance-olive/90">
                     <Link to="/app/book">Reservar ahora</Link>
                   </Button>
                 </div>
@@ -339,23 +342,23 @@ export default function ClientDashboard() {
 
           {/* Videos On-Demand */}
           {latestVideos && latestVideos.length > 0 && (
-            <Card className="border-border/60 hover:shadow-md transition-shadow duration-300">
+            <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.58)]">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2 font-heading">
-                    <div className="h-8 w-8 rounded-xl bg-balance-gold/10 flex items-center justify-center">
-                      <Play className="h-4 w-4 text-balance-gold" />
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-balance-olive/10">
+                      <Play className="h-4 w-4 text-balance-olive" />
                     </div>
-                    Videos On-Demand
+                    Videos on-demand
                   </CardTitle>
-                  <Button variant="ghost" size="sm" className="font-body rounded-xl" asChild>
+                  <Button variant="ghost" size="sm" className="rounded-xl" asChild>
                     <Link to="/app/videos">
                       Ver todos
                       <ChevronRight className="ml-1 h-4 w-4" />
                     </Link>
                   </Button>
                 </div>
-                <CardDescription className="font-body">Rutinas y técnica disponibles para ti</CardDescription>
+                <CardDescription>Rutinas y técnica disponibles para ti</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-3">
@@ -395,14 +398,14 @@ export default function ClientDashboard() {
             </Card>
           )}
 
-          <Card className="border-balance-gold/20 hover:shadow-md transition-shadow duration-300">
+          <Card className="rounded-[1.75rem] border-balance-olive/25 bg-balance-olive/8 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.58)]">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2 font-heading">
-                  <Sparkles className="h-5 w-5 text-balance-gold" />
+                  <Sparkles className="h-5 w-5 text-balance-olive" />
                   Lealtad
                 </CardTitle>
-                <span className="text-2xl font-bold text-balance-gold font-heading">{pointsBalance} pts</span>
+                <span className="text-2xl font-semibold text-balance-olive">{pointsBalance} pts</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -431,7 +434,7 @@ export default function ClientDashboard() {
                   Sin recompensas configuradas por ahora.
                 </div>
               )}
-              <Button variant="outline" asChild className="w-full rounded-xl border-balance-gold/20 hover:border-balance-gold/40 hover:bg-balance-gold/5 font-body">
+              <Button variant="outline" asChild className="w-full rounded-xl border-balance-olive/25 bg-balance-cream/55 hover:border-balance-olive/40 hover:bg-balance-olive/8">
                 <Link to="/app/wallet">
                   Ver recompensas
                   <ChevronRight className="ml-1 h-4 w-4" />
@@ -442,5 +445,14 @@ export default function ClientDashboard() {
         </div>
       </ClientLayout>
     </AuthGuard>
+  );
+}
+
+function DashboardMiniStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-[1.15rem] border border-balance-olive/16 bg-balance-cream/60 px-3 py-3">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-balance-dark/46">{label}</p>
+      <p className="mt-1 text-2xl font-semibold tabular-nums tracking-[-0.04em] text-balance-dark">{value}</p>
+    </div>
   );
 }

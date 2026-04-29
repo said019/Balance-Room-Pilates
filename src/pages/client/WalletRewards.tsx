@@ -17,7 +17,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
 import api, { getErrorMessage } from '@/lib/api';
-import { ArrowLeft, Gift, Loader2, Star } from 'lucide-react';
+import { ArrowLeft, Gift, Loader2, Star, Sparkles, BadgePercent, CalendarPlus, Package, Award } from 'lucide-react';
 
 interface LoyaltyReward {
   id: string;
@@ -46,12 +46,12 @@ const rewardTypeLabels: Record<string, string> = {
   membership_extension: 'Membresía',
 };
 
-const rewardTypeIcons: Record<string, string> = {
-  discount: '💸',
-  free_class: '🎁',
-  product: '🛍️',
-  membership_extension: '⭐',
-};
+const rewardTypeIcons = {
+  discount: BadgePercent,
+  free_class: CalendarPlus,
+  product: Package,
+  membership_extension: Award,
+} as const;
 
 export default function WalletRewards() {
   const [selectedReward, setSelectedReward] = useState<LoyaltyReward | null>(null);
@@ -120,26 +120,31 @@ export default function WalletRewards() {
     <AuthGuard requiredRoles={['client']}>
       <ClientLayout>
         <div className="space-y-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <section className="rounded-[2rem] border border-balance-olive/25 bg-balance-olive/10 p-5 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)] sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h1 className="text-2xl font-heading font-bold">Recompensas</h1>
-              <p className="text-muted-foreground">Canjea tus puntos por beneficios exclusivos.</p>
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-balance-olive/25 bg-balance-cream/65 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-balance-olive">
+                <Sparkles className="h-3.5 w-3.5" />
+                Beneficios
+              </div>
+              <h1 className="text-3xl font-semibold tracking-[-0.04em] text-balance-dark sm:text-4xl">Recompensas</h1>
+              <p className="mt-1 text-sm text-balance-dark/62">Canjea tus puntos por beneficios exclusivos.</p>
             </div>
             <div className="flex flex-col gap-2 sm:items-end">
-              <div className="rounded-xl border bg-card px-4 py-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Star className="h-4 w-4 text-balance-gold fill-balance-gold" />
+              <div className="rounded-[1.25rem] border border-balance-olive/16 bg-balance-cream/60 px-4 py-3">
+                <div className="flex items-center gap-2 text-sm text-balance-dark/55">
+                  <Star className="h-4 w-4 fill-balance-olive text-balance-olive" />
                   Puntos disponibles
                 </div>
                 {walletLoading ? (
                   <Skeleton className="mt-2 h-7 w-24" />
                 ) : (
-                  <p className="mt-1 text-2xl font-bold text-balance-gold">
+                  <p className="mt-1 text-2xl font-semibold text-balance-olive">
                     {pointsBalance} pts
                   </p>
                 )}
               </div>
-              <Button variant="ghost" asChild>
+              <Button variant="ghost" className="rounded-full" asChild>
                 <Link to="/app/wallet">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Volver
@@ -147,6 +152,7 @@ export default function WalletRewards() {
               </Button>
             </div>
           </div>
+          </section>
 
           {walletIsError && (
             <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
@@ -165,7 +171,7 @@ export default function WalletRewards() {
               No pudimos cargar las recompensas. {getErrorMessage(rewardsError)}
             </div>
           ) : activeRewards.length === 0 ? (
-            <Card>
+            <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88">
               <CardContent className="py-12 text-center">
                 <Gift className="mx-auto h-10 w-10 text-muted-foreground/50" />
                 <p className="mt-3 font-medium">Sin recompensas configuradas</p>
@@ -185,10 +191,10 @@ export default function WalletRewards() {
                 return (
                   <Card
                     key={reward.id}
-                    className={`overflow-hidden transition-colors ${
+                    className={`overflow-hidden rounded-[1.5rem] transition-colors ${
                       rewardCanRedeem
-                        ? 'border-emerald-200 bg-emerald-50/50 dark:border-emerald-900/40 dark:bg-emerald-950/20'
-                        : 'bg-muted/20'
+                        ? 'border-balance-olive/30 bg-balance-olive/10'
+                        : 'border-balance-sand/60 bg-[hsl(var(--card))]/88'
                     }`}
                   >
                     <CardHeader className="pb-2">
@@ -200,13 +206,18 @@ export default function WalletRewards() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="text-4xl">{rewardTypeIcons[reward.reward_type] || '✨'}</div>
+                      <div className="flex h-12 w-12 items-center justify-center rounded-[1rem] bg-balance-cream text-balance-olive">
+                        {(() => {
+                          const Icon = rewardTypeIcons[reward.reward_type as keyof typeof rewardTypeIcons] || Sparkles;
+                          return <Icon className="h-5 w-5" />;
+                        })()}
+                      </div>
                       <p className="min-h-10 text-sm text-muted-foreground">
                         {reward.description || 'Beneficio disponible para miembros del programa de lealtad.'}
                       </p>
                       <div className="flex items-center justify-between rounded-xl border bg-background/70 p-3">
                         <span className="text-sm text-muted-foreground">Costo</span>
-                        <span className="font-semibold text-balance-gold">{reward.points_cost} pts</span>
+                        <span className="font-semibold text-balance-olive">{reward.points_cost} pts</span>
                       </div>
                       {reward.stock !== null && (
                         <p className="text-xs text-muted-foreground">

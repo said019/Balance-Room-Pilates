@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
-import { Calendar, Clock, User } from 'lucide-react';
+import { Calendar, Clock, User, Sparkles } from 'lucide-react';
 
 interface BookingDetail {
   booking_id: string;
@@ -66,15 +66,21 @@ export default function ClassBookingDetail() {
     <AuthGuard requiredRoles={['client']}>
       <ClientLayout>
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
+          <section className="rounded-[2rem] border border-balance-olive/25 bg-balance-olive/10 p-5 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)] sm:p-6">
+          <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold font-heading">Detalle de clase</h1>
-              <p className="text-muted-foreground">Información de tu reserva.</p>
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-balance-olive/25 bg-balance-cream/65 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-balance-olive">
+                <Sparkles className="h-3.5 w-3.5" />
+                Reserva
+              </div>
+              <h1 className="text-3xl font-semibold tracking-[-0.04em] text-balance-dark sm:text-4xl">Detalle de clase</h1>
+              <p className="mt-1 text-sm text-balance-dark/62">Información de tu reserva.</p>
             </div>
-            <Button variant="ghost" asChild>
+            <Button variant="ghost" className="rounded-full bg-balance-cream/60" asChild>
               <Link to="/app/classes">Volver</Link>
             </Button>
           </div>
+          </section>
 
           {isLoading ? (
             <Skeleton className="h-40 w-full" />
@@ -85,14 +91,8 @@ export default function ClassBookingDetail() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="overflow-hidden relative">
-              {data.class_type_color && (
-                <div 
-                  className="absolute left-0 top-0 bottom-0 w-1.5"
-                  style={{ backgroundColor: data.class_type_color }}
-                />
-              )}
-              <CardHeader className="pl-6">
+            <Card className="relative overflow-hidden rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.58)]">
+              <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-3">
                     {data.class_type_color && (
@@ -103,10 +103,10 @@ export default function ClassBookingDetail() {
                     )}
                     {data.class_name}
                   </CardTitle>
-                  <Badge variant="outline">{statusLabel[data.booking_status] || data.booking_status}</Badge>
+                  <Badge variant="outline" className="rounded-full border-balance-olive/25 bg-balance-olive/8 text-balance-olive">{statusLabel[data.booking_status] || data.booking_status}</Badge>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4 pl-6">
+              <CardContent className="space-y-4">
                 <div className="flex items-center gap-3 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span className="capitalize">
@@ -135,7 +135,7 @@ export default function ClassBookingDetail() {
           {data?.booking_status === 'confirmed' && (
             <Button
               variant="outline"
-              className="text-destructive hover:text-destructive"
+              className="rounded-full border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive"
               onClick={() => cancelMutation.mutate()}
               disabled={cancelMutation.isPending}
             >
