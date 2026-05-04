@@ -24,6 +24,8 @@ interface ClassDetail {
   class_type_color: string;
   instructor_name: string;
   instructor_photo: string | null;
+  is_free?: boolean;
+  free_label?: string | null;
 }
 
 export default function BookClassConfirm() {
@@ -83,19 +85,26 @@ export default function BookClassConfirm() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="overflow-hidden border-0 shadow-md">
+            <Card className={`overflow-hidden border-0 shadow-md ${data.is_free ? 'ring-2 ring-green-300' : ''}`}>
               {/* Color band from class type */}
               <div
                 className="h-2"
-                style={{ backgroundColor: data.class_type_color || '#A48550' }}
+                style={{ backgroundColor: data.is_free ? '#16a34a' : (data.class_type_color || '#A48550') }}
               />
               <CardContent className="pt-5 space-y-4">
-                <h2
-                  className="text-xl font-bold font-heading"
-                  style={{ color: data.class_type_color || '#322A1E' }}
-                >
-                  {data.class_type_name}
-                </h2>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h2
+                    className="text-xl font-bold font-heading"
+                    style={{ color: data.is_free ? '#15803d' : (data.class_type_color || '#322A1E') }}
+                  >
+                    {data.class_type_name}
+                  </h2>
+                  {data.is_free && (
+                    <span className="rounded-full bg-green-600 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
+                      {data.free_label || 'Gratis'}
+                    </span>
+                  )}
+                </div>
 
                 <div className="flex items-center gap-3 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -125,9 +134,16 @@ export default function BookClassConfirm() {
                   <Users className="h-4 w-4" />
                   <span>Lugares: {data.current_bookings}/{data.max_capacity}</span>
                 </div>
-                <p className="text-xs text-muted-foreground pt-1 border-t">
-                  * Se descontará 1 crédito de tu membresía activa.
-                </p>
+                {data.is_free ? (
+                  <p className="text-xs font-semibold text-green-700 pt-1 border-t border-green-200 flex items-center gap-1.5">
+                    <span className="text-green-600">✓</span>
+                    Esta clase es gratis. No se descontará ningún crédito.
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground pt-1 border-t">
+                    * Se descontará 1 crédito de tu membresía activa.
+                  </p>
+                )}
               </CardContent>
             </Card>
           )}
