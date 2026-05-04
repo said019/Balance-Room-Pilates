@@ -117,6 +117,9 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isAttendeesOpen, setIsAttendeesOpen] = useState(false);
     const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+    const [classTypeFilter, setClassTypeFilter] = useState<string>('all');
+    const [userSearch, setUserSearch] = useState('');
+    const [searchActive, setSearchActive] = useState(false);
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
@@ -145,10 +148,29 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         enabled: !!selectedClass?.id && isAttendeesOpen,
     });
 
+    const { data: userSearchResults, isFetching: userSearchLoading } = useQuery<{ users: { id: string; display_name: string; email: string; photo_url: string | null }[] }>({
+        queryKey: ['user-search', userSearch],
+        queryFn: async () => (await api.get(`/users?search=${encodeURIComponent(userSearch)}&limit=8`)).data,
+        enabled: searchActive && userSearch.trim().length >= 2,
+    });
+
+    const adminBookMutation = useMutation({
+        mutationFn: async ({ classId, userId }: { classId: string; userId: string }) =>
+            api.post('/bookings/admin-book', { classId, userId }),
+        onSuccess: () => {
+            refetchAttendees();
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+            toast({ title: 'Usuario agregado a la clase' });
+            setUserSearch('');
+            setSearchActive(false);
+        },
+        onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
+    });
+
     const startStr = format(weekStart, 'yyyy-MM-dd');
     const endStr = format(addDays(weekStart, 6), 'yyyy-MM-dd');
 
-    const { data: classes, isLoading } = useQuery<Class[]>({
+    const { data: classes } = useQuery<Class[]>({
         queryKey: ['classes', startStr, endStr],
         queryFn: async () => {
             const { data } = await api.get(`/classes?start=${startStr}&end=${endStr}`);
@@ -331,10 +353,11 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     };
 
     const getClassesForDay = (day: Date) => {
-        // Parse date safely — handle both "YYYY-MM-DD" and "YYYY-MM-DDT00:00:00.000Z" formats
         return classes?.filter(c => {
-            const dateStr = (c.date || '').split('T')[0]; // Extract YYYY-MM-DD from any format
-            return isSameDay(parseISO(dateStr + 'T00:00:00'), day);
+            const dateStr = (c.date || '').split('T')[0];
+            const dateMatch = isSameDay(parseISO(dateStr + 'T00:00:00'), day);
+            const typeMatch = classTypeFilter === 'all' || c.class_type_id === classTypeFilter;
+            return dateMatch && typeMatch;
         }) || [];
     };
 
@@ -439,6 +462,46 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                             </div>
                         </div>
                     </section>
+
+                    {classTypes && classTypes.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-2 px-1">
+                            <button
+                                type="button"
+                                onClick={() => setClassTypeFilter('all')}
+                                className={cn(
+                                    'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
+                                    classTypeFilter === 'all'
+                                        ? 'border-balance-olive bg-balance-olive text-balance-cream'
+                                        : 'border-balance-sand/65 bg-balance-cream/75 text-balance-dark/65 hover:border-balance-olive/40 hover:text-balance-olive'
+                                )}
+                            >
+                                Todas
+                            </button>
+                            {classTypes.map(ct => (
+                                <button
+                                    key={ct.id}
+                                    type="button"
+                                    onClick={() => setClassTypeFilter(classTypeFilter === ct.id ? 'all' : ct.id)}
+                                    className={cn(
+                                        'flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
+                                        classTypeFilter === ct.id
+                                            ? 'text-white'
+                                            : 'border-balance-sand/65 bg-balance-cream/75 text-balance-dark/65 hover:border-balance-olive/40 hover:text-balance-olive'
+                                    )}
+                                    style={classTypeFilter === ct.id ? {
+                                        backgroundColor: ct.color || '#7E8579',
+                                        borderColor: ct.color || '#7E8579',
+                                    } : {}}
+                                >
+                                    <span
+                                        className="h-2 w-2 rounded-full"
+                                        style={{ backgroundColor: ct.color || '#7E8579' }}
+                                    />
+                                    {ct.name}
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
                     <div className="overflow-hidden rounded-[1.75rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)]">
                         <div className="overflow-x-auto">
@@ -644,6 +707,62 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                         <span>Check-in: {checkedInCount}</span>
                                     </div>
                                 </div>
+
+                                {/* Add user to class */}
+                                {selectedClass?.status !== 'cancelled' && (
+                                    <div className="rounded-xl border border-balance-sand/55 bg-balance-cream/45 p-3 space-y-2">
+                                        <p className="text-sm font-semibold">Agregar usuario a la clase</p>
+                                        <div className="relative">
+                                            <Input
+                                                placeholder="Buscar por nombre o email..."
+                                                value={userSearch}
+                                                onChange={(e) => {
+                                                    setUserSearch(e.target.value);
+                                                    setSearchActive(true);
+                                                }}
+                                                className="h-8 text-xs"
+                                            />
+                                        </div>
+                                        {searchActive && userSearch.trim().length >= 2 && (
+                                            <div className="space-y-1 max-h-48 overflow-y-auto">
+                                                {userSearchLoading && (
+                                                    <div className="flex justify-center py-3">
+                                                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                                                    </div>
+                                                )}
+                                                {!userSearchLoading && userSearchResults?.users?.length === 0 && (
+                                                    <p className="py-2 text-center text-xs text-muted-foreground">Sin resultados</p>
+                                                )}
+                                                {userSearchResults?.users?.map(u => (
+                                                    <button
+                                                        key={u.id}
+                                                        type="button"
+                                                        disabled={adminBookMutation.isPending}
+                                                        onClick={() => {
+                                                            if (!selectedClass) return;
+                                                            adminBookMutation.mutate({ classId: selectedClass.id, userId: u.id });
+                                                        }}
+                                                        className="flex w-full items-center gap-3 rounded-lg border border-transparent px-2 py-1.5 text-left text-xs hover:border-balance-olive/30 hover:bg-balance-olive/8 disabled:opacity-50"
+                                                    >
+                                                        <Avatar className="h-6 w-6 shrink-0">
+                                                            <AvatarImage src={u.photo_url || undefined} />
+                                                            <AvatarFallback className="text-[9px]">{getInitials(u.display_name)}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="min-w-0">
+                                                            <p className="font-medium truncate">{u.display_name}</p>
+                                                            <p className="text-muted-foreground truncate">{u.email}</p>
+                                                        </div>
+                                                        {adminBookMutation.isPending ? (
+                                                            <Loader2 className="ml-auto h-3 w-3 animate-spin shrink-0" />
+                                                        ) : (
+                                                            <Plus className="ml-auto h-3 w-3 shrink-0 text-balance-olive opacity-0 group-hover:opacity-100" />
+                                                        )}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
                                 {/* Attendees List */}
                                 <div className="space-y-3">
