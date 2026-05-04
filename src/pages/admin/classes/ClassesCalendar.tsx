@@ -1103,7 +1103,9 @@ function CalendarStat({ label, value }: { label: string; value: number }) {
 }
 
 function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void }) {
-    const color = item.class_type_color || '#7E8579';
+    const baseColor = item.class_type_color || '#7E8579';
+    const isFree = !!item.is_free;
+    const color = isFree ? '#16a34a' : baseColor;
     const bookings = Number(item.current_bookings || 0);
     const capacity = Number(item.max_capacity || 0);
     const ratio = capacity > 0 ? Math.min((bookings / capacity) * 100, 100) : 0;
@@ -1118,8 +1120,10 @@ function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void })
                 isCancelled && 'opacity-55'
             )}
             style={{
-                borderColor: `${color}66`,
-                background: `linear-gradient(180deg, ${color}1F 0%, rgba(243,238,226,0.68) 100%)`,
+                borderColor: isFree ? '#86efac' : `${color}66`,
+                background: isFree
+                    ? 'linear-gradient(180deg, #dcfce7 0%, #f0fdf4cc 100%)'
+                    : `linear-gradient(180deg, ${color}1F 0%, rgba(243,238,226,0.68) 100%)`,
             }}
         >
             <div className="flex items-start justify-between gap-2">
@@ -1127,13 +1131,20 @@ function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void })
                     <span className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
                     <span className="truncate text-sm font-semibold text-balance-dark">{formatClassTime(item.start_time)}</span>
                 </div>
-                {isCancelled ? (
-                    <Badge variant="destructive" className="rounded-full text-[10px]">Cancelada</Badge>
-                ) : (
-                    <span className="rounded-full bg-balance-cream/75 px-2 py-0.5 text-[10px] font-semibold text-balance-dark/55">
-                        {bookings}/{capacity}
-                    </span>
-                )}
+                <div className="flex shrink-0 items-center gap-1">
+                    {isFree && (
+                        <span className="rounded-full bg-green-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                            Gratis
+                        </span>
+                    )}
+                    {isCancelled ? (
+                        <Badge variant="destructive" className="rounded-full text-[10px]">Cancelada</Badge>
+                    ) : (
+                        <span className="rounded-full bg-balance-cream/75 px-2 py-0.5 text-[10px] font-semibold text-balance-dark/55">
+                            {bookings}/{capacity}
+                        </span>
+                    )}
+                </div>
             </div>
 
             <p className="mt-2 truncate text-sm font-semibold leading-5 text-balance-dark">{item.class_type_name}</p>
