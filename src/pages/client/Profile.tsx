@@ -91,7 +91,7 @@ export default function Profile() {
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <span>
                         {profile.date_of_birth
-                          ? format(new Date(profile.date_of_birth), 'dd MMM yyyy', { locale: es })
+                          ? format(new Date(profile.date_of_birth.slice(0, 10) + 'T12:00:00'), 'dd MMM yyyy', { locale: es })
                           : 'Sin fecha de nacimiento'}
                       </span>
                     </div>
