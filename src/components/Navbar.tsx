@@ -113,6 +113,7 @@ const Navbar = () => {
           ? "bg-background/95 backdrop-blur-md shadow-sm py-3"
           : "bg-gradient-to-b from-black/40 to-transparent py-5"
       }`}
+      style={{ paddingTop: `calc(env(safe-area-inset-top, 0px) + ${isScrolled ? '0.75rem' : '1.25rem'})` }}
     >
       <div className="container mx-auto px-4 lg:px-8">
         <nav className="flex items-center justify-between">

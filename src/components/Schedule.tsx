@@ -247,7 +247,7 @@ export default function Schedule() {
           <div className="grid gap-3 sm:grid-cols-3">
             {[
               { icon: CalendarDays, label: '6 clases al día', value: '3 mañana · 3 tarde' },
-              { icon: Layers3, label: '3 estudios', value: 'salas pequeñas' },
+              { icon: Layers3, label: '6 lugares', value: 'por clase' },
               { icon: Clock, label: 'Cancelación', value: '5 horas antes' },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl bg-card p-4 ring-1 ring-border/70">
