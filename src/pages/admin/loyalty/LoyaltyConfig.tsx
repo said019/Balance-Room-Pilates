@@ -12,22 +12,28 @@ import api from '@/lib/api';
 interface LoyaltyConfig {
     points_per_class: number;
     points_per_peso: number;
+    points_per_peso_cash: number;
     enabled: boolean;
     welcome_bonus: number;
     birthday_bonus: number;
+    anniversary_bonus: number;
     referral_bonus: number;
+    streak_bonus: number;
 }
 
 export default function LoyaltyConfig() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [config, setConfig] = useState<LoyaltyConfig>({
-        points_per_class: 10,
+        points_per_class: 2,
         points_per_peso: 1,
+        points_per_peso_cash: 2,
         enabled: true,
-        welcome_bonus: 50,
+        welcome_bonus: 10,
         birthday_bonus: 100,
-        referral_bonus: 200,
+        anniversary_bonus: 40,
+        referral_bonus: 40,
+        streak_bonus: 10,
     });
     const { toast } = useToast();
 
@@ -124,7 +130,7 @@ export default function LoyaltyConfig() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="points_per_class">Puntos por asistir a clase</Label>
                                 <Input
@@ -137,10 +143,13 @@ export default function LoyaltyConfig() {
                                         points_per_class: parseInt(e.target.value) || 0
                                     })}
                                 />
+                                <p className="text-xs text-muted-foreground">
+                                    Por cada check-in confirmado
+                                </p>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="points_per_peso">Puntos por cada $100 pagados</Label>
+                                <Label htmlFor="points_per_peso">Puntos por $1 con tarjeta</Label>
                                 <Input
                                     id="points_per_peso"
                                     type="number"
@@ -151,7 +160,38 @@ export default function LoyaltyConfig() {
                                         points_per_peso: parseInt(e.target.value) || 0
                                     })}
                                 />
+                                <p className="text-xs text-muted-foreground">
+                                    Tarjeta o transferencia
+                                </p>
                             </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="points_per_peso_cash">Puntos por $1 en efectivo</Label>
+                                <Input
+                                    id="points_per_peso_cash"
+                                    type="number"
+                                    min={0}
+                                    value={config.points_per_peso_cash}
+                                    onChange={(e) => setConfig({
+                                        ...config,
+                                        points_per_peso_cash: parseInt(e.target.value) || 0
+                                    })}
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Bonus 2× por pago en efectivo
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="rounded-lg border border-balance-olive/20 bg-balance-olive/5 p-4 text-sm">
+                            <p className="font-semibold text-balance-olive mb-1">Puntos fijos por paquete</p>
+                            <p className="text-muted-foreground">
+                                Drop-in: <span className="font-mono font-medium">0 pts</span> ·
+                                4 clases: <span className="font-mono font-medium">30 pts</span> ·
+                                8 clases: <span className="font-mono font-medium">60 pts</span> ·
+                                12 clases: <span className="font-mono font-medium">100 pts</span> ·
+                                24 clases: <span className="font-mono font-medium">160 pts</span>
+                            </p>
                         </div>
                     </CardContent>
                 </Card>
@@ -167,7 +207,7 @@ export default function LoyaltyConfig() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="welcome_bonus">Bono de Bienvenida</Label>
                                 <Input
@@ -181,7 +221,7 @@ export default function LoyaltyConfig() {
                                     })}
                                 />
                                 <p className="text-xs text-muted-foreground">
-                                    Puntos al registrarse
+                                    Al registrarse como cliente
                                 </p>
                             </div>
 
@@ -198,7 +238,24 @@ export default function LoyaltyConfig() {
                                     })}
                                 />
                                 <p className="text-xs text-muted-foreground">
-                                    Puntos en su cumpleaños
+                                    Cron diario · requiere membresía activa
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="anniversary_bonus">Bono de Aniversario</Label>
+                                <Input
+                                    id="anniversary_bonus"
+                                    type="number"
+                                    min={0}
+                                    value={config.anniversary_bonus}
+                                    onChange={(e) => setConfig({
+                                        ...config,
+                                        anniversary_bonus: parseInt(e.target.value) || 0
+                                    })}
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    1 año desde el registro
                                 </p>
                             </div>
 
@@ -215,7 +272,24 @@ export default function LoyaltyConfig() {
                                     })}
                                 />
                                 <p className="text-xs text-muted-foreground">
-                                    Puntos por referir amigos
+                                    Cuando su referido completa una compra
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="streak_bonus">Bono por Racha</Label>
+                                <Input
+                                    id="streak_bonus"
+                                    type="number"
+                                    min={0}
+                                    value={config.streak_bonus}
+                                    onChange={(e) => setConfig({
+                                        ...config,
+                                        streak_bonus: parseInt(e.target.value) || 0
+                                    })}
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Cada 2 semanas consecutivas asistiendo
                                 </p>
                             </div>
                         </div>
