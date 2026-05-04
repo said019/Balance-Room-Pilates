@@ -20,6 +20,7 @@ const PolicySchema = z.object({
     enabled: z.boolean(),
     min_hours: z.coerce.number().int().min(0).max(168),
     refund_credit_on_cancel: z.boolean(),
+    cancellations_per_membership: z.coerce.number().int().min(0).max(999),
     late_cancel_message: z.string().max(280).nullable().optional(),
 });
 type PolicyForm = z.infer<typeof PolicySchema>;
@@ -39,6 +40,7 @@ export default function CancellationPolicy() {
             enabled: true,
             min_hours: 4,
             refund_credit_on_cancel: true,
+            cancellations_per_membership: 2,
             late_cancel_message: '',
         },
     });
@@ -49,6 +51,7 @@ export default function CancellationPolicy() {
                 enabled: !!data.enabled,
                 min_hours: Number(data.min_hours ?? 4),
                 refund_credit_on_cancel: !!data.refund_credit_on_cancel,
+                cancellations_per_membership: Number(data.cancellations_per_membership ?? 2),
                 late_cancel_message: data.late_cancel_message ?? '',
             });
         }
@@ -168,6 +171,27 @@ export default function CancellationPolicy() {
                                         onCheckedChange={(v) => form.setValue('refund_credit_on_cancel', v, { shouldDirty: true })}
                                         disabled={!values.enabled}
                                     />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold">
+                                        Cancelaciones permitidas por paquete
+                                    </Label>
+                                    <Input
+                                        type="number"
+                                        min={0}
+                                        max={999}
+                                        step={1}
+                                        {...form.register('cancellations_per_membership', { valueAsNumber: true })}
+                                        className="w-32 text-base"
+                                        disabled={!values.enabled}
+                                    />
+                                    <p className="text-xs text-balance-dark/55">
+                                        Cuántas veces puede cancelar un cliente dentro del mismo paquete antes de que se rechacen sus cancelaciones. Aplica solo a paquetes nuevos. Los administradores siempre pueden cancelar.
+                                    </p>
+                                    {form.formState.errors.cancellations_per_membership && (
+                                        <p className="text-xs text-destructive">{form.formState.errors.cancellations_per_membership.message}</p>
+                                    )}
                                 </div>
 
                                 <div className="space-y-2">
