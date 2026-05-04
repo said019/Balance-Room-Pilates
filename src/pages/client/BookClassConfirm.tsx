@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
-import { Calendar, Clock, Users } from 'lucide-react';
+import { Calendar, Clock, Users, Star } from 'lucide-react';
 
 interface ClassDetail {
   id: string;
@@ -134,16 +134,22 @@ export default function BookClassConfirm() {
                   <Users className="h-4 w-4" />
                   <span>Lugares: {data.current_bookings}/{data.max_capacity}</span>
                 </div>
-                {data.is_free ? (
-                  <p className="text-xs font-semibold text-green-700 pt-1 border-t border-green-200 flex items-center gap-1.5">
-                    <span className="text-green-600">✓</span>
-                    Esta clase es gratis. No se descontará ningún crédito.
+                <div className="pt-1 border-t space-y-1.5">
+                  {data.is_free ? (
+                    <p className="text-xs font-semibold text-green-700 flex items-center gap-1.5">
+                      <span className="text-green-600">✓</span>
+                      Esta clase es gratis. No se descontará ningún crédito.
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      * Se descontará 1 crédito de tu membresía activa.
+                    </p>
+                  )}
+                  <p className="text-xs font-medium text-balance-olive flex items-center gap-1.5">
+                    <Star className="h-3.5 w-3.5 fill-current" />
+                    Ganarás 10 puntos de lealtad al asistir.
                   </p>
-                ) : (
-                  <p className="text-xs text-muted-foreground pt-1 border-t">
-                    * Se descontará 1 crédito de tu membresía activa.
-                  </p>
-                )}
+                </div>
               </CardContent>
             </Card>
           )}

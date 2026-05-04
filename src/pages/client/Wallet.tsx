@@ -284,6 +284,35 @@ export default function WalletClub() {
             </CardContent>
           </Card>
 
+          {/* Cómo ganar puntos */}
+          <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.58)]">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Sparkles className="h-5 w-5 text-balance-olive" />
+                Cómo ganar puntos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  { icon: CalendarPlus, label: 'Asistir a una clase', value: '+10 pts', desc: 'Por cada clase que tomes' },
+                  { icon: Star, label: 'Reseña de clase', value: '+50 pts', desc: 'Al dejar tu opinión después de clase' },
+                  { icon: Users, label: 'Referir una amiga', value: '+100 pts', desc: 'Cuando se registra con tu código' },
+                  { icon: Award, label: 'Bono de bienvenida', value: '+50 pts', desc: 'Al crear tu cuenta' },
+                ].map(({ icon: Icon, label, value, desc }) => (
+                  <div key={label} className="rounded-[1.1rem] border border-balance-sand/55 bg-balance-cream/45 p-4">
+                    <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-[0.8rem] bg-balance-olive/10">
+                      <Icon className="h-4 w-4 text-balance-olive" />
+                    </div>
+                    <p className="text-lg font-bold text-balance-olive">{value}</p>
+                    <p className="text-sm font-semibold text-balance-dark">{label}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Rewards + Recent activity */}
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.58)]">
