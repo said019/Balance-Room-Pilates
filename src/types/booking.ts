@@ -28,5 +28,6 @@ export interface BookingClient {
   class_type_color?: string;
   level?: string;
   instructor_name: string;
+  instructor_photo?: string | null;
   booking_status: 'confirmed' | 'waitlist' | 'checked_in' | 'no_show' | 'cancelled';
 }

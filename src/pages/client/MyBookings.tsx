@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import {
-    Loader2, Calendar, Clock, User, Sparkles
+    Loader2, Calendar, Clock, Sparkles
 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import {
     AlertDialog,
@@ -78,9 +79,14 @@ export default function MyBookings() {
                             <Clock className="h-3 w-3" />
                             {booking.start_time.slice(0, 5)} - {booking.end_time.slice(0, 5)}
                         </div>
-                        <div className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
-                            {booking.instructor_name}
+                        <div className="flex items-center gap-2">
+                            <Avatar className="h-5 w-5">
+                                <AvatarImage src={booking.instructor_photo || undefined} alt={booking.instructor_name} className="object-cover object-top" />
+                                <AvatarFallback className="text-[9px] font-semibold" style={{ backgroundColor: booking.class_type_color || '#7E8579', color: '#fff' }}>
+                                    {booking.instructor_name?.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                                </AvatarFallback>
+                            </Avatar>
+                            <span>{booking.instructor_name}</span>
                         </div>
                     </div>
                     {(booking as any).is_free_booking && <Badge className="mt-2 text-[10px] bg-emerald-100 text-emerald-700 border border-emerald-300 hover:bg-emerald-200">★ Clase gratis</Badge>}
