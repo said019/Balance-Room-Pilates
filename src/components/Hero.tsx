@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ChevronDown, ImagePlus } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
+import heroStudio from "@/assets/hero-studio.jpg";
 
 const Hero = () => {
   return (
@@ -9,15 +10,13 @@ const Hero = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_22%_24%,rgba(126,133,121,0.42),transparent_38%),radial-gradient(ellipse_at_82%_74%,rgba(207,200,184,0.22),transparent_32%),linear-gradient(135deg,#332A22_0%,#51483E_48%,#7E8579_100%)]" />
         <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,.55)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.55)_1px,transparent_1px)] [background-size:44px_44px]" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#211b15]/85 via-[#211b15]/30 to-[#f6f1e7]/5" />
-        <div className="absolute right-4 top-24 hidden h-[54vh] w-[38vw] min-w-[420px] rounded-[2rem] border border-white/16 bg-white/[0.08] p-4 shadow-[0_30px_100px_rgba(0,0,0,0.22)] backdrop-blur-md lg:block">
-          <div className="flex h-full items-center justify-center rounded-[1.45rem] border border-dashed border-white/22 bg-[#F3EEE2]/8">
-            <div className="text-center text-white/60">
-              <ImagePlus className="mx-auto mb-4 h-8 w-8" strokeWidth={1.4} />
-              <span className="font-body text-[11px] uppercase tracking-[0.22em]">
-                foto principal
-              </span>
-            </div>
-          </div>
+        <div className="absolute right-4 top-24 hidden h-[54vh] w-[38vw] min-w-[420px] rounded-[2rem] border border-white/16 overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.35)] lg:block">
+          <img
+            src={heroStudio}
+            alt="Clase Balance Room Pilates"
+            className="h-full w-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
         </div>
       </div>
 
