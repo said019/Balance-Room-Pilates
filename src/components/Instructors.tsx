@@ -115,16 +115,26 @@ const Instructors = () => {
                 style={{ animationDelay: `${index * 150}ms` }}
               >
                 <div className="relative aspect-[3/4] overflow-hidden rounded-sm mb-6 bg-[#E6DFD3]">
-                  <div className="absolute inset-0 bg-[linear-gradient(150deg,#F3EEE2_0%,#D8D0C2_54%,#BFC5B8_100%)]" />
-                  <div className="absolute inset-0 opacity-[0.16] [background-image:linear-gradient(rgba(51,42,34,.24)_1px,transparent_1px),linear-gradient(90deg,rgba(51,42,34,.24)_1px,transparent_1px)] [background-size:28px_28px]" />
-                  <div className="absolute inset-5 flex items-center justify-center rounded-[1.2rem] border border-dashed border-[#332A22]/18 bg-white/20">
-                    <div className="text-center text-[#6F776C]">
-                      <ImagePlus className="mx-auto mb-3 h-8 w-8" strokeWidth={1.4} />
-                      <span className="font-body text-[10px] uppercase tracking-[0.2em]">
-                        foto coach
-                      </span>
-                    </div>
-                  </div>
+                  {instructor.photo_url ? (
+                    <img
+                      src={instructor.photo_url}
+                      alt={instructor.display_name}
+                      className="absolute inset-0 h-full w-full object-cover object-top"
+                    />
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 bg-[linear-gradient(150deg,#F3EEE2_0%,#D8D0C2_54%,#BFC5B8_100%)]" />
+                      <div className="absolute inset-0 opacity-[0.16] [background-image:linear-gradient(rgba(51,42,34,.24)_1px,transparent_1px),linear-gradient(90deg,rgba(51,42,34,.24)_1px,transparent_1px)] [background-size:28px_28px]" />
+                      <div className="absolute inset-5 flex items-center justify-center rounded-[1.2rem] border border-dashed border-[#332A22]/18 bg-white/20">
+                        <div className="text-center text-[#6F776C]">
+                          <ImagePlus className="mx-auto mb-3 h-8 w-8" strokeWidth={1.4} />
+                          <span className="font-body text-[10px] uppercase tracking-[0.2em]">
+                            foto coach
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  )}
                   {/* Always-visible bottom gradient + button */}
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-6 pt-16">
                     <Button
