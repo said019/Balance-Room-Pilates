@@ -38,7 +38,6 @@ import {
     Tag,
     ShoppingBag,
     X,
-    Sparkles,
     Command,
     PanelLeftClose,
 } from 'lucide-react';
@@ -172,7 +171,7 @@ const pageNames: Record<string, string> = {
 export function AdminLayout({ children }: AdminLayoutProps) {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [expandedItems, setExpandedItems] = useState<string[]>(['Reservas', 'Clases']);
+    const [expandedItems, setExpandedItems] = useState<string[]>([]);
     const [notifications, setNotifications] = useState<any[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [notifOpen, setNotifOpen] = useState(false);
@@ -248,10 +247,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         navigate('/login');
     };
 
-    const toggleExpand = (label: string) => {
+    const toggleExpand = (label: string, btn?: HTMLElement) => {
         setExpandedItems((prev) =>
             prev.includes(label) ? prev.filter((i) => i !== label) : [...prev, label]
         );
+        btn?.blur();
     };
 
     const getInitials = (name: string) => {
@@ -294,7 +294,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                         return (
                             <div key={item.label}>
                                 <button
-                                    onClick={() => toggleExpand(item.label)}
+                                    onClick={(e) => toggleExpand(item.label, e.currentTarget)}
                                     className={cn(
                                         'group flex w-full items-center justify-between rounded-[1rem] px-3 py-2.5 text-sm font-semibold transition-[background,color,transform] duration-200 ease-admin-flow active:scale-[0.99]',
                                         hasActiveChild
