@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import api, { getErrorMessage } from '@/lib/api';
-import { Gift, History, Sparkles, BadgePercent, Package, CalendarPlus, Award, Copy, Share2, Users, Star, Flame } from 'lucide-react';
+import { Gift, History, Sparkles, BadgePercent, Package, CalendarPlus, Award, Copy, Share2, Users, Star, Flame, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/components/ui/use-toast';
@@ -136,7 +136,7 @@ export default function WalletClub() {
     queryFn: async () => (await api.get('/loyalty/my-history')).data,
   });
 
-  const { data: walletData } = useQuery<{ pointsBalance: number }>({
+  const { data: walletData } = useQuery<{ pointsBalance: number; isFounder: boolean }>({
     queryKey: ['wallet-pass'],
     queryFn: async () => (await api.get('/wallet/pass')).data,
   });
@@ -217,6 +217,12 @@ export default function WalletClub() {
                 </p>
               </div>
               <div className="flex flex-col gap-2 sm:items-end">
+                {walletData?.isFounder && (
+                  <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800">
+                    <Crown className="h-4 w-4 text-amber-500" />
+                    Founder Member
+                  </div>
+                )}
                 <div className="rounded-[1.25rem] border border-balance-olive/16 bg-balance-cream/60 px-5 py-4 sm:min-w-[180px]">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-balance-dark/46">Puntos</p>
                   <p className="mt-1 text-3xl font-semibold tabular-nums text-balance-olive">{pointsBalance}</p>
