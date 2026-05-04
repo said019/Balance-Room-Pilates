@@ -206,7 +206,10 @@ export default function BookClasses() {
                                                                 <span className="font-bold text-sm tabular-nums">{c.start_time.slice(0, 5)}</span>
                                                                 {booked && <Check className="h-3 w-3 text-success ml-auto" />}
                                                             </div>
-                                                            <p className="text-xs font-medium leading-tight mb-1">{c.class_type_name}</p>
+                                                            <p className="text-xs font-medium leading-tight mb-0.5">{c.class_type_name}</p>
+                                                            {c.instructor_name && (
+                                                                <p className="text-[10px] text-muted-foreground truncate mb-1">{c.instructor_name}</p>
+                                                            )}
                                                             {!booked && (
                                                                 <div className="flex items-center gap-1 text-muted-foreground">
                                                                     <Users className="h-3 w-3" />
@@ -331,11 +334,16 @@ export default function BookClasses() {
 
                                                         {/* Class name */}
                                                         <p className={cn(
-                                                            "text-xs font-medium truncate mb-1.5",
+                                                            "text-xs font-medium truncate mb-0.5",
                                                             cancelled && "line-through text-muted-foreground"
                                                         )}>
                                                             {c.class_type_name}
                                                         </p>
+
+                                                        {/* Instructor */}
+                                                        {c.instructor_name && (
+                                                            <p className="text-[10px] text-muted-foreground truncate mb-1">{c.instructor_name}</p>
+                                                        )}
 
                                                         {/* Spots */}
                                                         {!booked && (
