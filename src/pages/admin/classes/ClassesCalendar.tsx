@@ -109,7 +109,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const [isGenerateOpen, setIsGenerateOpen] = useState(initialGenerateOpen);
     const [isBulkFreeOpen, setIsBulkFreeOpen] = useState(false);
     const [bulkFreeForm, setBulkFreeForm] = useState({
-        from_date: '', to_date: '', from_time: '10:00', to_time: '23:00',
+        from_date: '', to_date: '', from_time: '00:00', to_time: '23:59',
         free_label: 'Opening Day - Gratis',
         preview: null as null | number,
     });
@@ -1022,21 +1022,36 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                             onChange={(e) => setBulkFreeForm(p => ({ ...p, to_date: e.target.value, preview: null }))}
                                         />
                                     </div>
-                                    <div>
-                                        <Label className="text-xs">Desde hora</Label>
-                                        <Input
-                                            type="time"
-                                            value={bulkFreeForm.from_time}
-                                            onChange={(e) => setBulkFreeForm(p => ({ ...p, from_time: e.target.value, preview: null }))}
-                                        />
+                                </div>
+                                <div className="rounded-lg border border-balance-sand/55 bg-balance-cream/40 p-3 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-xs font-semibold">Filtro de horario de clase</Label>
+                                        <button
+                                            type="button"
+                                            className="text-[11px] font-semibold text-emerald-700 underline underline-offset-2"
+                                            onClick={() => setBulkFreeForm(p => ({ ...p, from_time: '00:00', to_time: '23:59', preview: null }))}
+                                        >
+                                            Todo el día
+                                        </button>
                                     </div>
-                                    <div>
-                                        <Label className="text-xs">Hasta hora</Label>
-                                        <Input
-                                            type="time"
-                                            value={bulkFreeForm.to_time}
-                                            onChange={(e) => setBulkFreeForm(p => ({ ...p, to_time: e.target.value, preview: null }))}
-                                        />
+                                    <p className="text-[11px] text-balance-dark/55">Solo las clases cuyo horario de inicio esté dentro de este rango quedarán gratis.</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <Label className="text-xs">Clase empieza desde</Label>
+                                            <Input
+                                                type="time"
+                                                value={bulkFreeForm.from_time}
+                                                onChange={(e) => setBulkFreeForm(p => ({ ...p, from_time: e.target.value, preview: null }))}
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label className="text-xs">Clase empieza hasta</Label>
+                                            <Input
+                                                type="time"
+                                                value={bulkFreeForm.to_time}
+                                                onChange={(e) => setBulkFreeForm(p => ({ ...p, to_time: e.target.value, preview: null }))}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                                 <div>
