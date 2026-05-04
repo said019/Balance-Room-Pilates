@@ -1,10 +1,25 @@
-import { ImagePlus, MessageSquare, Star } from "lucide-react";
+import { MessageSquare, Star } from "lucide-react";
+import heroStudio from "@/assets/hero-studio.jpg";
+import studioPilatesChairs from "@/assets/studio-pilates-chairs.jpg";
+import studioBarre from "@/assets/studio-barre.jpg";
+import studioRoom from "@/assets/studio-room.jpg";
+import studioArches from "@/assets/studio-arches.jpg";
+import coachesGroup from "@/assets/coaches-group.jpg";
 
 const reviewSlots = [
   "Reseña 01",
   "Reseña 02",
   "Reseña 03",
   "Reseña 04",
+];
+
+const galleryImages = [
+  { src: heroStudio, alt: "Clase de meditación" },
+  { src: studioBarre, alt: "Sala de barre" },
+  { src: coachesGroup, alt: "Equipo Balance Room" },
+  { src: studioPilatesChairs, alt: "Sillas de Pilates" },
+  { src: studioRoom, alt: "Sala de yoga y mat" },
+  { src: studioArches, alt: "Arcos del studio" },
 ];
 
 const Testimonials = () => {
@@ -65,22 +80,31 @@ const Testimonials = () => {
         </div>
 
         <div className="mt-20">
-          <div className="text-center mb-8">
-            <h3 className="font-heading text-2xl font-semibold text-foreground mb-2">
+          <div className="text-center mb-10">
+            <h3 className="font-heading text-3xl md:text-4xl font-semibold text-foreground mb-3">
               Galería del studio
             </h3>
-            <p className="font-body text-sm text-muted-foreground">
-              Espacios reservados para fotografías de clases, detalles e instalaciones.
+            <p className="font-body text-base text-muted-foreground max-w-xl mx-auto">
+              Clases, detalles e instalaciones del studio.
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
-            {[...Array(6)].map((_, i) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
+            {galleryImages.map((img, i) => (
               <div
                 key={i}
-                className="aspect-square rounded-sm border border-dashed border-[#CFC8B8] bg-muted/55 transition-colors hover:bg-muted"
+                className={`group relative overflow-hidden rounded-lg bg-muted ${
+                  i === 0 ? 'col-span-2 row-span-2 md:col-span-2 md:row-span-2 lg:col-span-2 lg:row-span-2 aspect-square md:aspect-auto' : 'aspect-square'
+                }`}
               >
-                <div className="flex h-full w-full items-center justify-center text-[#8A8174]">
-                  <ImagePlus className="h-7 w-7" strokeWidth={1.4} />
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute bottom-3 left-3 right-3 text-white text-xs font-body uppercase tracking-wider opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-500">
+                  {img.alt}
                 </div>
               </div>
             ))}

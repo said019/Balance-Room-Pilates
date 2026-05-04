@@ -15,7 +15,6 @@ import {
     CheckCircle2,
     Eye,
     EyeOff,
-    ImagePlus,
     Loader2,
     Lock,
     Mail,
@@ -23,6 +22,7 @@ import {
     Sparkles,
     User,
 } from 'lucide-react';
+import studioPilatesChairs from '@/assets/studio-pilates-chairs.jpg';
 
 const registerSchema = z.object({
     displayName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -135,18 +135,13 @@ export default function Register() {
                     transition={{ duration: 0.55, ease: easeOut }}
                     className="relative hidden min-h-screen overflow-hidden lg:block"
                 >
-                    <div className="absolute inset-0 bg-[linear-gradient(140deg,#211B15_0%,#3A3027_45%,#7E8579_100%)]" />
-                    <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,.55)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.55)_1px,transparent_1px)] [background-size:40px_40px]" />
-                    <div className="absolute inset-10 top-28 rounded-[2rem] border border-dashed border-white/18 bg-white/[0.05]" />
-                    <div className="absolute right-16 top-40 flex h-36 w-36 items-center justify-center rounded-[1.5rem] border border-white/12 bg-white/10 text-white/55 backdrop-blur">
-                        <div className="text-center">
-                            <ImagePlus className="mx-auto mb-3 h-7 w-7" strokeWidth={1.4} />
-                            <span className="font-body text-[10px] uppercase tracking-[0.2em]">
-                                foto
-                            </span>
-                        </div>
-                    </div>
-                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#211B15]/90 via-[#211B15]/35 to-transparent" />
+                    <img
+                        src={studioPilatesChairs}
+                        alt="Balance Room studio"
+                        className="absolute inset-0 h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#211B15]/70 via-[#211B15]/40 to-[#211B15]/65" />
+                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#211B15]/95 via-[#211B15]/55 to-transparent" />
 
                     <div className="relative z-10 flex h-full flex-col justify-between p-10 xl:p-14">
                         <Link to="/" className="flex w-fit items-center gap-3">

@@ -106,7 +106,7 @@ export default function ProfileEdit() {
 
   const photoMutation = useMutation({
     mutationFn: async (file: File) => {
-      const optimized = await optimizeImage(file, { maxWidth: 512, maxHeight: 512, quality: 0.85 });
+      const optimized = await optimizeImage(file, { maxWidth: 1600, maxHeight: 1600, quality: 0.9 });
       const formData = new FormData();
       formData.append('photo', optimized, 'profile.jpg');
       const { data } = await api.post(`/users/${authUser?.id}/photo`, formData, {

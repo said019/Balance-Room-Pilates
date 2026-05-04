@@ -36,6 +36,7 @@ import ProfileEdit from "./pages/client/ProfileEdit";
 import ProfileMembership from "./pages/client/ProfileMembership";
 import ProfilePreferences from "./pages/client/ProfilePreferences";
 import ReferFriends from "./pages/client/ReferFriends";
+import SelectReformer from "./pages/client/SelectReformer";
 import Notifications from "./pages/client/Notifications";
 import News from "./pages/client/News";
 import ClientCheckout from "./pages/client/Checkout";
@@ -75,6 +76,7 @@ import { ClientMigrationPage } from "./pages/admin/ClientMigrationPage";
 import GeneralSettings from "./pages/admin/settings/GeneralSettings";
 import StudioSettings from "./pages/admin/settings/StudioSettings";
 import PoliciesSettings from "./pages/admin/settings/PoliciesSettings";
+import AdminCancellationPolicy from "./pages/admin/settings/CancellationPolicy";
 import NotificationSettings from "./pages/admin/settings/NotificationSettings";
 import ClosedDays from "./pages/admin/settings/ClosedDays";
 import WhatsAppSettings from "./pages/admin/settings/WhatsAppSettings";
@@ -99,6 +101,7 @@ import Referrals from "./pages/admin/referrals/Referrals";
 
 // Facilities page
 import FacilitiesList from "./pages/admin/facilities/FacilitiesList";
+import FacilityLayoutEditor from "./pages/admin/facilities/FacilityLayoutEditor";
 
 // Orders/Payments verification page
 
@@ -178,6 +181,7 @@ const App = () => (
             <Route path="/app/book/:classId" element={<BookClassConfirm />} />
             <Route path="/app/classes" element={<MyBookings />} />
             <Route path="/app/classes/:bookingId" element={<ClassBookingDetail />} />
+            <Route path="/app/classes/:bookingId/spot" element={<SelectReformer />} />
             <Route path="/app/wallet" element={<WalletClub />} />
             <Route path="/app/wallet/rewards" element={<WalletRewards />} />
             <Route path="/app/wallet/history" element={<WalletHistory />} />
@@ -248,6 +252,7 @@ const App = () => (
             <Route path="/admin/settings/general" element={<GeneralSettings />} />
             <Route path="/admin/settings/studio" element={<StudioSettings />} />
             <Route path="/admin/settings/policies" element={<PoliciesSettings />} />
+            <Route path="/admin/settings/cancellations" element={<AdminCancellationPolicy />} />
             <Route path="/admin/settings/notifications" element={<NotificationSettings />} />
             <Route path="/admin/settings/closed-days" element={<ClosedDays />} />
             <Route path="/admin/settings/whatsapp" element={<WhatsAppSettings />} />
@@ -257,6 +262,7 @@ const App = () => (
             <Route path="/admin/migrations/history" element={<ClientMigrationPage />} />
 
             <Route path="/admin/facilities" element={<FacilitiesList />} />
+            <Route path="/admin/facilities/:facilityId/layout" element={<FacilityLayoutEditor />} />
             <Route path="/admin/orders" element={<Navigate to="/admin/payments" replace />} />
             <Route path="/admin/orders/verification" element={<Navigate to="/admin/payments" replace />} />
 
@@ -305,13 +311,14 @@ const App = () => (
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-          {/* WhatsApp floating button - global */}
+          {/* WhatsApp floating button - global.
+              Mobile: sits above the bottom nav (~76px tall + safe area).
+              Desktop: standard bottom-right corner. */}
           <a
             href="https://wa.me/524271007347?text=Hola%20Balance%20Room%20Pilates%2C%20tengo%20una%20duda"
             target="_blank"
             rel="noopener noreferrer"
-            className="fixed z-[9999] bg-[#25D366] hover:bg-[#1fb855] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center"
-            style={{ right: '20px', bottom: '24px', width: '56px', height: '56px' }}
+            className="fixed right-4 z-40 bg-[#25D366] hover:bg-[#1fb855] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 h-12 w-12 lg:h-14 lg:w-14"
             title="¿Dudas? Escríbenos por WhatsApp"
           >
             <svg viewBox="0 0 24 24" className="h-7 w-7 fill-current">

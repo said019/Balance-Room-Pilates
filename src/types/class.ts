@@ -46,6 +46,8 @@ export interface Schedule {
     class_type_name?: string;
     class_type_color?: string;
     instructor_name?: string;
+    facility_id?: string;
+    facility_name?: string | null;
 }
 
 export interface Class {
@@ -66,4 +68,6 @@ export interface Class {
     instructor_user_id?: string;
     facility_name?: string;
     available_spots?: number;
+    is_free?: boolean;
+    free_label?: string | null;
 }

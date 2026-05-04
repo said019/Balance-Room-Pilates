@@ -17,6 +17,7 @@ const DAYS = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
 export default function BookClasses() {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 0 }));
+    const [roomFilter, setRoomFilter] = useState<string>('all');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -45,6 +46,7 @@ export default function BookClasses() {
     const getClassesForDay = (day: Date) => {
         return classes
             ?.filter(c => isSameDay(parseISO(c.date), day))
+            .filter(c => roomFilter === 'all' || c.facility_name === roomFilter)
             .sort((a, b) => a.start_time.localeCompare(b.start_time)) || [];
     };
 
@@ -57,7 +59,8 @@ export default function BookClasses() {
         return classDateTime.getTime() <= Date.now();
     };
     const weekDays = Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
-    const activeClasses = classes?.filter((c) => c.status !== 'cancelled') || [];
+    const activeClasses = (classes?.filter((c) => c.status !== 'cancelled') || [])
+        .filter(c => roomFilter === 'all' || c.facility_name === roomFilter);
     const availableClasses = activeClasses.filter((c) => c.current_bookings < c.max_capacity && !isClassPast(c));
     const weekRange = `${format(weekStart, 'd MMM', { locale: es })} al ${format(addDays(weekStart, 6), 'd MMM yyyy', { locale: es })}`;
 
@@ -105,6 +108,28 @@ export default function BookClasses() {
                             </div>
                         </div>
                     </section>
+
+                    <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-none">
+                        {[
+                            { id: 'all', label: 'Todas' },
+                            { id: 'Wunda', label: 'Wunda' },
+                            { id: 'Barre', label: 'Barre' },
+                            { id: 'Hot Room', label: 'Hot Room' },
+                        ].map((room) => (
+                            <button
+                                key={room.id}
+                                onClick={() => setRoomFilter(room.id)}
+                                className={cn(
+                                    'shrink-0 rounded-full px-5 py-2 text-xs font-semibold transition-all',
+                                    roomFilter === room.id
+                                        ? 'bg-balance-olive text-white'
+                                        : 'bg-balance-cream/60 text-balance-dark/70 border border-balance-sand/65 hover:border-balance-olive/40'
+                                )}
+                            >
+                                {room.label}
+                            </button>
+                        ))}
+                    </div>
 
                     {isLoading && (
                         <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-7">
@@ -278,13 +303,13 @@ export default function BookClasses() {
                                                     )}
                                                 >
                                                     {/* Color bar */}
-                                                    <div 
+                                                    <div
                                                         className="h-1 w-full"
-                                                        style={{ backgroundColor: c.class_type_color || '#9ca3af' }}
+                                                        style={{ backgroundColor: c.is_free ? '#3aa775' : (c.class_type_color || '#9ca3af') }}
                                                     />
-                                                    
+
                                                     <div className="p-2 sm:p-2.5">
-                                                        {/* Time */}
+                                                        {/* Time + free badge */}
                                                         <div className="flex items-center justify-between mb-1">
                                                             <div className="flex items-center gap-1">
                                                                 <Clock className="h-3 w-3 text-muted-foreground" />
@@ -292,7 +317,11 @@ export default function BookClasses() {
                                                                     {c.start_time.slice(0, 5)}
                                                                 </span>
                                                             </div>
-                                                            {booked && (
+                                                            {c.is_free ? (
+                                                                <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-emerald-700">
+                                                                    Gratis
+                                                                </span>
+                                                            ) : booked && (
                                                                 <div className="flex items-center gap-0.5 text-success dark:text-success">
                                                                     <Check className="h-3 w-3" />
                                                                     <span className="hidden text-[10px] font-medium sm:inline">Reservado</span>

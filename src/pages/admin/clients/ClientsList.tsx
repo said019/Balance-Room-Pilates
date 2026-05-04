@@ -63,6 +63,7 @@ interface UserWithMembership extends User {
     plan_name?: string;
     class_limit?: number | null;
     is_active?: boolean;
+    is_founder?: boolean;
 }
 
 interface UsersListResponse {
@@ -309,9 +310,14 @@ export default function ClientsList() {
                                                         </Avatar>
                                                     </Link>
                                                     <div>
-                                                        <div className="font-medium">
+                                                        <div className="font-medium flex items-center gap-1.5 flex-wrap">
                                                             {user.display_name}
-                                                            {user.is_active === false && <Badge variant="outline" className="ml-2 text-xs">Inactivo</Badge>}
+                                                            {user.is_founder && (
+                                                                <Badge className="text-[10px] bg-balance-gold/15 text-balance-gold border border-balance-gold/30 hover:bg-balance-gold/20 px-1.5 py-0">
+                                                                    ★ Founder
+                                                                </Badge>
+                                                            )}
+                                                            {user.is_active === false && <Badge variant="outline" className="text-xs">Inactivo</Badge>}
                                                         </div>
                                                         <div className="text-xs text-muted-foreground">
                                                             Registrado: {new Date(user.created_at).toLocaleDateString()}

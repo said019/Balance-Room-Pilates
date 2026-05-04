@@ -29,6 +29,7 @@ interface ScheduleClass {
   spots: number;
   maxSpots: number;
   color: string;
+  facilityName: string | null;
 }
 
 interface ClassItem {
@@ -54,6 +55,7 @@ interface ApiClass {
   capacity: number;
   current_bookings: number;
   status: string;
+  facility_name?: string | null;
 }
 
 const classColors: Record<string, string> = {
@@ -113,6 +115,7 @@ export default function Schedule() {
   const [selectedClass, setSelectedClass] = useState<ClassItem | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [filter, setFilter] = useState('all');
+  const [roomFilter, setRoomFilter] = useState('all');
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -158,6 +161,7 @@ export default function Schedule() {
           spots: Math.max(0, available),
           maxSpots: cls.capacity || 6,
           color: cls.class_type_color || classColors[cls.class_type_name] || '#7E8579',
+          facilityName: cls.facility_name ?? null,
         };
       });
   }, [apiClasses]);
@@ -167,8 +171,9 @@ export default function Schedule() {
   const dayClasses = useMemo(() => {
     return allClasses
       .filter((cls) => isSameDay(parseISO(cls.time), selectedDate))
+      .filter((cls) => roomFilter === 'all' || cls.facilityName === roomFilter)
       .sort((a, b) => a.time.localeCompare(b.time));
-  }, [selectedDate, allClasses]);
+  }, [selectedDate, allClasses, roomFilter]);
 
   const filteredClasses = useMemo(() => {
     if (filter === 'all') return dayClasses;
@@ -301,6 +306,7 @@ export default function Schedule() {
                       if (!past) {
                         setSelectedDate(day);
                         setFilter('all');
+                        setRoomFilter('all');
                       }
                     }}
                     disabled={past}
@@ -324,6 +330,27 @@ export default function Schedule() {
                   </button>
                 );
               })}
+            </div>
+
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none mb-4">
+              {[
+                { id: 'all', label: 'Todas las salas' },
+                { id: 'Wunda', label: 'Wunda' },
+                { id: 'Barre', label: 'Barre' },
+                { id: 'Hot Room', label: 'Hot Room' },
+              ].map((room) => (
+                <button
+                  key={room.id}
+                  onClick={() => { setRoomFilter(room.id); setFilter('all'); }}
+                  className={`shrink-0 rounded-full px-5 py-2 font-body text-xs font-semibold transition-all ${
+                    roomFilter === room.id
+                      ? 'bg-balance-olive/20 text-balance-olive ring-1 ring-balance-olive/40'
+                      : 'bg-background text-muted-foreground ring-1 ring-border hover:text-foreground'
+                  }`}
+                >
+                  {room.label}
+                </button>
+              ))}
             </div>
 
             {dayClasses.length > 0 && (
@@ -420,7 +447,7 @@ export default function Schedule() {
                                   </span>
                                   <span className="inline-flex items-center gap-1.5">
                                     <MapPin className="h-3.5 w-3.5 text-balance-olive" />
-                                    Studio
+                                    {cls.facilityName || 'Studio'}
                                   </span>
                                 </div>
                               </div>

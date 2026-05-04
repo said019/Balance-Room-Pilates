@@ -41,6 +41,7 @@ interface Plan {
   is_unlimited: boolean;
   category: string;
   is_exclusive: boolean;
+  sort_order?: number;
 }
 
 interface BankInfo {
@@ -144,11 +145,14 @@ export default function Checkout() {
     },
     onSuccess: (order) => {
       queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+      if (order.mp_checkout_url) {
+        window.location.href = order.mp_checkout_url;
+        return;
+      }
       toast({
         title: '¡Orden creada!',
         description: `Tu orden ${order.order_number} ha sido creada.`,
       });
-      // Navigate to order detail / payment instructions
       navigate(`/app/orders/${order.id}`);
     },
     onError: (error: any) => {
@@ -238,7 +242,24 @@ export default function Checkout() {
     setDiscountError('');
   };
 
-  const finalTotal = discountResult ? discountResult.finalTotal : (selectedPlan?.price ?? 0);
+  // Founder benefits preview (10% off first paid package, single use)
+  const { data: founderInfo } = useQuery<{
+    user: { is_founder: boolean; founder_first_package_used: boolean };
+  }>({
+    queryKey: ['founder-self'],
+    queryFn: async () => (await api.get('/users/me/founder-self')).data,
+    retry: false,
+  });
+
+  const founderEligible = !!(founderInfo?.user?.is_founder && !founderInfo.user.founder_first_package_used);
+
+  const subtotalAfterCode = discountResult
+    ? discountResult.finalTotal
+    : (selectedPlan?.price ?? 0);
+  const founderDiscount = founderEligible && selectedPlan
+    ? Math.round(subtotalAfterCode * 0.10 * 100) / 100
+    : 0;
+  const finalTotal = Math.max(subtotalAfterCode - founderDiscount, 0);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-MX', {
@@ -254,6 +275,12 @@ export default function Checkout() {
   );
 
   const paymentMethods: { value: OrderPaymentMethod; label: string; icon: typeof CreditCard; description: string }[] = [
+    {
+      value: 'card',
+      label: 'Tarjeta de crédito / débito',
+      icon: CreditCard,
+      description: 'Paga con tarjeta de forma segura vía MercadoPago',
+    },
     {
       value: 'bank_transfer',
       label: 'Transferencia bancaria',
@@ -548,7 +575,7 @@ export default function Checkout() {
                     ) : (
                       <div className="flex gap-2">
                         <Input
-                          placeholder="Ingresa tu código"
+                          placeholder="Código de descuento o referido"
                           value={discountCode}
                           onChange={(e) => {
                             setDiscountCode(e.target.value.toUpperCase());
@@ -586,19 +613,30 @@ export default function Checkout() {
                   <Separator />
 
                   {/* Subtotal and discount breakdown */}
-                  {discountResult && (
+                  {(discountResult || founderDiscount > 0) && (
                     <>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
                         <span>{formatPrice(selectedPlan.price)}</span>
                       </div>
-                      <div className="flex items-center justify-between text-sm text-green-600">
-                        <span className="flex items-center gap-1">
-                          <Tag className="h-3 w-3" />
-                          Descuento ({discountResult.code})
-                        </span>
-                        <span>-{formatPrice(discountResult.discountAmount)}</span>
-                      </div>
+                      {discountResult && (
+                        <div className="flex items-center justify-between text-sm text-green-600">
+                          <span className="flex items-center gap-1">
+                            <Tag className="h-3 w-3" />
+                            Descuento ({discountResult.code})
+                          </span>
+                          <span>-{formatPrice(discountResult.discountAmount)}</span>
+                        </div>
+                      )}
+                      {founderDiscount > 0 && (
+                        <div className="flex items-center justify-between text-sm text-balance-gold">
+                          <span className="flex items-center gap-1">
+                            <Sparkles className="h-3 w-3" />
+                            Founder member -10% (uso único)
+                          </span>
+                          <span>-{formatPrice(founderDiscount)}</span>
+                        </div>
+                      )}
                     </>
                   )}
 

@@ -38,6 +38,7 @@ const scheduleSchema = z.object({
     endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato HH:MM (24h)'),
     maxCapacity: z.coerce.number().int().positive(),
     isActive: z.boolean().default(true),
+    facilityId: z.string().uuid().optional(),
 });
 
 type ScheduleForm = z.infer<typeof scheduleSchema>;
@@ -46,9 +47,15 @@ const DAYS_OF_WEEK = [
     'Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'
 ];
 
+interface Facility {
+    id: string;
+    name: string;
+}
+
 export default function WeeklySchedule() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedDay, setSelectedDay] = useState<number | null>(null);
+    const [facilityFilter, setFacilityFilter] = useState('all');
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
@@ -66,6 +73,15 @@ export default function WeeklySchedule() {
         queryKey: ['class-types'],
         queryFn: async () => {
             const { data } = await api.get('/class-types');
+            return data;
+        },
+    });
+
+    // Fetch Facilities
+    const { data: facilities } = useQuery<Facility[]>({
+        queryKey: ['facilities'],
+        queryFn: async () => {
+            const { data } = await api.get('/facilities');
             return data;
         },
     });
@@ -95,8 +111,8 @@ export default function WeeklySchedule() {
     // but let's keep it manual for flexibility or complex logic later.
 
     const createMutation = useMutation({
-        mutationFn: async (data: any) => {
-            return await api.post('/schedules', { ...data, isRecurring: true });
+        mutationFn: async (data: ScheduleForm) => {
+            return await api.post('/schedules', { ...data, isRecurring: true, facility_id: data.facilityId || undefined });
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['schedules'] });
@@ -132,9 +148,10 @@ export default function WeeklySchedule() {
         setIsDialogOpen(true);
     };
 
-    // Group schedules by day
+    // Group schedules by day (with optional facility filter)
     const schedulesByDay = Array.from({ length: 7 }, (_, i) => {
-        return schedules?.filter(s => s.day_of_week === i) || [];
+        return (schedules?.filter(s => s.day_of_week === i) || [])
+            .filter(s => facilityFilter === 'all' || s.facility_name === facilityFilter);
     });
 
     return (
@@ -149,6 +166,27 @@ export default function WeeklySchedule() {
                         {/* <Button variant="outline">
                  Generar ClasesPróximas
             </Button> */}
+                    </div>
+
+                    <div className="flex gap-2 flex-wrap">
+                        {[
+                            { id: 'all', label: 'Todas' },
+                            { id: 'Wunda', label: 'Wunda' },
+                            { id: 'Barre', label: 'Barre' },
+                            { id: 'Hot Room', label: 'Hot Room' },
+                        ].map((f) => (
+                            <button
+                                key={f.id}
+                                onClick={() => setFacilityFilter(f.id)}
+                                className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all border ${
+                                    facilityFilter === f.id
+                                        ? 'bg-primary text-primary-foreground border-primary'
+                                        : 'bg-muted text-muted-foreground border-border hover:text-foreground'
+                                }`}
+                            >
+                                {f.label}
+                            </button>
+                        ))}
                     </div>
 
                     {!isLoading && schedulesByDay && (
@@ -166,7 +204,7 @@ export default function WeeklySchedule() {
                                                 style={{ borderLeftColor: s.class_type_color || '#ccc', borderLeftWidth: '4px' }}
                                             >
                                                 <div className="font-semibold flex justify-between">
-                                                    <span>{s.start_time} - {s.end_time}</span>
+                                                    <span>{s.start_time?.slice(0,5)} - {s.end_time?.slice(0,5)}</span>
                                                     <button
                                                         onClick={() => {
                                                             if (confirm('¿Eliminar este horario?')) deleteMutation.mutate(s.id);
@@ -212,6 +250,23 @@ export default function WeeklySchedule() {
 
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                                 <input type="hidden" {...register('dayOfWeek')} />
+
+                                <div className="space-y-2">
+                                    <Label>Sala <span className="text-muted-foreground text-xs">(opcional)</span></Label>
+                                    <Select onValueChange={(val) => setValue('facilityId', val === '' ? undefined : val)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Sin sala asignada" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="">Sin sala asignada</SelectItem>
+                                            {facilities?.map(f => (
+                                                <SelectItem key={f.id} value={f.id}>
+                                                    {f.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
 
                                 <div className="space-y-2">
                                     <Label>Tipo de Clase</Label>

@@ -4,10 +4,10 @@ import {
   Dumbbell,
   Flame,
   Flower2,
-  ImagePlus,
   Thermometer,
   Waves,
 } from "lucide-react";
+import studioRoom from "@/assets/studio-room.jpg";
 
 const classes = [
   {
@@ -160,17 +160,13 @@ const ClassTypes = () => {
 
         <div className="mt-20 overflow-hidden rounded-[2rem] bg-black/[0.035] p-1.5">
           <div className="grid overflow-hidden rounded-[1.6rem] bg-muted lg:grid-cols-2">
-            <div className="relative min-h-[320px]">
-              <div className="absolute inset-0 bg-[linear-gradient(135deg,#D8D0C2_0%,#F3EEE2_52%,#CFC8B8_100%)]" />
-              <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(51,42,34,.24)_1px,transparent_1px),linear-gradient(90deg,rgba(51,42,34,.24)_1px,transparent_1px)] [background-size:34px_34px]" />
-              <div className="absolute inset-5 flex items-center justify-center rounded-[1.25rem] border border-dashed border-[#332A22]/20 bg-white/20">
-                <div className="text-center text-[#6F776C]">
-                  <ImagePlus className="mx-auto mb-3 h-7 w-7" strokeWidth={1.5} />
-                  <span className="font-body text-[11px] uppercase tracking-[0.2em]">
-                    foto del studio
-                  </span>
-                </div>
-              </div>
+            <div className="relative min-h-[320px] lg:min-h-full overflow-hidden">
+              <img
+                src={studioRoom}
+                alt="Sala del studio Balance Room"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-transparent to-black/20" />
             </div>
 
             <div className="p-8 sm:p-10 lg:p-14 flex flex-col justify-center">

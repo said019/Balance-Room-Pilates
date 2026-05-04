@@ -79,7 +79,7 @@ export function ClientLayout({ children }: ClientLayoutProps) {
     return (
         <div className="client-app-shell min-h-screen bg-[hsl(var(--background))] text-balance-dark">
             <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_12%_5%,rgba(126,133,121,0.2),transparent_30%),radial-gradient(circle_at_82%_8%,rgba(207,200,184,0.42),transparent_34%),radial-gradient(circle_at_74%_92%,rgba(126,133,121,0.12),transparent_34%)]" />
-            <header className="sticky z-40 w-full border-b border-balance-sand/45 bg-[hsl(var(--background))]/84 backdrop-blur-xl" style={{ top: '0', paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+            <header className="sticky z-40 w-full border-b border-balance-sand/45 bg-[hsl(var(--background))]/84 backdrop-blur-xl" style={{ top: '0', paddingTop: 'max(env(safe-area-inset-top, 0px), 8px)' }}>
                 <div className="mx-auto flex h-[4.75rem] max-w-[1480px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
                     <Link to="/app" className="flex min-w-0 items-center gap-3">
                         <img 

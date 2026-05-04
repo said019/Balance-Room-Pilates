@@ -45,6 +45,7 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
 import {
@@ -106,6 +107,12 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const [currentDate, setCurrentDate] = useState(new Date());
     const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 0 }));
     const [isGenerateOpen, setIsGenerateOpen] = useState(initialGenerateOpen);
+    const [isBulkFreeOpen, setIsBulkFreeOpen] = useState(false);
+    const [bulkFreeForm, setBulkFreeForm] = useState({
+        from_date: '', to_date: '', from_time: '10:00', to_time: '23:00',
+        free_label: 'Opening Day - Gratis',
+        preview: null as null | number,
+    });
     const [isClassOpen, setIsClassOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isAttendeesOpen, setIsAttendeesOpen] = useState(false);
@@ -222,6 +229,41 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
             });
             setIsAttendeesOpen(false);
             setSelectedClass(null);
+        },
+        onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
+    });
+
+    const toggleFreeMutation = useMutation({
+        mutationFn: async ({ id, is_free, free_label, force }: { id: string; is_free: boolean; free_label?: string; force?: boolean }) =>
+            api.patch(`/classes/${id}/free`, { is_free, free_label, force }),
+        onSuccess: (_, vars) => {
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+            queryClient.invalidateQueries({ queryKey: ['attendees', selectedClass?.id] });
+            setSelectedClass((prev) => prev ? { ...prev, is_free: vars.is_free, free_label: vars.free_label || null } : prev);
+            toast({ title: vars.is_free ? 'Clase marcada como gratis' : 'Clase ya no es gratis' });
+        },
+        onError: (err: any) => {
+            const code = err?.response?.data?.code;
+            if (code === 'HAS_FREE_BOOKINGS') {
+                if (confirm('Esta clase ya tiene reservas como gratis. ¿Forzar el cambio? Las reservas se mantienen pero la clase deja de aceptar nuevas como gratis.')) {
+                    toggleFreeMutation.mutate({ id: selectedClass!.id, is_free: false, force: true });
+                }
+                return;
+            }
+            toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) });
+        },
+    });
+
+    const bulkMarkFreeMutation = useMutation({
+        mutationFn: async (payload: any) => api.post('/classes/bulk-mark-free', payload),
+        onSuccess: (response, variables: any) => {
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+            const affected = response.data.affected ?? 0;
+            if (variables.dry_run) {
+                toast({ title: `${response.data.would_affect} clases serán marcadas` });
+            } else {
+                toast({ title: `${affected} clases marcadas como gratis` });
+            }
         },
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
     });
@@ -388,6 +430,9 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 <Button variant="outline" className="border-balance-sand/70 bg-balance-cream/70" onClick={() => setIsGenerateOpen(true)}>
                                     <Repeat className="mr-2 h-4 w-4" /> Generar semana
                                 </Button>
+                                <Button variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" onClick={() => setIsBulkFreeOpen(true)}>
+                                    <Sparkles className="mr-2 h-4 w-4" /> Marcar como gratis
+                                </Button>
                                 <Button className="bg-balance-olive text-balance-cream hover:bg-balance-olive/90" onClick={() => handleDayClick(new Date())}>
                                     <Plus className="mr-2 h-4 w-4" /> Nueva clase
                                 </Button>
@@ -506,7 +551,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                     )}
                                 </SheetTitle>
                                 <SheetDescription>
-                                    {selectedClass && format(parseISO((selectedClass.date || '').split('T')[0] + 'T00:00:00'), 'EEEE d MMMM', { locale: es })} - {selectedClass?.start_time} a {selectedClass?.end_time}
+                                    {selectedClass && format(parseISO((selectedClass.date || '').split('T')[0] + 'T00:00:00'), 'EEEE d MMMM', { locale: es })} - {selectedClass?.start_time?.slice(0,5)} a {selectedClass?.end_time?.slice(0,5)}
                                 </SheetDescription>
                             </SheetHeader>
 
@@ -540,6 +585,51 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                         >
                                             <Trash2 className="mr-2 h-4 w-4" /> Cancelar Clase
                                         </Button>
+                                    </div>
+                                )}
+
+                                {/* Free class toggle */}
+                                {selectedClass?.status !== 'cancelled' && (
+                                    <div className={`rounded-xl border p-3 ${selectedClass?.is_free ? 'border-emerald-300 bg-emerald-50' : 'border-balance-sand/55 bg-balance-cream/45'}`}>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div>
+                                                <p className="text-sm font-semibold">Clase gratis</p>
+                                                <p className="text-[11px] text-muted-foreground">
+                                                    Sin cobro, sin descontar crédito. Usuarios sin paquete pueden reservar.
+                                                </p>
+                                            </div>
+                                            <Switch
+                                                checked={!!selectedClass?.is_free}
+                                                onCheckedChange={(v) => {
+                                                    if (!selectedClass) return;
+                                                    toggleFreeMutation.mutate({
+                                                        id: selectedClass.id,
+                                                        is_free: v,
+                                                        free_label: v ? (selectedClass.free_label || 'Clase gratis') : undefined,
+                                                    });
+                                                }}
+                                                disabled={toggleFreeMutation.isPending}
+                                            />
+                                        </div>
+                                        {selectedClass?.is_free && (
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <Input
+                                                    placeholder="Etiqueta visible (ej. Opening Day)"
+                                                    defaultValue={selectedClass.free_label || ''}
+                                                    onBlur={(e) => {
+                                                        const v = e.target.value.trim() || 'Clase gratis';
+                                                        if (v !== selectedClass.free_label) {
+                                                            toggleFreeMutation.mutate({
+                                                                id: selectedClass.id,
+                                                                is_free: true,
+                                                                free_label: v,
+                                                            });
+                                                        }
+                                                    }}
+                                                    className="h-8 text-xs"
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 
@@ -899,6 +989,101 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                     </Button>
                                 </DialogFooter>
                             </form>
+                        </DialogContent>
+                    </Dialog>
+
+                    {/* Bulk mark free dialog */}
+                    <Dialog open={isBulkFreeOpen} onOpenChange={setIsBulkFreeOpen}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle className="flex items-center gap-2">
+                                    <Sparkles className="h-5 w-5 text-emerald-600" />
+                                    Marcar clases como gratis
+                                </DialogTitle>
+                                <DialogDescription>
+                                    Útil para opening day o cortesías. Las clases en el rango quedan sin cobro y permiten reservar sin paquete.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-3">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <Label className="text-xs">Desde fecha</Label>
+                                        <Input
+                                            type="date"
+                                            value={bulkFreeForm.from_date}
+                                            onChange={(e) => setBulkFreeForm(p => ({ ...p, from_date: e.target.value, preview: null }))}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label className="text-xs">Hasta fecha</Label>
+                                        <Input
+                                            type="date"
+                                            value={bulkFreeForm.to_date}
+                                            onChange={(e) => setBulkFreeForm(p => ({ ...p, to_date: e.target.value, preview: null }))}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label className="text-xs">Desde hora</Label>
+                                        <Input
+                                            type="time"
+                                            value={bulkFreeForm.from_time}
+                                            onChange={(e) => setBulkFreeForm(p => ({ ...p, from_time: e.target.value, preview: null }))}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label className="text-xs">Hasta hora</Label>
+                                        <Input
+                                            type="time"
+                                            value={bulkFreeForm.to_time}
+                                            onChange={(e) => setBulkFreeForm(p => ({ ...p, to_time: e.target.value, preview: null }))}
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <Label className="text-xs">Etiqueta visible</Label>
+                                    <Input
+                                        value={bulkFreeForm.free_label}
+                                        onChange={(e) => setBulkFreeForm(p => ({ ...p, free_label: e.target.value }))}
+                                        placeholder="Ej. Opening Day"
+                                    />
+                                </div>
+                                {bulkFreeForm.preview !== null && (
+                                    <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-900">
+                                        <strong>{bulkFreeForm.preview}</strong> clase{bulkFreeForm.preview === 1 ? '' : 's'} {bulkFreeForm.preview === 1 ? 'será marcada' : 'serán marcadas'} como gratis.
+                                    </div>
+                                )}
+                            </div>
+                            <DialogFooter>
+                                <Button variant="outline" onClick={() => setIsBulkFreeOpen(false)}>Cancelar</Button>
+                                {bulkFreeForm.preview === null ? (
+                                    <Button
+                                        onClick={async () => {
+                                            if (!bulkFreeForm.from_date || !bulkFreeForm.to_date) {
+                                                toast({ variant: 'destructive', title: 'Falta fecha' });
+                                                return;
+                                            }
+                                            const res = await api.post('/classes/bulk-mark-free', {
+                                                ...bulkFreeForm, dry_run: true,
+                                            });
+                                            setBulkFreeForm(p => ({ ...p, preview: res.data.would_affect ?? 0 }));
+                                        }}
+                                    >
+                                        Ver preview
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        className="bg-emerald-600 text-white hover:bg-emerald-700"
+                                        onClick={() => {
+                                            bulkMarkFreeMutation.mutate({ ...bulkFreeForm, dry_run: false });
+                                            setIsBulkFreeOpen(false);
+                                            setBulkFreeForm(p => ({ ...p, preview: null }));
+                                        }}
+                                        disabled={bulkMarkFreeMutation.isPending}
+                                    >
+                                        Confirmar y marcar {bulkFreeForm.preview} clase{bulkFreeForm.preview === 1 ? '' : 's'}
+                                    </Button>
+                                )}
+                            </DialogFooter>
                         </DialogContent>
                     </Dialog>
 

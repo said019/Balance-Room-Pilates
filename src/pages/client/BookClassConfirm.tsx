@@ -106,7 +106,7 @@ export default function BookClassConfirm() {
                 <div className="flex items-center gap-3 text-sm">
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <span>
-                    {data.start_time} - {data.end_time}
+                    {data.start_time?.slice(0,5)} - {data.end_time?.slice(0,5)}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">

@@ -36,6 +36,11 @@ export interface Order {
   plan_credits?: number;
   plan_duration_days?: number;
   processed_by_name?: string;
+  // MercadoPago fields
+  mp_checkout_url?: string | null;
+  mp_payment_id?: string | null;
+  mp_payment_status?: string | null;
+  payment_provider?: string | null;
 }
 
 // Payment proof attached to an order

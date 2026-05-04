@@ -4,23 +4,12 @@ import { AuthGuard } from '@/components/layout/AuthGuard';
 import { ClientLayout } from '@/components/layout/ClientLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import api, { getErrorMessage } from '@/lib/api';
-import { Gift, History, Sparkles, BadgePercent, Package, CalendarPlus, Award } from 'lucide-react';
+import { Gift, History, Sparkles, BadgePercent, Package, CalendarPlus, Award, Copy, Share2, Users, Star, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { es } from 'date-fns/locale';
-
-interface WalletPassResponse {
-  memberName: string;
-  memberSince: string | null;
-  planName: string | null;
-  membershipStatus: string | null;
-  membershipId: string | null;
-  expirationDate: string | null;
-  classesRemaining: number | null;
-  pointsBalance: number;
-}
+import { useToast } from '@/components/ui/use-toast';
 
 interface LoyaltyReward {
   id: string;
@@ -33,22 +22,105 @@ interface LoyaltyReward {
   stock: number | null;
 }
 
-const formatDate = (value?: string | null) => {
-  if (!value) return '—';
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return '—';
-  return format(parsed, 'dd MMM yyyy');
-};
+interface ReferralStats {
+  code: string;
+  totalReferrals: number;
+  totalPointsEarned: number;
+  recentReferrals: Array<{ friend_name: string; created_at: string; points_awarded: number }>;
+}
 
-export default function WalletClub() {
-  const { data, isLoading, isError, error } = useQuery<WalletPassResponse>({
-    queryKey: ['wallet-pass'],
-    queryFn: async () => {
-      const { data } = await api.get('/wallet/pass');
-      return data;
-    },
+// ─── Referral code panel ────────────────────────────────────────────────────
+function ReferralCodePanel() {
+  const { toast } = useToast();
+  const { data, isLoading } = useQuery<ReferralStats>({
+    queryKey: ['referral-me'],
+    queryFn: async () => (await api.get('/referrals/me')).data,
   });
 
+  const handleCopy = async () => {
+    if (!data?.code) return;
+    try {
+      await navigator.clipboard.writeText(data.code);
+      toast({ title: '¡Copiado!', description: 'Comparte tu código con tus amigas.' });
+    } catch {
+      toast({ variant: 'destructive', title: 'No se pudo copiar' });
+    }
+  };
+
+  const handleShareWhatsApp = () => {
+    if (!data?.code) return;
+    const msg = encodeURIComponent(
+      `¡Te invito a Balance Room Pilates! 🧘\nUsa mi código *${data.code}* al registrarte y obtén 10% de descuento en tu primer paquete. 💚`
+    );
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+  };
+
+  return (
+    <div className="bg-balance-olive p-6 text-balance-cream md:p-8 space-y-5">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/65">Refiere a tus amigas</p>
+        <h2 className="mt-1 text-xl font-semibold">Tu código personal</h2>
+        <p className="mt-1 text-sm text-white/70">Cada amiga que lo use recibe 10% de descuento y tú ganas 10 puntos.</p>
+      </div>
+
+      {isLoading ? (
+        <Skeleton className="h-10 w-40 bg-white/20" />
+      ) : (
+        <p className="text-3xl font-mono font-bold tracking-[0.15em]">{data?.code ?? '—'}</p>
+      )}
+
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex-1 gap-1.5 border-white/25 bg-white/10 text-balance-cream hover:bg-white/20"
+          onClick={handleCopy}
+          disabled={!data?.code}
+        >
+          <Copy className="h-3.5 w-3.5" />
+          Copiar
+        </Button>
+        <Button
+          size="sm"
+          className="flex-1 gap-1.5 bg-[#25D366] hover:bg-[#1fba58] text-white border-0"
+          onClick={handleShareWhatsApp}
+          disabled={!data?.code}
+        >
+          <Share2 className="h-3.5 w-3.5" />
+          WhatsApp
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 pt-1">
+        <div className="rounded-[1rem] bg-white/12 p-3 text-center">
+          <Users className="h-4 w-4 mx-auto mb-1 text-white/70" />
+          <p className="text-xl font-bold">{data?.totalReferrals ?? 0}</p>
+          <p className="text-xs text-white/65">Referidas</p>
+        </div>
+        <div className="rounded-[1rem] bg-white/12 p-3 text-center">
+          <Star className="h-4 w-4 mx-auto mb-1 text-white/70" />
+          <p className="text-xl font-bold">{data?.totalPointsEarned ?? 0}</p>
+          <p className="text-xs text-white/65">Puntos ganados</p>
+        </div>
+      </div>
+
+      {(data?.recentReferrals?.length ?? 0) > 0 && (
+        <div className="space-y-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Amigas recientes</p>
+          {data!.recentReferrals.slice(0, 3).map((r, i) => (
+            <div key={i} className="flex items-center justify-between text-sm">
+              <span className="text-white/80">{r.friend_name}</span>
+              <span className="font-semibold">+{r.points_awarded} pts</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Main component ──────────────────────────────────────────────────────────
+export default function WalletClub() {
   const { data: loyaltyData } = useQuery<{
     history: Array<{
       id: string;
@@ -64,6 +136,21 @@ export default function WalletClub() {
     queryFn: async () => (await api.get('/loyalty/my-history')).data,
   });
 
+  const { data: walletData } = useQuery<{ pointsBalance: number }>({
+    queryKey: ['wallet-pass'],
+    queryFn: async () => (await api.get('/wallet/pass')).data,
+  });
+
+  const { data: streak } = useQuery<{
+    currentStreakWeeks: number;
+    bonusesAwarded: number;
+    nextBonusInWeeks: number;
+    label: string;
+  }>({
+    queryKey: ['loyalty-streak'],
+    queryFn: async () => (await api.get('/loyalty/my-streak')).data,
+  });
+
   const {
     data: rewards,
     isLoading: rewardsLoading,
@@ -76,13 +163,10 @@ export default function WalletClub() {
 
   const recentActivity = (loyaltyData?.history || []).slice(0, 3);
   const activeRewards = (rewards || [])
-    .filter((reward) => reward.is_active && (reward.stock === null || reward.stock > 0))
+    .filter((r) => r.is_active && (r.stock === null || r.stock > 0))
     .slice(0, 3);
 
-  const errorMessage = isError ? getErrorMessage(error) : null;
-
-  const hasMembership = Boolean(data?.membershipId);
-  const pointsBalance = data?.pointsBalance ?? loyaltyData?.totalPoints ?? 0;
+  const pointsBalance = walletData?.pointsBalance ?? loyaltyData?.totalPoints ?? 0;
 
   const formatActivityDate = (dateStr: string) => {
     try {
@@ -119,6 +203,7 @@ export default function WalletClub() {
     <AuthGuard requiredRoles={['client']}>
       <ClientLayout>
         <div className="space-y-7">
+          {/* Header */}
           <section className="rounded-[2rem] border border-balance-olive/25 bg-balance-olive/10 p-5 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)] sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -131,73 +216,42 @@ export default function WalletClub() {
                   Tus puntos, recompensas y progreso en Balance Room.
                 </p>
               </div>
-              <div className="rounded-[1.25rem] border border-balance-olive/16 bg-balance-cream/60 px-5 py-4">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-balance-dark/46">Puntos</p>
-                <p className="mt-1 text-3xl font-semibold tabular-nums text-balance-olive">{pointsBalance}</p>
+              <div className="flex flex-col gap-2 sm:items-end">
+                <div className="rounded-[1.25rem] border border-balance-olive/16 bg-balance-cream/60 px-5 py-4 sm:min-w-[180px]">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-balance-dark/46">Puntos</p>
+                  <p className="mt-1 text-3xl font-semibold tabular-nums text-balance-olive">{pointsBalance}</p>
+                </div>
+                {streak && (
+                  <div
+                    className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold tracking-tight ${
+                      streak.currentStreakWeeks >= 2
+                        ? 'border-amber-500/30 bg-amber-100/70 text-amber-800'
+                        : 'border-balance-olive/25 bg-balance-cream/65 text-balance-olive'
+                    }`}
+                    title={
+                      streak.currentStreakWeeks >= 2
+                        ? `${streak.bonusesAwarded} × +10 pts ganados por racha`
+                        : `Sigue asistiendo para activar tu racha (+10 pts cada 2 semanas)`
+                    }
+                  >
+                    <Flame className={`h-3.5 w-3.5 ${streak.currentStreakWeeks >= 2 ? 'text-amber-600' : 'text-balance-olive'}`} />
+                    <span>{streak.label}</span>
+                    {streak.currentStreakWeeks > 0 && (
+                      <span className="ml-1 rounded-full bg-balance-olive/15 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em]">
+                        {streak.currentStreakWeeks % 2 === 0 ? '+10 pts' : `${streak.nextBonusInWeeks}sem para +10`}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </section>
 
+          {/* Referral + Loyalty card */}
           <Card className="overflow-hidden rounded-[2rem] border border-balance-sand/65 bg-[hsl(var(--card))]/88 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)]">
             <CardContent className="p-0">
-              <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-                <div className="bg-balance-olive p-6 text-balance-cream md:p-8">
-                  {isLoading ? (
-                    <div className="space-y-4">
-                      <Skeleton className="h-6 w-40 bg-white/20" />
-                      <Skeleton className="h-4 w-64 bg-white/20" />
-                      <Skeleton className="h-32 w-full bg-white/20" />
-                    </div>
-                  ) : errorMessage ? (
-                    <div className="rounded-xl border border-white/20 bg-white/10 p-4 text-sm text-white/80">
-                      No pudimos cargar tu información. {errorMessage}
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="text-xs uppercase tracking-widest text-white/70">
-                            Balance Room Pilates
-                          </p>
-                          <h2 className="text-2xl font-semibold">{data?.memberName || 'Miembro'}</h2>
-                          <p className="text-sm text-white/80">
-                            Miembro desde {formatDate(data?.memberSince)}
-                          </p>
-                        </div>
-                        <Badge className="bg-balance-cream/18 text-balance-cream hover:bg-balance-cream/25">
-                          {data?.membershipStatus === 'active'
-                            ? 'Activa'
-                            : hasMembership
-                              ? 'Inactiva'
-                              : 'Sin plan'}
-                        </Badge>
-                      </div>
-
-                      <div className="grid gap-4 sm:grid-cols-2 text-sm">
-                        <div>
-                          <p className="text-xs uppercase text-white/70">Plan</p>
-                          <p className="font-medium">{data?.planName || 'Sin plan activo'}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs uppercase text-white/70">Válido hasta</p>
-                          <p className="font-medium">{formatDate(data?.expirationDate)}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs uppercase text-white/70">Puntos</p>
-                          <p className="font-medium">{data?.pointsBalance ?? 0} pts</p>
-                        </div>
-                        <div>
-                          <p className="text-xs uppercase text-white/70">Clases</p>
-                          <p className="font-medium">
-                            {hasMembership
-                              ? data?.classesRemaining ?? 'Ilimitado'
-                              : '—'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+              <div className="grid lg:grid-cols-[1.2fr_0.8fr]">
+                <ReferralCodePanel />
 
                 <div className="space-y-5 p-6 md:p-8">
                   <div className="rounded-[1.5rem] border border-balance-sand/65 bg-balance-cream/45 p-5">
@@ -209,12 +263,8 @@ export default function WalletClub() {
                       Gana puntos al asistir a clases y canjéalos por beneficios del studio.
                     </p>
                     <div className="mt-5 rounded-[1rem] bg-[hsl(var(--card))]/80 p-4">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                        Puntos disponibles
-                      </p>
-                      <p className="mt-1 text-3xl font-semibold text-balance-olive">
-                        {pointsBalance} pts
-                      </p>
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Puntos disponibles</p>
+                      <p className="mt-1 text-3xl font-semibold text-balance-olive">{pointsBalance} pts</p>
                     </div>
                   </div>
                   <Button className="w-full rounded-full bg-balance-olive text-balance-cream hover:bg-balance-olive/90" asChild>
@@ -228,6 +278,7 @@ export default function WalletClub() {
             </CardContent>
           </Card>
 
+          {/* Rewards + Recent activity */}
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.58)]">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -242,9 +293,7 @@ export default function WalletClub() {
               <CardContent>
                 {rewardsLoading ? (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {[1, 2, 3].map((item) => (
-                      <Skeleton key={item} className="h-28 rounded-xl" />
-                    ))}
+                    {[1, 2, 3].map((i) => <Skeleton key={i} className="h-28 rounded-xl" />)}
                   </div>
                 ) : rewardsIsError ? (
                   <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
@@ -254,20 +303,16 @@ export default function WalletClub() {
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {activeRewards.map((reward) => {
                       const canAfford = pointsBalance >= reward.points_cost;
+                      const Icon = getRewardIcon(reward.reward_type);
                       return (
                         <div
                           key={reward.id}
                           className={`rounded-[1.25rem] border p-4 text-center transition-colors ${
-                            canAfford
-                              ? 'border-balance-olive/30 bg-balance-olive/10'
-                              : 'border-balance-sand/60 bg-balance-cream/45'
+                            canAfford ? 'border-balance-olive/30 bg-balance-olive/10' : 'border-balance-sand/60 bg-balance-cream/45'
                           }`}
                         >
                           <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-[1rem] bg-balance-cream text-balance-olive">
-                            {(() => {
-                              const Icon = getRewardIcon(reward.reward_type);
-                              return <Icon className="h-5 w-5" />;
-                            })()}
+                            <Icon className="h-5 w-5" />
                           </div>
                           <p className="mt-2 text-sm font-medium line-clamp-2">{reward.name}</p>
                           <p className={canAfford ? 'text-xs font-semibold text-emerald-700' : 'text-xs text-muted-foreground'}>
@@ -298,7 +343,7 @@ export default function WalletClub() {
                         <p className="font-medium">{getActivityLabel(item)}</p>
                         <p className="text-xs text-muted-foreground">{formatActivityDate(item.created_at)}</p>
                       </div>
-                      <span className={item.points > 0 ? 'text-success' : 'text-rose-600'}>
+                      <span className={item.points > 0 ? 'text-balance-olive font-semibold' : 'text-rose-600 font-semibold'}>
                         {item.points > 0 ? `+${item.points}` : item.points} pts
                       </span>
                     </div>

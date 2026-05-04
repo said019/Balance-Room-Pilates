@@ -18,7 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
 import {
     Loader2, ArrowLeft, Mail, Phone, Calendar, Heart,
-    MessageSquare, User, CreditCard, DollarSign, UserX, Trash2, Power, Pencil, Check, X,
+    MessageSquare, CreditCard, DollarSign, Trash2, Power, Pencil, Check, X,
     Coins, Plus, Minus, KeyRound, Copy
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -146,6 +146,42 @@ export default function ClientDetail() {
         onError: (error) => {
             toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(error) });
         },
+    });
+
+    // === FOUNDERS ===
+    const { data: founderData } = useQuery<{
+        user: {
+            is_founder: boolean;
+            founder_assigned_at: string | null;
+            founder_first_package_used: boolean;
+            founder_first_used_at: string | null;
+            founder_double_points_used: boolean;
+            founder_double_points_used_at: string | null;
+        };
+        audit: Array<{ action: string; created_at: string }>;
+    }>({
+        queryKey: ['founder', id],
+        queryFn: async () => (await api.get(`/users/${id}/founder`)).data,
+        enabled: Boolean(id),
+    });
+
+    const toggleFounderMutation = useMutation({
+        mutationFn: async (on: boolean) => api.put(`/users/${id}/founder`, { is_founder: on }),
+        onSuccess: (_, on) => {
+            queryClient.invalidateQueries({ queryKey: ['founder', id] });
+            queryClient.invalidateQueries({ queryKey: ['client', id] });
+            toast({ title: on ? 'Marcado como Founder' : 'Founder removido' });
+        },
+        onError: (e) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(e) }),
+    });
+
+    const resetFounderMutation = useMutation({
+        mutationFn: async () => api.post(`/users/${id}/founder/reset`, {}),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['founder', id] });
+            toast({ title: 'Beneficios reseteados', description: 'El cliente puede volver a usar el descuento y los puntos dobles.' });
+        },
+        onError: (e) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(e) }),
     });
 
     // Mutation para eliminar usuario
@@ -336,30 +372,9 @@ export default function ClientDetail() {
                                 Miembro desde {new Date(client.created_at).toLocaleDateString()}
                             </p>
                         </div>
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="flex flex-col gap-2 items-end">
+                            {/* Acción primaria */}
                             <Button
-                                variant="outline"
-                                className="rounded-xl font-body border-border/60 hover:border-balance-gold/50 hover:text-balance-gold transition-colors"
-                                onClick={openEditDialog}
-                            >
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Editar Datos
-                            </Button>
-                            <Button
-                                variant="outline"
-                                className="rounded-xl font-body border-border/60 hover:border-balance-gold/50 hover:text-balance-gold transition-colors"
-                                onClick={() => navigate(`/admin/members/${id}/assign-membership`)}
-                            >
-                                <User className="mr-2 h-4 w-4" />
-                                Inscripción Manual
-                            </Button>
-
-                            <MonthBookingDialog
-                                userId={client.id}
-                                userName={client.display_name}
-                            />
-
-                            <Button 
                                 className="rounded-xl font-body bg-balance-gold hover:bg-balance-gold/90 text-white shadow-sm"
                                 onClick={() => navigate(`/admin/members/${id}/physical-sale`)}
                             >
@@ -367,84 +382,101 @@ export default function ClientDetail() {
                                 Venta en Físico
                             </Button>
 
-                            {/* Botón Desactivar/Activar */}
-                            <Button
-                                variant="outline"
-                                className={`rounded-xl font-body transition-colors ${
-                                    client.is_active === false 
-                                        ? 'border-balance-olive/50 text-balance-olive hover:bg-balance-olive/10' 
-                                        : 'border-orange-300/60 text-orange-600 hover:bg-orange-50'
-                                }`}
-                                onClick={() => toggleStatusMutation.mutate(client.is_active === false)}
-                                disabled={toggleStatusMutation.isPending}
-                            >
-                                <Power className="mr-2 h-4 w-4" />
-                                {client.is_active === false ? 'Activar' : 'Desactivar'}
-                            </Button>
+                            {/* Acciones secundarias */}
+                            <div className="flex gap-2 flex-wrap justify-end">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="rounded-xl font-body border-border/60 hover:border-balance-gold/50 hover:text-balance-gold transition-colors"
+                                    onClick={openEditDialog}
+                                >
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Editar
+                                </Button>
 
-                            {/* Botón Reenviar credenciales con confirmación */}
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        className="rounded-xl font-body border-border/60 hover:border-balance-gold/50 hover:text-balance-gold transition-colors"
-                                        disabled={resendCredentialsMutation.isPending}
-                                    >
-                                        {resendCredentialsMutation.isPending ? (
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        ) : (
-                                            <KeyRound className="mr-2 h-4 w-4" />
-                                        )}
-                                        Reenviar credenciales
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent className="rounded-2xl">
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle className="font-heading">¿Reenviar credenciales?</AlertDialogTitle>
-                                        <AlertDialogDescription className="font-body">
-                                            Se generará una <strong>nueva contraseña temporal</strong> para <strong>{client.display_name}</strong> y se le enviará por email
-                                            {client.phone ? ' y WhatsApp' : ''}.
-                                            La contraseña anterior dejará de funcionar.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel className="rounded-xl font-body">Cancelar</AlertDialogCancel>
-                                        <AlertDialogAction
-                                            onClick={() => resendCredentialsMutation.mutate()}
-                                            className="bg-balance-gold text-white hover:bg-balance-gold/90 rounded-xl font-body"
-                                        >
-                                            Sí, reenviar
-                                        </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
+                                <MonthBookingDialog
+                                    userId={client.id}
+                                    userName={client.display_name}
+                                />
 
-                            {/* Botón Eliminar con confirmación */}
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button variant="outline" className="rounded-xl font-body border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300">
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        Eliminar
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent className="rounded-2xl">
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle className="font-heading">¿Eliminar usuario permanentemente?</AlertDialogTitle>
-                                        <AlertDialogDescription className="font-body">
-                                            Esta acción no se puede deshacer. Se eliminará permanentemente la cuenta de <strong>{client.display_name}</strong> y todos sus datos asociados (membresías, reservaciones, etc.).
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel className="rounded-xl font-body">Cancelar</AlertDialogCancel>
-                                        <AlertDialogAction
-                                            onClick={() => deleteUserMutation.mutate()}
-                                            className="bg-red-600 text-white hover:bg-red-700 rounded-xl font-body"
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="rounded-xl font-body border-border/60 hover:border-balance-gold/50 hover:text-balance-gold transition-colors"
+                                            disabled={resendCredentialsMutation.isPending}
                                         >
-                                            {deleteUserMutation.isPending ? 'Eliminando...' : 'Sí, eliminar'}
-                                        </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
+                                            {resendCredentialsMutation.isPending ? (
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <KeyRound className="mr-2 h-4 w-4" />
+                                            )}
+                                            Credenciales
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent className="rounded-2xl">
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle className="font-heading">¿Reenviar credenciales?</AlertDialogTitle>
+                                            <AlertDialogDescription className="font-body">
+                                                Se generará una <strong>nueva contraseña temporal</strong> para <strong>{client.display_name}</strong> y se le enviará por email
+                                                {client.phone ? ' y WhatsApp' : ''}.
+                                                La contraseña anterior dejará de funcionar.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel className="rounded-xl font-body">Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction
+                                                onClick={() => resendCredentialsMutation.mutate()}
+                                                className="bg-balance-gold text-white hover:bg-balance-gold/90 rounded-xl font-body"
+                                            >
+                                                Sí, reenviar
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className={`rounded-xl font-body transition-colors ${
+                                        client.is_active === false
+                                            ? 'border-balance-olive/50 text-balance-olive hover:bg-balance-olive/10'
+                                            : 'border-orange-300/60 text-orange-600 hover:bg-orange-50'
+                                    }`}
+                                    onClick={() => toggleStatusMutation.mutate(client.is_active === false)}
+                                    disabled={toggleStatusMutation.isPending}
+                                >
+                                    <Power className="mr-2 h-4 w-4" />
+                                    {client.is_active === false ? 'Activar' : 'Desactivar'}
+                                </Button>
+
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="outline" size="sm" className="rounded-xl font-body border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300">
+                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            Eliminar
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent className="rounded-2xl">
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle className="font-heading">¿Eliminar usuario permanentemente?</AlertDialogTitle>
+                                            <AlertDialogDescription className="font-body">
+                                                Esta acción no se puede deshacer. Se eliminará permanentemente la cuenta de <strong>{client.display_name}</strong> y todos sus datos asociados (membresías, reservaciones, etc.).
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel className="rounded-xl font-body">Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction
+                                                onClick={() => deleteUserMutation.mutate()}
+                                                className="bg-red-600 text-white hover:bg-red-700 rounded-xl font-body"
+                                            >
+                                                {deleteUserMutation.isPending ? 'Eliminando...' : 'Sí, eliminar'}
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
                         </div>
                     </div>
 
@@ -464,6 +496,14 @@ export default function ClientDetail() {
                                         <Badge variant="destructive" className="mt-2">
                                             <Power className="h-3 w-3 mr-1" />
                                             Usuario Desactivado
+                                        </Badge>
+                                    )}
+
+                                    {/* Founder badge */}
+                                    {founderData?.user.is_founder && (
+                                        <Badge className="mt-2 bg-balance-gold/15 text-balance-gold border border-balance-gold/30 hover:bg-balance-gold/20">
+                                            <Heart className="h-3 w-3 mr-1" fill="currentColor" />
+                                            Founder Member
                                         </Badge>
                                     )}
 
@@ -585,6 +625,89 @@ export default function ClientDetail() {
 
                         {/* Main Content Area */}
                         <div className="md:col-span-8 lg:col-span-9 space-y-6">
+                            {/* Founder Member */}
+                            {founderData && (
+                                <Card className="rounded-2xl border-balance-gold/40 bg-gradient-to-br from-balance-gold/5 to-transparent">
+                                    <CardContent className="pt-5 pb-5 space-y-4">
+                                        <div className="flex items-center justify-between gap-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`flex h-10 w-10 items-center justify-center rounded-full ${founderData.user.is_founder ? 'bg-balance-gold/20 text-balance-gold' : 'bg-muted text-muted-foreground'}`}>
+                                                    <Heart className="h-5 w-5" fill={founderData.user.is_founder ? 'currentColor' : 'none'} />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-heading font-semibold text-base">Founder Member</h3>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {founderData.user.is_founder
+                                                            ? `Activo desde ${founderData.user.founder_assigned_at ? new Date(founderData.user.founder_assigned_at).toLocaleDateString('es-MX') : '—'}`
+                                                            : 'Activa para otorgar 10% de descuento + dobles puntos en su primera compra.'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs text-muted-foreground">{founderData.user.is_founder ? 'On' : 'Off'}</span>
+                                                <Button
+                                                    size="sm"
+                                                    variant={founderData.user.is_founder ? 'outline' : 'default'}
+                                                    className={founderData.user.is_founder ? 'border-balance-gold/40 text-balance-gold hover:bg-balance-gold/10' : 'bg-balance-gold text-white hover:bg-balance-gold/90'}
+                                                    onClick={() => toggleFounderMutation.mutate(!founderData.user.is_founder)}
+                                                    disabled={toggleFounderMutation.isPending}
+                                                >
+                                                    {founderData.user.is_founder ? 'Quitar Founder' : 'Marcar Founder'}
+                                                </Button>
+                                            </div>
+                                        </div>
+
+                                        {founderData.user.is_founder && (
+                                            <div className="grid gap-3 sm:grid-cols-2">
+                                                <div className="rounded-xl border border-balance-gold/20 bg-white/50 p-3">
+                                                    <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Descuento 10% primer paquete</p>
+                                                    <p className="mt-1 font-semibold">
+                                                        {founderData.user.founder_first_package_used
+                                                            ? <span className="text-muted-foreground">Usado el {founderData.user.founder_first_used_at ? new Date(founderData.user.founder_first_used_at).toLocaleDateString('es-MX') : '—'}</span>
+                                                            : <span className="text-balance-olive">Disponible</span>}
+                                                    </p>
+                                                </div>
+                                                <div className="rounded-xl border border-balance-gold/20 bg-white/50 p-3">
+                                                    <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Dobles puntos primera compra</p>
+                                                    <p className="mt-1 font-semibold">
+                                                        {founderData.user.founder_double_points_used
+                                                            ? <span className="text-muted-foreground">Usado el {founderData.user.founder_double_points_used_at ? new Date(founderData.user.founder_double_points_used_at).toLocaleDateString('es-MX') : '—'}</span>
+                                                            : <span className="text-balance-olive">Disponible</span>}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {founderData.user.is_founder && (founderData.user.founder_first_package_used || founderData.user.founder_double_points_used) && (
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button size="sm" variant="ghost" className="text-xs text-muted-foreground hover:text-balance-dark">
+                                                        Resetear beneficios
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent className="rounded-2xl">
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>¿Resetear beneficios founder?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            El cliente podrá usar el 10% de descuento y los dobles puntos otra vez en su próxima compra. Solo úsalo en casos excepcionales.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                        <AlertDialogAction
+                                                            onClick={() => resetFounderMutation.mutate()}
+                                                            className="bg-balance-gold text-white hover:bg-balance-gold/90"
+                                                        >
+                                                            Sí, resetear
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            )}
+
                             <Tabs defaultValue="memberships">
                                 <TabsList className="rounded-xl bg-muted/50">
                                     <TabsTrigger value="memberships" className="rounded-lg font-body data-[state=active]:bg-balance-gold data-[state=active]:text-white">Membresias</TabsTrigger>

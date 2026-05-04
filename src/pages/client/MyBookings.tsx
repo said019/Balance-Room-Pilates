@@ -83,6 +83,7 @@ export default function MyBookings() {
                             {booking.instructor_name}
                         </div>
                     </div>
+                    {(booking as any).is_free_booking && <Badge className="mt-2 text-[10px] bg-emerald-100 text-emerald-700 border border-emerald-300 hover:bg-emerald-200">★ Clase gratis</Badge>}
                     {booking.booking_status === 'cancelled' && <Badge variant="destructive" className="mt-2 text-[10px]">Cancelada</Badge>}
                     {booking.booking_status === 'checked_in' && <Badge variant="secondary" className="mt-2 text-[10px] bg-success/10 text-success">Asististe</Badge>}
                     {booking.booking_status === 'no_show' && <Badge variant="destructive" className="mt-2 text-[10px]">No asististe</Badge>}

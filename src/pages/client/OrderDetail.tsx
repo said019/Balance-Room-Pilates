@@ -48,6 +48,7 @@ import {
   ImageIcon,
   FileText,
   X,
+  CreditCard,
 } from 'lucide-react';
 
 const statusConfig: Record<OrderStatus, { label: string; icon: typeof Clock; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
@@ -266,6 +267,7 @@ export default function OrderDetail() {
   const statusInfo = statusConfig[order.status];
   const canUploadProof = order.status === 'pending_payment' && order.payment_method === 'bank_transfer';
   const hasProofs = order.payment_proofs && order.payment_proofs.length > 0;
+  const canPayWithCard = order.status === 'pending_payment';
   
   return (
     <AuthGuard requiredRoles={['client']}>
@@ -339,6 +341,47 @@ export default function OrderDetail() {
             </CardContent>
           </Card>
           
+          {/* MercadoPago card payment */}
+          {canPayWithCard && (
+            <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-balance-olive" />
+                  Pagar con tarjeta
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Serás redirigido a MercadoPago para completar tu pago de forma segura.
+                </p>
+                <Button
+                  className="w-full rounded-full bg-balance-olive text-balance-cream hover:bg-balance-olive/90"
+                  onClick={async () => {
+                    try {
+                      if (order.mp_checkout_url) {
+                        window.location.href = order.mp_checkout_url;
+                        return;
+                      }
+                      const res = await api.post(`/orders/${order.id}/pay-with-card`);
+                      if (res.data?.mp_checkout_url) {
+                        window.location.href = res.data.mp_checkout_url;
+                      }
+                    } catch (err: any) {
+                      toast({
+                        title: 'Error',
+                        description: err.response?.data?.error || 'No se pudo generar el checkout',
+                        variant: 'destructive',
+                      });
+                    }
+                  }}
+                >
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Ir a pagar
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Bank Transfer Instructions */}
           {order.payment_method === 'bank_transfer' && bankInfo && canUploadProof && (
             <Card>

@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useAuthStore } from '@/stores/authStore';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { AuthGuard } from '@/components/layout/AuthGuard';
 import api from '@/lib/api';
@@ -14,7 +13,6 @@ import {
     Calendar,
     Users,
     CreditCard,
-    TrendingUp,
     AlertCircle,
     ChevronRight,
     CheckCircle2,
@@ -22,7 +20,6 @@ import {
     Receipt,
     Clock,
     Banknote,
-    Sparkles,
     Ticket,
     Cake,
     ArrowUpRight,
@@ -31,8 +28,6 @@ import {
 } from 'lucide-react';
 
 export default function AdminDashboard() {
-    const { user } = useAuthStore();
-
     const { data: stats, isLoading: statsLoading } = useQuery<AdminStats>({
         queryKey: ['admin-stats'],
         queryFn: async () => {
@@ -82,7 +77,6 @@ export default function AdminDashboard() {
         o.status === 'pending_verification' || o.status === 'pending_payment'
     ) || [];
 
-    const firstName = user?.display_name?.split(' ')[0] || 'equipo';
     const totalAttention = pendingVerificationOrders.length + pendingMemberships + pendingEventRegs.length;
 
     const kpis = [
@@ -121,43 +115,25 @@ export default function AdminDashboard() {
             <AdminLayout>
                 <div className="space-y-6">
                     <section className="grid gap-4 lg:grid-cols-[1.45fr_0.55fr]">
-                        <div className="relative overflow-hidden rounded-[2rem] bg-balance-dark p-6 text-balance-cream shadow-[0_24px_80px_-48px_rgba(51,42,34,0.9)] sm:p-8">
-                            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_14%_12%,rgba(207,200,184,0.26),transparent_28%),radial-gradient(circle_at_86%_2%,rgba(126,133,121,0.34),transparent_32%)]" />
-                            <div className="relative grid gap-8 xl:grid-cols-[1fr_21rem]">
-                                <div>
-                                    <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-balance-olive/40 bg-balance-olive/20 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-balance-cream">
-                                        <Sparkles className="h-3.5 w-3.5" />
-                                        Studio en movimiento
-                                    </div>
-                                    <h2 className="max-w-2xl text-3xl font-semibold leading-[1.05] tracking-[-0.04em] sm:text-4xl">
-                                        Buenos días, {firstName}. Hoy cuidamos agenda, cupos y caja con calma.
-                                    </h2>
-                                    <p className="mt-4 max-w-[58ch] text-sm leading-6 text-balance-sand/78">
-                                        {format(new Date(), "EEEE d 'de' MMMM, yyyy", { locale: es })}. Cada clase tiene 6 lugares, así que el panel prioriza lo que necesita atención antes de que llegue la siguiente sesión.
-                                    </p>
-                                </div>
-
-                                <div className="rounded-[1.5rem] border border-balance-olive/35 bg-balance-olive/14 p-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-balance-cream">Atención</span>
-                                        <span className="rounded-full bg-balance-cream px-2.5 py-1 text-xs font-bold text-balance-dark">{totalAttention}</span>
-                                    </div>
-                                    <div className="mt-5 space-y-3">
-                                        <FocusRow icon={Banknote} label="Pagos por revisar" value={pendingVerificationOrders.length} />
-                                        <FocusRow icon={AlertCircle} label="Paquetes pendientes" value={pendingMemberships} />
-                                        <FocusRow icon={Ticket} label="Eventos pendientes" value={pendingEventRegs.length} />
-                                    </div>
-                                    <Link
-                                        to="/admin/payments"
-                                        className="group mt-5 inline-flex w-full items-center justify-between rounded-full bg-balance-cream px-4 py-2.5 text-sm font-semibold text-balance-dark transition-all duration-200 hover:bg-balance-sand active:scale-[0.98]"
-                                    >
-                                        Revisar operación
-                                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-balance-dark/10 transition-transform group-hover:translate-x-0.5">
-                                            <ArrowUpRight className="h-4 w-4" />
-                                        </span>
-                                    </Link>
-                                </div>
+                        <div className="rounded-[2rem] bg-balance-olive p-6">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-semibold uppercase tracking-[0.2em] text-balance-cream">Atención</span>
+                                <span className="rounded-full bg-balance-cream/20 px-2.5 py-1 text-xs font-bold text-balance-cream">{totalAttention}</span>
                             </div>
+                            <div className="mt-4 space-y-3">
+                                <FocusRow icon={Banknote} label="Pagos por revisar" value={pendingVerificationOrders.length} />
+                                <FocusRow icon={AlertCircle} label="Paquetes pendientes" value={pendingMemberships} />
+                                <FocusRow icon={Ticket} label="Eventos pendientes" value={pendingEventRegs.length} />
+                            </div>
+                            <Link
+                                to="/admin/payments"
+                                className="group mt-5 inline-flex w-full items-center justify-between rounded-full bg-balance-cream px-4 py-2.5 text-sm font-semibold text-balance-dark transition-all duration-200 hover:bg-balance-sand active:scale-[0.98]"
+                            >
+                                Revisar operación
+                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-balance-cream/10 transition-transform group-hover:translate-x-0.5">
+                                    <ArrowUpRight className="h-4 w-4" />
+                                </span>
+                            </Link>
                         </div>
 
                         <div className="rounded-[2rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] p-5 shadow-[0_20px_70px_-54px_rgba(51,42,34,0.65)]">
@@ -362,8 +338,8 @@ export default function AdminDashboard() {
 
 function FocusRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: number }) {
     return (
-        <div className="flex items-center justify-between gap-3 rounded-[1rem] bg-balance-dark/22 px-3 py-2.5">
-            <span className="flex min-w-0 items-center gap-2 text-sm text-balance-sand">
+        <div className="flex items-center justify-between gap-3 rounded-[1rem] bg-white/15 px-3 py-2.5">
+            <span className="flex min-w-0 items-center gap-2 text-sm text-balance-cream">
                 <Icon className="h-4 w-4 shrink-0" />
                 <span className="truncate">{label}</span>
             </span>

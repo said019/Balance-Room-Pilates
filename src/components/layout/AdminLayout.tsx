@@ -81,6 +81,7 @@ const sidebarItems: SidebarItem[] = [
         children: [
             { href: '/admin/classes/schedules', label: 'Horarios' },
             { href: '/admin/classes/types', label: 'Disciplinas' },
+            { href: '/admin/facilities', label: 'Mapa de salas' },
             { href: '/admin/classes/prices', label: 'Precios y paquetes' },
             { href: '/admin/classes/templates', label: 'Rutinas' },
         ],
@@ -141,6 +142,7 @@ const sidebarItems: SidebarItem[] = [
             { href: '/admin/settings/general', label: 'General' },
             { href: '/admin/settings/studio', label: 'Studio' },
             { href: '/admin/settings/policies', label: 'Políticas' },
+            { href: '/admin/settings/cancellations', label: 'Cancelaciones' },
             { href: '/admin/settings/notifications', label: 'Notificaciones' },
             { href: '/admin/settings/whatsapp', label: 'WhatsApp' },
             { href: '/admin/settings/closed-days', label: 'Días cerrados' },
@@ -281,16 +283,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
     const SidebarContent = ({ mobile = false }: { mobile?: boolean }) => (
         <div className="h-full overflow-y-auto overflow-x-hidden px-3 py-4">
-            <div className={cn('mb-4 rounded-[1.35rem] border border-balance-olive/25 bg-balance-olive/10 p-3', sidebarCollapsed && !mobile && 'hidden')}>
-                <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-balance-olive">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    Studio vivo
-                </div>
-                <p className="mt-2 text-xs leading-relaxed text-balance-dark/65">
-                    Agenda, caja y comunidad en una sola vista de operación.
-                </p>
-            </div>
-
             <nav className="space-y-1.5" aria-label="Navegación de administración">
                 {sidebarItems.map((item) => {
                     const Icon = item.icon;

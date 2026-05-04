@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
-import { Calendar, Clock, User, Sparkles } from 'lucide-react';
+import { Calendar, Clock, User, Sparkles, MapPin } from 'lucide-react';
 
 interface BookingDetail {
   booking_id: string;
@@ -46,6 +46,25 @@ export default function ClassBookingDetail() {
       return data;
     },
     enabled: Boolean(bookingId),
+  });
+
+  // Server-canonical cancellation status; UI uses it to show button or fallback message
+  const { data: preview } = useQuery<{
+    canCancel: boolean;
+    willRefund: boolean;
+    hoursUntilClass: number | null;
+    minHours: number | null;
+    reason: string | null;
+    code: string | null;
+  }>({
+    queryKey: ['cancel-preview', bookingId],
+    queryFn: async () => (await api.get(`/bookings/${bookingId}/cancel-preview`, { validateStatus: () => true })).data,
+    enabled: Boolean(bookingId) && data?.booking_status === 'confirmed',
+  });
+
+  const { data: policy } = useQuery<{ late_cancel_message: string | null; enabled: boolean; min_hours: number }>({
+    queryKey: ['cancellation-policy'],
+    queryFn: async () => (await api.get('/settings/cancellation-policy')).data,
   });
 
   const cancelMutation = useMutation({
@@ -116,7 +135,7 @@ export default function ClassBookingDetail() {
                 <div className="flex items-center gap-3 text-sm">
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <span>
-                    {data.class_start_time} - {data.class_end_time}
+                    {data.class_start_time?.slice(0, 5)} - {data.class_end_time?.slice(0, 5)}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
@@ -134,14 +153,53 @@ export default function ClassBookingDetail() {
 
           {data?.booking_status === 'confirmed' && (
             <Button
-              variant="outline"
-              className="rounded-full border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => cancelMutation.mutate()}
-              disabled={cancelMutation.isPending}
+              className="w-full rounded-full bg-balance-olive text-balance-cream hover:bg-balance-olive/90"
+              asChild
             >
-              {cancelMutation.isPending ? 'Cancelando...' : 'Cancelar reserva'}
+              <Link to={`/app/classes/${bookingId}/spot`}>
+                <MapPin className="h-4 w-4 mr-2" />
+                Elige tu lugar
+              </Link>
             </Button>
           )}
+
+          {(() => {
+            if (data?.booking_status !== 'confirmed') return null;
+            // Server is the canonical gate. The UI follows the preview RPC.
+            if (preview?.canCancel) {
+              const refundHint = preview.willRefund
+                ? 'Tu crédito vuelve al cancelar.'
+                : 'La cancelación NO devuelve crédito.';
+              return (
+                <div className="space-y-2">
+                  <Button
+                    variant="outline"
+                    className="w-full rounded-full border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => cancelMutation.mutate()}
+                    disabled={cancelMutation.isPending}
+                  >
+                    {cancelMutation.isPending ? 'Cancelando...' : 'Cancelar reserva'}
+                  </Button>
+                  <p className="text-center text-xs text-balance-dark/55">{refundHint}</p>
+                </div>
+              );
+            }
+            // Cannot cancel — show the studio's late-cancel message
+            const lateMsg =
+              policy?.late_cancel_message ||
+              preview?.reason ||
+              'Esta reserva ya no puede cancelarse.';
+            return (
+              <div className="rounded-2xl border border-balance-sand/65 bg-balance-cream/45 p-4 text-center">
+                <p className="text-sm text-balance-dark/72">{lateMsg}</p>
+                {policy && policy.enabled && policy.min_hours > 0 && preview?.code !== 'CLASS_ALREADY_STARTED' && (
+                  <p className="mt-1 text-xs text-balance-dark/45">
+                    Las cancelaciones aplican hasta {policy.min_hours}h antes de la clase.
+                  </p>
+                )}
+              </div>
+            );
+          })()}
         </div>
       </ClientLayout>
     </AuthGuard>
