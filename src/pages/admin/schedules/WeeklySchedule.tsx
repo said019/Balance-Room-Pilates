@@ -26,9 +26,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Plus, Clock, Users, X, AlertTriangle } from 'lucide-react';
+import { Loader2, Plus, Users, X, AlertTriangle } from 'lucide-react';
 
 const scheduleSchema = z.object({
     dayOfWeek: z.coerce.number().int().min(0).max(6),
@@ -98,17 +97,11 @@ export default function WeeklySchedule() {
     const { register, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm<ScheduleForm>({
         resolver: zodResolver(scheduleSchema),
         defaultValues: {
-            maxCapacity: 8,
+            maxCapacity: 6,
             isActive: true
         }
     });
 
-    // Auto-set duration based on class type
-    const selectedClassTypeId = watch('classTypeId');
-    const startTime = watch('startTime');
-
-    // Effect to calc end time automatically would go here, 
-    // but let's keep it manual for flexibility or complex logic later.
 
     const createMutation = useMutation({
         mutationFn: async (data: ScheduleForm) => {
