@@ -101,19 +101,13 @@ export default function CancellationPolicy() {
                                 <div>
                                     <p className="text-sm font-medium">Balance Room Pilates</p>
                                     <p className="text-sm text-muted-foreground">
-                                        Hermenegildo Galeana Int. Local 4, Centro, 76803 San Juan del Río, Qro.
+                                        Av. Insurgentes 51, Mz. 006, San Salvador Tizatlalli, 52172, Edo. Méx.
                                     </p>
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium">Email</p>
                                     <a href="mailto:hola@balanceroom.mx" className="text-sm text-primary hover:underline">
                                         hola@balanceroom.mx
-                                    </a>
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium">Teléfono / WhatsApp</p>
-                                    <a href="tel:+524271007347" className="text-sm text-primary hover:underline">
-                                        +52 427 100 7347
                                     </a>
                                 </div>
                             </div>

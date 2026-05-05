@@ -64,15 +64,15 @@ const studioDirectory: Record<string, StudioInfo> = {
     tagline: 'Yoga, Pilates, Barre y Sculpt en un espacio sereno.',
     description:
       'Sesiones pequeñas, atención personalizada y paquetes de créditos con vigencia mensual.',
-    addressLine: 'Hermenegildo Galeana Int. Local 4',
-    city: 'San Juan del Río',
-    state: 'Qro.',
-    postalCode: '76803',
-    phone: '+52 427 100 7347',
-    whatsapp: '+52 427 100 7347',
+    addressLine: 'Av. Insurgentes 51, Mz. 006',
+    city: 'San Salvador Tizatlalli',
+    state: 'Edo. Méx.',
+    postalCode: '52172',
+    phone: '',
+    whatsapp: '',
     email: 'hola@balanceroom.mx',
     instagram: '@balanceroom.pilates',
-    mapUrl: 'https://maps.google.com/?q=Hermenegildo+Galeana+Int+Local+4+Centro+76803+San+Juan+del+Rio+Qro',
+    mapUrl: 'https://maps.app.goo.gl/d54t7iVdL5DzWgYy9?g_st=iw',
     classTypes: [
       {
         name: 'Yoga',
