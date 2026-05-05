@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import CancellationPolicy from "./pages/CancellationPolicy";
+import MapsExport from "./pages/MapsExport";
 
 // Auth pages
 import Login from "./pages/auth/Login";
@@ -165,6 +166,7 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/cancellation-policy" element={<CancellationPolicy />} />
+            <Route path="/maps-export" element={<MapsExport />} />
 
             {/* Auth Routes */}
             <Route path="/login" element={<Login />} />
