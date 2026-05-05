@@ -43,6 +43,7 @@ import {
   User,
   Calendar,
   CreditCard,
+  Download,
 } from 'lucide-react';
 
 const statusConfig: Record<OrderStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
@@ -422,6 +423,22 @@ function OrdersVerificationInner() {
                           const isBase64Pdf = proof.file_url?.startsWith('data:application/pdf');
                           const isImage = isBase64Image || proof.file_type?.startsWith('image/');
                           
+                          const downloadProof = () => {
+                            if (!proof.file_url) return;
+                            const a = document.createElement('a');
+                            a.href = proof.file_url;
+                            const ext = isBase64Image
+                              ? (proof.file_url.match(/data:image\/(\w+)/)?.[1] || 'png')
+                              : isBase64Pdf
+                              ? 'pdf'
+                              : '';
+                            const fallback = `comprobante-${selectedOrder.order_number}-${index + 1}${ext ? `.${ext}` : ''}`;
+                            a.download = proof.file_name || fallback;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                          };
+
                           return (
                             <div key={proof.id || index} className="p-3 rounded-lg border">
                               <div className="flex items-start justify-between gap-3">
@@ -433,6 +450,18 @@ function OrdersVerificationInner() {
                                     {proof.notes && <p>Notas: {proof.notes}</p>}
                                   </div>
                                 </div>
+                                {proof.file_url && (
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={downloadProof}
+                                    className="shrink-0"
+                                  >
+                                    <Download className="h-3.5 w-3.5 mr-1.5" />
+                                    Descargar
+                                  </Button>
+                                )}
                               </div>
                               
                               {/* Preview image */}
