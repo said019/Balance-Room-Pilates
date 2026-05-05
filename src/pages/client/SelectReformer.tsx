@@ -203,31 +203,31 @@ export default function SelectReformer() {
                             </svg>
                           )}
                           <div className="lum-specular" />
-                          {!isHot && !isWunda && <span className="lum-sl lum-sl-mirror">espejo</span>}
-                          {!isWunda && <span className="lum-sl lum-sl-door">entrada</span>}
-                          {!isHot && !isWunda && <span className="lum-sl lum-sl-wall">pared posterior</span>}
+                          {!isHot && !isWunda && !isBarre && <span className="lum-sl lum-sl-mirror">espejo</span>}
+                          {!isWunda && !isBarre && <span className="lum-sl lum-sl-door">entrada</span>}
+                          {!isHot && !isWunda && !isBarre && <span className="lum-sl lum-sl-wall">pared posterior</span>}
                         </>
                       )}
 
-                      {/* Barre decorative frames — one barra per mat, sitting just above each spot.
-                          Right column is mirrored (X-flipped) so the feet face inward. */}
-                      {isBarre && mapData.reformers.map((r) => {
-                        const isLeftCol = r.position_x < 50;
-                        return (
+                      {/* Barre — wall-mounted barres (one per side) and full-height mirrors on the outer walls. */}
+                      {isBarre && (
+                        <>
+                          <div className="lum-barre-mirror lum-barre-mirror-left" aria-hidden="true" />
+                          <div className="lum-barre-mirror lum-barre-mirror-right" aria-hidden="true" />
                           <img
-                            key={`bar-${r.id}`}
                             src="/barra-de-barre.png"
                             alt=""
-                            className="lum-barre-bar"
-                            style={{
-                              left: `${r.position_x}%`,
-                              top: `${r.position_y - 11}%`,
-                              transform: `translate(-50%, -50%) ${isLeftCol ? '' : 'scaleX(-1)'}`,
-                            }}
+                            className="lum-barre-wall lum-barre-wall-left"
                             draggable={false}
                           />
-                        );
-                      })}
+                          <img
+                            src="/barra-de-barre.png"
+                            alt=""
+                            className="lum-barre-wall lum-barre-wall-right"
+                            draggable={false}
+                          />
+                        </>
+                      )}
 
                       {/* Wunda vertical group labels */}
                       {isWunda && (
@@ -519,6 +519,46 @@ function StyleBlock() {
       }
       @media (max-width:720px) {
         .lum-barre-bar { width:18%; }
+      }
+
+      /* Barre — wall-mounted barres rotated 90° so they read as embedded in the wall */
+      .lum-barre-wall {
+        position:absolute; pointer-events:none; z-index:1;
+        width:38%; height:auto;
+        top:50%;
+        opacity:.88; mix-blend-mode:multiply;
+        transform-origin:center;
+      }
+      .lum-barre-wall-left  { left:17%; transform:translate(-50%,-50%) rotate(-90deg); }
+      .lum-barre-wall-right { left:83%; transform:translate(-50%,-50%) rotate(90deg);  }
+      @media (max-width:720px) {
+        .lum-barre-wall { width:54%; }
+        .lum-barre-wall-left  { left:11%; }
+        .lum-barre-wall-right { left:89%; }
+      }
+
+      /* Barre — full-height mirror strips on the outer walls */
+      .lum-barre-mirror {
+        position:absolute; top:10%; bottom:10%;
+        width:14px; border-radius:6px; pointer-events:none; z-index:1;
+        background:linear-gradient(180deg,
+          rgba(170,200,225,.55) 0%,
+          rgba(220,235,245,.78) 28%,
+          rgba(180,210,230,.62) 55%,
+          rgba(220,235,245,.78) 78%,
+          rgba(170,200,225,.55) 100%);
+        border:1px solid rgba(120,160,190,.55);
+        box-shadow:
+          inset 0 0 10px rgba(255,255,255,.7),
+          inset 0 1px 0 rgba(255,255,255,.85),
+          0 0 18px rgba(150,190,220,.28);
+      }
+      .lum-barre-mirror-left  { left:4%;  }
+      .lum-barre-mirror-right { right:4%; }
+      @media (max-width:720px) {
+        .lum-barre-mirror { width:10px; top:6%; bottom:6%; }
+        .lum-barre-mirror-left  { left:2%;  }
+        .lum-barre-mirror-right { right:2%; }
       }
 
       /* Wunda group labels (vertical) */
