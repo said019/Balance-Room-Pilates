@@ -246,12 +246,12 @@ export default function WeeklySchedule() {
 
                                 <div className="space-y-2">
                                     <Label>Sala <span className="text-muted-foreground text-xs">(opcional)</span></Label>
-                                    <Select onValueChange={(val) => setValue('facilityId', val === '' ? undefined : val)}>
+                                    <Select onValueChange={(val) => setValue('facilityId', val === 'none' ? undefined : val)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Sin sala asignada" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="">Sin sala asignada</SelectItem>
+                                            <SelectItem value="none">Sin sala asignada</SelectItem>
                                             {facilities?.map(f => (
                                                 <SelectItem key={f.id} value={f.id}>
                                                     {f.name}

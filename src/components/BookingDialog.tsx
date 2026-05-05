@@ -52,18 +52,23 @@ export function BookingDialog({ classData, open, onOpenChange }: BookingDialogPr
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch membresía actual
-  const { data: membership, isLoading: loadingMembership } = useQuery<Membership>({
+  const { data: membership, isLoading: loadingMembership } = useQuery<Membership | null>({
     queryKey: ['membership', user?.id],
     queryFn: async () => {
-      const response = await api.get('/memberships/me');
-      const d = response.data;
-      return {
-        ...d,
-        credits_remaining: d.credits_remaining ?? d.classes_remaining ?? null,
-        credits_total: d.credits_total ?? d.class_limit ?? null,
-      };
+      try {
+        const response = await api.get('/memberships/me');
+        const d = response.data;
+        return {
+          ...d,
+          credits_remaining: d.credits_remaining ?? d.classes_remaining ?? null,
+          credits_total: d.credits_total ?? d.class_limit ?? null,
+        };
+      } catch {
+        return null;
+      }
     },
     enabled: isAuthenticated && open,
+    retry: false,
   });
 
   // Mutation para crear reserva
