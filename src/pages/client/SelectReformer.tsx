@@ -258,8 +258,17 @@ export default function SelectReformer() {
                     const baseSize = spotKind === 'reformer' ? 112 : 96;
                     const fullW = baseSize * (r.scale || 1);
                     // Mobile: scale down to ~58% of desktop size for taps not to collide
-                    const w = isMobile ? Math.round(fullW * 0.58) : fullW;
-                    const h = spotKind === 'reformer' ? w * 1.5 : w * 0.85;
+                    let w = isMobile ? Math.round(fullW * 0.58) : fullW;
+                    let h: number;
+                    if (spotKind === 'reformer') {
+                      h = w * 1.5;
+                    } else if (isBarre) {
+                      // Landscape tile so the mat reads as horizontal facing its barre
+                      w = Math.round(w * 1.45);
+                      h = Math.round(w * 0.55);
+                    } else {
+                      h = w * 0.85;
+                    }
                     const iconRotation = (r.rotation || 0) + (spotKind === 'reformer' ? -90 : 0);
                     const clickable = state !== 'occupied';
 
@@ -619,6 +628,12 @@ function StyleBlock() {
       }
       .lum-map-barre .lum-spot:hover:not(:disabled) .tile {
         background: #1f1f22;
+      }
+      /* The mat icon is a portrait yoga mat; rotated 90° inside a landscape tile.
+         Constrain by height so the rotated icon fills the long axis of the tile. */
+      .lum-map-barre .lum-spot .tile img {
+        width: 95%;
+        height: 95%;
       }
 
       /* Green marble for Wunda */
