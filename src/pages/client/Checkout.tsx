@@ -260,7 +260,12 @@ export default function Checkout() {
   const founderDiscount = founderEligible && selectedPlan
     ? Math.round(subtotalAfterCode * 0.10 * 100) / 100
     : 0;
-  const finalTotal = Math.max(subtotalAfterCode - founderDiscount, 0);
+  const baseAfterDiscounts = Math.max(subtotalAfterCode - founderDiscount, 0);
+  // 4% platform fee applies only to card payments
+  const cardFee = selectedPaymentMethod === 'card'
+    ? Math.round(baseAfterDiscounts * 0.04 * 100) / 100
+    : 0;
+  const finalTotal = Math.round((baseAfterDiscounts + cardFee) * 100) / 100;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-MX', {
@@ -624,7 +629,7 @@ export default function Checkout() {
                   <Separator />
 
                   {/* Subtotal and discount breakdown */}
-                  {(discountResult || founderDiscount > 0) && (
+                  {(discountResult || founderDiscount > 0 || cardFee > 0) && (
                     <>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
@@ -648,6 +653,12 @@ export default function Checkout() {
                           <span>-{formatPrice(founderDiscount)}</span>
                         </div>
                       )}
+                      {cardFee > 0 && (
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                          <span>Comisión por uso de plataforma (4%)</span>
+                          <span>+{formatPrice(cardFee)}</span>
+                        </div>
+                      )}
                     </>
                   )}
 
@@ -658,6 +669,11 @@ export default function Checkout() {
                       {formatPrice(finalTotal)}
                     </span>
                   </div>
+                  {selectedPaymentMethod === 'card' && cardFee > 0 && (
+                    <p className="text-[11px] text-muted-foreground -mt-2">
+                      Pago con tarjeta incluye 4% por uso de plataforma. Paga con efectivo o transferencia para evitarlo.
+                    </p>
+                  )}
 
                   {/* Notes */}
                   <div className="space-y-2">
