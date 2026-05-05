@@ -229,11 +229,12 @@ export default function SelectReformer() {
                         </>
                       )}
 
-                      {/* Wunda vertical group labels */}
+                      {/* Wunda vertical group labels + right-wall mirror */}
                       {isWunda && (
                         <>
                           <span className="lum-wunda-label lum-wunda-label-top">WUNDA</span>
                           <span className="lum-wunda-label lum-wunda-label-bottom">CHAIR</span>
+                          <div className="lum-wunda-mirror" aria-hidden="true" />
                         </>
                       )}
 
@@ -582,6 +583,27 @@ function StyleBlock() {
       .lum-wunda-label-bottom { top:58%; }
       @media (max-width:720px) {
         .lum-wunda-label { left:3%; font-size:10px; letter-spacing:0.32em; }
+      }
+
+      /* Wunda — full-height mirror strip on the right wall */
+      .lum-wunda-mirror {
+        position:absolute; top:8%; bottom:8%;
+        right:6%; width:14px;
+        border-radius:6px; pointer-events:none; z-index:1;
+        background:linear-gradient(180deg,
+          rgba(170,200,225,.55) 0%,
+          rgba(220,235,245,.78) 28%,
+          rgba(180,210,230,.62) 55%,
+          rgba(220,235,245,.78) 78%,
+          rgba(170,200,225,.55) 100%);
+        border:1px solid rgba(120,160,190,.55);
+        box-shadow:
+          inset 0 0 10px rgba(255,255,255,.7),
+          inset 0 1px 0 rgba(255,255,255,.85),
+          0 0 18px rgba(150,190,220,.28);
+      }
+      @media (max-width:720px) {
+        .lum-wunda-mirror { width:10px; right:3%; top:5%; bottom:5%; }
       }
       .lum-map-card.lum-map-hot {
         background:linear-gradient(180deg,#f8e6d8 0%,#ecbfa6 100%);
