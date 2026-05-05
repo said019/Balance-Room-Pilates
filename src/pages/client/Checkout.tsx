@@ -28,6 +28,7 @@ import {
   Loader2,
   Copy,
   Check,
+  Star,
 } from 'lucide-react';
 
 interface Plan {
@@ -414,7 +415,7 @@ export default function Checkout() {
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-3 flex-wrap text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Sparkles className="h-4 w-4" />
                             {plan.is_unlimited
@@ -423,6 +424,16 @@ export default function Checkout() {
                                 ? `${plan.class_limit} clases`
                                 : 'Acceso membresía'}
                           </div>
+                          {(() => {
+                            const pts: Record<number, number> = { 4: 30, 8: 60, 12: 100, 24: 160 };
+                            const bonus = plan.class_limit ? pts[plan.class_limit] : null;
+                            return bonus ? (
+                              <div className="flex items-center gap-1 rounded-full border border-amber-200/80 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                                <Star className="h-3 w-3 fill-current text-amber-500" />
+                                +{bonus} pts al comprar
+                              </div>
+                            ) : null;
+                          })()}
                         </div>
                       </CardContent>
                     </Card>
