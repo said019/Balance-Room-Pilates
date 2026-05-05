@@ -85,9 +85,10 @@ export default function Login() {
                     <img
                         src={studioBarre}
                         alt="Balance Room studio"
-                        className="absolute inset-0 h-full w-full object-cover"
+                        className="absolute inset-0 h-full w-full scale-105 object-cover blur-[2px] saturate-[0.82]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#211B15]/70 via-[#211B15]/40 to-[#211B15]/65" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#211B15]/78 via-[#211B15]/48 to-[#211B15]/72" />
+                    <div className="absolute inset-0 bg-[#F3EEE2]/10 backdrop-blur-[1px]" />
                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#211B15]/95 via-[#211B15]/55 to-transparent" />
 
                     <div className="relative z-10 flex h-full flex-col justify-between p-6 lg:p-10 xl:p-14">

@@ -179,6 +179,8 @@ export default function SelectReformer() {
                   const isHot = /hot/.test(fn);
                   const isBarre = /barre/.test(fn);
                   const isWunda = /wunda/.test(fn);
+                  const className = `${booking?.class_name || ''} ${mapData.class_type?.name || ''}`.toLowerCase();
+                  const isPilatesMat = !isHot && spotKind === 'mat' && /pilates/.test(`${fn} ${className}`);
                   const coachLabel = isHot ? 'Mat Coach' : isBarre ? 'Coach' : 'Maestra';
                   const cardClass = `lum-map-card ${isHot ? 'lum-map-hot' : ''} ${isBarre ? 'lum-map-barre' : ''} ${isWunda ? 'lum-map-wunda' : ''}`;
                   return (
@@ -204,7 +206,7 @@ export default function SelectReformer() {
                           )}
                           <div className="lum-specular" />
                           {!isHot && !isWunda && !isBarre && <span className="lum-sl lum-sl-mirror">espejo</span>}
-                          {!isWunda && !isBarre && <span className="lum-sl lum-sl-door">entrada</span>}
+                          {!isHot && !isWunda && !isBarre && <span className="lum-sl lum-sl-door">entrada</span>}
                           {!isHot && !isWunda && !isBarre && <span className="lum-sl lum-sl-wall">pared posterior</span>}
                         </>
                       )}
@@ -239,13 +241,15 @@ export default function SelectReformer() {
                       )}
 
                       {/* Front marker (Coach / Mat Coach / Maestra) */}
-                      <div
-                        className="lum-front"
-                        style={{ left: `${mapData.facility.front_position_x}%`, top: `${mapData.facility.front_position_y}%` }}
-                      >
-                        <span className="dia" />
-                        {coachLabel}
-                      </div>
+                      {!isWunda && (
+                        <div
+                          className="lum-front"
+                          style={{ left: `${mapData.facility.front_position_x}%`, top: `${mapData.facility.front_position_y}%` }}
+                        >
+                          <span className="dia" />
+                          {coachLabel}
+                        </div>
+                      )}
 
                   {/* LIVE chip */}
                   <span className="lum-live"><span className="pulse" />live</span>
@@ -270,7 +274,16 @@ export default function SelectReformer() {
                     } else {
                       h = w * 0.85;
                     }
-                    const iconRotation = (r.rotation || 0) + (spotKind === 'reformer' ? -90 : 0);
+                    const iconRotation = (() => {
+                      if (spotKind === 'reformer') return (r.rotation || 0) - 90;
+                      if (isHot && spotKind === 'mat') {
+                        const dx = mapData.facility.front_position_x - r.position_x;
+                        const dy = mapData.facility.front_position_y - r.position_y;
+                        return Math.atan2(dy, dx) * (180 / Math.PI) - 180;
+                      }
+                      if (isPilatesMat) return 90;
+                      return r.rotation || 0;
+                    })();
                     const clickable = state !== 'occupied';
 
                     return (
@@ -605,18 +618,9 @@ function StyleBlock() {
       @media (max-width:720px) {
         .lum-wunda-mirror { width:10px; right:3%; top:5%; bottom:5%; }
       }
+      /* Hot Room — neutral cream background like the other facilities */
       .lum-map-card.lum-map-hot {
-        background:linear-gradient(180deg,#f8e6d8 0%,#ecbfa6 100%);
-        box-shadow:
-          0 1px 0 rgba(255,255,255,.9) inset,
-          0 0 0 2px rgba(184,68,52,0.55),
-          0 0 0 6px rgba(184,68,52,0.10),
-          0 40px 80px -40px rgba(184,68,52,0.35),
-          0 10px 28px -14px rgba(168,82,76,0.20);
-      }
-      .lum-map-card.lum-map-hot::before {
-        content:""; position:absolute; inset:0; pointer-events:none;
-        background:radial-gradient(60% 50% at 50% 0%, rgba(212,90,68,0.18) 0%, transparent 70%);
+        background:linear-gradient(180deg,var(--lum-cream-2) 0%,var(--lum-sand) 100%);
       }
 
       /* ============================================================

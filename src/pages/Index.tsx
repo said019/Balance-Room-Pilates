@@ -6,6 +6,7 @@ import Instructors from "@/components/Instructors";
 import WalletClub from "@/components/WalletClub";
 import Pricing from "@/components/Pricing";
 import Testimonials from "@/components/Testimonials";
+import Location from "@/components/Location";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -19,6 +20,7 @@ const Index = () => {
       <WalletClub />
       <Pricing />
       <Testimonials />
+      <Location />
       <Footer />
     </main>
   );
