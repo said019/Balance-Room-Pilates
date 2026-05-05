@@ -79,6 +79,10 @@ export default function AdminDashboard() {
 
     const totalAttention = pendingVerificationOrders.length + pendingMemberships + pendingEventRegs.length;
 
+    const grossToday = (stats as any)?.revenueGross ?? stats?.revenue ?? 0;
+    const netToday = (stats as any)?.revenueNet ?? stats?.revenue ?? 0;
+    const cardFeesToday = (stats as any)?.revenueCardFees ?? 0;
+
     const kpis = [
         {
             title: 'Clases hoy',
@@ -102,9 +106,11 @@ export default function AdminDashboard() {
             tone: 'cream',
         },
         {
-            title: 'Ingresos hoy',
-            value: formatMoney(stats?.revenue || 0),
-            detail: 'registrado en caja',
+            title: 'Ingresos hoy (bruto)',
+            value: formatMoney(grossToday),
+            detail: cardFeesToday > 0
+                ? `Neto ${formatMoney(netToday)} · -${formatMoney(cardFeesToday)} comisiones`
+                : 'sin comisiones de tarjeta',
             icon: CreditCard,
             tone: 'dark',
         },

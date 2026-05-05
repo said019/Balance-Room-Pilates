@@ -302,6 +302,30 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
     });
 
+    const uncheckInMutation = useMutation({
+        mutationFn: async (bookingId: string) => {
+            return await api.post(`/bookings/${bookingId}/uncheck-in`);
+        },
+        onSuccess: () => {
+            refetchAttendees();
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+            toast({ title: 'Check-in deshecho', description: 'La reserva volvió a estado confirmado.' });
+        },
+        onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
+    });
+
+    const cancelBookingMutation = useMutation({
+        mutationFn: async (bookingId: string) => {
+            return await api.post(`/bookings/${bookingId}/cancel`);
+        },
+        onSuccess: () => {
+            refetchAttendees();
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+            toast({ title: 'Reserva cancelada', description: 'Crédito devuelto si aplicaba.' });
+        },
+        onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
+    });
+
     // Forms
     // Calculate next full week (Sunday to Saturday)
     const nextSunday = startOfWeek(addDays(new Date(), 7), { weekStartsOn: 0 });
@@ -807,25 +831,53 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-2 flex-wrap justify-end">
                                                     {attendee.status === 'checked_in' ? (
-                                                        <Badge className="bg-success">
-                                                            <Check className="h-3 w-3 mr-1" /> Check-in
-                                                        </Badge>
+                                                        <>
+                                                            <Badge className="bg-success">
+                                                                <Check className="h-3 w-3 mr-1" /> Check-in
+                                                            </Badge>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                onClick={() => {
+                                                                    if (confirm('¿Deshacer el check-in? La reserva volverá a estado confirmado.')) {
+                                                                        uncheckInMutation.mutate(attendee.booking_id);
+                                                                    }
+                                                                }}
+                                                                disabled={uncheckInMutation.isPending}
+                                                            >
+                                                                Deshacer
+                                                            </Button>
+                                                        </>
                                                     ) : attendee.status === 'confirmed' ? (
-                                                        <Button
-                                                            size="sm"
-                                                            onClick={() => checkInMutation.mutate(attendee.booking_id)}
-                                                            disabled={checkInMutation.isPending}
-                                                        >
-                                                            {checkInMutation.isPending ? (
-                                                                <Loader2 className="h-4 w-4 animate-spin" />
-                                                            ) : (
-                                                                <>
-                                                                    <Check className="h-4 w-4 mr-1" /> Check-in
-                                                                </>
-                                                            )}
-                                                        </Button>
+                                                        <>
+                                                            <Button
+                                                                size="sm"
+                                                                onClick={() => checkInMutation.mutate(attendee.booking_id)}
+                                                                disabled={checkInMutation.isPending}
+                                                            >
+                                                                {checkInMutation.isPending ? (
+                                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                                ) : (
+                                                                    <>
+                                                                        <Check className="h-4 w-4 mr-1" /> Check-in
+                                                                    </>
+                                                                )}
+                                                            </Button>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                onClick={() => {
+                                                                    if (confirm('¿Cancelar la reserva del cliente? Se devolverá su crédito si aplica.')) {
+                                                                        cancelBookingMutation.mutate(attendee.booking_id);
+                                                                    }
+                                                                }}
+                                                                disabled={cancelBookingMutation.isPending}
+                                                            >
+                                                                Cancelar
+                                                            </Button>
+                                                        </>
                                                     ) : (
                                                         <Badge variant="secondary">{attendee.status}</Badge>
                                                     )}
