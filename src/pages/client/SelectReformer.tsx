@@ -203,9 +203,9 @@ export default function SelectReformer() {
                             </svg>
                           )}
                           <div className="lum-specular" />
-                          {!isHot && <span className="lum-sl lum-sl-mirror">espejo</span>}
-                          <span className="lum-sl lum-sl-door">entrada</span>
-                          {!isHot && <span className="lum-sl lum-sl-wall">pared posterior</span>}
+                          {!isHot && !isWunda && <span className="lum-sl lum-sl-mirror">espejo</span>}
+                          {!isWunda && <span className="lum-sl lum-sl-door">entrada</span>}
+                          {!isHot && !isWunda && <span className="lum-sl lum-sl-wall">pared posterior</span>}
                         </>
                       )}
 

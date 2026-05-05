@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/table';
 import api from '@/lib/api';
 import type { PaymentRecord } from '@/types/payment';
-import { Loader2, Search } from 'lucide-react';
+import { Loader2, Search, X } from 'lucide-react';
 
 interface PaymentsListProps {
   title?: string;
@@ -62,45 +62,107 @@ export default function PaymentsTransactions({
 }: PaymentsListProps) {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState(initialStatus);
+  const [paymentMethod, setPaymentMethod] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   const { data, isLoading } = useQuery<PaymentRecord[]>({
-    queryKey: ['payments', status, search],
+    queryKey: ['payments', status, search, paymentMethod, startDate, endDate],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (status !== 'all') params.append('status', status);
       if (search) params.append('search', search);
+      if (paymentMethod !== 'all') params.append('paymentMethod', paymentMethod);
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        params.append('endDate', end.toISOString());
+      }
       const { data } = await api.get(`/payments/transactions?${params.toString()}`);
       return data;
     },
   });
 
+  const clearFilters = () => {
+    setSearch('');
+    if (!statusLocked) setStatus('all');
+    setPaymentMethod('all');
+    setStartDate('');
+    setEndDate('');
+  };
+
+  const hasActiveFilters =
+    !!search || (!statusLocked && status !== 'all') || paymentMethod !== 'all' || !!startDate || !!endDate;
+
   const payments = useMemo(() => data || [], [data]);
 
   const content = (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="relative w-full md:max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por cliente..."
-            className="pl-10"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      <div className="space-y-3">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por cliente..."
+              className="pl-10"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          <Select value={status} onValueChange={setStatus} disabled={statusLocked}>
+            <SelectTrigger>
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los estados</SelectItem>
+              <SelectItem value="completed">Completadas</SelectItem>
+              <SelectItem value="pending">Pendientes</SelectItem>
+              <SelectItem value="failed">Fallidas</SelectItem>
+              <SelectItem value="refunded">Reembolsadas</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+            <SelectTrigger>
+              <SelectValue placeholder="Método de pago" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los métodos</SelectItem>
+              <SelectItem value="cash">Efectivo</SelectItem>
+              <SelectItem value="transfer">Transferencia</SelectItem>
+              <SelectItem value="card">Tarjeta</SelectItem>
+              <SelectItem value="online">Online</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              placeholder="Desde"
+              aria-label="Fecha desde"
+            />
+            <Input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              placeholder="Hasta"
+              aria-label="Fecha hasta"
+            />
+          </div>
         </div>
 
-        <Select value={status} onValueChange={setStatus} disabled={statusLocked}>
-          <SelectTrigger className="w-full md:w-56">
-            <SelectValue placeholder="Estado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas</SelectItem>
-            <SelectItem value="completed">Completadas</SelectItem>
-            <SelectItem value="pending">Pendientes</SelectItem>
-            <SelectItem value="failed">Fallidas</SelectItem>
-            <SelectItem value="refunded">Reembolsadas</SelectItem>
-          </SelectContent>
-        </Select>
+        {hasActiveFilters && (
+          <div className="flex justify-end">
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1.5 text-muted-foreground">
+              <X className="h-3.5 w-3.5" />
+              Limpiar filtros
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="rounded-md border bg-card">

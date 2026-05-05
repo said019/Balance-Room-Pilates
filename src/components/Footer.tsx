@@ -1,4 +1,4 @@
-import { MapPin, Phone, Mail, Instagram } from "lucide-react";
+import { MapPin, Mail, Instagram } from "lucide-react";
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
@@ -72,23 +72,16 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary-foreground/50 flex-shrink-0 mt-0.5" />
                 <a
-                  href="https://maps.google.com/?q=Hermenegildo+Galeana+Int+Local+4+Centro+76803+San+Juan+del+Rio+Qro"
+                  href="https://maps.app.goo.gl/d54t7iVdL5DzWgYy9?g_st=iw"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-body text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
                 >
-                  Hermenegildo Galeana Int. Local 4
+                  Av. Insurgentes 51, Mz. 006
                   <br />
-                  Centro, 76803 San Juan del Río, Qro.
-                </a>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-primary-foreground/50" />
-                <a
-                  href="tel:+524271007347"
-                  className="font-body text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-                >
-                  +52 427 100 7347
+                  San Salvador Tizatlalli, 52172
+                  <br />
+                  Estado de México
                 </a>
               </li>
               <li className="flex items-center gap-3">
