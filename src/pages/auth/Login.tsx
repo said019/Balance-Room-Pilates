@@ -80,7 +80,7 @@ export default function Login() {
                     initial={{ opacity: 0, scale: 0.985 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.55, ease: easeOut }}
-                    className="relative hidden min-h-screen overflow-hidden lg:block"
+                    className="relative overflow-hidden h-52 sm:h-64 lg:h-auto lg:min-h-screen"
                 >
                     <img
                         src={studioBarre}
@@ -90,22 +90,22 @@ export default function Login() {
                     <div className="absolute inset-0 bg-gradient-to-br from-[#211B15]/70 via-[#211B15]/40 to-[#211B15]/65" />
                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#211B15]/95 via-[#211B15]/55 to-transparent" />
 
-                    <div className="relative z-10 flex h-full flex-col justify-between p-10 xl:p-14">
+                    <div className="relative z-10 flex h-full flex-col justify-between p-6 lg:p-10 xl:p-14">
                         <Link to="/" className="flex w-fit items-center gap-3">
                             <img
                                 src="/balance-room-logo-transparent.png"
                                 alt="Balance Room Pilates"
-                                className="h-14 w-auto object-contain"
+                                className="h-10 lg:h-14 w-auto object-contain"
                             />
                             <div className="leading-none text-white">
-                                <p className="font-heading text-2xl font-semibold">Balance Room</p>
+                                <p className="font-heading text-lg lg:text-2xl font-semibold">Balance Room</p>
                                 <p className="mt-1 font-body text-[10px] uppercase tracking-[0.28em] text-white/60">
                                     Pilates
                                 </p>
                             </div>
                         </Link>
 
-                        <div className="max-w-xl">
+                        <div className="hidden lg:block max-w-xl">
                             <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 font-body text-xs uppercase tracking-[0.2em] text-white/75 backdrop-blur">
                                 <Sparkles className="h-3.5 w-3.5" />
                                 studio boutique
@@ -118,7 +118,7 @@ export default function Login() {
                             </p>
                         </div>
 
-                        <div className="grid max-w-xl grid-cols-3 gap-3">
+                        <div className="hidden lg:grid max-w-xl grid-cols-3 gap-3">
                             {[
                                 { icon: CalendarCheck, label: 'Reserva simple' },
                                 { icon: HeartHandshake, label: 'Atencion cercana' },
@@ -143,23 +143,10 @@ export default function Login() {
                         transition={{ duration: 0.45, ease: easeOut }}
                         className="relative w-full max-w-[450px]"
                     >
-                        <div className="mb-8 flex items-center justify-between">
-                            <Link to="/" className="flex items-center gap-3 lg:hidden">
-                                <img
-                                    src="/balance-room-logo-transparent.png"
-                                    alt="Balance Room Pilates"
-                                    className="h-12 w-auto object-contain"
-                                />
-                                <div>
-                                    <p className="font-heading text-xl font-semibold">Balance Room</p>
-                                    <p className="font-body text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                                        Pilates
-                                    </p>
-                                </div>
-                            </Link>
+                        <div className="mb-8 flex justify-end">
                             <Link
                                 to="/"
-                                className="ml-auto rounded-full border border-[#CFC8B8] px-4 py-2 font-body text-xs font-semibold uppercase tracking-[0.14em] text-[#6F776C] transition-colors hover:bg-white/60"
+                                className="rounded-full border border-[#CFC8B8] px-4 py-2 font-body text-xs font-semibold uppercase tracking-[0.14em] text-[#6F776C] transition-colors hover:bg-white/60"
                             >
                                 Inicio
                             </Link>

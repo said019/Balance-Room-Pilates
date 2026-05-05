@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import api, { getErrorMessage } from '@/lib/api';
-import { Gift, History, Sparkles, BadgePercent, Package, CalendarPlus, Award, Copy, Share2, Users, Star, Flame, Crown } from 'lucide-react';
+import { Gift, History, Sparkles, BadgePercent, Package, CalendarPlus, Award, Copy, Share2, Users, Star, Flame, Crown, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/components/ui/use-toast';
@@ -50,7 +50,7 @@ function ReferralCodePanel() {
   const handleShareWhatsApp = () => {
     if (!data?.code) return;
     const msg = encodeURIComponent(
-      `¡Te invito a Balance Room Pilates! 🧘\nUsa mi código *${data.code}* al registrarte y obtén 10% de descuento en tu primer paquete. 💚`
+      `¡Te invito a Balance Room Pilates! 🧘\nUsa mi código *${data.code}* al registrarte. 💚`
     );
     window.open(`https://wa.me/?text=${msg}`, '_blank');
   };
@@ -60,7 +60,7 @@ function ReferralCodePanel() {
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/65">Refiere a tus amigas</p>
         <h2 className="mt-1 text-xl font-semibold">Tu código personal</h2>
-        <p className="mt-1 text-sm text-white/70">Cada amiga que lo use recibe 10% de descuento y tú ganas 10 puntos.</p>
+        <p className="mt-1 text-sm text-white/70">Ganas 40 puntos cada vez que alguien compre usando tu código.</p>
       </div>
 
       {isLoading ? (
@@ -293,22 +293,80 @@ export default function WalletClub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {[
-                  { icon: CalendarPlus, label: 'Asistir a una clase', value: '+10 pts', desc: 'Por cada clase que tomes' },
-                  { icon: Star, label: 'Reseña de clase', value: '+50 pts', desc: 'Al dejar tu opinión después de clase' },
-                  { icon: Users, label: 'Referir una amiga', value: '+100 pts', desc: 'Cuando se registra con tu código' },
-                  { icon: Award, label: 'Bono de bienvenida', value: '+50 pts', desc: 'Al crear tu cuenta' },
-                ].map(({ icon: Icon, label, value, desc }) => (
-                  <div key={label} className="rounded-[1.1rem] border border-balance-sand/55 bg-balance-cream/45 p-4">
-                    <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-[0.8rem] bg-balance-olive/10">
-                      <Icon className="h-4 w-4 text-balance-olive" />
+              <div className="grid gap-4 sm:grid-cols-3">
+                {/* Compras */}
+                <div className="rounded-[1.25rem] border border-balance-sand/65 bg-balance-cream/45 p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 flex items-center justify-center rounded-[0.7rem] bg-balance-olive/10">
+                      <ShoppingBag className="h-4 w-4 text-balance-olive" />
                     </div>
-                    <p className="text-lg font-bold text-balance-olive">{value}</p>
-                    <p className="text-sm font-semibold text-balance-dark">{label}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>
+                    <p className="font-semibold text-sm text-balance-dark">Compras</p>
                   </div>
-                ))}
+                  <div className="space-y-1.5 text-sm">
+                    {[
+                      { label: '4 clases', pts: '+30 pts' },
+                      { label: '8 clases', pts: '+60 pts' },
+                      { label: '12 clases', pts: '+100 pts' },
+                      { label: '24 clases', pts: '+160 pts' },
+                    ].map(({ label, pts }) => (
+                      <div key={label} className="flex justify-between items-center">
+                        <span className="text-muted-foreground">{label}</span>
+                        <span className="font-bold text-balance-olive">{pts}</span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between items-center pt-2 mt-1 border-t border-balance-sand/55">
+                      <span className="text-muted-foreground">Por clase asistida</span>
+                      <span className="font-bold text-balance-olive">+2 pts</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Logros y Eventos */}
+                <div className="rounded-[1.25rem] border border-balance-sand/65 bg-balance-cream/45 p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 flex items-center justify-center rounded-[0.7rem] bg-balance-olive/10">
+                      <Award className="h-4 w-4 text-balance-olive" />
+                    </div>
+                    <p className="font-semibold text-sm text-balance-dark">Logros y Eventos</p>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between items-start gap-2">
+                      <span className="text-muted-foreground leading-snug">Racha 2 semanas seguidas</span>
+                      <span className="font-bold text-balance-olive shrink-0">+10 pts</span>
+                    </div>
+                    <div className="flex justify-between items-start gap-2">
+                      <span className="text-muted-foreground leading-snug">Bienvenida</span>
+                      <span className="font-bold text-balance-olive shrink-0">+10 pts</span>
+                    </div>
+                    <div className="flex justify-between items-start gap-2">
+                      <span className="text-muted-foreground leading-snug">Cumpleaños <span className="text-xs">(con paquete activo)</span></span>
+                      <span className="font-bold text-balance-olive shrink-0">+100 pts</span>
+                    </div>
+                    <div className="flex justify-between items-start gap-2">
+                      <span className="text-muted-foreground leading-snug">Aniversario 1 año</span>
+                      <span className="font-bold text-balance-olive shrink-0">+40 pts</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Referidos */}
+                <div className="rounded-[1.25rem] border border-balance-sand/65 bg-balance-cream/45 p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 flex items-center justify-center rounded-[0.7rem] bg-balance-olive/10">
+                      <Users className="h-4 w-4 text-balance-olive" />
+                    </div>
+                    <p className="font-semibold text-sm text-balance-dark">Referidos</p>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between items-start gap-2">
+                      <span className="text-muted-foreground leading-snug">Compra con tu código</span>
+                      <span className="font-bold text-balance-olive shrink-0">+40 pts</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground pt-1">
+                      Solo tú ganas puntos. Tu amiga obtiene acceso al studio.
+                    </p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

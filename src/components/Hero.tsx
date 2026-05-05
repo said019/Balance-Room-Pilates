@@ -7,6 +7,12 @@ const Hero = () => {
     <section className="relative min-h-[100dvh] flex items-end overflow-hidden">
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[#2f281f]" />
+        <img
+          src={heroStudio}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover object-center opacity-30 lg:hidden"
+        />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_22%_24%,rgba(126,133,121,0.42),transparent_38%),radial-gradient(ellipse_at_82%_74%,rgba(207,200,184,0.22),transparent_32%),linear-gradient(135deg,#332A22_0%,#51483E_48%,#7E8579_100%)]" />
         <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,.55)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.55)_1px,transparent_1px)] [background-size:44px_44px]" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#211b15]/85 via-[#211b15]/30 to-[#f6f1e7]/5" />

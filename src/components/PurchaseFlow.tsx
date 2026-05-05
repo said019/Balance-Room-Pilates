@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Check, CreditCard, Building2, AlertCircle } from 'lucide-react';
+import { Loader2, Check, CreditCard, Building2, AlertCircle, Star } from 'lucide-react';
 import api from '@/lib/api';
 
 interface Plan {
@@ -142,6 +142,8 @@ export function PurchaseFlow() {
             {plans.map((plan) => {
               const isPopular = plan.name === 'Tres Sesiones';
               const pricePerClass = plan.class_limit ? (plan.price / plan.class_limit).toFixed(0) : null;
+              const planPointsMap: Record<number, number> = { 4: 30, 8: 60, 12: 100, 24: 160 };
+              const bonusPoints = plan.class_limit ? planPointsMap[plan.class_limit] ?? null : null;
 
               return (
                 <Card
@@ -159,7 +161,9 @@ export function PurchaseFlow() {
 
                   <CardHeader>
                     <CardTitle className="text-xl font-heading">{plan.name}</CardTitle>
-                    <CardDescription className="font-body">{plan.description}</CardDescription>
+                    {plan.description && (
+                      <CardDescription className="font-body">{plan.description}</CardDescription>
+                    )}
                   </CardHeader>
 
                   <CardContent className="space-y-4">
@@ -175,16 +179,24 @@ export function PurchaseFlow() {
                           ${pricePerClass} por clase
                         </p>
                       )}
+                      {bonusPoints && (
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200/80 rounded-full px-2.5 py-1 w-fit">
+                          <Star className="h-3 w-3 fill-current text-amber-500" />
+                          +{bonusPoints} pts al comprar
+                        </div>
+                      )}
                     </div>
 
-                    <ul className="space-y-2">
-                      {plan.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-sm">
-                          <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                          <span className="font-body">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    {plan.features?.length > 0 && (
+                      <ul className="space-y-2">
+                        {plan.features.map((feature, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-sm">
+                            <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                            <span className="font-body">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
 
                     <Button className="w-full" variant={isPopular ? 'default' : 'outline'}>
                       Seleccionar Plan
