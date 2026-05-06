@@ -33,6 +33,11 @@ export default function BookClasses() {
             const { data } = await api.get(`/classes?start=${startStr}&end=${endStr}`);
             return data;
         },
+        // Always refetch when the user navigates to this view or switches weeks —
+        // class availability changes second-to-second so stale data is misleading.
+        staleTime: 0,
+        refetchOnMount: 'always',
+        refetchOnWindowFocus: true,
     });
 
     const { data: myBookings } = useQuery<BookingClient[]>({
