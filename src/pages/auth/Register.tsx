@@ -19,6 +19,8 @@ import {
     Lock,
     Mail,
     Phone,
+    PlusSquare,
+    Share,
     Sparkles,
     User,
 } from 'lucide-react';
@@ -454,6 +456,17 @@ export default function Register() {
                                     </p>
                                 </motion.div>
                             </form>
+                        </div>
+
+                        <div className="mt-5 rounded-2xl border border-[#D8D0C2] bg-white/45 p-4 text-center">
+                            <p className="font-body text-xs font-semibold text-[#332A22]/80">
+                                Instala la app en tu celular
+                            </p>
+                            <p className="mt-1 font-body text-[11px] leading-relaxed text-muted-foreground">
+                                <strong>iPhone:</strong> toca <Share className="inline h-3 w-3 -mt-0.5" /> en Safari y luego <em>Agregar a inicio</em>.
+                                <br />
+                                <strong>Android:</strong> toca <PlusSquare className="inline h-3 w-3 -mt-0.5" /> en Chrome o el menú (⋮) y <em>Instalar app</em>.
+                            </p>
                         </div>
                     </motion.div>
                 </section>

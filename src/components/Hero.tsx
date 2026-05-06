@@ -16,7 +16,8 @@ const Hero = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_22%_24%,rgba(126,133,121,0.42),transparent_38%),radial-gradient(ellipse_at_82%_74%,rgba(207,200,184,0.22),transparent_32%),linear-gradient(135deg,#332A22_0%,#51483E_48%,#7E8579_100%)]" />
         <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,.55)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.55)_1px,transparent_1px)] [background-size:44px_44px]" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#211b15]/85 via-[#211b15]/30 to-[#f6f1e7]/5" />
-        <div className="absolute right-4 top-24 hidden h-[54vh] w-[38vw] min-w-[420px] rounded-[2rem] border border-white/16 overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.35)] lg:block">
+        {/* Framed studio photo — visible on mobile (compact) and desktop (large floating card) */}
+        <div className="absolute right-4 top-20 h-[34vh] w-[60vw] max-w-[300px] rounded-[1.5rem] border border-white/16 overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.45)] lg:right-4 lg:top-24 lg:h-[54vh] lg:w-[38vw] lg:max-w-none lg:min-w-[420px] lg:rounded-[2rem] lg:shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
           <img
             src={heroStudio}
             alt="Clase Balance Room Pilates"
