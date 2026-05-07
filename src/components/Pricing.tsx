@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Check, Clock, CreditCard } from "lucide-react";
+import { ArrowRight, Check, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const plans = [
@@ -160,18 +160,6 @@ const Pricing = () => {
             </ul>
           </div>
 
-          <div className="rounded-[1.75rem] bg-[#322A1E] p-7 text-white ring-1 ring-black/5">
-            <div className="flex items-center gap-3 mb-4">
-              <CreditCard className="h-5 w-5 text-[#D8CAB0]" />
-              <h3 className="font-heading text-2xl font-semibold">Pagos</h3>
-            </div>
-            <p className="font-body text-sm leading-relaxed text-white/70">
-              Se aceptan pagos en el studio y pagos en línea cuando la cuenta
-              bancaria/tarjeta dirigida esté lista. El sistema mantiene el flujo
-              de compra preparado para confirmar órdenes sin exigir inscripción
-              anual ni costo extra de registro.
-            </p>
-          </div>
         </div>
       </div>
     </section>
