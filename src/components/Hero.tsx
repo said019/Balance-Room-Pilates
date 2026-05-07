@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ChevronDown } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroStudio from "@/assets/hero-studio.jpg";
 
 const Hero = () => {
@@ -56,12 +57,12 @@ const Hero = () => {
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 animate-fade-up delay-200">
               <Button variant="hero" size="xl" asChild className="group min-h-14 bg-[#7F8372] hover:bg-[#707563] rounded-full w-full sm:w-auto text-center justify-center px-6 text-base sm:px-10 sm:text-lg">
-                <a href="#precios">
-                  Ver paquetes
+                <Link to="/login">
+                  Iniciar sesión
                   <span className="ml-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/15 transition-transform duration-500 group-hover:translate-x-1 sm:h-8 sm:w-8">
                     <ArrowRight className="h-4 w-4" />
                   </span>
-                </a>
+                </Link>
               </Button>
               <Button
                 variant="heroOutline"
