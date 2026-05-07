@@ -184,7 +184,7 @@ export default function MembershipsList({
 
                     <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                         {!hideTabs && (
-                            <Tabs value={filter} className="w-full md:w-auto" onValueChange={(val) => setFilter(val)}>
+                            <Tabs value={filter} className="w-full md:w-auto" onValueChange={(val) => setFilter(val as typeof filter)}>
                                 <TabsList>
                                     <TabsTrigger value="all">Todas</TabsTrigger>
                                     <TabsTrigger value="active">Activas</TabsTrigger>

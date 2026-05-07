@@ -5,7 +5,13 @@
  * clientes que ya pagaron antes de implementar la plataforma.
  */
 
-import { Timestamp } from 'firebase/firestore';
+// Local Timestamp type (firebase/firestore was removed; this is structurally compatible).
+export type Timestamp = {
+  seconds: number;
+  nanoseconds: number;
+  toDate(): Date;
+  toMillis(): number;
+};
 
 /**
  * Origen del usuario en el sistema

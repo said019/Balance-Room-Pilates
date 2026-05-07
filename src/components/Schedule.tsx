@@ -73,46 +73,6 @@ const classColors: Record<string, string> = {
   Barre: '#837A70',
 };
 
-const fallbackTypes = [
-  { name: 'Yoga', color: '#7E8579' },
-  { name: 'Hot yoga', color: '#8A8174' },
-  { name: 'Pilates mat', color: '#A2A88B' },
-  { name: 'Hot Pilates', color: '#8F7D68' },
-  { name: 'Silla wunda', color: '#6F776C' },
-  { name: 'Sculpt', color: '#9E927F' },
-  { name: 'Barre', color: '#837A70' },
-];
-
-const fallbackTimes = ['07:00', '08:00', '09:00', '17:00', '18:00', '19:00'];
-const fallbackCoaches = ['Pao', 'Fer', 'Andrea', 'Sofía'];
-
-function buildFallbackApiClasses(start: Date): ApiClass[] {
-  return Array.from({ length: 7 }).flatMap((_, dayIndex) => {
-    const date = format(addDays(start, dayIndex), 'yyyy-MM-dd');
-
-    return fallbackTimes.map((time, timeIndex) => {
-      const classType = fallbackTypes[(dayIndex + timeIndex) % fallbackTypes.length];
-      const hour = Number(time.split(':')[0]);
-      const endTime = `${String(hour + 1).padStart(2, '0')}:00`;
-
-      return {
-        id: `fallback-${date}-${time}`,
-        date,
-        class_date: date,
-        start_time: time,
-        end_time: endTime,
-        class_type_name: classType.name,
-        class_type_color: classType.color,
-        instructor_name: fallbackCoaches[(dayIndex + timeIndex) % fallbackCoaches.length],
-        instructor_photo: null,
-        capacity: 6,
-        current_bookings: (dayIndex + timeIndex) % 4,
-        status: 'scheduled',
-      };
-    });
-  });
-}
-
 export default function Schedule() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -133,15 +93,10 @@ export default function Schedule() {
   const { data: apiClasses, isLoading } = useQuery<ApiClass[]>({
     queryKey: ['public-classes', startDate, endDate],
     queryFn: async () => {
-      try {
-        const { data } = await api.get(`/classes?start_date=${startDate}&end_date=${endDate}`, { timeout: 2500 });
-        return data;
-      } catch {
-        return buildFallbackApiClasses(weekStart);
-      }
+      const { data } = await api.get(`/classes?start_date=${startDate}&end_date=${endDate}`);
+      return data;
     },
-    placeholderData: () => buildFallbackApiClasses(weekStart),
-    retry: false,
+    retry: 1,
     staleTime: 1000 * 60 * 2,
   });
 

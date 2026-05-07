@@ -23,6 +23,17 @@ import { es } from 'date-fns/locale';
 import { RefreshCcw, History, AlertCircle, ExternalLink } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
+const toDate = (value: unknown): Date => {
+  if (value instanceof Date) return value;
+  if (value && typeof value === 'object' && 'toDate' in value && typeof (value as { toDate: unknown }).toDate === 'function') {
+    return (value as { toDate: () => Date }).toDate();
+  }
+  if (value && typeof value === 'object' && 'seconds' in value) {
+    return new Date((value as { seconds: number }).seconds * 1000);
+  }
+  return new Date(value as string | number);
+};
+
 interface MigrationHistoryProps {
   onViewClient?: (userId: string) => void;
 }
@@ -125,7 +136,7 @@ export const MigrationHistory = ({ onViewClient }: MigrationHistoryProps) => {
                       <TableCell>
                         <p className="text-sm">
                           {format(
-                            new Date(record.originalPaymentDate),
+                            toDate(record.originalPaymentDate),
                             "d 'de' MMM 'de' yyyy",
                             { locale: es }
                           )}
@@ -138,13 +149,13 @@ export const MigrationHistory = ({ onViewClient }: MigrationHistoryProps) => {
                         <div className="space-y-1">
                           <p className="text-sm">
                             {format(
-                              new Date(record.migratedAt),
+                              toDate(record.migratedAt),
                               "d 'de' MMM 'de' yyyy",
                               { locale: es }
                             )}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {format(new Date(record.migratedAt), 'HH:mm')}
+                            {format(toDate(record.migratedAt), 'HH:mm')}
                           </p>
                         </div>
                       </TableCell>

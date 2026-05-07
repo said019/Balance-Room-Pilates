@@ -14,51 +14,17 @@ interface Instructor {
   visible_public: boolean;
 }
 
-const fallbackInstructors: Instructor[] = [
-  {
-    id: "fallback-pao",
-    display_name: "Pao",
-    bio: "Coach de movimiento consciente, técnica cuidada y clases cercanas.",
-    photo_url: null,
-    specialties: ["Pilates", "Barre"],
-    is_active: true,
-    visible_public: true,
-  },
-  {
-    id: "fallback-fer",
-    display_name: "Fer",
-    bio: "Acompaña sesiones de fuerza, control y respiración para todos los niveles.",
-    photo_url: null,
-    specialties: ["Hot Pilates", "Sculpt"],
-    is_active: true,
-    visible_public: true,
-  },
-  {
-    id: "fallback-andrea",
-    display_name: "Andrea",
-    bio: "Guía prácticas fluidas para movilidad, energía y bienestar integral.",
-    photo_url: null,
-    specialties: ["Yoga", "Hot yoga"],
-    is_active: true,
-    visible_public: true,
-  },
-];
-
 const Instructors = () => {
   const [_, setSearchParams] = useSearchParams();
 
   const { data: instructors, isLoading } = useQuery<Instructor[]>({
     queryKey: ['public-instructors'],
     queryFn: async () => {
-      try {
-        const response = await api.get('/instructors', { timeout: 2500 });
-        return response.data.filter((i: Instructor) => i.is_active && i.visible_public);
-      } catch {
-        return fallbackInstructors;
-      }
+      const response = await api.get('/instructors');
+      return response.data.filter((i: Instructor) => i.is_active && i.visible_public);
     },
-    placeholderData: fallbackInstructors,
-    retry: false,
+    retry: 1,
+    staleTime: 1000 * 60 * 5,
   });
 
   const scrollToSchedule = (instructorId: string) => {

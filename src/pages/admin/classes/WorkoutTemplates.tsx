@@ -276,7 +276,7 @@ export default function WorkoutTemplates() {
     };
 
     return (
-        <AuthGuard allowedRoles={['admin', 'instructor']}>
+        <AuthGuard requiredRoles={['admin', 'instructor']}>
             <AdminLayout>
                 <div className="space-y-6">
                     {/* Header */}

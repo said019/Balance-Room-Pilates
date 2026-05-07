@@ -9,10 +9,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { getMembershipStats } from '@/services/migrationServiceAPI';
-import { calculatePercentage } from '@/services/reportsService';
 import type { MembershipStats } from '@/types/migration.types';
 import { Users, TrendingUp, ShoppingCart, Gift, RefreshCcw } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+
+const calculatePercentage = (value: number, total: number): number =>
+  total === 0 ? 0 : Math.round((value / total) * 100);
 
 export const MembershipStatsWidget = () => {
   const [stats, setStats] = useState<MembershipStats | null>(null);

@@ -94,10 +94,10 @@ export default function StudioInstructors() {
                                                         <span>{instructor.email}</span>
                                                     </div>
                                                 )}
-                                                {instructor.phone && (
+                                                {(instructor.instructor_phone || instructor.user_phone) && (
                                                     <div className="flex items-center gap-2">
                                                         <Phone className="h-4 w-4" />
-                                                        <span>{instructor.phone}</span>
+                                                        <span>{instructor.instructor_phone || instructor.user_phone}</span>
                                                     </div>
                                                 )}
                                             </div>
