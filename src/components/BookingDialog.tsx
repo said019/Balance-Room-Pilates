@@ -23,6 +23,8 @@ interface ClassItem {
   spots: number;
   duration: string;
   date?: Date;
+  is_free?: boolean;
+  free_label?: string | null;
 }
 
 interface BookingDialogProps {
@@ -121,35 +123,38 @@ export function BookingDialog({ classData, open, onOpenChange }: BookingDialogPr
       return;
     }
 
-    // CASO B: Login + Sin Créditos
-    if (!membership || membership.status !== 'active') {
-      onOpenChange(false);
-      toast({
-        variant: 'destructive',
-        title: 'Saldo insuficiente',
-        description: 'No tienes una membresía activa. Redirigiendo a planes...',
-      });
-      setTimeout(() => {
-        navigate('/pricing');
-      }, 1500);
-      return;
+    // FREE CLASS: skip membership/credit checks entirely
+    if (!classData.is_free) {
+      // CASO B: Login + Sin membresía activa
+      if (!membership || membership.status !== 'active') {
+        onOpenChange(false);
+        toast({
+          variant: 'destructive',
+          title: 'Saldo insuficiente',
+          description: 'No tienes una membresía activa. Redirigiendo a planes...',
+        });
+        setTimeout(() => {
+          navigate('/pricing');
+        }, 1500);
+        return;
+      }
+
+      const remaining = membership.credits_remaining ?? membership.classes_remaining ?? undefined;
+      if (remaining !== null && remaining !== undefined && remaining <= 0) {
+        onOpenChange(false);
+        toast({
+          variant: 'destructive',
+          title: 'Saldo insuficiente',
+          description: 'No tienes créditos disponibles. Redirigiendo a planes...',
+        });
+        setTimeout(() => {
+          navigate('/pricing');
+        }, 1500);
+        return;
+      }
     }
 
-    const remaining = membership.credits_remaining ?? membership.classes_remaining ?? undefined;
-    if (remaining !== null && remaining !== undefined && remaining <= 0) {
-      onOpenChange(false);
-      toast({
-        variant: 'destructive',
-        title: 'Saldo insuficiente',
-        description: 'No tienes créditos disponibles. Redirigiendo a planes...',
-      });
-      setTimeout(() => {
-        navigate('/pricing');
-      }, 1500);
-      return;
-    }
-
-    // CASO C: Login + Con Créditos
+    // CASO C: Login + (clase gratis OR membresía válida con créditos)
     setIsSubmitting(true);
     try {
       await createBookingMutation.mutateAsync(classData.id);
@@ -200,7 +205,15 @@ export function BookingDialog({ classData, open, onOpenChange }: BookingDialogPr
           </div>
 
           {/* Estado de membresía */}
-          {loadingMembership ? (
+          {classData.is_free ? (
+            <Alert className="bg-green-50 border-green-300">
+              <CheckCircle className="h-4 w-4 text-green-700" />
+              <AlertDescription className="text-green-800">
+                <span className="font-semibold">{classData.free_label || 'Clase gratis'}.</span>{' '}
+                No se descontará crédito y no necesitas membresía.
+              </AlertDescription>
+            </Alert>
+          ) : loadingMembership ? (
             <div className="flex items-center justify-center py-4">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
             </div>
@@ -250,13 +263,15 @@ export function BookingDialog({ classData, open, onOpenChange }: BookingDialogPr
             <Button
               onClick={handleReserve}
               className="flex-1"
-              disabled={isSubmitting || (isAuthenticated && !hasCredits)}
+              disabled={isSubmitting || (isAuthenticated && !classData.is_free && !hasCredits)}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Reservando...
                 </>
+              ) : classData.is_free ? (
+                'Reservar gratis'
               ) : (
                 'Confirmar Reserva'
               )}

@@ -42,6 +42,8 @@ interface ClassItem {
   spots: number;
   duration: string;
   date?: Date;
+  is_free?: boolean;
+  free_label?: string | null;
 }
 
 interface ApiClass {
@@ -189,6 +191,8 @@ export default function Schedule() {
       spots: cls.spots,
       duration: `${cls.duration} min`,
       date: parseISO(cls.time),
+      is_free: cls.isFree,
+      free_label: cls.freeLabel,
     });
     setDialogOpen(true);
   };
