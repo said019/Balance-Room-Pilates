@@ -82,6 +82,16 @@ export default function MembershipsList({
         }
     });
 
+    const watchedUserId = watch('userId');
+    const watchedPlanId = watch('planId');
+    const watchedPaymentMethod = watch('paymentMethod');
+
+    const { data: selectedFounder } = useQuery<{ user: { is_founder: boolean; founder_first_package_used: boolean } }>({
+        queryKey: ['founder', watchedUserId],
+        queryFn: async () => (await api.get(`/users/${watchedUserId}/founder`)).data,
+        enabled: Boolean(watchedUserId) && isAssignDialogOpen,
+    });
+
     // Fetch Memberships
     const { data: memberships, isLoading } = useQuery<Membership[]>({
         queryKey: ['memberships', filter],
@@ -383,6 +393,23 @@ export default function MembershipsList({
                                         </SelectContent>
                                     </Select>
                                 </div>
+
+                                {selectedFounder?.user?.is_founder && !selectedFounder.user.founder_first_package_used && watchedPaymentMethod && (() => {
+                                    const plan = plans?.find(p => p.id === watchedPlanId);
+                                    const price = Number(plan?.price || 0);
+                                    const discount = Math.round(price * 0.1 * 100) / 100;
+                                    const final = Math.round((price - discount) * 100) / 100;
+                                    return (
+                                        <div className="rounded-md border border-balance-gold/40 bg-balance-gold/10 p-3 text-sm">
+                                            <p className="font-medium text-balance-gold">Descuento founder 10%</p>
+                                            <p className="text-muted-foreground">
+                                                Este cliente es <strong>founder</strong> y aún no ha usado su descuento.
+                                                Al asignar, el sistema cobrará <strong>${final.toFixed(2)}</strong>
+                                                {' '}(en lugar de ${price.toFixed(2)}, ahorro ${discount.toFixed(2)}) y marcará el beneficio como utilizado.
+                                            </p>
+                                        </div>
+                                    );
+                                })()}
 
                                 <DialogFooter>
                                     <Button type="button" variant="ghost" onClick={() => setIsAssignDialogOpen(false)}>
