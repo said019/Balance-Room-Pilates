@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, Calendar, TrendingUp, DollarSign, ArrowUpRight, ArrowDownRight, Download, Filter } from 'lucide-react';
+import { Users, Calendar, TrendingUp, DollarSign, ArrowUpRight, ArrowDownRight, Download, Filter, CreditCard } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import api from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -30,6 +30,8 @@ function exportToExcel(overview: any, startDate: string, endDate: string) {
         ['Ingresos', overview.monthlyRevenue],
         ['Egresos', overview.monthlyExpenses],
         ['Utilidad Neta', overview.netProfit],
+        ['Ticket promedio (por clase comprada)', overview.avgTicketPerClass || 0],
+        ['Clases compradas en el período', overview.classesPurchased || 0],
         [''],
         ['ESTADÍSTICAS OPERATIVAS'],
         ['Métrica', 'Valor'],
@@ -157,7 +159,7 @@ export default function ReportsOverview() {
                 </Card>
 
                 {/* Financial Summary */}
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Ingresos del Mes</CardTitle>
@@ -167,6 +169,18 @@ export default function ReportsOverview() {
                             <div className="text-2xl font-bold text-emerald-600">{formatCurrency(overview?.monthlyRevenue)}</div>
                             <p className="text-xs text-muted-foreground">
                                 {overview?.monthlyBookings} reservas este mes
+                            </p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Ticket Promedio</CardTitle>
+                            <CreditCard className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{formatCurrency(overview?.avgTicketPerClass || 0)}</div>
+                            <p className="text-xs text-muted-foreground">
+                                Por clase comprada ({overview?.classesPurchased || 0} clases)
                             </p>
                         </CardContent>
                     </Card>
