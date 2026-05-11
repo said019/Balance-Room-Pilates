@@ -36,6 +36,8 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2, Search, CheckCircle2, XCircle, Plus } from 'lucide-react';
 import { MembershipActivationDialog, ActivationForm } from '@/components/memberships/MembershipActivationDialog';
@@ -67,6 +69,9 @@ export default function MembershipsList({
     const [search, setSearch] = useState('');
     const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
     const [activationMembership, setActivationMembership] = useState<Membership | null>(null);
+    const [cancellationMembership, setCancellationMembership] = useState<Membership | null>(null);
+    const [cancelReason, setCancelReason] = useState('');
+    const [cancelRefund, setCancelRefund] = useState(true);
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
@@ -128,12 +133,20 @@ export default function MembershipsList({
     });
 
     const cancelMutation = useMutation({
-        mutationFn: async (id: string) => {
-            return await api.post(`/memberships/${id}/cancel`);
+        mutationFn: async ({ id, reason, refund }: { id: string; reason?: string; refund: boolean }) => {
+            const { data } = await api.post(`/memberships/${id}/cancel`, { reason, refund });
+            return data as { refund?: { applied: boolean; payments_refunded: string[]; points_reversed: number } };
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['memberships'] });
-            toast({ title: 'Membresía cancelada', description: 'La membresía ha sido cancelada.' });
+            const refundInfo = data?.refund;
+            const description = refundInfo?.applied
+                ? `Reembolsados ${refundInfo.payments_refunded.length} pago(s) y revertidos ${refundInfo.points_reversed} puntos.`
+                : 'La membresía ha sido cancelada.';
+            toast({ title: 'Membresía cancelada', description });
+            setCancellationMembership(null);
+            setCancelReason('');
+            setCancelRefund(true);
         },
         onError: (error) => {
             toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(error) });
@@ -283,7 +296,9 @@ export default function MembershipsList({
                                                             variant="ghost"
                                                             className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                                             onClick={() => {
-                                                                if (confirm('¿Cancelar esta membresía?')) cancelMutation.mutate(m.id);
+                                                                setCancelReason('');
+                                                                setCancelRefund(true);
+                                                                setCancellationMembership(m);
                                                             }}
                                                         >
                                                             <XCircle className="h-4 w-4" />
@@ -391,6 +406,77 @@ export default function MembershipsList({
                         }}
                         onActivate={handleActivate}
                     />
+
+                    <Dialog
+                        open={Boolean(cancellationMembership)}
+                        onOpenChange={(nextOpen) => {
+                            if (!nextOpen && !cancelMutation.isPending) setCancellationMembership(null);
+                        }}
+                    >
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Cancelar membresía</DialogTitle>
+                                <DialogDescription>
+                                    {cancellationMembership?.user_name
+                                        ? `Cliente: ${cancellationMembership.user_name}.`
+                                        : 'Confirma la cancelación.'}
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 py-2">
+                                <div className="space-y-2">
+                                    <Label htmlFor="cancel-reason">Razón (opcional)</Label>
+                                    <Textarea
+                                        id="cancel-reason"
+                                        placeholder="Ej. Cliente solicitó cambio de paquete"
+                                        value={cancelReason}
+                                        onChange={(e) => setCancelReason(e.target.value)}
+                                        rows={3}
+                                        maxLength={500}
+                                    />
+                                </div>
+                                <div className="flex items-start gap-3 rounded-md border p-3">
+                                    <Checkbox
+                                        id="cancel-refund"
+                                        checked={cancelRefund}
+                                        onCheckedChange={(v) => setCancelRefund(v === true)}
+                                    />
+                                    <div className="space-y-1">
+                                        <Label htmlFor="cancel-refund" className="cursor-pointer">
+                                            Devolver el dinero al cliente
+                                        </Label>
+                                        <p className="text-xs text-muted-foreground">
+                                            Marca los pagos asociados como reembolsados y revierte los puntos otorgados.
+                                            Deja sin marcar si el dinero se queda en el estudio.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => setCancellationMembership(null)}
+                                    disabled={cancelMutation.isPending}
+                                >
+                                    Volver
+                                </Button>
+                                <Button
+                                    variant="destructive"
+                                    onClick={() => {
+                                        if (!cancellationMembership) return;
+                                        cancelMutation.mutate({
+                                            id: cancellationMembership.id,
+                                            reason: cancelReason.trim() || undefined,
+                                            refund: cancelRefund,
+                                        });
+                                    }}
+                                    disabled={cancelMutation.isPending}
+                                >
+                                    {cancelMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Cancelar membresía
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </AdminLayout>
         </AuthGuard>
