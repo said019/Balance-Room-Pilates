@@ -101,10 +101,11 @@ export default function ReportsRevenue() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {/* Simple avg calculation if not provided */}
-                                {formatCurrency(revenueStats?.total > 0 ? (revenueStats.total / (revenueStats?.daily?.length || 1)) : 0)}
+                                {formatCurrency(revenueStats?.avgTicketPerClass || 0)}
                             </div>
-                            <p className="text-xs text-muted-foreground">Est. diario</p>
+                            <p className="text-xs text-muted-foreground">
+                                Por clase comprada ({revenueStats?.classesPurchased || 0} clases)
+                            </p>
                         </CardContent>
                     </Card>
                 </div>
