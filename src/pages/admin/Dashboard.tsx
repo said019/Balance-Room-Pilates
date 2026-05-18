@@ -194,6 +194,20 @@ export default function AdminDashboard() {
                         ))}
                     </section>
 
+                    {stats?.classesByStudio && stats.classesByStudio.length > 0 && (
+                        <section className="rounded-[1.6rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] p-4 shadow-[0_18px_58px_-48px_rgba(51,42,34,0.72)]">
+                            <span className="text-sm font-semibold text-balance-dark/62">Clases hoy por estudio</span>
+                            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                                {stats.classesByStudio.map((s) => (
+                                    <div key={s.facilityId} className="flex items-center justify-between rounded-[1rem] bg-balance-cream px-4 py-3">
+                                        <span className="text-sm font-medium text-balance-dark/70">{s.name}</span>
+                                        <span className="text-2xl font-semibold tabular-nums tracking-[-0.05em] text-balance-dark">{s.count}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
                     <section className="grid gap-5 xl:grid-cols-[1fr_1fr]">
                         <div>
                             <PanelShell
