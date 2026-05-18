@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AuthGuard } from '@/components/layout/AuthGuard';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,7 +10,8 @@ import { CashAssignmentContent } from '@/pages/admin/payments/CashAssignment';
 import ManualIncome from './ManualIncome';
 
 export default function PaymentsHub() {
-  const [tab, setTab] = useState('verification');
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState(searchParams.get('tab') || 'verification');
 
   return (
     <AuthGuard requiredRoles={['admin']}>
