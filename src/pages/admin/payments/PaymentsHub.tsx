@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { AuthGuard } from '@/components/layout/AuthGuard';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CreditCard, ClipboardCheck, Clock, Receipt } from 'lucide-react';
+import { CreditCard, ClipboardCheck, Clock, Receipt, Banknote } from 'lucide-react';
 import { OrdersVerificationContent } from '@/pages/admin/orders/OrdersVerification';
 import { TransactionsContent, PendingPaymentsContent } from '@/pages/admin/payments/PaymentsTransactions';
 import { CashAssignmentContent } from '@/pages/admin/payments/CashAssignment';
+import ManualIncome from './ManualIncome';
 
 export default function PaymentsHub() {
   const [tab, setTab] = useState('verification');
@@ -41,6 +42,11 @@ export default function PaymentsHub() {
                 <span className="hidden sm:inline">Registrar Pago</span>
                 <span className="sm:hidden">Registrar</span>
               </TabsTrigger>
+              <TabsTrigger value="manual-income" className="gap-1.5">
+                <Banknote className="h-4 w-4" />
+                <span className="hidden sm:inline">Ingreso manual</span>
+                <span className="sm:hidden">Ingreso</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="verification">
@@ -57,6 +63,10 @@ export default function PaymentsHub() {
 
             <TabsContent value="register">
               <CashAssignmentContent />
+            </TabsContent>
+
+            <TabsContent value="manual-income">
+              <ManualIncome />
             </TabsContent>
           </Tabs>
         </div>
