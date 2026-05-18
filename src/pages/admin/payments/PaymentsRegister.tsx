@@ -32,6 +32,8 @@ const paymentSchema = z.object({
   status: z.enum(['completed', 'pending']).default('completed'),
   reference: z.string().optional(),
   notes: z.string().optional(),
+  facilityId: z.string().uuid().optional(),
+  concept: z.string().max(255).optional(),
 });
 
 type PaymentForm = z.infer<typeof paymentSchema>;
@@ -54,6 +56,14 @@ export default function PaymentsRegister() {
     queryFn: async () => {
       const { data } = await api.get('/users?role=client&limit=200');
       return data.users;
+    },
+  });
+
+  const { data: facilities = [] } = useQuery<{ id: string; name: string }[]>({
+    queryKey: ['facilities'],
+    queryFn: async () => {
+      const { data } = await api.get('/facilities');
+      return data;
     },
   });
 
@@ -85,6 +95,7 @@ export default function PaymentsRegister() {
     register('paymentMethod');
     register('status');
     register('userId');
+    register('facilityId');
   }, [register]);
 
   const onSubmit = (data: PaymentForm) => {
@@ -186,6 +197,32 @@ export default function PaymentsRegister() {
                       <SelectItem value="pending">Pendiente</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Estudio (opcional)</Label>
+                  <Select
+                    onValueChange={(value) =>
+                      setValue('facilityId', value === '__none__' ? undefined : value)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="General" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">General</SelectItem>
+                      {facilities.map((facility) => (
+                        <SelectItem key={facility.id} value={facility.id}>
+                          {facility.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Concepto (opcional)</Label>
+                  <Input {...register('concept')} />
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
