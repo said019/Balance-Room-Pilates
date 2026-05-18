@@ -89,6 +89,26 @@ export default function ReportsClasses() {
                         </CardContent>
                     </Card>
 
+                    {/* Classes by Studio */}
+                    {classesStats?.classesByStudio && classesStats.classesByStudio.length > 0 && (
+                        <Card className="col-span-2">
+                            <CardHeader>
+                                <CardTitle>Clases por estudio</CardTitle>
+                                <CardDescription>Desglose del período seleccionado</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid gap-3 sm:grid-cols-3">
+                                    {classesStats.classesByStudio.map((s: { facilityId: string; name: string; count: number }) => (
+                                        <div key={s.facilityId} className="flex items-center justify-between bg-muted/50 px-4 py-3 rounded-lg">
+                                            <span className="text-sm font-medium text-muted-foreground">{s.name}</span>
+                                            <span className="text-2xl font-semibold tabular-nums">{s.count}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
                     {/* Popular Times */}
                     <Card>
                         <CardHeader>
