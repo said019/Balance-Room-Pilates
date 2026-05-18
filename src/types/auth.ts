@@ -41,6 +41,8 @@ export interface Plan {
     is_active: boolean;
     sort_order: number;
     created_at?: string;
+    package_type?: 'individual' | 'mixto' | 'sample';
+    requires_studio_selection?: boolean;
 }
 
 // Membership interface
@@ -71,11 +73,21 @@ export interface Membership {
 }
 
 // Admin Stats
+export interface StudioClassCount {
+    facilityId: string;
+    name: string;
+    count: number;
+}
+
 export interface AdminStats {
     scheduledClasses: number;
     confirmedBookings: number;
     activeMemberships: number;
     revenue: number;
+    revenueGross?: number;
+    revenueNet?: number;
+    revenueCardFees?: number;
+    classesByStudio?: StudioClassCount[];
 }
 
 // Login credentials
