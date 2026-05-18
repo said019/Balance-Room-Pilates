@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import api from '@/lib/api';
 import type { OrderPaymentMethod, CreateOrderRequest, Order } from '@/types/order';
@@ -43,6 +44,8 @@ interface Plan {
   category: string;
   is_exclusive: boolean;
   sort_order?: number;
+  package_type?: 'individual' | 'mixto' | 'sample';
+  requires_studio_selection?: boolean;
 }
 
 interface BankInfo {
@@ -131,6 +134,13 @@ export default function Checkout() {
   );
 
 
+  // Fetch facilities (studios) for individual-package studio selection
+  const { data: facilities = [] } = useQuery<{ id: string; name: string }[]>({
+    queryKey: ['facilities'],
+    queryFn: async () => (await api.get('/facilities')).data,
+  });
+  const [selectedFacilityId, setSelectedFacilityId] = useState<string>('');
+
   // Fetch bank info for transfer instructions
   const { data: bankInfo } = useQuery<BankInfo>({
     queryKey: ['bank-info'],
@@ -175,6 +185,7 @@ export default function Checkout() {
   });
 
   const selectedPlan = plans?.find(p => p.id === selectedPlanId);
+  const needsStudio = !!selectedPlan?.requires_studio_selection;
 
   const handlePlanSelect = (planId: string) => {
     setSelectedPlanId(planId);
@@ -196,13 +207,23 @@ export default function Checkout() {
   const handleConfirmOrder = () => {
     if (!selectedPlanId) return;
 
+    if (needsStudio && !selectedFacilityId) {
+      toast({
+        title: 'Falta el estudio',
+        description: 'Elige un estudio para tu paquete individual.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     createOrder.mutate({
       plan_id: selectedPlanId,
       payment_method: selectedPaymentMethod,
       notes: notes || undefined,
       discount_code_id: discountResult?.codeId || undefined,
       discount_amount: discountResult?.discountAmount || undefined,
-    });
+      facility_id: needsStudio ? selectedFacilityId : undefined,
+    } as any);
   };
 
   const handleValidateDiscount = async () => {
@@ -765,6 +786,23 @@ export default function Checkout() {
                           Presenta el número de orden al pagar.
                         </span>
                       </p>
+                    </div>
+                  )}
+
+                  {needsStudio && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Elige tu estudio (paquete individual)</Label>
+                      <Select value={selectedFacilityId} onValueChange={setSelectedFacilityId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona un estudio" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {facilities.map((f) => (
+                            <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">Tu paquete individual solo podrá usarse en este estudio.</p>
                     </div>
                   )}
                 </CardContent>
