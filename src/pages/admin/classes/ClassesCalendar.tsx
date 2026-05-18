@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -411,6 +411,22 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
 
     const weekDays = Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
     const activeClasses = classes?.filter((c) => c.status !== 'cancelled') || [];
+
+    const studioBreakdown = useMemo(() => {
+        const PREFERRED = ['Wunda', 'Barre', 'Hot Room'];
+        const counts = new Map<string, number>();
+        // Seed preferred studios so the 3 always render (even with 0).
+        for (const name of PREFERRED) counts.set(name, 0);
+        for (const c of activeClasses) {
+            const name = c.facility_name?.trim() || 'Studio';
+            counts.set(name, (counts.get(name) || 0) + 1);
+        }
+        const others = [...counts.keys()]
+            .filter((n) => !PREFERRED.includes(n))
+            .sort((a, b) => a.localeCompare(b));
+        return [...PREFERRED, ...others].map((name) => ({ name, count: counts.get(name) || 0 }));
+    }, [activeClasses]);
+
     const totalBookings = activeClasses.reduce((sum, c) => sum + Number(c.current_bookings || 0), 0);
     const totalCapacity = activeClasses.reduce((sum, c) => sum + Number(c.max_capacity || 0), 0);
     const openSpots = Math.max(totalCapacity - totalBookings, 0);
@@ -434,10 +450,28 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 <p className="mt-1 text-sm text-balance-dark/62">{weekRange}</p>
                             </div>
 
-                            <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[29rem]">
-                                <CalendarStat label="Clases" value={activeClasses.length} />
-                                <CalendarStat label="Reservas" value={totalBookings} />
-                                <CalendarStat label="Cupos libres" value={openSpots} />
+                            <div className="space-y-3 lg:min-w-[29rem]">
+                                <div className="grid gap-3 sm:grid-cols-3">
+                                    <CalendarStat label="Clases" value={activeClasses.length} />
+                                    <CalendarStat label="Reservas" value={totalBookings} />
+                                    <CalendarStat label="Cupos libres" value={openSpots} />
+                                </div>
+                                <div className="rounded-[1.15rem] border border-balance-olive/16 bg-balance-cream/45 px-4 py-3">
+                                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-balance-dark/48">
+                                        Clases por estudio
+                                    </p>
+                                    <div className="grid gap-2 sm:grid-cols-3">
+                                        {studioBreakdown.map((s) => (
+                                            <div
+                                                key={s.name}
+                                                className="flex items-center justify-between gap-2 rounded-[0.9rem] border border-balance-olive/14 bg-balance-cream/60 px-3 py-2"
+                                            >
+                                                <span className="truncate text-xs font-semibold text-balance-dark/65">{s.name}</span>
+                                                <span className="text-base font-semibold tabular-nums tracking-[-0.03em] text-balance-dark">{s.count}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
