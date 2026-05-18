@@ -118,6 +118,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const [isAttendeesOpen, setIsAttendeesOpen] = useState(false);
     const [selectedClass, setSelectedClass] = useState<Class | null>(null);
     const [classTypeFilter, setClassTypeFilter] = useState<string>('all');
+    const [studioFilter, setStudioFilter] = useState<string>('all');
     const [userSearch, setUserSearch] = useState('');
     const [searchActive, setSearchActive] = useState(false);
     const { toast } = useToast();
@@ -381,7 +382,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
             const dateStr = (c.date || '').split('T')[0];
             const dateMatch = isSameDay(parseISO(dateStr + 'T00:00:00'), day);
             const typeMatch = classTypeFilter === 'all' || c.class_type_id === classTypeFilter;
-            return dateMatch && typeMatch;
+            const studioMatch = studioFilter === 'all' || (c.facility_name?.trim() || 'Studio') === studioFilter;
+            return dateMatch && typeMatch && studioMatch;
         }) || [];
     };
 
@@ -457,19 +459,40 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                     <CalendarStat label="Cupos libres" value={openSpots} />
                                 </div>
                                 <div className="rounded-[1.15rem] border border-balance-olive/16 bg-balance-cream/45 px-4 py-3">
-                                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-balance-dark/48">
-                                        Clases por estudio
-                                    </p>
-                                    <div className="grid gap-2 sm:grid-cols-3">
-                                        {studioBreakdown.map((s) => (
-                                            <div
-                                                key={s.name}
-                                                className="flex items-center justify-between gap-2 rounded-[0.9rem] border border-balance-olive/14 bg-balance-cream/60 px-3 py-2"
+                                    <div className="mb-2 flex items-center justify-between gap-2">
+                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-balance-dark/48">
+                                            Clases por estudio
+                                        </p>
+                                        {studioFilter !== 'all' && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setStudioFilter('all')}
+                                                className="text-[11px] font-semibold text-balance-olive underline-offset-2 hover:underline"
                                             >
-                                                <span className="truncate text-xs font-semibold text-balance-dark/65">{s.name}</span>
-                                                <span className="text-base font-semibold tabular-nums tracking-[-0.03em] text-balance-dark">{s.count}</span>
-                                            </div>
-                                        ))}
+                                                Ver todos
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="grid gap-2 sm:grid-cols-3">
+                                        {studioBreakdown.map((s) => {
+                                            const isActive = studioFilter === s.name;
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    key={s.name}
+                                                    onClick={() => setStudioFilter(isActive ? 'all' : s.name)}
+                                                    aria-pressed={isActive}
+                                                    className={`flex items-center justify-between gap-2 rounded-[0.9rem] border px-3 py-2 text-left transition-colors ${
+                                                        isActive
+                                                            ? 'border-balance-olive/60 bg-balance-olive/15'
+                                                            : 'border-balance-olive/14 bg-balance-cream/60 hover:border-balance-olive/30 hover:bg-balance-cream/80'
+                                                    }`}
+                                                >
+                                                    <span className="truncate text-xs font-semibold text-balance-dark/65">{s.name}</span>
+                                                    <span className="text-base font-semibold tabular-nums tracking-[-0.03em] text-balance-dark">{s.count}</span>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </div>
