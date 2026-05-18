@@ -295,12 +295,6 @@ export default function Checkout() {
     }).format(price);
   };
 
-  const isTrialOrIndividualPlan = selectedPlan && (
-    selectedPlan.name.toLowerCase().includes('muestra') ||
-    selectedPlan.name.toLowerCase().includes('individual') ||
-    selectedPlan.name.toLowerCase().includes('prueba')
-  );
-
   const paymentMethods: { value: OrderPaymentMethod; label: string; icon: typeof CreditCard; description: string }[] = [
     {
       value: 'card',
@@ -314,12 +308,12 @@ export default function Checkout() {
       icon: Building2,
       description: 'Realiza una transferencia y sube tu comprobante',
     },
-    ...(!isTrialOrIndividualPlan ? [{
+    {
       value: 'cash' as OrderPaymentMethod,
       label: 'Efectivo en estudio',
       icon: Banknote,
-      description: 'Paga directamente en el estudio',
-    }] : []),
+      description: 'Genera tu orden y paga en el estudio; el staff la aprueba',
+    },
   ];
 
   return (
