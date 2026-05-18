@@ -235,6 +235,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['classes'] });
             toast({ title: 'Clase actualizada', description: 'Los cambios se guardaron correctamente.' });
+            setIsAttendeesOpen(false);
             setIsEditOpen(false);
             setSelectedClass(null);
         },
@@ -685,7 +686,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                     </div>
 
                     {/* Attendees Sheet */}
-                    <Sheet open={isAttendeesOpen} onOpenChange={setIsAttendeesOpen}>
+                    <Sheet open={isAttendeesOpen && !!selectedClass} onOpenChange={(open) => { setIsAttendeesOpen(open); if (!open) setSelectedClass(null); }}>
                         <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
                             <SheetHeader>
                                 <SheetTitle className="flex items-center gap-2">

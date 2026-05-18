@@ -23,7 +23,6 @@ import {
     Ticket,
     Cake,
     ArrowUpRight,
-    Dumbbell,
     BadgeCheck,
 } from 'lucide-react';
 
@@ -120,7 +119,7 @@ export default function AdminDashboard() {
         <AuthGuard requiredRoles={['admin', 'instructor']}>
             <AdminLayout>
                 <div className="space-y-6">
-                    <section className="grid gap-4 lg:grid-cols-[1.45fr_0.55fr]">
+                    <section className="grid gap-4">
                         <div className="rounded-[2rem] bg-balance-olive p-6">
                             <div className="flex items-center justify-between">
                                 <span className="text-sm font-semibold uppercase tracking-[0.2em] text-balance-cream">Atención</span>
@@ -140,29 +139,15 @@ export default function AdminDashboard() {
                                     <ArrowUpRight className="h-4 w-4" />
                                 </span>
                             </Link>
-                        </div>
-
-                        <div className="rounded-[2rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] p-5 shadow-[0_20px_70px_-54px_rgba(51,42,34,0.65)]">
-                            <div className="flex items-center justify-between gap-3">
-                                <div>
-                                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-balance-olive">Capacidad</p>
-                                    <h3 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-balance-dark">Estudios pequeños</h3>
-                                </div>
-                                <div className="flex h-11 w-11 items-center justify-center rounded-[1.1rem] bg-balance-olive/12 text-balance-olive">
-                                    <Dumbbell className="h-5 w-5" />
-                                </div>
-                            </div>
-                            <div className="mt-7 grid grid-cols-3 gap-2">
-                                {['Yoga', 'Pilates', 'Barre'].map((label) => (
-                                    <div key={label} className="rounded-[1rem] bg-balance-cream/75 p-3">
-                                        <p className="text-2xl font-semibold tabular-nums tracking-[-0.04em] text-balance-dark">6</p>
-                                        <p className="mt-1 text-[11px] font-medium text-balance-dark/55">{label}</p>
-                                    </div>
-                                ))}
-                            </div>
-                            <p className="mt-5 text-sm leading-6 text-balance-dark/62">
-                                La navegación prioriza agenda, clientas, paquetes y pagos para operar el studio sin perder contexto entre pantallas.
-                            </p>
+                            <Link
+                                to="/admin/payments?tab=manual-income"
+                                className="group mt-3 inline-flex w-full items-center justify-between rounded-full border border-balance-cream/35 px-4 py-2.5 text-sm font-semibold text-balance-cream transition-all duration-200 hover:bg-balance-cream/10 active:scale-[0.98]"
+                            >
+                                Registrar ingreso
+                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-balance-cream/10 transition-transform group-hover:translate-x-0.5">
+                                    <Banknote className="h-4 w-4" />
+                                </span>
+                            </Link>
                         </div>
                     </section>
 
