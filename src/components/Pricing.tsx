@@ -89,7 +89,9 @@ const Pricing = () => {
                 key={group.type}
                 className={`grid gap-5 rounded-[2.4rem] p-4 ring-1 shadow-[0_30px_90px_-70px_rgba(51,42,34,.72)] md:p-5 lg:grid-cols-[0.72fr_1.28fr] ${group.panel}`}
               >
-                <div className="flex min-h-[18rem] flex-col justify-between rounded-[1.9rem] bg-[#332A22]/[0.045] p-6 md:p-7">
+                <div className={`relative flex min-h-[18rem] flex-col justify-between overflow-hidden rounded-[1.9rem] p-6 ring-1 ring-current/10 md:p-7 ${group.surface}`}>
+                  <span className={`pointer-events-none absolute right-[-3.5rem] top-[-3.5rem] h-36 w-36 rounded-full opacity-35 blur-2xl ${group.dot}`} />
+                  <span className={`pointer-events-none absolute bottom-7 right-7 h-4 w-4 rounded-full ${group.dot}`} />
                   <div>
                     <span className={`mb-5 inline-flex rounded-full px-3 py-1.5 font-body text-[10px] font-semibold uppercase tracking-[0.2em] ${group.chip}`}>
                       {group.eyebrow}
@@ -101,7 +103,7 @@ const Pricing = () => {
                       {group.detail}
                     </p>
                   </div>
-                  <div className="mt-7 rounded-[1.25rem] bg-[#FBF8F2]/50 p-4 ring-1 ring-[#332A22]/8">
+                  <div className={`relative mt-7 rounded-[1.25rem] p-4 ring-1 ${group.badge}`}>
                     <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] opacity-60">
                       diferencia clave
                     </p>
@@ -124,7 +126,8 @@ const Pricing = () => {
                         className={`group relative flex min-h-[23rem] flex-col overflow-hidden rounded-[1.8rem] p-5 ring-1 transition duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 ${presentation.card}`}
                         style={{ animationDelay: `${groupIndex * 80 + index * 55}ms` }}
                       >
-                        <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-current/25 to-transparent" />
+                        <div className={`pointer-events-none absolute inset-x-0 top-0 h-2 ${presentation.chip}`} />
+                        <span className={`pointer-events-none absolute right-[-2.5rem] top-8 h-24 w-24 rounded-full opacity-20 blur-2xl ${presentation.dot}`} />
                         <div className="mb-6 flex items-start justify-between gap-4">
                           <span className={`inline-flex rounded-full px-3 py-1.5 font-body text-[10px] font-semibold uppercase tracking-[0.18em] ${presentation.badge}`}>
                             {presentation.accentLabel}
@@ -143,7 +146,7 @@ const Pricing = () => {
                           </p>
                         </div>
 
-                        <div className="mt-5 rounded-[1.35rem] bg-[#332A22]/[0.045] p-4 ring-1 ring-[#332A22]/[0.06]">
+                        <div className={`mt-5 rounded-[1.35rem] p-4 ring-1 ${presentation.badge}`}>
                           <div className="flex items-baseline gap-1">
                             <span className="font-heading text-4xl font-semibold tabular-nums tracking-[-0.05em]">
                               ${price.toLocaleString("es-MX")}
@@ -151,10 +154,10 @@ const Pricing = () => {
                             <span className="font-body text-[11px] font-medium opacity-60">MXN</span>
                           </div>
                           <div className="mt-3 flex flex-wrap gap-2">
-                            <span className="rounded-full bg-[#FBF8F2]/65 px-3 py-1 font-body text-xs font-semibold ring-1 ring-[#332A22]/8">
+                            <span className="rounded-full bg-[#FBF8F2]/75 px-3 py-1 font-body text-xs font-semibold ring-1 ring-current/10">
                               {getClassesLabel(classes)}
                             </span>
-                            <span className="rounded-full bg-[#FBF8F2]/65 px-3 py-1 font-body text-xs font-semibold ring-1 ring-[#332A22]/8">
+                            <span className="rounded-full bg-[#FBF8F2]/75 px-3 py-1 font-body text-xs font-semibold ring-1 ring-current/10">
                               ${pricePerClass.toLocaleString("es-MX")} por clase
                             </span>
                           </div>
