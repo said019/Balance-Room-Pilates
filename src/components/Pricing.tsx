@@ -87,9 +87,9 @@ const Pricing = () => {
             {grouped.map((group, groupIndex) => (
               <section
                 key={group.type}
-                className={`grid gap-5 rounded-[2.4rem] p-4 ring-1 shadow-[0_30px_90px_-70px_rgba(51,42,34,.72)] md:p-5 lg:grid-cols-[0.72fr_1.28fr] ${group.panel}`}
+                className={`grid gap-5 rounded-[2.4rem] p-4 ring-1 shadow-[0_30px_90px_-70px_rgba(51,42,34,.72)] ring-[#D8D0C1]/70 md:p-5 lg:grid-cols-[0.72fr_1.28fr] ${group.panel}`}
               >
-                <div className={`relative flex min-h-[18rem] flex-col justify-between overflow-hidden rounded-[1.9rem] p-6 ring-1 ring-current/10 md:p-7 ${group.surface}`}>
+                <div className={`relative flex min-h-[18rem] flex-col justify-between overflow-hidden rounded-[1.9rem] p-6 ring-1 ring-[#D8D0C1]/70 md:p-7 ${group.surface}`}>
                   <span className={`pointer-events-none absolute right-[-3.5rem] top-[-3.5rem] h-36 w-36 rounded-full opacity-35 blur-2xl ${group.dot}`} />
                   <span className={`pointer-events-none absolute bottom-7 right-7 h-4 w-4 rounded-full ${group.dot}`} />
                   <div>
@@ -123,11 +123,11 @@ const Pricing = () => {
                     return (
                       <article
                         key={plan.id}
-                        className={`group relative flex min-h-[23rem] flex-col overflow-hidden rounded-[1.8rem] p-5 ring-1 transition duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 ${presentation.card}`}
+                        className={`group relative flex min-h-[23rem] flex-col overflow-hidden rounded-[1.8rem] p-5 ring-1 ring-[#D8D0C1]/70 transition duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 ${presentation.card}`}
                         style={{ animationDelay: `${groupIndex * 80 + index * 55}ms` }}
                       >
-                        <div className={`pointer-events-none absolute inset-x-0 top-0 h-2 ${presentation.chip}`} />
-                        <span className={`pointer-events-none absolute right-[-2.5rem] top-8 h-24 w-24 rounded-full opacity-20 blur-2xl ${presentation.dot}`} />
+                        <div className={`pointer-events-none absolute inset-x-5 top-0 h-px ${presentation.chip}`} />
+                        <span className={`pointer-events-none absolute right-[-2.5rem] top-8 h-24 w-24 rounded-full opacity-10 blur-2xl ${presentation.dot}`} />
                         <div className="mb-6 flex items-start justify-between gap-4">
                           <span className={`inline-flex rounded-full px-3 py-1.5 font-body text-[10px] font-semibold uppercase tracking-[0.18em] ${presentation.badge}`}>
                             {presentation.accentLabel}
