@@ -216,9 +216,9 @@ export function ClientLayout({ children }: ClientLayoutProps) {
                 )}
             </header>
 
-            <main className="relative mx-auto max-w-[1480px] px-4 py-5 sm:px-6 sm:py-7 lg:px-8">{children}</main>
+            <main className="relative mx-auto max-w-[1480px] px-4 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))] pt-5 sm:px-6 sm:py-7 lg:px-8 lg:pb-7">{children}</main>
 
-            <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-balance-sand/55 bg-[hsl(var(--background))]/92 backdrop-blur-xl lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+            <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-balance-sand/70 bg-[#F2ECE0]/98 shadow-[0_-24px_60px_-42px_rgba(51,42,34,0.85)] backdrop-blur-xl lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
                 <div className="grid grid-cols-5 gap-1 px-2 py-2">
                     {bottomNavItems.map((item) => {
                         const Icon = item.icon;
@@ -240,7 +240,7 @@ export function ClientLayout({ children }: ClientLayoutProps) {
                 </div>
             </nav>
 
-            <div className="lg:hidden" style={{ height: 'calc(80px + env(safe-area-inset-bottom, 0px))' }} />
+            <div className="hidden" />
         </div>
     );
 }
