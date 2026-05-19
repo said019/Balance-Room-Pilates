@@ -431,8 +431,9 @@ export default function Checkout() {
                               key={plan.id}
                               type="button"
                               className={`group w-full rounded-[1.35rem] p-4 text-left ring-1 transition duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 active:scale-[0.99] ${presentation.card} ${
-                                isSelected ? 'ring-2 ring-balance-dark/25' : ''
+                                isSelected ? presentation.selected : ''
                               }`}
+                              aria-pressed={isSelected}
                               onClick={() => handlePlanSelect(plan.id)}
                             >
                               <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-start">
@@ -444,6 +445,12 @@ export default function Checkout() {
                                     {isMembershipFeePlan(plan) && (
                                       <span className="rounded-full bg-balance-cream/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-balance-dark/70 ring-1 ring-balance-dark/10">
                                         acceso anual
+                                      </span>
+                                    )}
+                                    {isSelected && (
+                                      <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${presentation.chip}`}>
+                                        <CheckCircle2 className="h-3 w-3" />
+                                        Seleccionado
                                       </span>
                                     )}
                                   </div>
@@ -479,7 +486,7 @@ export default function Checkout() {
                                     </p>
                                   </div>
                                   <span className={`mt-0 inline-flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 group-hover:translate-x-1 sm:mt-5 ${presentation.chip}`}>
-                                    <ChevronRight className="h-4 w-4" />
+                                    {isSelected ? <CheckCircle2 className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                                   </span>
                                 </div>
                               </div>

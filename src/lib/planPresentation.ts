@@ -23,6 +23,7 @@ export interface PackagePresentation {
   chip: string;
   badge: string;
   cta: string;
+  selected: string;
   dot: string;
   text: string;
 }
@@ -46,6 +47,7 @@ export const packagePresentations: Record<PackageType, PackagePresentation> = {
     chip: 'bg-[#9B6C52] text-[#FFF8EE]',
     badge: 'bg-[#F1D7C2] text-[#6F4C39] ring-[#A87454]/20',
     cta: 'bg-[#9B6C52] text-[#FFF8EE] hover:bg-[#855B45]',
+    selected: 'ring-2 ring-[#9B6C52]/70 shadow-[0_22px_70px_-52px_rgba(155,108,82,.95)]',
     dot: 'bg-[#B88968]',
     text: 'text-[#6B5546]',
   },
@@ -65,6 +67,7 @@ export const packagePresentations: Record<PackageType, PackagePresentation> = {
     chip: 'bg-[#7E8579] text-[#FBF8F2]',
     badge: 'bg-[#E5E8DD] text-[#5E665A] ring-[#7E8579]/20',
     cta: 'bg-[#7E8579] text-[#FBF8F2] hover:bg-[#6F766A]',
+    selected: 'ring-2 ring-[#7E8579]/70 shadow-[0_22px_70px_-52px_rgba(126,133,121,.95)]',
     dot: 'bg-[#7E8579]',
     text: 'text-[#625A50]',
   },
@@ -84,6 +87,7 @@ export const packagePresentations: Record<PackageType, PackagePresentation> = {
     chip: 'bg-[#087A68] text-[#F5FFFB]',
     badge: 'bg-[#C7F4E7] text-[#075F51] ring-[#12A485]/30',
     cta: 'bg-[#087A68] text-[#F5FFFB] hover:bg-[#056353]',
+    selected: 'ring-2 ring-[#18B996]/85 shadow-[0_24px_90px_-46px_rgba(8,122,104,.95)]',
     dot: 'bg-[#18B996]',
     text: 'text-[#346B61]',
   },
