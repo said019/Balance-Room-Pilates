@@ -28,6 +28,7 @@ import {
   Building2,
   Banknote,
   ChevronRight,
+  ArrowRight,
   CheckCircle2,
   ArrowLeft,
   Sparkles,
@@ -53,6 +54,7 @@ interface Plan {
   sort_order?: number;
   package_type?: 'individual' | 'mixto' | 'sample';
   requires_studio_selection?: boolean;
+  features?: string[];
 }
 
 interface BankInfo {
@@ -414,7 +416,7 @@ export default function Checkout() {
                         </p>
                       </div>
 
-                      <div className="mt-4 grid gap-3">
+                      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                         {group.plans.map((plan) => {
                           const presentation = getPackagePresentation(plan);
                           const isSelected = selectedPlanId === plan.id;
@@ -425,21 +427,26 @@ export default function Checkout() {
                             : plan.class_limit
                               ? getClassesLabel(plan.class_limit)
                               : 'Acceso membresía';
+                          const pricePerClass = plan.class_limit
+                            ? formatPrice(Math.round(price / plan.class_limit))
+                            : null;
 
                           return (
                             <button
                               key={plan.id}
                               type="button"
-                              className={`group w-full rounded-[1.35rem] p-4 text-left ring-1 transition duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 active:scale-[0.99] ${presentation.card} ${
+                              className={`group relative w-full overflow-hidden rounded-[1.55rem] p-5 text-left ring-1 transition duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 active:scale-[0.99] ${presentation.card} ${
                                 isSelected ? presentation.selected : ''
                               }`}
                               aria-pressed={isSelected}
                               onClick={() => handlePlanSelect(plan.id)}
                             >
-                              <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-start">
-                                <div>
+                              <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-current/25 to-transparent" />
+
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="min-w-0">
                                   <div className="flex flex-wrap items-center gap-2">
-                                    <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${presentation.badge}`}>
+                                    <span className={`inline-flex rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${presentation.badge}`}>
                                       {presentation.accentLabel}
                                     </span>
                                     {isMembershipFeePlan(plan) && (
@@ -454,41 +461,66 @@ export default function Checkout() {
                                       </span>
                                     )}
                                   </div>
-                                  <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em]">{plan.name}</h3>
+                                  <h4 className="mt-3 text-2xl font-heading font-bold leading-tight tracking-[-0.045em] text-current">
+                                    {plan.name}
+                                  </h4>
                                   {plan.description && (
-                                    <p className={`mt-1 max-w-[34rem] text-sm leading-relaxed ${presentation.text}`}>
+                                    <p className={`mt-2 text-sm leading-relaxed font-body ${presentation.text}`}>
                                       {plan.description}
                                     </p>
                                   )}
-                                  <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
-                                    <span className="rounded-full bg-balance-cream/65 px-3 py-1 ring-1 ring-balance-dark/8">
-                                      {classesLabel}
-                                    </span>
-                                    <span className="rounded-full bg-balance-cream/65 px-3 py-1 ring-1 ring-balance-dark/8">
-                                      {plan.duration_days} días
-                                    </span>
-                                    {rewardPoints && (
-                                      <span className="inline-flex items-center gap-1 rounded-full bg-balance-cream/65 px-3 py-1 text-[#8A6F32] ring-1 ring-[#B8AA86]/30">
-                                        <Star className="h-3 w-3 fill-current" />
-                                        +{rewardPoints} pts
-                                      </span>
-                                    )}
-                                  </div>
                                 </div>
+                                <div className="shrink-0 text-right">
+                                  <p className="text-3xl font-heading font-bold tracking-[-0.06em] text-current">
+                                    {formatPrice(price)}
+                                  </p>
+                                  <p className={`mt-1 text-xs font-semibold ${presentation.text}`}>
+                                    {plan.duration_days} días
+                                  </p>
+                                </div>
+                              </div>
 
-                                <div className="flex items-center justify-between gap-4 sm:block sm:text-right">
-                                  <div>
-                                    <p className="text-3xl font-semibold tracking-[-0.05em] text-balance-dark">
-                                      {formatPrice(price)}
-                                    </p>
-                                    <p className={`text-xs font-medium ${presentation.text}`}>
-                                      {plan.class_limit ? `${formatPrice(Math.round(price / plan.class_limit))} por clase` : presentation.shortTitle}
-                                    </p>
-                                  </div>
-                                  <span className={`mt-0 inline-flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 group-hover:translate-x-1 sm:mt-5 ${presentation.chip}`}>
-                                    {isSelected ? <CheckCircle2 className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                              <div className="mt-5 flex flex-wrap items-center gap-2">
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-balance-cream/70 px-3 py-1.5 text-sm font-semibold ring-1 ring-balance-dark/8">
+                                  <Star className="h-4 w-4" />
+                                  {classesLabel}
+                                </span>
+                                {pricePerClass && (
+                                  <span className="rounded-full bg-balance-cream/70 px-3 py-1.5 text-xs font-semibold ring-1 ring-balance-dark/8">
+                                    {pricePerClass} por clase
                                   </span>
-                                </div>
+                                )}
+                                {rewardPoints && (
+                                  <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ring-1 ${presentation.badge}`}>
+                                    <Star className="h-3.5 w-3.5 fill-current" />
+                                    +{rewardPoints} pts
+                                  </span>
+                                )}
+                              </div>
+
+                              {plan.features && plan.features.length > 0 && (
+                                <ul className="mt-4 space-y-2">
+                                  {plan.features.map((feature, idx) => (
+                                    <li key={idx} className="flex items-start gap-2 text-sm">
+                                      <Check className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                                      <span className="font-body">{feature}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+
+                              <div className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold ${presentation.cta}`}>
+                                {isSelected ? (
+                                  <>
+                                    <CheckCircle2 className="h-4 w-4" />
+                                    Seleccionado
+                                  </>
+                                ) : (
+                                  <>
+                                    Seleccionar {presentation.shortTitle.toLowerCase()}
+                                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                                  </>
+                                )}
                               </div>
                             </button>
                           );
