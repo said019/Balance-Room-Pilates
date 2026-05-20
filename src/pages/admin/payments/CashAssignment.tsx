@@ -396,6 +396,14 @@ function CashAssignmentInner() {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'CL';
   };
 
+  // Safely format a YYYY-MM-DD string; returns fallback if invalid.
+  const safeFormatDate = (value: string | null | undefined, fmt: string) => {
+    if (!value) return '';
+    const d = parseISO(value);
+    if (isNaN(d.getTime())) return '';
+    return format(d, fmt, { locale: es });
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
@@ -407,7 +415,8 @@ function CashAssignmentInner() {
   const groupedClasses = useMemo(() => {
     if (!upcomingClasses) return {};
     return upcomingClasses.reduce((acc, cls) => {
-      const date = format(parseISO(cls.date), 'yyyy-MM-dd');
+      const date = safeFormatDate(cls.date, 'yyyy-MM-dd');
+      if (!date) return acc; // skip classes with an invalid/missing date
       if (!acc[date]) acc[date] = [];
       acc[date].push(cls);
       return acc;
@@ -779,7 +788,9 @@ function CashAssignmentInner() {
                                       className="w-full h-12 justify-start font-normal"
                                     >
                                       <CalendarIcon className="mr-2 h-4 w-4" />
-                                      {format(field.value, "d 'de' MMMM, yyyy", { locale: es })}
+                                      {field.value && !isNaN(new Date(field.value).getTime())
+                                        ? format(field.value, "d 'de' MMMM, yyyy", { locale: es })
+                                        : 'Selecciona una fecha'}
                                     </Button>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-auto p-0" align="start">
@@ -948,15 +959,19 @@ function CashAssignmentInner() {
                                     Object.entries(groupedClasses).map(([date, classes]) => (
                                       <div key={date}>
                                         <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                                          {isToday(parseISO(date))
-                                            ? 'Hoy'
-                                            : format(parseISO(date), "EEEE d 'de' MMMM", { locale: es })}
+                                          {(() => {
+                                            const d = parseISO(date);
+                                            if (isNaN(d.getTime())) return date;
+                                            return isToday(d)
+                                              ? 'Hoy'
+                                              : format(d, "EEEE d 'de' MMMM", { locale: es });
+                                          })()}
                                         </div>
                                         {classes.map((cls) => (
                                           <SelectItem key={cls.id} value={cls.id}>
                                             <div className="flex items-center gap-2">
                                               <Clock className="h-3 w-3 text-muted-foreground" />
-                                              <span>{format(parseISO(cls.start_time), 'HH:mm')}</span>
+                                              <span>{(cls.start_time || '').slice(0, 5)}</span>
                                               <span className="font-medium">{cls.name}</span>
                                               <Badge variant="outline" className="ml-auto text-xs">
                                                 {cls.current_capacity}/{cls.max_capacity}

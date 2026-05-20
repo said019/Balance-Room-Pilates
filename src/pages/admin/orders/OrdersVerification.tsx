@@ -299,6 +299,8 @@ function OrdersVerificationInner() {
                           <Badge variant="secondary">
                             {order.payment_method === 'bank_transfer' ? 'Transferencia' :
                              order.payment_method === 'cash' ? 'Efectivo' :
+                             order.payment_method === 'card' ? 'Tarjeta' :
+                             order.payment_method === 'online' ? 'En línea' :
                              order.payment_method || '—'}
                           </Badge>
                         </TableCell>
@@ -306,29 +308,37 @@ function OrdersVerificationInner() {
                           {format(parseISO(order.created_at), 'd MMM HH:mm', { locale: es })}
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex gap-2 justify-end">
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                setSelectedOrder(order);
-                                setActionType('approve');
-                              }}
-                            >
-                              <CheckCircle2 className="h-4 w-4 mr-1" />
-                              Aprobar
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedOrder(order);
-                                setActionType('reject');
-                              }}
-                            >
-                              <XCircle className="h-4 w-4 mr-1" />
-                              Rechazar
-                            </Button>
-                          </div>
+                          {order.payment_method === 'card' ? (
+                            // Card orders are settled automatically by the
+                            // Mercado Pago webhook — never approved by hand.
+                            <Badge variant="outline" className="text-muted-foreground">
+                              Esperando pago en Mercado Pago
+                            </Badge>
+                          ) : (
+                            <div className="flex gap-2 justify-end">
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedOrder(order);
+                                  setActionType('approve');
+                                }}
+                              >
+                                <CheckCircle2 className="h-4 w-4 mr-1" />
+                                Aprobar
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedOrder(order);
+                                  setActionType('reject');
+                                }}
+                              >
+                                <XCircle className="h-4 w-4 mr-1" />
+                                Rechazar
+                              </Button>
+                            </div>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -394,8 +404,10 @@ function OrdersVerificationInner() {
                     </div>
                     <div className="flex items-center gap-1">
                       <CreditCard className="h-4 w-4" />
-                      {selectedOrder.payment_method === 'bank_transfer' ? 'Transferencia' : 
-                       selectedOrder.payment_method === 'cash' ? 'Efectivo' : 
+                      {selectedOrder.payment_method === 'bank_transfer' ? 'Transferencia' :
+                       selectedOrder.payment_method === 'cash' ? 'Efectivo' :
+                       selectedOrder.payment_method === 'card' ? 'Tarjeta' :
+                       selectedOrder.payment_method === 'online' ? 'En línea' :
                        selectedOrder.payment_method || '—'}
                     </div>
                   </div>

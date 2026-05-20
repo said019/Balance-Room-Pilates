@@ -12,7 +12,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuthStore } from '@/stores/authStore';
 import api from '@/lib/api';
 import type { User } from '@/types/auth';
-import { Calendar, Phone, Shield, User as UserIcon, KeyRound, Sparkles, ChevronRight } from 'lucide-react';
+import type { Order } from '@/types/order';
+import { Calendar, Phone, Shield, User as UserIcon, KeyRound, Sparkles, ChevronRight, Clock, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ChangePasswordDialog } from '@/components/client/ChangePasswordDialog';
 
@@ -35,6 +36,17 @@ export default function Profile() {
 
   const profile = data?.user ?? authUser;
 
+  // Pending orders so the user doesn't lose track of them while browsing.
+  const { data: orders } = useQuery<Order[]>({
+    queryKey: ['my-orders'],
+    queryFn: async () => (await api.get('/orders/my-orders')).data,
+    enabled: Boolean(authUser?.id),
+  });
+
+  const pendingOrders = (orders ?? []).filter(
+    o => o.status === 'pending_payment' || o.status === 'pending_verification'
+  );
+
   return (
     <AuthGuard requiredRoles={['client']}>
       <ClientLayout>
@@ -54,6 +66,52 @@ export default function Profile() {
             </Button>
           </div>
           </section>
+
+          {pendingOrders.length > 0 && (
+            <Card className="rounded-[1.75rem] border-amber-300/70 bg-amber-50/80 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.58)]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-amber-800">
+                  <AlertCircle className="h-5 w-5" />
+                  Tienes {pendingOrders.length} {pendingOrders.length === 1 ? 'orden pendiente' : 'órdenes pendientes'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-amber-800/80">
+                  Completa el pago o sube tu comprobante para no perder tu compra.
+                </p>
+                {pendingOrders.map((order) => (
+                  <Link
+                    key={order.id}
+                    to={`/app/orders/${order.id}`}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-amber-200/80 bg-balance-cream/70 px-4 py-3 transition hover:bg-balance-cream"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Clock className="h-4 w-4 flex-shrink-0 text-amber-600" />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-balance-dark">
+                          {order.plan_name || 'Orden'} · #{order.order_number}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {order.status === 'pending_payment' ? 'Esperando pago' : 'En revisión'}
+                          {' · '}
+                          {format(new Date(order.created_at), "d MMM yyyy", { locale: es })}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <Badge
+                        variant={order.status === 'pending_payment' ? 'secondary' : 'outline'}
+                        className="rounded-full"
+                      >
+                        ${Number(order.total).toLocaleString('es-MX')}
+                      </Badge>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </Link>
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
           {isLoading ? (
             <Skeleton className="h-40 w-full" />

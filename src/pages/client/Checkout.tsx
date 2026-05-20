@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthGuard } from '@/components/layout/AuthGuard';
 import { ClientLayout } from '@/components/layout/ClientLayout';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -15,6 +15,13 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import api from '@/lib/api';
+import {
+  getClassesLabel,
+  getPackagePresentation,
+  getPackageType,
+  packageOrder,
+  packagePresentations,
+} from '@/lib/planPresentation';
 import type { OrderPaymentMethod, CreateOrderRequest, Order } from '@/types/order';
 import {
   CreditCard,
@@ -54,6 +61,20 @@ interface BankInfo {
   account_number: string;
   clabe: string;
   reference_instructions: string;
+}
+
+function isMembershipFeePlan(plan: Plan) {
+  return (
+    plan.category === 'membership_fee' ||
+    plan.name.toLowerCase().includes('social') ||
+    plan.name.toLowerCase().includes('inscrip') ||
+    Number(plan.price) === 500
+  );
+}
+
+function getRewardPoints(classLimit: number | null) {
+  const points: Record<number, number> = { 4: 30, 8: 60, 12: 100, 24: 160 };
+  return classLimit ? points[classLimit] : null;
 }
 
 export default function Checkout() {
@@ -125,13 +146,13 @@ export default function Checkout() {
     retry: false
   });
 
-  const hasActiveMembershipFee = myMembership?.some((m: any) =>
+  const hasActiveMembershipFee = myMembership?.some((m: any) => (
     m.status === 'active' && (
       m.plan_category === 'membership_fee' ||
       m.plan_name?.toLowerCase().includes('inscripci') ||
       m.plan_name?.toLowerCase().includes('social')
     )
-  );
+  ));
 
 
   // Fetch facilities (studios) for individual-package studio selection
@@ -185,6 +206,16 @@ export default function Checkout() {
   });
 
   const selectedPlan = plans?.find(p => p.id === selectedPlanId);
+  const visiblePlans = (plans || []).filter((plan) => {
+    if (isMembershipFeePlan(plan) && hasActiveMembershipFee) return false;
+    return true;
+  });
+  const groupedPlans = packageOrder
+    .map((type) => ({
+      ...packagePresentations[type],
+      plans: visiblePlans.filter((plan) => getPackageType(plan) === type),
+    }))
+    .filter((group) => group.plans.length > 0);
   const needsStudio = !!selectedPlan?.requires_studio_selection;
 
   const handlePlanSelect = (planId: string) => {
@@ -319,7 +350,7 @@ export default function Checkout() {
   return (
     <AuthGuard requiredRoles={['client']}>
       <ClientLayout>
-        <div className="mx-auto max-w-3xl space-y-6">
+        <div className="mx-auto max-w-5xl space-y-6">
           <section className="rounded-[2rem] border border-balance-olive/25 bg-balance-olive/10 p-5 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)] sm:p-6">
           <div className="flex items-center gap-4">
             <Button
@@ -359,106 +390,113 @@ export default function Checkout() {
 
           {/* Step 1: Select Plan */}
           {step === 'plan' && (
-            <div className="space-y-4">
+            <div className="space-y-5">
               {plansLoading ? (
                 <>
-                  <Skeleton className="h-32 w-full" />
-                  <Skeleton className="h-32 w-full" />
-                  <Skeleton className="h-32 w-full" />
+                  <Skeleton className="h-44 w-full rounded-[1.75rem]" />
+                  <Skeleton className="h-44 w-full rounded-[1.75rem]" />
+                  <Skeleton className="h-44 w-full rounded-[1.75rem]" />
                 </>
-              ) : plans && plans.length > 0 ? (
-                plans.filter((plan) => {
-                  // Hide inscription plan if user already has active one
-                  const isFee =
-                    plan.category === 'membership_fee' ||
-                    plan.name.toLowerCase().includes('social') ||
-                    plan.name.toLowerCase().includes('inscrip') ||
-                    Number(plan.price) === 500;
-                  if (isFee && hasActiveMembershipFee) return false;
-                  return true;
-                }).map((plan) => {
-                  // Define special categories
-                  // We use the fields from backend: category, is_exclusive
-                  const isMembershipFeePlan =
-                    plan.category === 'membership_fee' ||
-                    plan.name.toLowerCase().includes('social') ||
-                    plan.name.toLowerCase().includes('inscrip') ||
-                    Number(plan.price) === 500;
-
-                  const isTrialPlan =
-                    plan.category === 'trial' ||
-                    plan.name.toLowerCase().includes('prueba') ||
-                    plan.name.toLowerCase().includes('muestra') ||
-                    plan.name.toLowerCase().includes('individual') ||
-                    plan.name.toLowerCase().includes('drop');
-
-                  const isLocked = false;
-
-                  console.log(`Plan: ${plan.name} | isLocked: ${isLocked} | hasActiveFee: ${hasActiveMembershipFee}`);
-
-                  return (
-                    <Card
-                      key={plan.id}
-                      className={`relative overflow-hidden rounded-[1.5rem] transition-all ${selectedPlanId === plan.id ? 'border-balance-olive ring-2 ring-balance-olive/18 bg-balance-olive/8' : 'border-balance-sand/65 bg-[hsl(var(--card))]/88'
-                        } ${isLocked ? 'opacity-70 bg-muted/20' : 'cursor-pointer hover:border-balance-olive/45 hover:-translate-y-0.5'}`}
-                      onClick={() => !isLocked && handlePlanSelect(plan.id)}
-                    >
-                      {isLocked && (
-                        <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px] flex flex-col items-center justify-center z-10 text-center p-4">
-                          <div className="bg-background/90 p-2 rounded-full shadow-sm mb-2">
-                            <Sparkles className="h-6 w-6 text-warning" />
-                          </div>
-                          <p className="font-semibold text-sm">No disponible</p>
-                          <p className="text-xs text-muted-foreground">Este paquete no está disponible por ahora</p>
+              ) : groupedPlans.length > 0 ? (
+                groupedPlans.map((group) => (
+                  <section key={group.type} className={`rounded-[1.9rem] p-3 ring-1 ${group.panel}`}>
+                    <div className="rounded-[1.45rem] bg-balance-dark/[0.035] p-4 sm:p-5">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                          <span className={`inline-flex rounded-full px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] ${group.chip}`}>
+                            {group.eyebrow}
+                          </span>
+                          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.035em]">{group.title}</h2>
+                          <p className={`mt-1 text-sm leading-relaxed ${group.text}`}>{group.detail}</p>
                         </div>
-                      )}
+                        <p className="max-w-[16rem] text-xs font-medium leading-relaxed opacity-70">
+                          {group.rule}
+                        </p>
+                      </div>
 
-                      <CardHeader className="pb-2">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <CardTitle className="text-lg flex items-center gap-2">
-                              {plan.name}
-                              {plan.category === 'membership_fee' && <Badge variant="secondary" className="text-xs">Acceso Anual</Badge>}
-                            </CardTitle>
-                            {plan.description && (
-                              <CardDescription>{plan.description}</CardDescription>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-semibold text-balance-olive">
-                              {formatPrice(plan.price)}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {plan.duration_days} días
-                            </p>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex items-center gap-3 flex-wrap text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <Sparkles className="h-4 w-4" />
-                            {plan.is_unlimited
-                              ? 'Clases ilimitadas'
-                              : plan.class_limit
-                                ? `${plan.class_limit} clases`
-                                : 'Acceso membresía'}
-                          </div>
-                          {(() => {
-                            const pts: Record<number, number> = { 4: 30, 8: 60, 12: 100, 24: 160 };
-                            const bonus = plan.class_limit ? pts[plan.class_limit] : null;
-                            return bonus ? (
-                              <div className="flex items-center gap-1 rounded-full border border-amber-200/80 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
-                                <Star className="h-3 w-3 fill-current text-amber-500" />
-                                +{bonus} pts al comprar
+                      <div className="mt-4 grid gap-3">
+                        {group.plans.map((plan) => {
+                          const presentation = getPackagePresentation(plan);
+                          const isSelected = selectedPlanId === plan.id;
+                          const rewardPoints = getRewardPoints(plan.class_limit);
+                          const price = Number(plan.price);
+                          const classesLabel = plan.is_unlimited
+                            ? 'Clases ilimitadas'
+                            : plan.class_limit
+                              ? getClassesLabel(plan.class_limit)
+                              : 'Acceso membresía';
+
+                          return (
+                            <button
+                              key={plan.id}
+                              type="button"
+                              className={`group w-full rounded-[1.35rem] p-4 text-left ring-1 transition duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 active:scale-[0.99] ${presentation.card} ${
+                                isSelected ? presentation.selected : ''
+                              }`}
+                              aria-pressed={isSelected}
+                              onClick={() => handlePlanSelect(plan.id)}
+                            >
+                              <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-start">
+                                <div>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${presentation.badge}`}>
+                                      {presentation.accentLabel}
+                                    </span>
+                                    {isMembershipFeePlan(plan) && (
+                                      <span className="rounded-full bg-balance-cream/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-balance-dark/70 ring-1 ring-balance-dark/10">
+                                        acceso anual
+                                      </span>
+                                    )}
+                                    {isSelected && (
+                                      <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${presentation.chip}`}>
+                                        <CheckCircle2 className="h-3 w-3" />
+                                        Seleccionado
+                                      </span>
+                                    )}
+                                  </div>
+                                  <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em]">{plan.name}</h3>
+                                  {plan.description && (
+                                    <p className={`mt-1 max-w-[34rem] text-sm leading-relaxed ${presentation.text}`}>
+                                      {plan.description}
+                                    </p>
+                                  )}
+                                  <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+                                    <span className="rounded-full bg-balance-cream/65 px-3 py-1 ring-1 ring-balance-dark/8">
+                                      {classesLabel}
+                                    </span>
+                                    <span className="rounded-full bg-balance-cream/65 px-3 py-1 ring-1 ring-balance-dark/8">
+                                      {plan.duration_days} días
+                                    </span>
+                                    {rewardPoints && (
+                                      <span className="inline-flex items-center gap-1 rounded-full bg-balance-cream/65 px-3 py-1 text-[#8A6F32] ring-1 ring-[#B8AA86]/30">
+                                        <Star className="h-3 w-3 fill-current" />
+                                        +{rewardPoints} pts
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center justify-between gap-4 sm:block sm:text-right">
+                                  <div>
+                                    <p className="text-3xl font-semibold tracking-[-0.05em] text-balance-dark">
+                                      {formatPrice(price)}
+                                    </p>
+                                    <p className={`text-xs font-medium ${presentation.text}`}>
+                                      {plan.class_limit ? `${formatPrice(Math.round(price / plan.class_limit))} por clase` : presentation.shortTitle}
+                                    </p>
+                                  </div>
+                                  <span className={`mt-0 inline-flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 group-hover:translate-x-1 sm:mt-5 ${presentation.chip}`}>
+                                    {isSelected ? <CheckCircle2 className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                                  </span>
+                                </div>
                               </div>
-                            ) : null;
-                          })()}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </section>
+                ))
               ) : (
                 <Card>
                   <CardContent className="py-8 text-center">
