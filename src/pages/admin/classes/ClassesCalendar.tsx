@@ -121,6 +121,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const [studioFilter, setStudioFilter] = useState<string>('all');
     const [userSearch, setUserSearch] = useState('');
     const [searchActive, setSearchActive] = useState(false);
+    const [isCopyOpen, setIsCopyOpen] = useState(false);
+    const [copyScope, setCopyScope] = useState<string>('all');
     const [copyPreview, setCopyPreview] = useState<null | {
         wouldCopy: number;
         skippedExisting: number;
@@ -211,19 +213,19 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
     });
 
-    const resolveCopyScope = (): { facilityId?: string | null } => {
-        if (studioFilter === 'all') return {};
-        if (studioFilter === 'Studio') return { facilityId: null };
-        const f = facilities?.find((x) => x.name === studioFilter);
+    const scopeToFacility = (scope: string): { facilityId?: string | null } => {
+        if (scope === 'all') return {};
+        if (scope === 'Studio') return { facilityId: null };
+        const f = facilities?.find((x) => x.name === scope);
         return f ? { facilityId: f.id } : {};
     };
 
     const previewCopyMutation = useMutation({
-        mutationFn: async () => {
+        mutationFn: async (scope: string) => {
             const res = await api.post('/classes/copy-week', {
                 targetWeekStart: format(weekStart, 'yyyy-MM-dd'),
                 dryRun: true,
-                ...resolveCopyScope(),
+                ...scopeToFacility(scope),
             });
             return res.data;
         },
@@ -232,11 +234,11 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     });
 
     const copyWeekMutation = useMutation({
-        mutationFn: async () => {
+        mutationFn: async (scope: string) => {
             const res = await api.post('/classes/copy-week', {
                 targetWeekStart: format(weekStart, 'yyyy-MM-dd'),
                 dryRun: false,
-                ...resolveCopyScope(),
+                ...scopeToFacility(scope),
             });
             return res.data;
         },
@@ -244,6 +246,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
             queryClient.invalidateQueries({ queryKey: ['classes'] });
             const extra = data.skippedExisting > 0 ? ` (${data.skippedExisting} ya existían)` : '';
             toast({ title: 'Semana copiada', description: `${data.copied} clases copiadas${extra}.` });
+            setIsCopyOpen(false);
             setCopyPreview(null);
         },
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
@@ -583,11 +586,15 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 <Button
                                     variant="outline"
                                     className="border-balance-sand/70 bg-balance-cream/70"
-                                    onClick={() => previewCopyMutation.mutate()}
-                                    disabled={previewCopyMutation.isPending}
+                                    onClick={() => {
+                                        const initial = studioFilter === 'Studio' ? 'all' : studioFilter;
+                                        setCopyScope(initial);
+                                        setCopyPreview(null);
+                                        setIsCopyOpen(true);
+                                        previewCopyMutation.mutate(initial);
+                                    }}
                                 >
-                                    <Copy className="mr-2 h-4 w-4" />
-                                    {previewCopyMutation.isPending ? 'Calculando...' : 'Copiar semana anterior'}
+                                    <Copy className="mr-2 h-4 w-4" /> Copiar semana anterior
                                 </Button>
                                 <Button variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" onClick={() => setIsBulkFreeOpen(true)}>
                                     <Sparkles className="mr-2 h-4 w-4" /> Marcar como gratis
@@ -1063,36 +1070,61 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                     </Dialog>
 
                     {/* Copy Previous Week Dialog */}
-                    <Dialog open={copyPreview !== null} onOpenChange={(open) => { if (!open) setCopyPreview(null); }}>
+                    <Dialog open={isCopyOpen} onOpenChange={(open) => { setIsCopyOpen(open); if (!open) setCopyPreview(null); }}>
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>Copiar semana anterior</DialogTitle>
                                 <DialogDescription>
-                                    {copyPreview && copyPreview.wouldCopy > 0 ? (
+                                    Copia las clases de la semana anterior a la semana visible (mismos días y horas). Elige qué sala copiar.
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <div className="space-y-3 py-2">
+                                <div className="space-y-1.5">
+                                    <Label>Sala</Label>
+                                    <Select
+                                        value={copyScope}
+                                        onValueChange={(val) => { setCopyScope(val); setCopyPreview(null); previewCopyMutation.mutate(val); }}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Todas las salas" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">Todas las salas</SelectItem>
+                                            {facilities?.map((f) => (
+                                                <SelectItem key={f.id} value={f.name}>{f.name}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="rounded-lg border border-balance-olive/20 bg-balance-cream/40 px-3 py-2 text-sm text-balance-dark/80">
+                                    {previewCopyMutation.isPending ? (
+                                        'Calculando…'
+                                    ) : copyPreview && copyPreview.wouldCopy > 0 ? (
                                         <>
                                             Se copiarán <strong>{copyPreview.wouldCopy}</strong> clases de la semana del{' '}
                                             {copyPreview.source.start} a la del {copyPreview.target.start}
                                             {copyPreview.skippedExisting > 0 && ` · ${copyPreview.skippedExisting} ya existen (se omiten)`}
                                             {copyPreview.skippedClosedDays > 0 && ` · ${copyPreview.skippedClosedDays} en días cerrados`}.
                                         </>
+                                    ) : copyPreview ? (
+                                        'No hay clases en la semana anterior para esta sala.'
                                     ) : (
-                                        'No hay clases en la semana anterior para copiar.'
+                                        'Selecciona una sala para ver el conteo.'
                                     )}
-                                </DialogDescription>
-                            </DialogHeader>
+                                </div>
+                            </div>
+
                             <DialogFooter>
-                                <Button variant="outline" onClick={() => setCopyPreview(null)}>
-                                    {copyPreview && copyPreview.wouldCopy > 0 ? 'Cancelar' : 'Cerrar'}
+                                <Button variant="outline" onClick={() => setIsCopyOpen(false)}>Cancelar</Button>
+                                <Button
+                                    className="bg-balance-olive text-balance-cream hover:bg-balance-olive/90"
+                                    onClick={() => copyWeekMutation.mutate(copyScope)}
+                                    disabled={copyWeekMutation.isPending || previewCopyMutation.isPending || !copyPreview || copyPreview.wouldCopy === 0}
+                                >
+                                    {copyWeekMutation.isPending ? 'Copiando...' : 'Copiar'}
                                 </Button>
-                                {copyPreview && copyPreview.wouldCopy > 0 && (
-                                    <Button
-                                        className="bg-balance-olive text-balance-cream hover:bg-balance-olive/90"
-                                        onClick={() => copyWeekMutation.mutate()}
-                                        disabled={copyWeekMutation.isPending}
-                                    >
-                                        {copyWeekMutation.isPending ? 'Copiando...' : 'Copiar'}
-                                    </Button>
-                                )}
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
