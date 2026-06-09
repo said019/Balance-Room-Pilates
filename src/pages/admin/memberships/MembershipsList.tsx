@@ -274,7 +274,8 @@ export default function MembershipsList({
                                                         m.status === 'pending_payment' ? 'Pendiente Pago' :
                                                             m.status === 'pending_activation' ? 'Por Activar' :
                                                                 m.status === 'cancelled' ? 'Cancelada' :
-                                                                    m.status === 'expired' ? 'Vencida' : m.status}
+                                                                    m.status === 'expired' ? 'Vencida' :
+                                                                        m.status === 'completed' ? 'Terminada' : m.status}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-sm">
