@@ -93,7 +93,7 @@ interface BankInfo {
   reference_instructions: string;
 }
 
-type EventPaymentMethod = 'transfer' | 'cash';
+type EventPaymentMethod = 'transfer' | 'cash' | 'credits';
 
 const typeIcons: Record<string, React.ReactNode> = {
   masterclass: <Star className="h-5 w-5" />,
@@ -171,6 +171,10 @@ export default function ClientEvents() {
   });
 
   const hasActiveMembership = membership?.status === 'active';
+  // null classes_remaining = unlimited plan. Can pay an event with 1 class credit
+  // when the member has an active membership with credits left (or unlimited).
+  const membershipCredits = membership?.classes_remaining ?? null;
+  const canPayWithCredits = hasActiveMembership && (membershipCredits === null || membershipCredits > 0);
 
   // Fetch bank info when user has a pending registration
   const isPendingPayment = selectedEvent?.myRegistration?.status === 'pending';
@@ -191,19 +195,20 @@ export default function ClientEvents() {
         })
       ).data;
     },
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['client-events'] });
+      queryClient.invalidateQueries({ queryKey: ['my-membership'] }); // refresh credits after paying with one
+      const paidWithCredits = variables.paymentMethod === 'credits';
       setRegisterDialogOpen(false);
       toast({
-        title: data.isFree ? '¡Registro confirmado!' : 'Registro exitoso',
+        title: (data.isFree || paidWithCredits) ? '¡Inscripción confirmada!' : 'Registro exitoso',
         description: data.message,
       });
-      // For paid events, stay on the detail view to show payment section
-      if (!data.isFree && selectedEvent) {
-        // Refresh the event detail to get the updated myRegistration
-        api.get(`/events/${selectedEvent.id}`).then((res) => setSelectedEvent(res.data));
-      } else {
+      if (data.isFree) {
         setSelectedEvent(null);
+      } else if (selectedEvent) {
+        // Credits → already confirmed; money → pending (detail shows the payment section).
+        api.get(`/events/${selectedEvent.id}`).then((res) => setSelectedEvent(res.data)).catch(() => {});
       }
     },
     onError: (err: any) => {
@@ -873,7 +878,11 @@ export default function ClientEvents() {
                 <div className="bg-muted/50 rounded-lg p-3 flex justify-between">
                   <span className="text-sm text-muted-foreground">Precio</span>
                   <span className="text-sm font-bold" style={{ color }}>
-                    {isFree ? 'Gratis' : `$${userPrice} MXN`}
+                    {isFree
+                      ? 'Gratis'
+                      : eventPaymentMethod === 'credits'
+                        ? '1 clase de tu paquete'
+                        : `$${userPrice} MXN`}
                   </span>
                 </div>
 
@@ -901,6 +910,20 @@ export default function ClientEvents() {
                           <p className="text-xs text-muted-foreground">Pago físico en recepción</p>
                         </div>
                       </label>
+                      {canPayWithCredits && (
+                        <label className="flex items-center gap-3 rounded-lg border p-3 cursor-pointer">
+                          <RadioGroupItem value="credits" />
+                          <Ticket className="h-4 w-4 text-muted-foreground" />
+                          <div>
+                            <p className="text-sm font-medium">Usar 1 clase de mi paquete</p>
+                            <p className="text-xs text-muted-foreground">
+                              {membershipCredits === null
+                                ? 'Plan ilimitado'
+                                : `Te quedan ${membershipCredits} clase${membershipCredits === 1 ? '' : 's'} — se confirma al instante`}
+                            </p>
+                          </div>
+                        </label>
+                      )}
                     </RadioGroup>
                   </div>
                 )}
