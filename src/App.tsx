@@ -112,6 +112,7 @@ import AdminVideoList from "./pages/admin/videos/VideoList";
 import AdminVideoUpload from "./pages/admin/videos/VideoUpload";
 import VideoSalesVerification from "./pages/admin/videos/VideoSalesVerification";
 import EventsManager from "./pages/admin/events/EventsManager";
+import Communication from "./pages/admin/marketing/Communication";
 import DiscountCodes from "./pages/admin/discount-codes/DiscountCodes";
 import ProductsPage from "./pages/admin/pos/ProductsPage";
 import POSPage from "./pages/admin/pos/POSPage";
@@ -205,6 +206,7 @@ const App = () => (
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/events" element={<EventsManager />} />
+            <Route path="/admin/marketing" element={<Communication />} />
             <Route path="/admin/discount-codes" element={<DiscountCodes />} />
             <Route path="/admin/calendar" element={<ClassesCalendar />} />
 
