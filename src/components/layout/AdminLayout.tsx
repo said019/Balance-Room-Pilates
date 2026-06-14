@@ -35,6 +35,7 @@ import {
     UserPlus,
     Video,
     PartyPopper,
+    Megaphone,
     Tag,
     ShoppingBag,
     X,
@@ -64,6 +65,7 @@ type SidebarItem = {
 const sidebarItems: SidebarItem[] = [
     { href: '/admin/dashboard', label: 'Pulso', icon: LayoutDashboard },
     { href: '/admin/events', label: 'Eventos', icon: PartyPopper },
+    { href: '/admin/marketing', label: 'Comunicación', icon: Megaphone },
     { href: '/admin/discount-codes', label: 'Descuentos', icon: Tag },
     { href: '/admin/calendar', label: 'Agenda', icon: Calendar },
     {
@@ -152,6 +154,7 @@ const sidebarItems: SidebarItem[] = [
 const pageNames: Record<string, string> = {
     dashboard: 'Pulso del studio',
     events: 'Eventos',
+    marketing: 'Comunicación',
     'discount-codes': 'Descuentos',
     calendar: 'Agenda',
     bookings: 'Reservas',
