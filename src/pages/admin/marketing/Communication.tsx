@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/components/ui/use-toast';
-import { Cake, Megaphone, Send, Loader2 } from 'lucide-react';
+import { Cake, Megaphone, Send, Loader2, MessageCircle, Mail, ShieldCheck } from 'lucide-react';
 
 interface BirthdayClient {
     id: string;
@@ -25,6 +26,20 @@ export default function Communication() {
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
     const [discountCode, setDiscountCode] = useState('');
+    const [useEmail, setUseEmail] = useState(true);
+    const [useWhatsapp, setUseWhatsapp] = useState(false);
+    const [waBroadcastId, setWaBroadcastId] = useState<string | null>(null);
+
+    // Poll the WhatsApp broadcast progress (it sends gradually in the background).
+    const { data: waStatus } = useQuery<{ total: number; sent: number; failed: number; status: string; error: string | null }>({
+        queryKey: ['wa-broadcast', waBroadcastId],
+        queryFn: async () => (await api.get(`/marketing/broadcasts/${waBroadcastId}`)).data,
+        enabled: !!waBroadcastId,
+        refetchInterval: (q) => {
+            const s = (q.state.data as any)?.status;
+            return s && ['done', 'aborted', 'error'].includes(s) ? false : 4000;
+        },
+    });
 
     const { data: birthdays = [], isLoading: loadingBdays } = useQuery<BirthdayClient[]>({
         queryKey: ['marketing-birthdays'],
@@ -52,17 +67,24 @@ export default function Communication() {
 
     const broadcastMutation = useMutation({
         mutationFn: async () => {
+            const channels: string[] = [];
+            if (useEmail) channels.push('email');
+            if (useWhatsapp) channels.push('whatsapp');
             return (await api.post('/marketing/broadcast', {
                 subject: subject.trim(),
                 message: message.trim(),
                 discountCode: discountCode.trim() || undefined,
+                channels,
             })).data;
         },
         onSuccess: (data) => {
-            toast({
-                title: 'Correo enviado',
-                description: `Enviado a ${data.sent} de ${data.total} clientes${data.failed ? ` (${data.failed} fallaron)` : ''}.`,
-            });
+            const parts: string[] = [];
+            if (data.email) parts.push(`Correo enviado a ${data.email.sent}/${data.email.total}`);
+            if (data.whatsapp) {
+                parts.push(`WhatsApp: enviando a ${data.whatsapp.total} (~${data.whatsapp.estimateMinutes} min, en segundo plano)`);
+                setWaBroadcastId(data.whatsapp.broadcastId);
+            }
+            toast({ title: 'Envío iniciado', description: parts.join(' · ') || 'Listo.' });
             setSubject('');
             setMessage('');
             setDiscountCode('');
@@ -70,7 +92,7 @@ export default function Communication() {
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
     });
 
-    const canSend = subject.trim().length >= 2 && message.trim().length >= 2;
+    const canSend = subject.trim().length >= 2 && message.trim().length >= 2 && (useEmail || useWhatsapp);
 
     return (
         <AuthGuard requiredRoles={['admin']}>
@@ -154,10 +176,34 @@ export default function Communication() {
                                     maxLength={50}
                                 />
                             </div>
+
+                            <div className="space-y-2">
+                                <Label>Enviar por</Label>
+                                <label className="flex items-center gap-3 rounded-lg border p-3 cursor-pointer">
+                                    <Checkbox checked={useEmail} onCheckedChange={(v) => setUseEmail(v === true)} />
+                                    <Mail className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm font-medium">Correo electrónico</span>
+                                </label>
+                                <label className="flex items-center gap-3 rounded-lg border p-3 cursor-pointer">
+                                    <Checkbox checked={useWhatsapp} onCheckedChange={(v) => setUseWhatsapp(v === true)} />
+                                    <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm font-medium">WhatsApp</span>
+                                </label>
+                                {useWhatsapp && (
+                                    <div className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
+                                        <ShieldCheck className="h-4 w-4 mt-0.5 shrink-0" />
+                                        <span>
+                                            Por seguridad, WhatsApp se envía <strong>poco a poco</strong> (con pausas y personalizado con el nombre) para no arriesgar el número. Tarda varios minutos y, si la conexión se cae, se detiene solo.
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="flex justify-end">
                                 <Button
                                     onClick={() => {
-                                        if (confirm('¿Enviar este correo a TODOS los clientes?')) {
+                                        const ch = [useEmail && 'correo', useWhatsapp && 'WhatsApp'].filter(Boolean).join(' y ');
+                                        if (confirm(`¿Enviar por ${ch} a TODOS los clientes?`)) {
                                             broadcastMutation.mutate();
                                         }
                                     }}
@@ -168,6 +214,20 @@ export default function Communication() {
                                         : <><Send className="mr-2 h-4 w-4" /> Enviar a todos los clientes</>}
                                 </Button>
                             </div>
+
+                            {waStatus && (
+                                <div className="rounded-lg border bg-muted/40 p-3 text-sm">
+                                    <div className="flex items-center gap-2 font-medium">
+                                        <MessageCircle className="h-4 w-4" /> Envío por WhatsApp
+                                    </div>
+                                    <p className="mt-1 text-muted-foreground">
+                                        {waStatus.status === 'running' && `Enviando… ${waStatus.sent}/${waStatus.total} (puede tardar varios minutos; puedes cerrar esta página).`}
+                                        {waStatus.status === 'done' && `✅ Completado: ${waStatus.sent} enviados${waStatus.failed ? `, ${waStatus.failed} fallaron` : ''}.`}
+                                        {waStatus.status === 'aborted' && `⛔ Detenido por seguridad: ${waStatus.error || ''} (${waStatus.sent} enviados).`}
+                                        {waStatus.status === 'error' && `⚠️ Error: ${waStatus.error || ''} (${waStatus.sent} enviados).`}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </section>
                 </div>
