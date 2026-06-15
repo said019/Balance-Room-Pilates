@@ -1606,6 +1606,12 @@ function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void })
             )}
             style={{ borderColor, background }}
         >
+            {isMexico && (
+                <div
+                    className="-mx-3 -mt-3 mb-2 h-2.5 rounded-t-[1.05rem]"
+                    style={{ background: 'linear-gradient(90deg, #006847 0 33.3%, #ffffff 33.3% 66.6%, #CE1126 66.6% 100%)' }}
+                />
+            )}
             <div className="flex items-start justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2">
                     <span className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
