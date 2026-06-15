@@ -326,6 +326,15 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
     });
 
+    const bulkDeleteCancelledMutation = useMutation({
+        mutationFn: async () => api.post('/classes/delete-cancelled', { startDate: startStr, endDate: endStr }),
+        onSuccess: (res) => {
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+            toast({ title: 'Canceladas eliminadas', description: `${res.data.deleted} clase(s) eliminada(s) de la semana.` });
+        },
+        onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
+    });
+
     const toggleFreeMutation = useMutation({
         mutationFn: async ({ id, is_free, free_label, force }: { id: string; is_free: boolean; free_label?: string; force?: boolean }) =>
             api.patch(`/classes/${id}/free`, { is_free, free_label, force }),
@@ -634,6 +643,17 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 >
                                     {showCancelled ? 'Ocultar canceladas' : 'Ver canceladas'}
                                 </Button>
+                                {showCancelled && (
+                                    <Button
+                                        variant="outline"
+                                        className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                        onClick={() => { if (confirm('¿Eliminar todas las clases canceladas (sin reservas) de esta semana?')) bulkDeleteCancelledMutation.mutate(); }}
+                                        disabled={bulkDeleteCancelledMutation.isPending}
+                                    >
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        {bulkDeleteCancelledMutation.isPending ? 'Eliminando...' : 'Eliminar canceladas'}
+                                    </Button>
+                                )}
                                 <Button variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" onClick={() => setIsBulkFreeOpen(true)}>
                                     <Sparkles className="mr-2 h-4 w-4" /> Marcar como gratis
                                 </Button>
