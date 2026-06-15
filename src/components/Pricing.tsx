@@ -117,8 +117,13 @@ const Pricing = () => {
                   {group.plans.map((plan, index) => {
                     const presentation = getPackagePresentation(plan);
                     const price = Number(plan.price);
+                    const promoActive =
+                      plan.promo_price != null &&
+                      Number(plan.promo_price) < price &&
+                      (!plan.promo_active_until || new Date(plan.promo_active_until) > new Date());
+                    const effectivePrice = promoActive ? Number(plan.promo_price) : price;
                     const classes = plan.class_limit ?? plan.classes_included ?? 1;
-                    const pricePerClass = classes > 0 ? Math.round(price / classes) : price;
+                    const pricePerClass = classes > 0 ? Math.round(effectivePrice / classes) : effectivePrice;
 
                     return (
                       <article
@@ -147,9 +152,21 @@ const Pricing = () => {
                         </div>
 
                         <div className={`mt-5 rounded-[1.35rem] p-4 ring-1 ${presentation.badge}`}>
+                          {promoActive && (
+                            <div className="mb-1 flex flex-wrap items-center gap-2">
+                              <span className="font-heading text-base font-medium tabular-nums tracking-[-0.03em] line-through opacity-50">
+                                ${price.toLocaleString("es-MX")}
+                              </span>
+                              {plan.promo_label && (
+                                <span className="rounded-full bg-[#B88968] px-2.5 py-0.5 font-body text-[10px] font-semibold uppercase tracking-[0.16em] text-[#FBF8F2]">
+                                  {plan.promo_label}
+                                </span>
+                              )}
+                            </div>
+                          )}
                           <div className="flex items-baseline gap-1">
                             <span className="font-heading text-4xl font-semibold tabular-nums tracking-[-0.05em]">
-                              ${price.toLocaleString("es-MX")}
+                              ${effectivePrice.toLocaleString("es-MX")}
                             </span>
                             <span className="font-body text-[11px] font-medium opacity-60">MXN</span>
                           </div>

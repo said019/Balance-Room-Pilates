@@ -92,6 +92,26 @@ export default function Communication() {
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
     });
 
+    const loadPromosMutation = useMutation({
+        mutationFn: async () => (await api.get('/marketing/active-promos')).data as Array<{ name: string; price: number; promo_price: number; promo_label: string | null }>,
+        onSuccess: (promos) => {
+            if (!promos || promos.length === 0) {
+                toast({ title: 'Sin promociones', description: 'No hay planes con precio promocional activo. Configúralos en Membresías → Planes.' });
+                return;
+            }
+            const lines = promos.map((p) => {
+                const before = Number(p.price).toLocaleString('es-MX');
+                const now = Number(p.promo_price).toLocaleString('es-MX');
+                const label = p.promo_label ? ` (${p.promo_label})` : '';
+                return `💛 ${p.name}\nAntes $${before} → Ahora $${now} MXN${label}`;
+            });
+            setSubject('🎉 Promociones por tiempo limitado — Balance Room');
+            setMessage(`¡Aprovecha nuestras promos!\n\n${lines.join('\n\n')}\n\n¡Te esperamos! 🧘`);
+            toast({ title: 'Promos cargadas', description: `${promos.length} plan(es) en promoción. Revisa el mensaje y envíalo.` });
+        },
+        onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
+    });
+
     const canSend = subject.trim().length >= 2 && message.trim().length >= 2 && (useEmail || useWhatsapp);
 
     return (
@@ -140,9 +160,20 @@ export default function Communication() {
 
                     {/* Correo masivo */}
                     <section className="rounded-xl border bg-card p-6">
-                        <div className="flex items-center gap-2 mb-4">
-                            <Megaphone className="h-5 w-5 text-balance-olive" />
-                            <h2 className="text-lg font-semibold">Correo masivo (promociones)</h2>
+                        <div className="flex items-center justify-between gap-2 mb-4">
+                            <div className="flex items-center gap-2">
+                                <Megaphone className="h-5 w-5 text-balance-olive" />
+                                <h2 className="text-lg font-semibold">Correo masivo (promociones)</h2>
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => loadPromosMutation.mutate()}
+                                disabled={loadPromosMutation.isPending}
+                            >
+                                {loadPromosMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                Cargar promociones actuales
+                            </Button>
                         </div>
                         <div className="space-y-4">
                             <div className="space-y-1.5">

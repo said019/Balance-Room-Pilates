@@ -43,6 +43,9 @@ export interface Plan {
     created_at?: string;
     package_type?: 'individual' | 'mixto' | 'sample';
     requires_studio_selection?: boolean;
+    promo_price?: number | null;
+    promo_label?: string | null;
+    promo_active_until?: string | null;
 }
 
 // Membership interface
