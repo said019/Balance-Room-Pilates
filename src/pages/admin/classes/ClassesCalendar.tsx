@@ -188,6 +188,12 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         },
     });
 
+    // Events overlaid on the calendar/agenda (published events).
+    const { data: calendarEvents = [] } = useQuery<Array<{ id: string; title: string; date: string; startTime: string; endTime: string; location: string }>>({
+        queryKey: ['calendar-events'],
+        queryFn: async () => (await api.get('/events')).data,
+    });
+
     // Closed days for visual indicator
     const { data: closedDays = [] } = useQuery<{ id: string; date: string; reason: string }[]>({
         queryKey: ['closed-days-range', startStr, endStr],
@@ -434,6 +440,14 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
             const studioMatch = studioFilter === 'all' || (c.facility_name?.trim() || 'Studio') === studioFilter;
             return dateMatch && typeMatch && studioMatch;
         }) || [];
+    };
+
+    const getEventsForDay = (day: Date) => {
+        return (calendarEvents || []).filter((e) => {
+            const dateStr = (e.date || '').split('T')[0];
+            if (!dateStr) return false;
+            return isSameDay(parseISO(dateStr + 'T00:00:00'), day);
+        });
     };
 
     const getInitials = (name: string) => {
@@ -692,6 +706,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 <div className="grid grid-cols-7">
                                     {weekDays.map((day) => {
                                         const dayClasses = getClassesForDay(day);
+                                        const dayEvents = getEventsForDay(day);
                                         const isClosed = closedDaySet.has(format(day, 'yyyy-MM-dd'));
                                         const closedReason = getClosedReason(day);
                                         return (
@@ -709,12 +724,27 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                 )}
 
                                                 <div className="space-y-2.5">
+                                                    {dayEvents.map(ev => (
+                                                        <Link
+                                                            key={ev.id}
+                                                            to="/admin/events"
+                                                            className="block rounded-[1.1rem] border border-balance-gold/45 bg-balance-gold/12 p-2.5 text-left transition-colors hover:bg-balance-gold/20"
+                                                        >
+                                                            <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-balance-gold">
+                                                                <Sparkles className="h-3 w-3" /> Evento
+                                                            </div>
+                                                            <div className="mt-0.5 truncate text-sm font-semibold text-balance-dark">{ev.title}</div>
+                                                            <div className="text-xs text-balance-dark/60">
+                                                                {(ev.startTime || '').slice(0, 5)}{ev.endTime ? `–${ev.endTime.slice(0, 5)}` : ''}
+                                                            </div>
+                                                        </Link>
+                                                    ))}
                                                     {dayClasses.map(c => (
                                                         <ClassEventCard key={c.id} item={c} onClick={() => handleClassClick(c)} />
                                                     ))}
                                                 </div>
 
-                                                {dayClasses.length === 0 && !isClosed && (
+                                                {dayClasses.length === 0 && dayEvents.length === 0 && !isClosed && (
                                                     <button
                                                         type="button"
                                                         className="mt-2 flex min-h-[10rem] w-full flex-col items-center justify-center rounded-[1.1rem] border border-dashed border-balance-sand/70 bg-balance-cream/35 text-center text-balance-dark/48 transition-colors hover:border-balance-olive/40 hover:bg-balance-olive/8 hover:text-balance-olive"
@@ -725,7 +755,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                     </button>
                                                 )}
 
-                                                {dayClasses.length > 0 && (
+                                                {(dayClasses.length > 0 || dayEvents.length > 0) && (
                                                     <Button
                                                         variant="ghost"
                                                         className="mt-3 h-9 w-full rounded-full border border-dashed border-balance-sand/65 text-xs text-balance-dark/55 hover:border-balance-olive/40 hover:bg-balance-olive/8 hover:text-balance-olive"
