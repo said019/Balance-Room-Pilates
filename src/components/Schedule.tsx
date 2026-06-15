@@ -54,6 +54,7 @@ interface ApiClass {
   end_time: string;
   class_type_name: string;
   class_type_color: string;
+  theme?: string;
   instructor_name: string;
   instructor_photo: string | null;
   capacity: number;
@@ -122,6 +123,7 @@ export default function Schedule() {
           spots: Math.max(0, available),
           maxSpots: cls.capacity || 6,
           color: cls.class_type_color || classColors[cls.class_type_name] || '#7E8579',
+          theme: cls.theme || 'none',
           facilityName: cls.facility_name ?? null,
           isFree: !!cls.is_free,
           freeLabel: cls.free_label ?? null,
@@ -392,11 +394,18 @@ export default function Schedule() {
                           >
                             <div
                               className="absolute left-0 top-0 h-full w-1.5"
-                              style={{ backgroundColor: cls.isFree ? '#16a34a' : cls.color }}
+                              style={cls.theme === 'mexico'
+                                ? { background: 'linear-gradient(180deg,#006847 0 33.3%,#ffffff 33.3% 66.6%,#CE1126 66.6% 100%)' }
+                                : { backgroundColor: cls.isFree ? '#16a34a' : cls.color }}
                             />
                             <div className="flex items-start justify-between gap-4 pl-3">
                               <div className="min-w-0">
                                 <div className="mb-2 flex flex-wrap items-center gap-2">
+                                  {cls.theme === 'mexico' && (
+                                    <span className="inline-flex rounded-full bg-balance-cream px-2.5 py-1 font-body text-[10px] font-bold tracking-wide">
+                                      🇲🇽 Especial
+                                    </span>
+                                  )}
                                   {cls.isFree && (
                                     <span className="inline-flex rounded-full bg-green-600 px-2.5 py-1 font-body text-[10px] font-bold uppercase tracking-wide text-white">
                                       {cls.freeLabel || 'Gratis'}
