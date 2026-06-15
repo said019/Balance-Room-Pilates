@@ -204,14 +204,18 @@ export default function BookClasses() {
                                                             (full || cancelled || pastTime) && !booked && "cursor-not-allowed border-balance-sand/45 bg-muted/40 opacity-60"
                                                         )}
                                                     >
-                                                        <div className="h-1 w-full" style={{ backgroundColor: c.class_type_color || '#9ca3af' }} />
+                                                        {c.theme === 'mexico' ? (
+                                                            <div className="h-1.5 w-full" style={{ background: 'linear-gradient(90deg,#006847 0 33.3%,#ffffff 33.3% 66.6%,#CE1126 66.6% 100%)' }} />
+                                                        ) : (
+                                                            <div className="h-1 w-full" style={{ backgroundColor: c.class_type_color || '#9ca3af' }} />
+                                                        )}
                                                         <div className="p-2">
                                                             <div className="flex items-center gap-1 mb-1">
                                                                 <Clock className="h-3 w-3 text-muted-foreground" />
                                                                 <span className="font-bold text-sm tabular-nums">{c.start_time.slice(0, 5)}</span>
                                                                 {booked && <Check className="h-3 w-3 text-success ml-auto" />}
                                                             </div>
-                                                            <p className="text-xs font-medium leading-tight mb-0.5">{c.class_type_name}</p>
+                                                            <p className="text-xs font-medium leading-tight mb-0.5">{c.class_type_name}{c.theme === 'mexico' ? ' 🇲🇽' : ''}</p>
                                                             {c.instructor_name && (
                                                                 <p className="text-[10px] text-muted-foreground truncate mb-1">{c.instructor_name}</p>
                                                             )}
