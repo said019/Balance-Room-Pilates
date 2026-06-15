@@ -71,6 +71,7 @@ const classSchema = z.object({
     startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
     endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
     maxCapacity: z.coerce.number().int().positive(),
+    theme: z.string().optional(),
 });
 
 const editClassSchema = z.object({
@@ -81,6 +82,7 @@ const editClassSchema = z.object({
     startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
     endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
     maxCapacity: z.coerce.number().int().positive(),
+    theme: z.string().optional(),
 });
 
 type GenerateForm = z.infer<typeof generateSchema>;
@@ -119,6 +121,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const [selectedClass, setSelectedClass] = useState<Class | null>(null);
     const [classTypeFilter, setClassTypeFilter] = useState<string>('all');
     const [studioFilter, setStudioFilter] = useState<string>('all');
+    const [showCancelled, setShowCancelled] = useState(false);
     const [userSearch, setUserSearch] = useState('');
     const [searchActive, setSearchActive] = useState(false);
     const [isCopyOpen, setIsCopyOpen] = useState(false);
@@ -284,6 +287,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                 startTime: rest.startTime,
                 endTime: rest.endTime,
                 maxCapacity: rest.maxCapacity,
+                theme: rest.theme || 'none',
             });
         },
         onSuccess: () => {
@@ -305,6 +309,17 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                 title: 'Clase cancelada',
                 description: `${data.cancelledBookings || 0} reservas canceladas, ${data.refundedCredits || 0} creditos reembolsados.`
             });
+            setIsAttendeesOpen(false);
+            setSelectedClass(null);
+        },
+        onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
+    });
+
+    const hardDeleteMutation = useMutation({
+        mutationFn: async (id: string) => api.delete(`/classes/${id}/hard-delete`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+            toast({ title: 'Clase eliminada', description: 'La clase se eliminó permanentemente.' });
             setIsAttendeesOpen(false);
             setSelectedClass(null);
         },
@@ -409,7 +424,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const handleToday = () => setCurrentDate(new Date());
 
     const handleDayClick = (day: Date) => {
-        classForm.reset({ date: day, maxCapacity: 6, startTime: '09:00', endTime: '10:00' });
+        classForm.reset({ date: day, maxCapacity: 6, startTime: '09:00', endTime: '10:00', theme: 'none' });
         setIsClassOpen(true);
     };
 
@@ -428,6 +443,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
             startTime: selectedClass.start_time,
             endTime: selectedClass.end_time,
             maxCapacity: selectedClass.max_capacity,
+            theme: selectedClass.theme || 'none',
         });
         setIsEditOpen(true);
     };
@@ -438,7 +454,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
             const dateMatch = isSameDay(parseISO(dateStr + 'T00:00:00'), day);
             const typeMatch = classTypeFilter === 'all' || c.class_type_id === classTypeFilter;
             const studioMatch = studioFilter === 'all' || (c.facility_name?.trim() || 'Studio') === studioFilter;
-            return dateMatch && typeMatch && studioMatch;
+            const cancelledMatch = showCancelled || c.status !== 'cancelled';
+            return dateMatch && typeMatch && studioMatch && cancelledMatch;
         }) || [];
     };
 
@@ -609,6 +626,13 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                     }}
                                 >
                                     <Copy className="mr-2 h-4 w-4" /> Copiar semana anterior
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className={cn('border-balance-sand/70 bg-balance-cream/70', showCancelled && 'border-destructive/40 bg-destructive/10 text-destructive')}
+                                    onClick={() => setShowCancelled(v => !v)}
+                                >
+                                    {showCancelled ? 'Ocultar canceladas' : 'Ver canceladas'}
                                 </Button>
                                 <Button variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" onClick={() => setIsBulkFreeOpen(true)}>
                                     <Sparkles className="mr-2 h-4 w-4" /> Marcar como gratis
@@ -822,6 +846,22 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                             <Trash2 className="mr-2 h-4 w-4" /> Cancelar Clase
                                         </Button>
                                     </div>
+                                )}
+
+                                {/* Hard-delete for already-cancelled classes */}
+                                {selectedClass?.status === 'cancelled' && (
+                                    <Button
+                                        variant="destructive"
+                                        className="w-full"
+                                        disabled={hardDeleteMutation.isPending}
+                                        onClick={() => {
+                                            if (selectedClass && confirm('¿Eliminar esta clase permanentemente? Esta acción no se puede deshacer.')) {
+                                                hardDeleteMutation.mutate(selectedClass.id);
+                                            }
+                                        }}
+                                    >
+                                        <Trash2 className="mr-2 h-4 w-4" /> {hardDeleteMutation.isPending ? 'Eliminando...' : 'Eliminar definitivamente'}
+                                    </Button>
                                 )}
 
                                 {/* Free class toggle */}
@@ -1250,6 +1290,17 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                     <Input type="number" {...classForm.register('maxCapacity')} />
                                 </div>
 
+                                <div className="space-y-2">
+                                    <Label>Tema (opcional)</Label>
+                                    <Select value={classForm.watch('theme') || 'none'} onValueChange={(val) => classForm.setValue('theme', val)}>
+                                        <SelectTrigger><SelectValue placeholder="Sin tema" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">Sin tema</SelectItem>
+                                            <SelectItem value="mexico">🇲🇽 Tricolor (Patrias)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
                                 <DialogFooter>
                                     <Button type="button" variant="ghost" onClick={() => setIsClassOpen(false)}>Cancelar</Button>
                                     <Button type="submit" disabled={createMutation.isPending}>
@@ -1359,6 +1410,17 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 <div className="space-y-2">
                                     <Label>Capacidad</Label>
                                     <Input type="number" {...editForm.register('maxCapacity')} />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Tema (opcional)</Label>
+                                    <Select value={editForm.watch('theme') || 'none'} onValueChange={(val) => editForm.setValue('theme', val)}>
+                                        <SelectTrigger><SelectValue placeholder="Sin tema" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">Sin tema</SelectItem>
+                                            <SelectItem value="mexico">🇲🇽 Tricolor (Patrias)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
 
                                 <DialogFooter>
@@ -1500,11 +1562,19 @@ function CalendarStat({ label, value }: { label: string; value: number }) {
 function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void }) {
     const baseColor = item.class_type_color || '#7E8579';
     const isFree = !!item.is_free;
+    const isMexico = (item.theme || 'none') === 'mexico';
     const color = isFree ? '#16a34a' : baseColor;
     const bookings = Number(item.current_bookings || 0);
     const capacity = Number(item.max_capacity || 0);
     const ratio = capacity > 0 ? Math.min((bookings / capacity) * 100, 100) : 0;
     const isCancelled = item.status === 'cancelled';
+
+    const borderColor = isMexico ? '#006847' : (isFree ? '#86efac' : `${color}66`);
+    const background = isMexico
+        ? 'linear-gradient(180deg, rgba(0,104,71,0.18) 0%, rgba(255,255,255,0.92) 50%, rgba(206,17,38,0.18) 100%)'
+        : isFree
+            ? 'linear-gradient(180deg, #dcfce7 0%, #f0fdf4cc 100%)'
+            : `linear-gradient(180deg, ${color}1F 0%, rgba(243,238,226,0.68) 100%)`;
 
     return (
         <button
@@ -1514,12 +1584,7 @@ function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void })
                 'group w-full rounded-[1.1rem] border p-3 text-left shadow-[0_14px_42px_-34px_rgba(51,42,34,0.7)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_52px_-36px_rgba(51,42,34,0.82)]',
                 isCancelled && 'opacity-55'
             )}
-            style={{
-                borderColor: isFree ? '#86efac' : `${color}66`,
-                background: isFree
-                    ? 'linear-gradient(180deg, #dcfce7 0%, #f0fdf4cc 100%)'
-                    : `linear-gradient(180deg, ${color}1F 0%, rgba(243,238,226,0.68) 100%)`,
-            }}
+            style={{ borderColor, background }}
         >
             <div className="flex items-start justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2">
@@ -1527,6 +1592,11 @@ function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void })
                     <span className="truncate text-sm font-semibold text-balance-dark">{formatClassTime(item.start_time)}</span>
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
+                    {isMexico && (
+                        <span className="rounded-full bg-balance-cream/80 px-2 py-0.5 text-[10px] font-bold tracking-wide" title="Clase temática">
+                            🇲🇽
+                        </span>
+                    )}
                     {isFree && (
                         <span className="rounded-full bg-green-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
                             Gratis

@@ -31,10 +31,22 @@ interface Plan {
   category?: string | null;
   package_type?: 'individual' | 'mixto' | 'sample';
   requires_studio_selection?: boolean;
+  promo_price?: number | null;
+  promo_label?: string | null;
+  promo_active_until?: string | null;
 }
 
 type PaymentMethod = 'card' | 'transfer';
 type Step = 'select-plan' | 'payment-method' | 'processing';
+
+function getPromo(plan: Plan): { active: boolean; effectivePrice: number } {
+  const price = Number(plan.price);
+  const active =
+    plan.promo_price != null &&
+    Number(plan.promo_price) < price &&
+    (!plan.promo_active_until || new Date(plan.promo_active_until) > new Date());
+  return { active, effectivePrice: active ? Number(plan.promo_price) : price };
+}
 
 export function PurchaseFlow() {
   const [step, setStep] = useState<Step>('select-plan');
@@ -181,7 +193,8 @@ export function PurchaseFlow() {
                   <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                     {group.plans.map((plan) => {
                       const presentation = getPackagePresentation(plan);
-                      const pricePerClass = plan.class_limit ? (plan.price / plan.class_limit).toFixed(0) : null;
+                      const { active: promoActive, effectivePrice } = getPromo(plan);
+                      const pricePerClass = plan.class_limit ? (effectivePrice / plan.class_limit).toFixed(0) : null;
                       const planPointsMap: Record<number, number> = { 4: 30, 8: 60, 12: 100, 24: 160 };
                       const bonusPoints = plan.class_limit ? planPointsMap[plan.class_limit] ?? null : null;
 
@@ -208,9 +221,19 @@ export function PurchaseFlow() {
                               )}
                             </div>
                             <div className="shrink-0 text-right">
+                              {promoActive && (
+                                <p className="text-sm font-heading font-medium tracking-[-0.04em] text-current/55 line-through">
+                                  ${plan.price.toLocaleString('es-MX')}
+                                </p>
+                              )}
                               <p className="text-3xl font-heading font-bold tracking-[-0.06em] text-current">
-                                ${plan.price.toLocaleString('es-MX')}
+                                ${effectivePrice.toLocaleString('es-MX')}
                               </p>
+                              {promoActive && plan.promo_label && (
+                                <span className="mt-1 inline-flex rounded-full bg-balance-olive px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-balance-cream">
+                                  {plan.promo_label}
+                                </span>
+                              )}
                               <p className={`mt-1 text-xs font-semibold ${presentation.text}`}>
                                 {plan.duration_days} días
                               </p>
@@ -299,9 +322,19 @@ export function PurchaseFlow() {
                   </p>
                 </div>
                 <div className="text-right">
+                  {getPromo(selectedPlan).active && (
+                    <p className="text-sm font-heading font-medium text-muted-foreground line-through">
+                      ${selectedPlan.price.toLocaleString()}
+                    </p>
+                  )}
                   <p className="text-2xl font-heading font-bold">
-                    ${selectedPlan.price.toLocaleString()}
+                    ${getPromo(selectedPlan).effectivePrice.toLocaleString()}
                   </p>
+                  {getPromo(selectedPlan).active && selectedPlan.promo_label && (
+                    <span className="mt-1 inline-flex rounded-full bg-balance-olive px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-balance-cream">
+                      {selectedPlan.promo_label}
+                    </span>
+                  )}
                   <p className="text-sm text-muted-foreground">MXN</p>
                 </div>
               </div>

@@ -51,6 +51,12 @@ const planSchema = z.object({
     features: z.string().optional(),
     isActive: z.boolean(),
     sortOrder: z.coerce.number().int().default(0),
+    promoPrice: z
+        .preprocess((v) => (v === '' || v === null || v === undefined ? null : Number(v)),
+            z.number().positive().nullable())
+        .optional(),
+    promoLabel: z.string().optional(),
+    promoActiveUntil: z.string().optional(),
 });
 
 type PlanForm = z.infer<typeof planSchema>;
@@ -64,6 +70,9 @@ const defaultForm: PlanForm = {
     features: '',
     isActive: true,
     sortOrder: 0,
+    promoPrice: null,
+    promoLabel: '',
+    promoActiveUntil: '',
 };
 
 function parseFeatures(raw: Plan['features']): string[] {
@@ -83,6 +92,23 @@ function toNumber(v: unknown): number {
     if (typeof v === 'number') return v;
     const n = Number(v);
     return Number.isFinite(n) ? n : 0;
+}
+
+function toDateTimeLocal(iso: string | null | undefined): string {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function isPromoActive(plan: Plan): boolean {
+    const price = toNumber(plan.price);
+    return (
+        plan.promo_price != null &&
+        Number(plan.promo_price) < price &&
+        (!plan.promo_active_until || new Date(plan.promo_active_until) > new Date())
+    );
 }
 
 export default function PlansList() {
@@ -183,6 +209,11 @@ export default function PlansList() {
             features: featuresArray,
             isActive: data.isActive,
             sortOrder: data.sortOrder ?? 0,
+            promoPrice: data.promoPrice ?? null,
+            promoLabel: data.promoLabel?.trim() || null,
+            promoActiveUntil: data.promoActiveUntil
+                ? new Date(data.promoActiveUntil).toISOString()
+                : null,
         };
 
         savePlanMutation.mutate({ id: editingPlan?.id, data: payload });
@@ -212,6 +243,9 @@ export default function PlansList() {
                 features: parseFeatures(editingPlan.features).join('\n'),
                 isActive: !!editingPlan.is_active,
                 sortOrder: toNumber(editingPlan.sort_order),
+                promoPrice: editingPlan.promo_price ?? null,
+                promoLabel: editingPlan.promo_label ?? '',
+                promoActiveUntil: toDateTimeLocal(editingPlan.promo_active_until),
             });
         } else {
             reset(defaultForm);
@@ -271,7 +305,14 @@ export default function PlansList() {
                                         return (
                                             <TableRow key={plan.id}>
                                                 <TableCell className="font-medium">
-                                                    <div>{plan.name}</div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span>{plan.name}</span>
+                                                        {isPromoActive(plan) && (
+                                                            <Badge className="bg-balance-gold text-balance-cream hover:bg-balance-gold">
+                                                                PROMO
+                                                            </Badge>
+                                                        )}
+                                                    </div>
                                                     <div className="text-xs text-muted-foreground truncate max-w-[240px]">
                                                         {plan.description}
                                                     </div>
@@ -417,6 +458,30 @@ export default function PlansList() {
                                 <div className="space-y-2">
                                     <Label htmlFor="sortOrder">Orden de visualización</Label>
                                     <Input id="sortOrder" type="number" {...register('sortOrder')} placeholder="0" />
+                                </div>
+
+                                <div className="space-y-4 rounded-md border border-balance-sand/65 p-3">
+                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-balance-olive">
+                                        Promoción (opcional)
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="promoPrice">Precio promocional (opcional)</Label>
+                                            <Input id="promoPrice" type="number" step="0.01" {...register('promoPrice')} placeholder="Sin promo" />
+                                            {errors.promoPrice && <p className="text-xs text-destructive">{errors.promoPrice.message as string}</p>}
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="promoLabel">Etiqueta de promo (opcional)</Label>
+                                            <Input id="promoLabel" {...register('promoLabel')} placeholder="Ej. -20% verano" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="promoActiveUntil">Promo vigente hasta (opcional)</Label>
+                                        <Input id="promoActiveUntil" type="datetime-local" {...register('promoActiveUntil')} />
+                                        <p className="text-xs text-muted-foreground">
+                                            Déjalo vacío para que no expire. La promo solo aplica si el precio es menor al normal.
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <DialogFooter>

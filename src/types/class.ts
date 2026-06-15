@@ -70,4 +70,5 @@ export interface Class {
     available_spots?: number;
     is_free?: boolean;
     free_label?: string | null;
+    theme?: string | null; // 'none' | 'mexico'
 }
