@@ -573,11 +573,12 @@ export default function EventDetailView({ event, onBack, onEdit, onUpdateStatus,
                 </CardHeader>
                 <CardContent className="flex gap-2">
                   <Button variant="outline" size="sm" className="gap-1.5 text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-950/30"
-                    onClick={() => onUpdateStatus?.(event.id, 'cancelled')}>
-                    <XCircle className="h-3.5 w-3.5" /> Cancelar Evento
+                    disabled={event.status === 'cancelled'}
+                    onClick={() => { if (confirm('¿Cancelar este evento? Quedará marcado como cancelado y los clientes lo verán así.')) onUpdateStatus?.(event.id, 'cancelled'); }}>
+                    <XCircle className="h-3.5 w-3.5" /> {event.status === 'cancelled' ? 'Evento cancelado' : 'Cancelar Evento'}
                   </Button>
                   <Button variant="outline" size="sm" className="gap-1.5 text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-950/30"
-                    onClick={() => onDelete?.(event.id)}>
+                    onClick={() => { if (confirm('¿Eliminar este evento permanentemente? Esta acción no se puede deshacer.')) onDelete?.(event.id); }}>
                     <Trash2 className="h-3.5 w-3.5" /> Eliminar Evento
                   </Button>
                 </CardContent>
