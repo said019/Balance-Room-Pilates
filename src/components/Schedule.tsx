@@ -388,8 +388,9 @@ export default function Schedule() {
                         return (
                           <article
                             key={cls.id}
+                            style={cls.theme === 'mexico' ? { background: 'linear-gradient(135deg, rgba(0,104,71,0.16) 0%, rgba(255,255,255,0.82) 45%, rgba(206,17,38,0.16) 100%)' } : undefined}
                             className={`relative overflow-hidden rounded-2xl p-4 ring-1 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(51,42,34,0.08)] ${
-                              cls.isFree ? 'bg-green-50 ring-green-200' : 'bg-[#FCFAF5] ring-border'
+                              cls.theme === 'mexico' ? 'ring-[#006847]/40' : cls.isFree ? 'bg-green-50 ring-green-200' : 'bg-[#FCFAF5] ring-border'
                             } ${canBook ? '' : 'opacity-65'}`}
                           >
                             <div

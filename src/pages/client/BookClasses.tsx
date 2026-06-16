@@ -197,6 +197,7 @@ export default function BookClasses() {
                                                         key={c.id}
                                                         disabled={cancelled || full || pastTime}
                                                         onClick={() => !booked && !full && !cancelled && !pastTime && navigate(`/app/book/${c.id}`)}
+                                                        style={c.theme === 'mexico' && !booked ? { background: 'linear-gradient(135deg, rgba(0,104,71,0.16) 0%, rgba(255,255,255,0.82) 45%, rgba(206,17,38,0.16) 100%)' } : undefined}
                                                         className={cn(
                                                             "w-full overflow-hidden rounded-[1rem] border text-left transition-all duration-200",
                                                             booked && "border-balance-olive/30 bg-balance-olive/10",
