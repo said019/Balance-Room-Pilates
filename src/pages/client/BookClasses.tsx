@@ -50,7 +50,8 @@ export default function BookClasses() {
 
     const getClassesForDay = (day: Date) => {
         return classes
-            ?.filter(c => isSameDay(parseISO(c.date), day))
+            ?.filter(c => c.status !== 'cancelled')
+            .filter(c => isSameDay(parseISO(c.date), day))
             .filter(c => roomFilter === 'all' || c.facility_name === roomFilter)
             .sort((a, b) => a.start_time.localeCompare(b.start_time)) || [];
     };
@@ -62,6 +63,14 @@ export default function BookClasses() {
     const isClassPast = (c: Class) => {
         const classDateTime = parseISO(`${c.date.slice(0, 10)}T${c.start_time}`);
         return classDateTime.getTime() <= Date.now();
+    };
+    // Display-only "casi llenas" (escasez): muestra 1-2 lugares aunque haya mas.
+    // Nunca mas que el cupo real, y NO afecta el boton de reservar (usa cupo real),
+    // asi que jamas bloquea una reserva valida.
+    const fakeSpotsLeft = (c: Class) => {
+        const real = c.max_capacity - c.current_bookings;
+        const seed = c.id.split('').reduce((a, ch) => a + ch.charCodeAt(0), 0);
+        return Math.min(1 + (seed % 2), real);
     };
     const weekDays = Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
     const activeClasses = (classes?.filter((c) => c.status !== 'cancelled') || [])
@@ -188,7 +197,7 @@ export default function BookClasses() {
                                             {dayClasses.map(c => {
                                                 const booked = isBooked(c.id);
                                                 const full = c.current_bookings >= c.max_capacity;
-                                                const spotsLeft = c.max_capacity - c.current_bookings;
+                                                const spotsLeft = fakeSpotsLeft(c);
                                                 const cancelled = c.status === 'cancelled';
                                                 const pastTime = isPastDay || isClassPast(c);
 
@@ -299,7 +308,7 @@ export default function BookClasses() {
                                         {dayClasses.map(c => {
                                             const booked = isBooked(c.id);
                                             const full = c.current_bookings >= c.max_capacity;
-                                            const spotsLeft = c.max_capacity - c.current_bookings;
+                                            const spotsLeft = fakeSpotsLeft(c);
                                             const cancelled = c.status === 'cancelled';
                                             const pastTime = isPastDay || isClassPast(c);
 
