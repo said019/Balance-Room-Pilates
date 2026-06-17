@@ -378,11 +378,14 @@ export default function Schedule() {
 
                     <div className="space-y-3">
                       {group.classes.map((cls) => {
-                        // Display-only scarcity for the public landing: show classes as full
-                        // except Thursday (2 free). Cosmetic only — real availability in the
-                        // client app (/app) is unaffected.
+                        // Display-only "filling up" look for the public landing: classes appear
+                        // semi-full (busy but still bookable), varied per class so they don't all
+                        // look identical; Thursday shows a couple more spots open. Cosmetic only —
+                        // real availability in the client app (/app) is unaffected.
                         const classDow = new Date(cls.time.slice(0, 10) + 'T12:00:00').getDay();
-                        const displaySpots = classDow === 4 ? 2 : 0;
+                        const seed = cls.id.split('').reduce((a, ch) => a + ch.charCodeAt(0), 0);
+                        const fakeFree = classDow === 4 ? 2 + (seed % 2) : 1 + (seed % 3); // Jue: 2-3, resto: 1-3
+                        const displaySpots = Math.min(fakeFree, cls.maxSpots);
                         const isFull = displaySpots === 0;
                         const timeStatus = getTimeStatus(cls);
                         const classPast = timeStatus?.status === 'past';
