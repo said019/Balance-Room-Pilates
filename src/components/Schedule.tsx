@@ -378,12 +378,17 @@ export default function Schedule() {
 
                     <div className="space-y-3">
                       {group.classes.map((cls) => {
-                        const isFull = cls.spots === 0;
+                        // Display-only scarcity for the public landing: show classes as full
+                        // except Thursday (2 free). Cosmetic only — real availability in the
+                        // client app (/app) is unaffected.
+                        const classDow = new Date(cls.time.slice(0, 10) + 'T12:00:00').getDay();
+                        const displaySpots = classDow === 4 ? 2 : 0;
+                        const isFull = displaySpots === 0;
                         const timeStatus = getTimeStatus(cls);
                         const classPast = timeStatus?.status === 'past';
                         const classInProgress = timeStatus?.status === 'in-progress';
                         const canBook = !classPast && !classInProgress && !isFull;
-                        const spotsPercent = ((cls.maxSpots - cls.spots) / cls.maxSpots) * 100;
+                        const spotsPercent = ((cls.maxSpots - displaySpots) / cls.maxSpots) * 100;
 
                         return (
                           <article
@@ -461,7 +466,7 @@ export default function Schedule() {
                                 />
                               </div>
                               <p className="mt-2 text-right font-body text-[11px] text-muted-foreground">
-                                {cls.spots} / {cls.maxSpots} lugares libres
+                                {displaySpots} / {cls.maxSpots} lugares libres
                               </p>
                             </div>
                           </article>
