@@ -382,9 +382,8 @@ export default function Schedule() {
                         // semi-full (busy but still bookable), varied per class so they don't all
                         // look identical; Thursday shows a couple more spots open. Cosmetic only —
                         // real availability in the client app (/app) is unaffected.
-                        const classDow = new Date(cls.time.slice(0, 10) + 'T12:00:00').getDay();
                         const seed = cls.id.split('').reduce((a, ch) => a + ch.charCodeAt(0), 0);
-                        const fakeFree = classDow === 4 ? 2 + (seed % 2) : 1 + (seed % 3); // Jue: 2-3, resto: 1-3
+                        const fakeFree = 1 + (seed % 2); // 1-2 libres: se ven casi llenas pero reservables
                         const displaySpots = Math.min(fakeFree, cls.maxSpots);
                         const isFull = displaySpots === 0;
                         const timeStatus = getTimeStatus(cls);
