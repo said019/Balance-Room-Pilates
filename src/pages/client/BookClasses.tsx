@@ -69,6 +69,8 @@ export default function BookClasses() {
     // asi que jamas bloquea una reserva valida.
     const fakeSpotsLeft = (c: Class) => {
         const real = c.max_capacity - c.current_bookings;
+        const isThursday = parseISO(`${c.date.slice(0, 10)}T12:00:00`).getDay() === 4;
+        if (isThursday) return real; // jueves: cupo real
         const seed = c.id.split('').reduce((a, ch) => a + ch.charCodeAt(0), 0);
         return Math.min(1 + (seed % 2), real);
     };
