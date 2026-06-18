@@ -184,13 +184,21 @@ export default function Schedule() {
     }
   };
 
+  // Display-only "casi llenas": 1-2 libres (variado) salvo jueves, que muestra el real.
+  const displaySpotsFor = (cls: ScheduleClass) => {
+    const classDow = new Date(cls.time.slice(0, 10) + 'T12:00:00').getDay();
+    if (classDow === 4) return cls.spots; // jueves: cupo real
+    const seed = cls.id.split('').reduce((a, ch) => a + ch.charCodeAt(0), 0);
+    return Math.min(1 + (seed % 2), cls.spots);
+  };
+
   const handleBook = (cls: ScheduleClass) => {
     setSelectedClass({
       id: cls.id,
       time: formatTime(cls.time),
       type: cls.name,
       instructor: cls.instructor,
-      spots: cls.spots,
+      spots: displaySpotsFor(cls),
       duration: `${cls.duration} min`,
       date: parseISO(cls.time),
       is_free: cls.isFree,
@@ -378,13 +386,8 @@ export default function Schedule() {
 
                     <div className="space-y-3">
                       {group.classes.map((cls) => {
-                        // Display-only "filling up" look for the public landing: classes appear
-                        // semi-full (busy but still bookable), varied per class so they don't all
-                        // look identical; Thursday shows a couple more spots open. Cosmetic only —
-                        // real availability in the client app (/app) is unaffected.
-                        const seed = cls.id.split('').reduce((a, ch) => a + ch.charCodeAt(0), 0);
-                        const fakeFree = 1 + (seed % 2); // 1-2 libres: se ven casi llenas pero reservables
-                        const displaySpots = Math.min(fakeFree, cls.maxSpots);
+                        // Display-only "casi llenas": 1-2 libres salvo jueves (real). Ver displaySpotsFor.
+                        const displaySpots = displaySpotsFor(cls);
                         const isFull = displaySpots === 0;
                         const timeStatus = getTimeStatus(cls);
                         const classPast = timeStatus?.status === 'past';
