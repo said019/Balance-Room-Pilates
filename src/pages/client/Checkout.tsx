@@ -55,6 +55,18 @@ interface Plan {
   package_type?: 'individual' | 'mixto' | 'sample';
   requires_studio_selection?: boolean;
   features?: string[];
+  promo_price?: number | null;
+  promo_label?: string | null;
+  promo_active_until?: string | null;
+}
+
+// Promo directo al precio (sin codigo). Devuelve el precio efectivo a cobrar.
+function getEffectivePrice(plan: Plan): { promoActive: boolean; effectivePrice: number; listPrice: number } {
+  const listPrice = Number(plan.price);
+  const promoActive = plan.promo_price != null
+    && Number(plan.promo_price) < listPrice
+    && (!plan.promo_active_until || new Date(plan.promo_active_until) > new Date());
+  return { promoActive, effectivePrice: promoActive ? Number(plan.promo_price) : listPrice, listPrice };
 }
 
 interface BankInfo {
@@ -270,7 +282,7 @@ export default function Checkout() {
       const res = await api.post('/discount-codes/validate', {
         code: discountCode.trim(),
         plan_id: selectedPlan.id,
-        subtotal: Number(selectedPlan.price),
+        subtotal: getEffectivePrice(selectedPlan).effectivePrice,
       });
 
       setDiscountResult(res.data);
@@ -308,9 +320,10 @@ export default function Checkout() {
 
   const founderEligible = !!(founderInfo?.user?.is_founder && !founderInfo.user.founder_first_package_used);
 
+  const selectedEffectivePrice = selectedPlan ? getEffectivePrice(selectedPlan).effectivePrice : 0;
   const subtotalAfterCode = discountResult
     ? discountResult.finalTotal
-    : (selectedPlan?.price ?? 0);
+    : selectedEffectivePrice;
   const founderDiscount = founderEligible && selectedPlan
     ? Math.round(subtotalAfterCode * 0.10 * 100) / 100
     : 0;
@@ -421,7 +434,8 @@ export default function Checkout() {
                           const presentation = getPackagePresentation(plan);
                           const isSelected = selectedPlanId === plan.id;
                           const rewardPoints = getRewardPoints(plan.class_limit);
-                          const price = Number(plan.price);
+                          const { promoActive, effectivePrice, listPrice } = getEffectivePrice(plan);
+                          const price = effectivePrice;
                           const classesLabel = plan.is_unlimited
                             ? 'Clases ilimitadas'
                             : plan.class_limit
@@ -471,9 +485,19 @@ export default function Checkout() {
                                   )}
                                 </div>
                                 <div className="shrink-0 text-right">
+                                  {promoActive && (
+                                    <p className="text-sm font-heading font-medium text-current/55 line-through">
+                                      {formatPrice(listPrice)}
+                                    </p>
+                                  )}
                                   <p className="text-3xl font-heading font-bold tracking-[-0.06em] text-current">
                                     {formatPrice(price)}
                                   </p>
+                                  {promoActive && plan.promo_label && (
+                                    <span className="mt-1 inline-flex rounded-full bg-balance-olive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-balance-olive">
+                                      {plan.promo_label}
+                                    </span>
+                                  )}
                                   <p className={`mt-1 text-xs font-semibold ${presentation.text}`}>
                                     {plan.duration_days} días
                                   </p>
@@ -558,7 +582,15 @@ export default function Checkout() {
                         {selectedPlan.duration_days} días
                       </p>
                     </div>
-                    <p className="text-xl font-bold">{formatPrice(selectedPlan.price)}</p>
+                    <div className="text-right">
+                      {getEffectivePrice(selectedPlan).promoActive && (
+                        <p className="text-sm text-muted-foreground line-through">{formatPrice(getEffectivePrice(selectedPlan).listPrice)}</p>
+                      )}
+                      <p className="text-xl font-bold">{formatPrice(getEffectivePrice(selectedPlan).effectivePrice)}</p>
+                      {getEffectivePrice(selectedPlan).promoActive && selectedPlan.promo_label && (
+                        <span className="inline-flex rounded-full bg-balance-olive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-balance-olive">{selectedPlan.promo_label}</span>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -627,7 +659,12 @@ export default function Checkout() {
                         {selectedPlan.duration_days} días
                       </p>
                     </div>
-                    <p className="font-medium">{formatPrice(selectedPlan.price)}</p>
+                    <div className="text-right">
+                      {getEffectivePrice(selectedPlan).promoActive && (
+                        <p className="text-xs text-muted-foreground line-through">{formatPrice(getEffectivePrice(selectedPlan).listPrice)}</p>
+                      )}
+                      <p className="font-medium">{formatPrice(getEffectivePrice(selectedPlan).effectivePrice)}</p>
+                    </div>
                   </div>
 
                   <Separator />
@@ -718,7 +755,7 @@ export default function Checkout() {
                     <>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
-                        <span>{formatPrice(selectedPlan.price)}</span>
+                        <span>{formatPrice(getEffectivePrice(selectedPlan).effectivePrice)}</span>
                       </div>
                       {discountResult && (
                         <div className="flex items-center justify-between text-sm text-green-600">
