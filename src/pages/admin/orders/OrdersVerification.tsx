@@ -310,9 +310,9 @@ function OrdersVerificationInner() {
                         <TableCell className="text-right">
                           {order.payment_method === 'card' ? (
                             // Card orders are settled automatically by the
-                            // Mercado Pago webhook — never approved by hand.
+                            // Stripe webhook — never approved by hand.
                             <Badge variant="outline" className="text-muted-foreground">
-                              Esperando pago en Mercado Pago
+                              Esperando pago con tarjeta
                             </Badge>
                           ) : (
                             <div className="flex gap-2 justify-end">

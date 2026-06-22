@@ -341,7 +341,7 @@ export default function OrderDetail() {
             </CardContent>
           </Card>
           
-          {/* MercadoPago card payment */}
+          {/* Stripe card payment (backend devuelve la URL de Stripe como mp_checkout_url) */}
           {canPayWithCard && (
             <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88">
               <CardHeader>
@@ -352,7 +352,7 @@ export default function OrderDetail() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Serás redirigido a MercadoPago para completar tu pago de forma segura.
+                  Serás redirigido a una página de pago segura para completar tu compra con tarjeta.
                 </p>
                 <Button
                   className="w-full rounded-full bg-balance-olive text-balance-cream hover:bg-balance-olive/90"
