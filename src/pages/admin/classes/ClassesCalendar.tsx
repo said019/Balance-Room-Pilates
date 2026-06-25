@@ -222,11 +222,13 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
     });
 
+    // `scope` is now a facility ID (or the 'all'/'__none__' sentinels), so we never
+    // silently widen to "all rooms" because a name didn't match — that was the bug
+    // where copying "Hot Room" pulled every room's classes.
     const scopeToFacility = (scope: string): { facilityId?: string | null } => {
         if (scope === 'all') return {};
-        if (scope === 'Studio') return { facilityId: null };
-        const f = facilities?.find((x) => x.name === scope);
-        return f ? { facilityId: f.id } : {};
+        if (scope === '__none__') return { facilityId: null };
+        return { facilityId: scope };
     };
 
     const previewCopyMutation = useMutation({
@@ -1182,7 +1184,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                         <SelectContent>
                                             <SelectItem value="all">Todas las salas</SelectItem>
                                             {facilities?.map((f) => (
-                                                <SelectItem key={f.id} value={f.name}>{f.name}</SelectItem>
+                                                <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
