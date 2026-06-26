@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/components/ui/use-toast';
-import { Cake, Megaphone, Send, Loader2, MessageCircle, Mail, ShieldCheck } from 'lucide-react';
+import { Cake, Megaphone, Send, Loader2, MessageCircle, Mail, ShieldCheck, Pause, Play, History } from 'lucide-react';
 
 interface BirthdayClient {
     id: string;
@@ -17,6 +17,22 @@ interface BirthdayClient {
     email: string | null;
     phone: string | null;
 }
+
+interface WaBroadcast {
+    id: string;
+    channel?: string;
+    subject: string | null;
+    total: number;
+    sent: number;
+    failed: number;
+    status: string; // running | paused | done | aborted | error
+    pending?: number;
+    error?: string | null;
+    created_at?: string;
+}
+
+const statusLabel = (s: string): string =>
+    ({ running: '⏳ En curso', paused: '⏸️ Pausado', done: '✅ Completado', aborted: '⛔ Detenido', error: '⚠️ Error' } as Record<string, string>)[s] || s;
 
 export default function Communication() {
     const { toast } = useToast();
@@ -31,14 +47,42 @@ export default function Communication() {
     const [waBroadcastId, setWaBroadcastId] = useState<string | null>(null);
 
     // Poll the WhatsApp broadcast progress (it sends gradually in the background).
-    const { data: waStatus } = useQuery<{ total: number; sent: number; failed: number; status: string; error: string | null }>({
+    const { data: waStatus } = useQuery<WaBroadcast>({
         queryKey: ['wa-broadcast', waBroadcastId],
         queryFn: async () => (await api.get(`/marketing/broadcasts/${waBroadcastId}`)).data,
         enabled: !!waBroadcastId,
         refetchInterval: (q) => {
             const s = (q.state.data as any)?.status;
-            return s && ['done', 'aborted', 'error'].includes(s) ? false : 4000;
+            return s && ['running', 'paused'].includes(s) ? 4000 : false;
         },
+    });
+
+    // History of WhatsApp broadcasts (so the admin can resume/pause any of them).
+    const { data: allBroadcasts = [] } = useQuery<WaBroadcast[]>({
+        queryKey: ['wa-broadcasts'],
+        queryFn: async () => (await api.get('/marketing/broadcasts')).data,
+        refetchInterval: 8000,
+    });
+    const waBroadcasts = allBroadcasts.filter((b) => b.channel === 'whatsapp');
+
+    const pauseMutation = useMutation({
+        mutationFn: async (id: string) => (await api.post(`/marketing/broadcasts/${id}/pause`)).data,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['wa-broadcasts'] });
+            queryClient.invalidateQueries({ queryKey: ['wa-broadcast'] });
+            toast({ title: 'Envío pausado', description: 'Se reanudará donde quedó cuando le des Reanudar.' });
+        },
+        onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
+    });
+
+    const resumeMutation = useMutation({
+        mutationFn: async (id: string) => (await api.post(`/marketing/broadcasts/${id}/resume`)).data,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['wa-broadcasts'] });
+            queryClient.invalidateQueries({ queryKey: ['wa-broadcast'] });
+            toast({ title: 'Envío reanudado', description: 'Continúa desde donde se había quedado.' });
+        },
+        onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
     });
 
     const { data: birthdays = [], isLoading: loadingBdays } = useQuery<BirthdayClient[]>({
@@ -81,8 +125,12 @@ export default function Communication() {
             const parts: string[] = [];
             if (data.email) parts.push(`Correo enviado a ${data.email.sent}/${data.email.total}`);
             if (data.whatsapp) {
-                parts.push(`WhatsApp: enviando a ${data.whatsapp.total} (~${data.whatsapp.estimateMinutes} min, en segundo plano)`);
-                setWaBroadcastId(data.whatsapp.broadcastId);
+                if (data.whatsapp.broadcastId) {
+                    parts.push(`WhatsApp: en cola para ${data.whatsapp.total} (~1 cada ${data.whatsapp.intervalMinutes} min, máx ${data.whatsapp.dailyCap}/día)`);
+                    setWaBroadcastId(data.whatsapp.broadcastId);
+                } else {
+                    parts.push(data.whatsapp.note || 'WhatsApp: sin destinatarios.');
+                }
             }
             toast({ title: 'Envío iniciado', description: parts.join(' · ') || 'Listo.' });
             setSubject('');
@@ -248,18 +296,66 @@ export default function Communication() {
 
                             {waStatus && (
                                 <div className="rounded-lg border bg-muted/40 p-3 text-sm">
-                                    <div className="flex items-center gap-2 font-medium">
-                                        <MessageCircle className="h-4 w-4" /> Envío por WhatsApp
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2 font-medium">
+                                            <MessageCircle className="h-4 w-4" /> Envío por WhatsApp
+                                        </div>
+                                        {waStatus.status === 'running' && (
+                                            <Button size="sm" variant="outline" onClick={() => pauseMutation.mutate(waStatus.id)} disabled={pauseMutation.isPending}>
+                                                <Pause className="mr-1.5 h-3.5 w-3.5" /> Pausar
+                                            </Button>
+                                        )}
+                                        {['paused', 'aborted', 'error'].includes(waStatus.status) && (
+                                            <Button size="sm" variant="outline" onClick={() => resumeMutation.mutate(waStatus.id)} disabled={resumeMutation.isPending}>
+                                                <Play className="mr-1.5 h-3.5 w-3.5" /> Reanudar
+                                            </Button>
+                                        )}
                                     </div>
                                     <p className="mt-1 text-muted-foreground">
-                                        {waStatus.status === 'running' && `Enviando… ${waStatus.sent}/${waStatus.total} (puede tardar varios minutos; puedes cerrar esta página).`}
+                                        {waStatus.status === 'running' && `Enviando… ${waStatus.sent}/${waStatus.total}${waStatus.pending != null ? ` · ${waStatus.pending} pendientes` : ''}. Se envía poco a poco; puedes cerrar esta página.`}
+                                        {waStatus.status === 'paused' && `⏸️ Pausado en ${waStatus.sent}/${waStatus.total}. Reanuda donde quedó.`}
                                         {waStatus.status === 'done' && `✅ Completado: ${waStatus.sent} enviados${waStatus.failed ? `, ${waStatus.failed} fallaron` : ''}.`}
-                                        {waStatus.status === 'aborted' && `⛔ Detenido por seguridad: ${waStatus.error || ''} (${waStatus.sent} enviados).`}
-                                        {waStatus.status === 'error' && `⚠️ Error: ${waStatus.error || ''} (${waStatus.sent} enviados).`}
+                                        {waStatus.status === 'aborted' && `⛔ Detenido: ${waStatus.error || ''} (${waStatus.sent} enviados). Puedes reanudar.`}
+                                        {waStatus.status === 'error' && `⚠️ Error: ${waStatus.error || ''} (${waStatus.sent} enviados). Puedes reanudar.`}
                                     </p>
                                 </div>
                             )}
                         </div>
+                    </section>
+
+                    {/* Historial de envíos por WhatsApp (pausar / reanudar) */}
+                    <section className="rounded-xl border bg-card p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                            <History className="h-5 w-5 text-balance-olive" />
+                            <h2 className="text-lg font-semibold">Historial de WhatsApp</h2>
+                        </div>
+                        {waBroadcasts.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">Aún no hay envíos por WhatsApp.</p>
+                        ) : (
+                            <div className="space-y-2">
+                                {waBroadcasts.map((b) => (
+                                    <div key={b.id} className="flex items-center justify-between gap-3 rounded-lg border p-3">
+                                        <div className="min-w-0">
+                                            <div className="font-medium truncate">{b.subject || '(sin asunto)'}</div>
+                                            <div className="text-xs text-muted-foreground">
+                                                {statusLabel(b.status)} · {b.sent}/{b.total}{b.failed ? ` · ${b.failed} fallidos` : ''}
+                                                {b.created_at ? ` · ${new Date(b.created_at).toLocaleDateString('es-MX')}` : ''}
+                                            </div>
+                                        </div>
+                                        {b.status === 'running' && (
+                                            <Button size="sm" variant="outline" onClick={() => pauseMutation.mutate(b.id)} disabled={pauseMutation.isPending}>
+                                                <Pause className="mr-1.5 h-3.5 w-3.5" /> Pausar
+                                            </Button>
+                                        )}
+                                        {['paused', 'aborted', 'error'].includes(b.status) && (
+                                            <Button size="sm" variant="outline" onClick={() => resumeMutation.mutate(b.id)} disabled={resumeMutation.isPending}>
+                                                <Play className="mr-1.5 h-3.5 w-3.5" /> Reanudar
+                                            </Button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </section>
                 </div>
             </AdminLayout>
