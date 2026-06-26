@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
-import { Cake, Megaphone, Send, Loader2, MessageCircle, Mail, ShieldCheck, Pause, Play, History } from 'lucide-react';
+import { Cake, Megaphone, Send, Loader2, MessageCircle, Mail, ShieldCheck, Pause, Play, History, Users } from 'lucide-react';
 
 interface BirthdayClient {
     id: string;
@@ -44,7 +45,19 @@ export default function Communication() {
     const [discountCode, setDiscountCode] = useState('');
     const [useEmail, setUseEmail] = useState(true);
     const [useWhatsapp, setUseWhatsapp] = useState(false);
+    const [audience, setAudience] = useState<'all' | 'active' | 'inactive'>('all');
     const [waBroadcastId, setWaBroadcastId] = useState<string | null>(null);
+
+    // How many clients match the selected audience (per channel, after opt-out).
+    const { data: counts } = useQuery<{ email: number; whatsapp: number }>({
+        queryKey: ['recipients-count', audience],
+        queryFn: async () => (await api.get(`/marketing/recipients-count?audience=${audience}`)).data,
+    });
+    const audienceLabel: Record<string, string> = {
+        all: 'Todos los clientes',
+        active: 'Con membresía activa',
+        inactive: 'Sin membresía activa',
+    };
 
     // Poll the WhatsApp broadcast progress (it sends gradually in the background).
     const { data: waStatus } = useQuery<WaBroadcast>({
@@ -119,6 +132,7 @@ export default function Communication() {
                 message: message.trim(),
                 discountCode: discountCode.trim() || undefined,
                 channels,
+                audience,
             })).data;
         },
         onSuccess: (data) => {
@@ -256,23 +270,41 @@ export default function Communication() {
                                 />
                             </div>
 
+                            <div className="space-y-1.5">
+                                <Label className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground" /> Enviar a</Label>
+                                <Select value={audience} onValueChange={(v) => setAudience(v as 'all' | 'active' | 'inactive')}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Todos los clientes</SelectItem>
+                                        <SelectItem value="active">Con membresía activa</SelectItem>
+                                        <SelectItem value="inactive">Sin membresía activa (recuperar)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
                             <div className="space-y-2">
                                 <Label>Enviar por</Label>
-                                <label className="flex items-center gap-3 rounded-lg border p-3 cursor-pointer">
-                                    <Checkbox checked={useEmail} onCheckedChange={(v) => setUseEmail(v === true)} />
-                                    <Mail className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm font-medium">Correo electrónico</span>
+                                <label className="flex items-center justify-between gap-3 rounded-lg border p-3 cursor-pointer">
+                                    <span className="flex items-center gap-3">
+                                        <Checkbox checked={useEmail} onCheckedChange={(v) => setUseEmail(v === true)} />
+                                        <Mail className="h-4 w-4 text-muted-foreground" />
+                                        <span className="text-sm font-medium">Correo electrónico</span>
+                                    </span>
+                                    {useEmail && counts && <span className="text-xs text-muted-foreground">{counts.email} destinatarios</span>}
                                 </label>
-                                <label className="flex items-center gap-3 rounded-lg border p-3 cursor-pointer">
-                                    <Checkbox checked={useWhatsapp} onCheckedChange={(v) => setUseWhatsapp(v === true)} />
-                                    <MessageCircle className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm font-medium">WhatsApp</span>
+                                <label className="flex items-center justify-between gap-3 rounded-lg border p-3 cursor-pointer">
+                                    <span className="flex items-center gap-3">
+                                        <Checkbox checked={useWhatsapp} onCheckedChange={(v) => setUseWhatsapp(v === true)} />
+                                        <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                                        <span className="text-sm font-medium">WhatsApp</span>
+                                    </span>
+                                    {useWhatsapp && counts && <span className="text-xs text-muted-foreground">{counts.whatsapp} destinatarios</span>}
                                 </label>
                                 {useWhatsapp && (
                                     <div className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
                                         <ShieldCheck className="h-4 w-4 mt-0.5 shrink-0" />
                                         <span>
-                                            Por seguridad, WhatsApp se envía <strong>poco a poco</strong> (con pausas y personalizado con el nombre) para no arriesgar el número. Tarda varios minutos y, si la conexión se cae, se detiene solo.
+                                            Por seguridad, WhatsApp se envía <strong>poco a poco</strong> (1 cada pocos minutos, personalizado y con opción de baja) para no arriesgar el número. Si la conexión se cae, se pausa solo y se reanuda al volver.
                                         </span>
                                     </div>
                                 )}
@@ -282,7 +314,8 @@ export default function Communication() {
                                 <Button
                                     onClick={() => {
                                         const ch = [useEmail && 'correo', useWhatsapp && 'WhatsApp'].filter(Boolean).join(' y ');
-                                        if (confirm(`¿Enviar por ${ch} a TODOS los clientes?`)) {
+                                        const who = audienceLabel[audience].toLowerCase();
+                                        if (confirm(`¿Enviar por ${ch} a: ${who}?`)) {
                                             broadcastMutation.mutate();
                                         }
                                     }}
@@ -290,7 +323,7 @@ export default function Communication() {
                                 >
                                     {broadcastMutation.isPending
                                         ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enviando…</>
-                                        : <><Send className="mr-2 h-4 w-4" /> Enviar a todos los clientes</>}
+                                        : <><Send className="mr-2 h-4 w-4" /> Enviar a {audienceLabel[audience].toLowerCase()}</>}
                                 </Button>
                             </div>
 
