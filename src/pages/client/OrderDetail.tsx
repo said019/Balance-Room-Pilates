@@ -699,7 +699,7 @@ export default function OrderDetail() {
                 <Link to="/app/classes">Reservar clase</Link>
               </Button>
             )}
-            {order.status === 'pending_payment' && (
+            {(order.status === 'pending_payment' || order.status === 'pending_verification') && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive" className="flex-1">

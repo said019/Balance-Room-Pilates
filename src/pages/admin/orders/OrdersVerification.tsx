@@ -44,6 +44,7 @@ import {
   Calendar,
   CreditCard,
   Download,
+  Trash2,
 } from 'lucide-react';
 
 const statusConfig: Record<OrderStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
@@ -75,7 +76,7 @@ function OrdersVerificationInner() {
   const [selectedOrder, setSelectedOrder] = useState<OrderWithProofs | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [actionType, setActionType] = useState<'approve' | 'reject' | null>(null);
+  const [actionType, setActionType] = useState<'approve' | 'reject' | 'cancel' | null>(null);
   
   // Fetch pending orders
   const { data: orders, isLoading } = useQuery<OrderWithProofs[]>({
@@ -133,13 +134,36 @@ function OrdersVerificationInner() {
     },
   });
   
+  // Cancel mutation
+  const cancelMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      const res = await api.post(`/orders/${orderId}/cancel`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders-pending'] });
+      toast({ title: 'Orden cancelada', description: 'La orden ha sido cancelada.' });
+      setSelectedOrder(null);
+      setAdminNotes('');
+      setActionType(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Error',
+        description: error.response?.data?.error || 'No se pudo cancelar la orden',
+        variant: 'destructive',
+      });
+    },
+  });
+
   const handleAction = () => {
     if (!selectedOrder || !actionType) return;
-    
     if (actionType === 'approve') {
       approveMutation.mutate(selectedOrder.id);
-    } else {
+    } else if (actionType === 'reject') {
       rejectMutation.mutate(selectedOrder.id);
+    } else if (actionType === 'cancel') {
+      cancelMutation.mutate(selectedOrder.id);
     }
   };
   
@@ -526,19 +550,23 @@ function OrdersVerificationInner() {
                 
                 <DialogFooter className="flex-col sm:flex-row gap-2">
                   <Button
+                    variant="ghost"
+                    onClick={() => setActionType('cancel')}
+                    className="flex-1 sm:flex-none text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Cancelar orden
+                  </Button>
+                  <Button
                     variant="outline"
-                    onClick={() => {
-                      setActionType('reject');
-                    }}
+                    onClick={() => setActionType('reject')}
                     className="flex-1 sm:flex-none"
                   >
                     <XCircle className="h-4 w-4 mr-2" />
                     Rechazar
                   </Button>
                   <Button
-                    onClick={() => {
-                      setActionType('approve');
-                    }}
+                    onClick={() => setActionType('approve')}
                     className="flex-1 sm:flex-none"
                   >
                     <CheckCircle2 className="h-4 w-4 mr-2" />
@@ -555,15 +583,17 @@ function OrdersVerificationInner() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                {actionType === 'approve' ? '¿Aprobar este pago?' : '¿Rechazar este pago?'}
+                {actionType === 'approve' ? '¿Aprobar este pago?' : actionType === 'reject' ? '¿Rechazar este pago?' : '¿Cancelar esta orden?'}
               </DialogTitle>
               <DialogDescription>
                 {actionType === 'approve'
                   ? 'Se activará automáticamente la membresía del cliente.'
-                  : 'Se notificará al cliente que su pago fue rechazado.'}
+                  : actionType === 'reject'
+                  ? 'Se notificará al cliente que su pago fue rechazado.'
+                  : 'La orden quedará cancelada y el cliente podrá crear una nueva.'}
               </DialogDescription>
             </DialogHeader>
-            
+
             {actionType === 'reject' && (
               <div className="space-y-2">
                 <Label htmlFor="reject-reason">Motivo del rechazo</Label>
@@ -582,15 +612,17 @@ function OrdersVerificationInner() {
                 Cancelar
               </Button>
               <Button
-                variant={actionType === 'reject' ? 'destructive' : 'default'}
+                variant={actionType === 'approve' ? 'default' : 'destructive'}
                 onClick={handleAction}
-                disabled={approveMutation.isPending || rejectMutation.isPending}
+                disabled={approveMutation.isPending || rejectMutation.isPending || cancelMutation.isPending}
               >
-                {approveMutation.isPending || rejectMutation.isPending
+                {approveMutation.isPending || rejectMutation.isPending || cancelMutation.isPending
                   ? 'Procesando...'
                   : actionType === 'approve'
                   ? 'Confirmar aprobación'
-                  : 'Confirmar rechazo'}
+                  : actionType === 'reject'
+                  ? 'Confirmar rechazo'
+                  : 'Sí, cancelar orden'}
               </Button>
             </DialogFooter>
           </DialogContent>
