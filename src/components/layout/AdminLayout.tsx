@@ -146,6 +146,7 @@ const sidebarItems: SidebarItem[] = [
             { href: '/admin/settings/cancellations', label: 'Cancelaciones' },
             { href: '/admin/settings/notifications', label: 'Notificaciones' },
             { href: '/admin/settings/whatsapp', label: 'WhatsApp' },
+            { href: '/admin/settings/platforms', label: 'Plataformas' },
             { href: '/admin/settings/closed-days', label: 'Días cerrados' },
         ],
     },

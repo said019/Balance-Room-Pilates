@@ -81,6 +81,7 @@ import AdminCancellationPolicy from "./pages/admin/settings/CancellationPolicy";
 import NotificationSettings from "./pages/admin/settings/NotificationSettings";
 import ClosedDays from "./pages/admin/settings/ClosedDays";
 import WhatsAppSettings from "./pages/admin/settings/WhatsAppSettings";
+import Plataformas from "./pages/admin/settings/Plataformas";
 
 // Loyalty pages
 import LoyaltyConfig from "./pages/admin/loyalty/LoyaltyConfig";
@@ -260,6 +261,7 @@ const App = () => (
             <Route path="/admin/settings/notifications" element={<NotificationSettings />} />
             <Route path="/admin/settings/closed-days" element={<ClosedDays />} />
             <Route path="/admin/settings/whatsapp" element={<WhatsAppSettings />} />
+            <Route path="/admin/settings/platforms" element={<Plataformas />} />
             <Route path="/admin/settings" element={<Navigate to="/admin/settings/general" replace />} />
 
             {/* Migration History Route - Only for reports */}

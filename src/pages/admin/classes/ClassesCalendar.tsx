@@ -93,12 +93,102 @@ interface Attendee {
     booking_id: string;
     status: string;
     checked_in_at: string | null;
+    channel?: string;
     user_id: string;
     display_name: string;
     email: string;
     photo_url: string | null;
     phone: string;
     plan_name: string | null;
+}
+
+interface WellhubClassStatus {
+    published: boolean;
+    quota: number;
+    booked: number;
+    externalClassId: string | null;
+    externalSlotId: string | null;
+}
+
+function WellhubClassControl({ classId }: { classId: string }) {
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+    const [quota, setQuota] = useState(2);
+
+    const { data: status, isLoading } = useQuery<WellhubClassStatus>({
+        queryKey: ['wellhub-class-status', classId],
+        queryFn: async () => (await api.get(`/partners/wellhub/class-status/${classId}`)).data,
+    });
+
+    useEffect(() => {
+        if (status && !status.published) setQuota(status.quota || 2);
+    }, [status]);
+
+    const publishMutation = useMutation({
+        mutationFn: async () => (await api.post(`/partners/wellhub/publish/${classId}`, { quota })).data,
+        onSuccess: () => {
+            toast({ title: 'Publicado en Wellhub', description: `Cupo: ${quota}` });
+            queryClient.invalidateQueries({ queryKey: ['wellhub-class-status', classId] });
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+        },
+        onError: (error: any) => {
+            toast({
+                title: 'Error al publicar',
+                description: error?.response?.data?.error || 'No se pudo publicar la clase en Wellhub',
+                variant: 'destructive',
+            });
+        },
+    });
+
+    const unpublishMutation = useMutation({
+        mutationFn: async () => (await api.post(`/partners/wellhub/unpublish/${classId}`)).data,
+        onSuccess: () => {
+            toast({ title: 'Despublicado de Wellhub' });
+            queryClient.invalidateQueries({ queryKey: ['wellhub-class-status', classId] });
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+        },
+        onError: (error: any) => {
+            toast({
+                title: 'Error al despublicar',
+                description: error?.response?.data?.error || 'No se pudo despublicar la clase',
+                variant: 'destructive',
+            });
+        },
+    });
+
+    if (isLoading) {
+        return <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />;
+    }
+
+    return (
+        <div className="rounded-xl border border-balance-sand/55 bg-balance-cream/45 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Wellhub</span>
+                <Switch
+                    checked={!!status?.published}
+                    disabled={publishMutation.isPending || unpublishMutation.isPending}
+                    onCheckedChange={(checked) => {
+                        if (checked) publishMutation.mutate();
+                        else unpublishMutation.mutate();
+                    }}
+                />
+            </div>
+            {status?.published ? (
+                <Badge variant="secondary">En Wellhub · cupo {status.booked}/{status.quota}</Badge>
+            ) : (
+                <div className="flex items-center gap-2">
+                    <Label className="text-xs text-muted-foreground">Cupo a publicar</Label>
+                    <Input
+                        type="number"
+                        min={1}
+                        value={quota}
+                        onChange={(e) => setQuota(Math.max(1, Number(e.target.value) || 1))}
+                        className="h-8 w-20"
+                    />
+                </div>
+            )}
+        </div>
+    );
 }
 
 interface ClassesCalendarProps {
@@ -850,6 +940,10 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                     </div>
                                 </div>
 
+                                {selectedClass?.status !== 'cancelled' && selectedClass?.id && (
+                                    <WellhubClassControl classId={selectedClass.id} />
+                                )}
+
                                 {/* Actions */}
                                 {selectedClass?.status !== 'cancelled' && (
                                     <div className="flex gap-2">
@@ -1029,7 +1123,11 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                     <div>
                                                         <p className="font-medium">{attendee.display_name}</p>
                                                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                                            {attendee.plan_name && (
+                                                            {attendee.channel === 'wellhub' ? (
+                                                                <Badge variant="outline" className="text-xs border-primary/40 text-primary">
+                                                                    Wellhub
+                                                                </Badge>
+                                                            ) : attendee.plan_name && (
                                                                 <Badge variant="outline" className="text-xs">
                                                                     {attendee.plan_name}
                                                                 </Badge>
