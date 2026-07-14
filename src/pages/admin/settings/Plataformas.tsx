@@ -19,8 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import api from '@/lib/api';
 
-const API_BASE_URL = String(import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/+$/, '');
-const WELLHUB_RECEIVER_URL = `${API_BASE_URL.replace(/\/api$/, '')}/webhooks/wellhub`;
+const WELLHUB_RECEIVER_URL = 'https://wellhub-gateway-production.up.railway.app/webhooks/wellhub';
 
 interface PlatformSettingsRow {
     channel: string;
@@ -112,8 +111,9 @@ export default function Plataformas() {
             <div>
                 <h2 className="text-2xl font-bold tracking-tight">Plataformas</h2>
                 <p className="text-muted-foreground">
-                    Credenciales propias de Balance Room. Essenza únicamente reenvía los bytes
-                    del webhook; este backend valida la firma con el secreto de Balance Room.
+                    Credenciales propias de Balance Room. El gateway compartido únicamente
+                    reenvía los bytes del webhook; este backend valida la firma con el secreto
+                    de Balance Room.
                 </p>
             </div>
 
@@ -126,7 +126,7 @@ export default function Plataformas() {
                                 Wellhub
                             </CardTitle>
                             <CardDescription>
-                                Receptor que se configura en el router de Essenza:{' '}
+                                URL única registrada en Wellhub (gateway compartido entre studios):{' '}
                                 <code className="break-all">{WELLHUB_RECEIVER_URL}</code>
                             </CardDescription>
                         </div>
@@ -137,9 +137,9 @@ export default function Plataformas() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">
-                        Antes de agregar Balance Room a <code>WELLHUB_ROUTES</code>, haz un check-in
-                        real y confirma en los logs de Essenza que llega el Gym ID de Balance Room.
-                        No registres esta URL directamente en Wellhub mientras se use el router.
+                        Este studio se enruta por Gym ID en <code>GYM_ROUTES</code> del gateway
+                        (Railway, proyecto <code>wellhub-gateway</code>). Para agregar o cambiar el
+                        studio no hay que avisar a Wellhub, solo actualizar esa variable.
                     </div>
                     <div className="flex items-center gap-3">
                         <Switch

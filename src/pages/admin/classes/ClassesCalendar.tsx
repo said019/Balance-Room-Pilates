@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -216,6 +216,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const [searchActive, setSearchActive] = useState(false);
     const [isCopyOpen, setIsCopyOpen] = useState(false);
     const [copyScope, setCopyScope] = useState<string>('all');
+    const latestCopyScope = useRef<string | null>('all');
     const [copyPreview, setCopyPreview] = useState<null | {
         wouldCopy: number;
         skippedExisting: number;
@@ -330,7 +331,10 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
             });
             return res.data;
         },
-        onSuccess: (data) => setCopyPreview(data),
+        onSuccess: (data, scope) => {
+            // Ignore a slower response for a previously selected room.
+            if (latestCopyScope.current === scope) setCopyPreview(data);
+        },
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
     });
 
@@ -352,6 +356,21 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         },
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
     });
+
+    const previewCopyScope = (scope: string) => {
+        latestCopyScope.current = scope;
+        setCopyScope(scope);
+        setCopyPreview(null);
+        previewCopyMutation.mutate(scope);
+    };
+
+    const initialCopyScope = (): string => {
+        if (studioFilter === 'all') return 'all';
+        if (studioFilter === 'Studio') return '__none__';
+
+        // Calendar filters are labels, while the API deliberately accepts UUIDs.
+        return facilities?.find((facility) => facility.name.trim() === studioFilter)?.id ?? 'all';
+    };
 
     const createMutation = useMutation({
         mutationFn: async (data: ClassForm) => {
@@ -719,11 +738,9 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                     variant="outline"
                                     className="border-balance-sand/70 bg-balance-cream/70"
                                     onClick={() => {
-                                        const initial = studioFilter === 'Studio' ? 'all' : studioFilter;
-                                        setCopyScope(initial);
-                                        setCopyPreview(null);
+                                        const initial = initialCopyScope();
                                         setIsCopyOpen(true);
-                                        previewCopyMutation.mutate(initial);
+                                        previewCopyScope(initial);
                                     }}
                                 >
                                     <Copy className="mr-2 h-4 w-4" /> Copiar semana anterior
@@ -1260,7 +1277,13 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                     </Dialog>
 
                     {/* Copy Previous Week Dialog */}
-                    <Dialog open={isCopyOpen} onOpenChange={(open) => { setIsCopyOpen(open); if (!open) setCopyPreview(null); }}>
+                    <Dialog open={isCopyOpen} onOpenChange={(open) => {
+                        setIsCopyOpen(open);
+                        if (!open) {
+                            latestCopyScope.current = null;
+                            setCopyPreview(null);
+                        }
+                    }}>
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>Copiar semana anterior</DialogTitle>
@@ -1274,13 +1297,14 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                     <Label>Sala</Label>
                                     <Select
                                         value={copyScope}
-                                        onValueChange={(val) => { setCopyScope(val); setCopyPreview(null); previewCopyMutation.mutate(val); }}
+                                        onValueChange={previewCopyScope}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Todas las salas" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="all">Todas las salas</SelectItem>
+                                            <SelectItem value="__none__">Studio (sin sala)</SelectItem>
                                             {facilities?.map((f) => (
                                                 <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
                                             ))}
