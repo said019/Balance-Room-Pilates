@@ -19,6 +19,9 @@ import { useToast } from '@/hooks/use-toast';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import api from '@/lib/api';
 
+const API_BASE_URL = String(import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/+$/, '');
+const WELLHUB_RECEIVER_URL = `${API_BASE_URL.replace(/\/api$/, '')}/webhooks/wellhub`;
+
 interface PlatformSettingsRow {
     channel: string;
     environment: 'sandbox' | 'production';
@@ -84,7 +87,10 @@ export default function Plataformas() {
         onError: (error: any) => {
             toast({
                 title: 'Error',
-                description: error?.message || error?.response?.data?.error || 'Error guardando configuración',
+                description: error?.response?.data?.details?.join?.(' · ')
+                    || error?.response?.data?.error
+                    || error?.message
+                    || 'Error guardando configuración',
                 variant: 'destructive',
             });
         },
@@ -106,8 +112,8 @@ export default function Plataformas() {
             <div>
                 <h2 className="text-2xl font-bold tracking-tight">Plataformas</h2>
                 <p className="text-muted-foreground">
-                    Credenciales del convenio Wellhub (Gympass) — misma URL de webhook para
-                    todos los studios, el aislamiento lo dan el Gym ID y el secreto de firma.
+                    Credenciales propias de Balance Room. Essenza únicamente reenvía los bytes
+                    del webhook; este backend valida la firma con el secreto de Balance Room.
                 </p>
             </div>
 
@@ -120,7 +126,8 @@ export default function Plataformas() {
                                 Wellhub
                             </CardTitle>
                             <CardDescription>
-                                URL de webhook a registrar en Wellhub: <code>https://tu-dominio/webhooks/wellhub</code>
+                                Receptor que se configura en el router de Essenza:{' '}
+                                <code className="break-all">{WELLHUB_RECEIVER_URL}</code>
                             </CardDescription>
                         </div>
                         <Badge variant={wellhub.is_enabled ? 'default' : 'secondary'} className={wellhub.is_enabled ? 'bg-success' : ''}>
@@ -129,6 +136,11 @@ export default function Plataformas() {
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                    <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">
+                        Antes de agregar Balance Room a <code>WELLHUB_ROUTES</code>, haz un check-in
+                        real y confirma en los logs de Essenza que llega el Gym ID de Balance Room.
+                        No registres esta URL directamente en Wellhub mientras se use el router.
+                    </div>
                     <div className="flex items-center gap-3">
                         <Switch
                             checked={wellhub.is_enabled}
