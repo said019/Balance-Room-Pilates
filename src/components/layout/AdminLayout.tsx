@@ -79,6 +79,7 @@ const sidebarItems: SidebarItem[] = [
         children: [
             { href: '/admin/classes/schedules', label: 'Horarios' },
             { href: '/admin/classes/types', label: 'Disciplinas' },
+            { href: '/admin/facilities', label: 'Salas' },
             { href: '/admin/classes/prices', label: 'Precios y paquetes' },
         ],
     },

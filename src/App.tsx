@@ -81,6 +81,7 @@ import InstructorDetail from "./pages/admin/reports/InstructorDetail";
 import EventsManager from "./pages/admin/events/EventsManager";
 import Communication from "./pages/admin/marketing/Communication";
 import DiscountCodes from "./pages/admin/discount-codes/DiscountCodes";
+import FacilitiesList from "./pages/admin/facilities/FacilitiesList";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -196,6 +197,7 @@ const App = () => (
             <Route path="/admin/settings/platforms" element={<Plataformas />} />
             <Route path="/admin/settings" element={<Navigate to="/admin/settings/general" replace />} />
 
+            <Route path="/admin/facilities" element={<FacilitiesList />} />
             <Route path="/admin/orders" element={<Navigate to="/admin/payments" replace />} />
             <Route path="/admin/orders/verification" element={<Navigate to="/admin/payments" replace />} />
 
