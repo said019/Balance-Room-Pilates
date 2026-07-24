@@ -20,7 +20,6 @@ import {
     Menu,
     X,
     Bell,
-    Play,
     PartyPopper,
     ShoppingBag,
     ChevronRight,
@@ -37,7 +36,6 @@ const navItems = [
     { href: '/app/classes', label: 'Mis Clases', icon: ClipboardList },
     { href: '/app/checkout', label: 'Comprar', icon: ShoppingBag },
     { href: '/app/events', label: 'Eventos', icon: PartyPopper },
-    { href: '/app/videos', label: 'Videos', icon: Play },
 ];
 
 // Bottom nav: only the most important items for mobile

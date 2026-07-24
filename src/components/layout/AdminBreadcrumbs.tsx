@@ -34,7 +34,6 @@ const labelMap: Record<string, string> = {
   config: 'Configuración',
   redemptions: 'Canjes',
   adjust: 'Ajustes',
-  referrals: 'Referidos',
   overview: 'Overview',
   revenue: 'Ingresos',
   retention: 'Retención',

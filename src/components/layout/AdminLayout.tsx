@@ -32,11 +32,9 @@ import {
     DollarSign,
     CalendarCheck,
     UserPlus,
-    Video,
     PartyPopper,
     Megaphone,
     Tag,
-    ShoppingBag,
     X,
     Command,
     PanelLeftClose,
@@ -81,9 +79,7 @@ const sidebarItems: SidebarItem[] = [
         children: [
             { href: '/admin/classes/schedules', label: 'Horarios' },
             { href: '/admin/classes/types', label: 'Disciplinas' },
-            { href: '/admin/facilities', label: 'Mapa de salas' },
             { href: '/admin/classes/prices', label: 'Precios y paquetes' },
-            { href: '/admin/classes/templates', label: 'Rutinas' },
         ],
     },
     {
@@ -102,16 +98,6 @@ const sidebarItems: SidebarItem[] = [
             { href: '/admin/memberships/paquetes', label: 'Planes' },
         ],
     },
-    {
-        label: 'Contenido',
-        icon: Video,
-        children: [
-            { href: '/admin/videos', label: 'Biblioteca' },
-            { href: '/admin/videos/upload', label: 'Subir video' },
-            { href: '/admin/videos/sales', label: 'Ventas por transferencia' },
-        ],
-    },
-    { href: '/admin/pos', label: 'Caja', icon: ShoppingBag },
     { href: '/admin/payments', label: 'Pagos', icon: CreditCard },
     {
         label: 'Reportes',
@@ -122,7 +108,6 @@ const sidebarItems: SidebarItem[] = [
             { href: '/admin/reports/revenue', label: 'Ingresos' },
             { href: '/admin/reports/retention', label: 'Retención' },
             { href: '/admin/reports/instructors', label: 'Coaches' },
-            { href: '/admin/reports/egresos', label: 'Egresos' },
         ],
     },
     {
@@ -136,7 +121,6 @@ const sidebarItems: SidebarItem[] = [
             { href: '/admin/settings/notifications', label: 'Notificaciones' },
             { href: '/admin/settings/whatsapp', label: 'WhatsApp' },
             { href: '/admin/settings/platforms', label: 'Plataformas' },
-            { href: '/admin/settings/closed-days', label: 'Días cerrados' },
         ],
     },
 ];
@@ -152,8 +136,6 @@ const pageNames: Record<string, string> = {
     members: 'Comunidad',
     memberships: 'Membresías',
     instructors: 'Coaches',
-    videos: 'Contenido',
-    pos: 'Caja',
     payments: 'Pagos',
     reports: 'Reportes',
     settings: 'Ajustes',

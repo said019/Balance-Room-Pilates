@@ -34,8 +34,6 @@ export function AuthGuard({ children, requiredRoles, redirectTo = '/login' }: Au
             // Redirect to appropriate dashboard based on role
             if (user.role === 'admin' || user.role === 'super_admin') {
                 navigate('/admin/dashboard', { replace: true });
-            } else if (user.role === 'instructor') {
-                navigate('/coach', { replace: true });
             } else if (user.role === 'reception') {
                 navigate('/admin/bookings', { replace: true });
             } else {

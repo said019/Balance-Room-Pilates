@@ -41,7 +41,6 @@ const registerSchema = z.object({
     confirmPassword: z.string(),
     acceptsTerms: z.boolean().refine(val => val === true, 'Debes aceptar los términos'),
     acceptsCommunications: z.boolean().default(false),
-    referralCode: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
     message: 'Las contraseñas no coinciden',
     path: ['confirmPassword'],
@@ -114,7 +113,6 @@ export default function Register() {
                 dateOfBirth: data.dateOfBirth || undefined,
                 acceptsTerms: data.acceptsTerms,
                 acceptsCommunications: data.acceptsCommunications,
-                referralCode: data.referralCode || undefined,
             });
         } catch {
             // Error is handled by the store
@@ -409,25 +407,6 @@ export default function Register() {
                                     initial={{ opacity: 0, y: 8 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.28, delay: 0.32, ease: easeOut }}
-                                    className="space-y-2"
-                                >
-                                    <Label htmlFor="referralCode">Código de referido</Label>
-                                    <Input
-                                        id="referralCode"
-                                        placeholder="Opcional"
-                                        {...register('referralCode')}
-                                        disabled={isLoading}
-                                        className="h-12 rounded-2xl border-[#D8D0C2] bg-white/80 uppercase shadow-sm focus-visible:ring-[#7E8579]/30"
-                                    />
-                                    <p className="font-body text-xs text-muted-foreground">
-                                        Si alguien te invitó, ingresa su código para obtener 10% de descuento en tu primer paquete.
-                                    </p>
-                                </motion.div>
-
-                                <motion.div
-                                    initial={{ opacity: 0, y: 8 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.28, delay: 0.36, ease: easeOut }}
                                     className="space-y-4 pt-2"
                                 >
                                     <Button

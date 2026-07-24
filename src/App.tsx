@@ -19,10 +19,6 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 
-// Instructor auth pages
-import InstructorAccess from "./pages/instructor/InstructorAccess";
-import InstructorMagicLogin from "./pages/instructor/InstructorMagicLogin";
-
 // Client pages
 import ClientDashboard from "./pages/client/Dashboard";
 import BookClasses from "./pages/client/BookClasses";
@@ -33,15 +29,11 @@ import ClientProfile from "./pages/client/Profile";
 import ProfileEdit from "./pages/client/ProfileEdit";
 import ProfileMembership from "./pages/client/ProfileMembership";
 import ProfilePreferences from "./pages/client/ProfilePreferences";
-import ReferFriends from "./pages/client/ReferFriends";
-import SelectReformer from "./pages/client/SelectReformer";
 import Notifications from "./pages/client/Notifications";
 import News from "./pages/client/News";
 import ClientCheckout from "./pages/client/Checkout";
 import ClientOrders from "./pages/client/Orders";
 import ClientOrderDetail from "./pages/client/OrderDetail";
-import VideoLibrary from "./pages/client/VideoLibrary";
-import VideoPlayer from "./pages/client/VideoPlayer";
 import ClientEvents from "./pages/client/Events";
 import Checkout from "./pages/Checkout";
 
@@ -59,7 +51,6 @@ import ClassTypesList from "./pages/admin/classes/ClassTypesList";
 import WeeklySchedule from "./pages/admin/schedules/WeeklySchedule";
 import ClassesCalendar from "./pages/admin/classes/ClassesCalendar";
 import GenerateClasses from "./pages/admin/classes/GenerateClasses";
-import WorkoutTemplates from "./pages/admin/classes/WorkoutTemplates";
 import BookingsList from "./pages/admin/bookings/BookingsList";
 import Waitlist from "./pages/admin/bookings/Waitlist";
 import MemberNew from "./pages/admin/members/MemberNew";
@@ -67,16 +58,12 @@ import AssignMembership from "./pages/admin/members/AssignMembership";
 import PhysicalSale from "./pages/admin/members/PhysicalSale";
 import PaymentsHub from "./pages/admin/payments/PaymentsHub";
 
-// Migration pages - New complete system
-import { ClientMigrationPage } from "./pages/admin/ClientMigrationPage";
-
 // Settings pages
 import GeneralSettings from "./pages/admin/settings/GeneralSettings";
 import StudioSettings from "./pages/admin/settings/StudioSettings";
 import PoliciesSettings from "./pages/admin/settings/PoliciesSettings";
 import AdminCancellationPolicy from "./pages/admin/settings/CancellationPolicy";
 import NotificationSettings from "./pages/admin/settings/NotificationSettings";
-import ClosedDays from "./pages/admin/settings/ClosedDays";
 import WhatsAppSettings from "./pages/admin/settings/WhatsAppSettings";
 import Plataformas from "./pages/admin/settings/Plataformas";
 
@@ -86,39 +73,14 @@ import ReportsClasses from "./pages/admin/reports/ReportsClasses";
 import ReportsRevenue from "./pages/admin/reports/ReportsRevenue";
 import ReportsRetention from "./pages/admin/reports/ReportsRetention";
 import ReportsInstructors from "./pages/admin/reports/ReportsInstructors";
-import ReportsEgresos from "./pages/admin/reports/ReportsEgresos";
 import InstructorDetail from "./pages/admin/reports/InstructorDetail";
-
-// Referrals page
-import Referrals from "./pages/admin/referrals/Referrals";
-
-// Facilities page
-import FacilitiesList from "./pages/admin/facilities/FacilitiesList";
-import FacilityLayoutEditor from "./pages/admin/facilities/FacilityLayoutEditor";
 
 // Orders/Payments verification page
 
 
-// Admin Video Management
-import AdminVideoList from "./pages/admin/videos/VideoList";
-import AdminVideoUpload from "./pages/admin/videos/VideoUpload";
-import VideoSalesVerification from "./pages/admin/videos/VideoSalesVerification";
 import EventsManager from "./pages/admin/events/EventsManager";
 import Communication from "./pages/admin/marketing/Communication";
 import DiscountCodes from "./pages/admin/discount-codes/DiscountCodes";
-import ProductsPage from "./pages/admin/pos/ProductsPage";
-import POSPage from "./pages/admin/pos/POSPage";
-
-// Coach pages
-import CoachLogin from "./pages/auth/CoachLogin";
-import CoachDashboard from "./pages/coach/Dashboard";
-import CoachSchedule from "./pages/coach/Schedule";
-import CoachClassDetail from "./pages/coach/ClassDetail";
-import CoachProfile from "./pages/coach/Profile";
-import CoachHistory from "./pages/coach/History";
-import CoachSubstitutions from "./pages/coach/Substitutions";
-import CoachPlaylists from "./pages/coach/Playlists";
-import CoachTemplates from "./pages/coach/Templates";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -166,29 +128,21 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
 
-            {/* Instructor Auth Routes */}
-            <Route path="/instructor/access" element={<InstructorAccess />} />
-            <Route path="/instructor/magic-login" element={<InstructorMagicLogin />} />
-
             {/* Client Routes */}
             <Route path="/app" element={<ClientDashboard />} />
             <Route path="/app/book" element={<BookClasses />} />
             <Route path="/app/book/:classId" element={<BookClassConfirm />} />
             <Route path="/app/classes" element={<MyBookings />} />
             <Route path="/app/classes/:bookingId" element={<ClassBookingDetail />} />
-            <Route path="/app/classes/:bookingId/spot" element={<SelectReformer />} />
             <Route path="/app/profile" element={<ClientProfile />} />
             <Route path="/app/profile/edit" element={<ProfileEdit />} />
             <Route path="/app/profile/membership" element={<ProfileMembership />} />
             <Route path="/app/profile/preferences" element={<ProfilePreferences />} />
-            <Route path="/app/refer" element={<ReferFriends />} />
             <Route path="/app/notifications" element={<Notifications />} />
             <Route path="/app/news" element={<News />} />
             <Route path="/app/checkout" element={<ClientCheckout />} />
             <Route path="/app/orders" element={<ClientOrders />} />
             <Route path="/app/orders/:orderId" element={<ClientOrderDetail />} />
-            <Route path="/app/videos" element={<VideoLibrary />} />
-            <Route path="/app/videos/:videoId" element={<VideoPlayer />} />
             <Route path="/app/events" element={<ClientEvents />} />
 
             {/* Admin Routes */}
@@ -206,7 +160,6 @@ const App = () => (
             <Route path="/admin/classes/types" element={<ClassTypesList />} />
             <Route path="/admin/classes/prices" element={<PlansList />} />
             <Route path="/admin/classes/generate" element={<GenerateClasses />} />
-            <Route path="/admin/classes/templates" element={<WorkoutTemplates />} />
 
             <Route path="/admin/members" element={<ClientsList />} />
             <Route path="/admin/members/new" element={<MemberNew />} />
@@ -227,54 +180,24 @@ const App = () => (
             <Route path="/admin/payments/register" element={<Navigate to="/admin/payments" replace />} />
             <Route path="/admin/payments/reports" element={<Navigate to="/admin/payments" replace />} />
 
-            <Route path="/admin/referrals" element={<Referrals />} />
-
             <Route path="/admin/reports/overview" element={<ReportsOverview />} />
             <Route path="/admin/reports/classes" element={<ReportsClasses />} />
             <Route path="/admin/reports/revenue" element={<ReportsRevenue />} />
             <Route path="/admin/reports/retention" element={<ReportsRetention />} />
             <Route path="/admin/reports/instructors/:id" element={<InstructorDetail />} />
             <Route path="/admin/reports/instructors" element={<ReportsInstructors />} />
-            <Route path="/admin/reports/egresos" element={<ReportsEgresos />} />
 
             <Route path="/admin/settings/general" element={<GeneralSettings />} />
             <Route path="/admin/settings/studio" element={<StudioSettings />} />
             <Route path="/admin/settings/policies" element={<PoliciesSettings />} />
             <Route path="/admin/settings/cancellations" element={<AdminCancellationPolicy />} />
             <Route path="/admin/settings/notifications" element={<NotificationSettings />} />
-            <Route path="/admin/settings/closed-days" element={<ClosedDays />} />
             <Route path="/admin/settings/whatsapp" element={<WhatsAppSettings />} />
             <Route path="/admin/settings/platforms" element={<Plataformas />} />
             <Route path="/admin/settings" element={<Navigate to="/admin/settings/general" replace />} />
 
-            {/* Migration History Route - Only for reports */}
-            <Route path="/admin/migrations/history" element={<ClientMigrationPage />} />
-
-            <Route path="/admin/facilities" element={<FacilitiesList />} />
-            <Route path="/admin/facilities/:facilityId/layout" element={<FacilityLayoutEditor />} />
             <Route path="/admin/orders" element={<Navigate to="/admin/payments" replace />} />
             <Route path="/admin/orders/verification" element={<Navigate to="/admin/payments" replace />} />
-
-            {/* POS System */}
-            <Route path="/admin/products" element={<ProductsPage />} />
-            <Route path="/admin/pos" element={<POSPage />} />
-
-            {/* Admin Video Management */}
-            <Route path="/admin/videos" element={<AdminVideoList />} />
-            <Route path="/admin/videos/upload" element={<AdminVideoUpload />} />
-            <Route path="/admin/videos/edit/:id" element={<AdminVideoUpload />} />
-            <Route path="/admin/videos/sales" element={<VideoSalesVerification />} />
-
-            {/* Coach Routes */}
-            <Route path="/coach/login" element={<CoachLogin />} />
-            <Route path="/coach" element={<CoachDashboard />} />
-            <Route path="/coach/schedule" element={<CoachSchedule />} />
-            <Route path="/coach/class/:classId" element={<CoachClassDetail />} />
-            <Route path="/coach/profile" element={<CoachProfile />} />
-            <Route path="/coach/history" element={<CoachHistory />} />
-            <Route path="/coach/substitutions" element={<CoachSubstitutions />} />
-            <Route path="/coach/playlists" element={<CoachPlaylists />} />
-            <Route path="/coach/templates" element={<CoachTemplates />} />
 
             {/* Legacy redirects */}
             <Route path="/admin/clients" element={<ClientsList />} />

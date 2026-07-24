@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, Calendar, TrendingUp, DollarSign, ArrowUpRight, ArrowDownRight, Download, Filter, CreditCard } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Users, Calendar, TrendingUp, ArrowUpRight, Download, Filter, CreditCard } from 'lucide-react';
 import api from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -28,8 +27,6 @@ function exportToExcel(overview: any, startDate: string, endDate: string) {
         ['RESUMEN FINANCIERO'],
         ['Concepto', 'Monto'],
         ['Ingresos', overview.monthlyRevenue],
-        ['Egresos', overview.monthlyExpenses],
-        ['Utilidad Neta', overview.netProfit],
         ['Ticket promedio (por clase comprada)', overview.avgTicketPerClass || 0],
         ['Clases compradas en el período', overview.classesPurchased || 0],
         [''],
@@ -44,9 +41,9 @@ function exportToExcel(overview: any, startDate: string, endDate: string) {
 
     if (overview.financialTrend?.length > 0) {
         rows.push([''], ['TENDENCIA MENSUAL']);
-        rows.push(['Mes', 'Ingresos', 'Egresos', 'Utilidad']);
+        rows.push(['Mes', 'Ingresos']);
         overview.financialTrend.forEach((m: any) => {
-            rows.push([m.label, m.revenue, m.expenses, m.profit]);
+            rows.push([m.label, m.revenue]);
         });
     }
 
@@ -110,9 +107,6 @@ export default function ReportsOverview() {
         );
     }
 
-    const netProfit = overview?.netProfit || 0;
-    const isPositive = netProfit >= 0;
-
     return (
         <AdminLayout>
             <div className="space-y-6">
@@ -159,7 +153,7 @@ export default function ReportsOverview() {
                 </Card>
 
                 {/* Financial Summary */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Ingresos del Mes</CardTitle>
@@ -181,32 +175,6 @@ export default function ReportsOverview() {
                             <div className="text-2xl font-bold">{formatCurrency(overview?.avgTicketPerClass || 0)}</div>
                             <p className="text-xs text-muted-foreground">
                                 Por clase comprada ({overview?.classesPurchased || 0} clases)
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Egresos del Mes</CardTitle>
-                            <ArrowDownRight className="h-4 w-4 text-red-500" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-red-500">{formatCurrency(overview?.monthlyExpenses)}</div>
-                            <p className="text-xs text-muted-foreground">
-                                Gastos pagados este mes
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card className={isPositive ? 'border-emerald-200 bg-emerald-50/50' : 'border-red-200 bg-red-50/50'}>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Utilidad Neta</CardTitle>
-                            <DollarSign className={`h-4 w-4 ${isPositive ? 'text-emerald-600' : 'text-red-500'}`} />
-                        </CardHeader>
-                        <CardContent>
-                            <div className={`text-2xl font-bold ${isPositive ? 'text-emerald-600' : 'text-red-500'}`}>
-                                {formatCurrency(netProfit)}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                                {isPositive ? 'Ganancia' : 'Pérdida'} del mes actual
                             </p>
                         </CardContent>
                     </Card>
@@ -255,40 +223,6 @@ export default function ReportsOverview() {
                         </CardContent>
                     </Card>
                 </div>
-
-                {/* Financial Trend Chart */}
-                {overview?.financialTrend && overview.financialTrend.length > 0 && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Ingresos vs Egresos</CardTitle>
-                            <CardDescription>Comparativa de los últimos 6 meses</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ResponsiveContainer width="100%" height={350}>
-                                <BarChart data={overview.financialTrend} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
-                                    <XAxis dataKey="label" tick={{ fontSize: 13 }} />
-                                    <YAxis tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 12 }} />
-                                    <Tooltip
-                                        formatter={(value: number, name: string) => [
-                                            formatCurrency(value),
-                                            name === 'revenue' ? 'Ingresos' : name === 'expenses' ? 'Egresos' : 'Utilidad',
-                                        ]}
-                                        contentStyle={{ borderRadius: 12, border: '1px solid #e5e5e5' }}
-                                    />
-                                    <Legend
-                                        formatter={(value: string) =>
-                                            value === 'revenue' ? 'Ingresos' : value === 'expenses' ? 'Egresos' : 'Utilidad'
-                                        }
-                                    />
-                                    <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} name="revenue" />
-                                    <Bar dataKey="expenses" fill="#ef4444" radius={[4, 4, 0, 0]} name="expenses" />
-                                    <Bar dataKey="profit" fill="#8C8475" radius={[4, 4, 0, 0]} name="profit" />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </CardContent>
-                    </Card>
-                )}
             </div>
         </AdminLayout>
     );

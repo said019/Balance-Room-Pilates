@@ -21,7 +21,6 @@ import {
   ChevronRight,
   Plus,
   RefreshCw,
-  Play,
   Leaf,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -49,14 +48,6 @@ export default function ClientDashboard() {
   const { data: bookings, isLoading: bookingsLoading } = useQuery<BookingClient[]>({
     queryKey: ['my-bookings'],
     queryFn: async () => (await api.get('/bookings/my-bookings')).data,
-  });
-
-  const { data: latestVideos } = useQuery<any[]>({
-    queryKey: ['latest-videos'],
-    queryFn: async () => {
-      const { data } = await api.get('/videos', { params: { limit: 4 } });
-      return data;
-    },
   });
 
   const upcomingClasses = useMemo(() => {
@@ -297,64 +288,6 @@ export default function ClientDashboard() {
               )}
             </CardContent>
           </Card>
-
-          {/* Videos On-Demand */}
-          {latestVideos && latestVideos.length > 0 && (
-            <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.58)]">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-balance-olive/10">
-                      <Play className="h-4 w-4 text-balance-olive" />
-                    </div>
-                    Videos on-demand
-                  </CardTitle>
-                  <Button variant="ghost" size="sm" className="rounded-xl" asChild>
-                    <Link to="/app/videos">
-                      Ver todos
-                      <ChevronRight className="ml-1 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </div>
-                <CardDescription>Rutinas y técnica disponibles para ti</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-3">
-                  {latestVideos.slice(0, 4).map((video: any) => (
-                    <Link
-                      key={video.id}
-                      to={`/app/videos/${video.id}`}
-                      className="group"
-                    >
-                      <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
-                        {video.thumbnail_url ? (
-                          <img
-                            src={video.thumbnail_url}
-                            alt={video.title}
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-muted">
-                            <Play className="h-8 w-8 text-muted-foreground/50" />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="bg-white/90 rounded-full p-2 shadow-lg">
-                            <Play className="h-4 w-4 text-primary fill-primary ml-0.5" />
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-sm font-medium mt-1.5 group-hover:text-primary transition-colors line-clamp-1">
-                        {video.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground capitalize">{video.level}</p>
-                    </Link>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </ClientLayout>
     </AuthGuard>

@@ -53,8 +53,6 @@ export default function Login() {
                 navigate(returnUrl, { replace: true });
             } else if (user.role === 'admin') {
                 navigate('/admin/dashboard', { replace: true });
-            } else if (user.role === 'instructor') {
-                navigate('/coach', { replace: true });
             } else {
                 navigate('/app', { replace: true });
             }

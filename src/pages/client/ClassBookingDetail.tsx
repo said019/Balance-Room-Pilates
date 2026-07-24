@@ -151,18 +151,6 @@ export default function ClassBookingDetail() {
             </Card>
           )}
 
-          {data?.booking_status === 'confirmed' && (
-            <Button
-              className="w-full rounded-full bg-balance-olive text-balance-cream hover:bg-balance-olive/90"
-              asChild
-            >
-              <Link to={`/app/classes/${bookingId}/spot`}>
-                <MapPin className="h-4 w-4 mr-2" />
-                Elige tu lugar
-              </Link>
-            </Button>
-          )}
-
           {(() => {
             if (data?.booking_status !== 'confirmed') return null;
             // Server is the canonical gate. The UI follows the preview RPC.
