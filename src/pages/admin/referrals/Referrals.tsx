@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Users, Gift, Share2, Copy, CheckCircle } from 'lucide-react';
+import { Loader2, Users, Share2, Copy, CheckCircle } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import api from '@/lib/api';
 import { format } from 'date-fns';
@@ -19,7 +19,6 @@ interface ReferralCode {
     user_email: string;
     uses_count: number;
     max_uses: number | null;
-    reward_points: number;
     is_active: boolean;
     created_at: string;
 }
@@ -31,7 +30,6 @@ interface Referral {
     referred_name: string;
     referred_email: string;
     status: string;
-    points_awarded: number;
     created_at: string;
     completed_at: string | null;
 }
@@ -40,7 +38,6 @@ interface ReferralStats {
     total_codes: number;
     total_referrals: number;
     completed_referrals: number;
-    total_points_awarded: number;
 }
 
 export default function Referrals() {
@@ -51,7 +48,6 @@ export default function Referrals() {
         total_codes: 0,
         total_referrals: 0,
         completed_referrals: 0,
-        total_points_awarded: 0,
     });
     const [searchTerm, setSearchTerm] = useState('');
     const { toast } = useToast();
@@ -73,7 +69,6 @@ export default function Referrals() {
                 total_codes: codesRes.data?.codes?.length || 0,
                 total_referrals: referralsRes.data?.referrals?.length || 0,
                 completed_referrals: (referralsRes.data?.referrals || []).filter((r: Referral) => r.status === 'completed').length,
-                total_points_awarded: (referralsRes.data?.referrals || []).reduce((sum: number, r: Referral) => sum + (r.points_awarded || 0), 0),
             });
         } catch (error) {
             console.error('Error loading data:', error);
@@ -149,7 +144,7 @@ export default function Referrals() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">
@@ -189,18 +184,6 @@ export default function Referrals() {
                             </div>
                         </CardContent>
                     </Card>
-
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
-                                Puntos Otorgados
-                            </CardTitle>
-                            <Gift className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.total_points_awarded}</div>
-                        </CardContent>
-                    </Card>
                 </div>
 
                 <Card>
@@ -234,7 +217,6 @@ export default function Referrals() {
                                         <TableHead>Cliente</TableHead>
                                         <TableHead>Código</TableHead>
                                         <TableHead className="text-right">Usos</TableHead>
-                                        <TableHead className="text-right">Puntos/Uso</TableHead>
                                         <TableHead>Estado</TableHead>
                                         <TableHead className="text-right">Acciones</TableHead>
                                     </TableRow>
@@ -258,9 +240,6 @@ export default function Referrals() {
                                             <TableCell className="text-right">
                                                 {code.uses_count}
                                                 {code.max_uses && ` / ${code.max_uses}`}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                {code.reward_points}
                                             </TableCell>
                                             <TableCell>
                                                 <Badge variant={code.is_active ? 'default' : 'secondary'}>
@@ -313,7 +292,6 @@ export default function Referrals() {
                                         <TableHead>Fecha</TableHead>
                                         <TableHead>Quien Refiere</TableHead>
                                         <TableHead>Referido</TableHead>
-                                        <TableHead className="text-right">Puntos</TableHead>
                                         <TableHead>Estado</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -338,9 +316,6 @@ export default function Referrals() {
                                                         {referral.referred_email}
                                                     </div>
                                                 </div>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                {referral.points_awarded || 0}
                                             </TableCell>
                                             <TableCell>
                                                 {getStatusBadge(referral.status)}

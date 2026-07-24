@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, User, Gift, CreditCard, ChevronRight } from "lucide-react";
+import { Menu, X, User, CreditCard, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link, useLocation } from "react-router-dom";
@@ -178,16 +178,6 @@ const Navbar = () => {
               </Link>
             )}
 
-            <a
-              href="#lealtad"
-              className={`flex items-center gap-2 text-sm font-body transition-colors ${
-                isScrolled ? 'text-foreground/80 hover:text-foreground' : 'text-white/80 hover:text-white'
-              }`}
-            >
-              <Gift className="w-4 h-4" />
-              <span>Lealtad</span>
-            </a>
-
             {isAuthenticated ? (
               <>
                 <Button variant="ghost" size="sm" asChild className={isScrolled ? '' : 'text-white hover:text-white hover:bg-white/10'}>
@@ -322,17 +312,6 @@ const Navbar = () => {
                 <ChevronRight className="w-4 h-4 text-white/30" />
               </a>
             ))}
-            <a
-              href="#lealtad"
-              className="flex items-center justify-between py-3.5 px-2 text-base font-body text-white/90 hover:text-white active:bg-white/10 rounded-lg transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <span className="flex items-center gap-2">
-                <Gift className="w-4 h-4" />
-                Lealtad
-              </span>
-              <ChevronRight className="w-4 h-4 text-white/30" />
-            </a>
           </div>
 
           {/* CTA at bottom */}

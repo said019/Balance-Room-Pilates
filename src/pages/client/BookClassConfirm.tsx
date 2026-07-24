@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
-import { Calendar, Clock, Users, Star } from 'lucide-react';
+import { Calendar, Clock, Users } from 'lucide-react';
 
 interface ClassDetail {
   id: string;
@@ -156,10 +156,6 @@ export default function BookClassConfirm() {
                       * Se descontará 1 crédito de tu membresía activa.
                     </p>
                   )}
-                  <p className="text-xs font-medium text-balance-olive flex items-center gap-1.5">
-                    <Star className="h-3.5 w-3.5 fill-current" />
-                    Ganarás 10 puntos de lealtad al asistir.
-                  </p>
                 </div>
               </CardContent>
             </Card>

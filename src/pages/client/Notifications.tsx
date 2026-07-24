@@ -14,20 +14,6 @@ const notifications = [
     time: 'Hace 2h',
     unread: true,
   },
-  {
-    id: '2',
-    title: 'Puntos acreditados',
-    body: '+10 pts por asistencia',
-    time: 'Ayer',
-    unread: false,
-  },
-  {
-    id: '3',
-    title: 'Nueva recompensa disponible',
-    body: 'Revisa tus puntos y beneficios de lealtad.',
-    time: '3 Ene',
-    unread: false,
-  },
 ];
 
 export default function Notifications() {

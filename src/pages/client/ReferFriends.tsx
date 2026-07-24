@@ -5,15 +5,14 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { Link } from 'react-router-dom';
 import api from '@/lib/api';
-import { Gift, Copy, Users, Star, ChevronRight, Share2 } from 'lucide-react';
+import { Gift, Copy, Users, ChevronRight, Share2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 interface ReferralStats {
   code: string;
   totalReferrals: number;
-  totalPointsEarned: number;
-  recentReferrals: Array<{ friend_name: string; created_at: string; points_awarded: number }>;
+  recentReferrals: Array<{ friend_name: string; created_at: string }>;
 }
 
 export default function ReferFriends() {
@@ -49,11 +48,11 @@ export default function ReferFriends() {
           {/* Header */}
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" asChild className="rounded-full">
-              <Link to="/app/wallet"><ChevronRight className="h-5 w-5 rotate-180" /></Link>
+              <Link to="/app"><ChevronRight className="h-5 w-5 rotate-180" /></Link>
             </Button>
             <div>
               <h1 className="text-2xl font-semibold tracking-tight">Referir amigas</h1>
-              <p className="text-sm text-muted-foreground">Comparte y gana puntos de lealtad.</p>
+              <p className="text-sm text-muted-foreground">Comparte tu código y tus amigas obtienen descuento.</p>
             </div>
           </div>
 
@@ -68,10 +67,6 @@ export default function ReferFriends() {
               <div className="flex items-start gap-2">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-balance-olive text-white text-xs font-bold">2</span>
                 <p>Tu amiga usa el código al comprar su primer paquete y obtiene <strong>10% de descuento</strong>.</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-balance-olive text-white text-xs font-bold">3</span>
-                <p>Tú recibes <strong>10 puntos de lealtad</strong> automáticamente.</p>
               </div>
             </div>
           </div>
@@ -113,17 +108,10 @@ export default function ReferFriends() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-2xl border bg-card p-4 text-center">
-              <Users className="h-5 w-5 mx-auto mb-1 text-balance-olive" />
-              <p className="text-2xl font-bold">{data?.totalReferrals ?? 0}</p>
-              <p className="text-xs text-muted-foreground">Amigas referidas</p>
-            </div>
-            <div className="rounded-2xl border bg-card p-4 text-center">
-              <Star className="h-5 w-5 mx-auto mb-1 text-balance-olive" />
-              <p className="text-2xl font-bold">{data?.totalPointsEarned ?? 0}</p>
-              <p className="text-xs text-muted-foreground">Puntos ganados</p>
-            </div>
+          <div className="rounded-2xl border bg-card p-4 text-center">
+            <Users className="h-5 w-5 mx-auto mb-1 text-balance-olive" />
+            <p className="text-2xl font-bold">{data?.totalReferrals ?? 0}</p>
+            <p className="text-xs text-muted-foreground">Amigas referidas</p>
           </div>
 
           {/* Recent referrals */}
@@ -139,7 +127,6 @@ export default function ReferFriends() {
                         {format(parseISO(r.created_at), "d 'de' MMMM", { locale: es })}
                       </p>
                     </div>
-                    <span className="text-sm font-semibold text-balance-olive">+{r.points_awarded} pts</span>
                   </div>
                 ))}
               </div>

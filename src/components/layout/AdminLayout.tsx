@@ -19,7 +19,6 @@ import {
     Calendar,
     Users,
     CreditCard,
-    Gift,
     Settings,
     Dumbbell,
     ChevronRight,
@@ -115,16 +114,6 @@ const sidebarItems: SidebarItem[] = [
     { href: '/admin/pos', label: 'Caja', icon: ShoppingBag },
     { href: '/admin/payments', label: 'Pagos', icon: CreditCard },
     {
-        label: 'Lealtad',
-        icon: Gift,
-        children: [
-            { href: '/admin/loyalty/config', label: 'Configuración' },
-            { href: '/admin/loyalty/rewards', label: 'Recompensas' },
-            { href: '/admin/loyalty/redemptions', label: 'Canjes' },
-            { href: '/admin/loyalty/adjust', label: 'Ajustes' },
-        ],
-    },
-    {
         label: 'Reportes',
         icon: TrendingUp,
         children: [
@@ -166,7 +155,6 @@ const pageNames: Record<string, string> = {
     videos: 'Contenido',
     pos: 'Caja',
     payments: 'Pagos',
-    loyalty: 'Lealtad',
     reports: 'Reportes',
     settings: 'Ajustes',
     products: 'Productos',

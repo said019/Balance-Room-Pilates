@@ -29,9 +29,6 @@ import BookClasses from "./pages/client/BookClasses";
 import BookClassConfirm from "./pages/client/BookClassConfirm";
 import MyBookings from "./pages/client/MyBookings";
 import ClassBookingDetail from "./pages/client/ClassBookingDetail";
-import WalletClub from "./pages/client/Wallet";
-import WalletRewards from "./pages/client/WalletRewards";
-import WalletHistory from "./pages/client/WalletHistory";
 import ClientProfile from "./pages/client/Profile";
 import ProfileEdit from "./pages/client/ProfileEdit";
 import ProfileMembership from "./pages/client/ProfileMembership";
@@ -82,12 +79,6 @@ import NotificationSettings from "./pages/admin/settings/NotificationSettings";
 import ClosedDays from "./pages/admin/settings/ClosedDays";
 import WhatsAppSettings from "./pages/admin/settings/WhatsAppSettings";
 import Plataformas from "./pages/admin/settings/Plataformas";
-
-// Loyalty pages
-import LoyaltyConfig from "./pages/admin/loyalty/LoyaltyConfig";
-import LoyaltyRewards from "./pages/admin/loyalty/LoyaltyRewards";
-import LoyaltyRedemptions from "./pages/admin/loyalty/LoyaltyRedemptions";
-import LoyaltyAdjust from "./pages/admin/loyalty/LoyaltyAdjust";
 
 // Reports pages
 import ReportsOverview from "./pages/admin/reports/ReportsOverview";
@@ -186,9 +177,6 @@ const App = () => (
             <Route path="/app/classes" element={<MyBookings />} />
             <Route path="/app/classes/:bookingId" element={<ClassBookingDetail />} />
             <Route path="/app/classes/:bookingId/spot" element={<SelectReformer />} />
-            <Route path="/app/wallet" element={<WalletClub />} />
-            <Route path="/app/wallet/rewards" element={<WalletRewards />} />
-            <Route path="/app/wallet/history" element={<WalletHistory />} />
             <Route path="/app/profile" element={<ClientProfile />} />
             <Route path="/app/profile/edit" element={<ProfileEdit />} />
             <Route path="/app/profile/membership" element={<ProfileMembership />} />
@@ -238,11 +226,6 @@ const App = () => (
             <Route path="/admin/payments/pending" element={<Navigate to="/admin/payments" replace />} />
             <Route path="/admin/payments/register" element={<Navigate to="/admin/payments" replace />} />
             <Route path="/admin/payments/reports" element={<Navigate to="/admin/payments" replace />} />
-
-            <Route path="/admin/loyalty/config" element={<LoyaltyConfig />} />
-            <Route path="/admin/loyalty/rewards" element={<LoyaltyRewards />} />
-            <Route path="/admin/loyalty/redemptions" element={<LoyaltyRedemptions />} />
-            <Route path="/admin/loyalty/adjust" element={<LoyaltyAdjust />} />
 
             <Route path="/admin/referrals" element={<Referrals />} />
 
@@ -309,7 +292,6 @@ const App = () => (
             <Route path="/client/book/:classId" element={<LegacyClientBookRedirect />} />
             <Route path="/app/my-bookings" element={<Navigate to="/app/classes" replace />} />
             <Route path="/client/my-bookings" element={<Navigate to="/app/classes" replace />} />
-            <Route path="/client/wallet" element={<Navigate to="/app/wallet" replace />} />
             <Route path="/client/profile" element={<Navigate to="/app/profile" replace />} />
             <Route path="/client/*" element={<Navigate to="/app" replace />} />
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />

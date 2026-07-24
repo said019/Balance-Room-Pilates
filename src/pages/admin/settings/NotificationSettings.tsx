@@ -18,7 +18,6 @@ interface NotificationSettingsType {
     send_cancellation_notice: boolean;
     send_class_reminder: boolean;
     send_membership_expiring: boolean;
-    send_points_earned: boolean;
 }
 
 interface TemplateConfig {
@@ -30,7 +29,6 @@ const defaultTemplates: TemplateConfig = {
     send_booking_confirmation: '✅ *Reserva Confirmada*\n\nHola {nombre}!\n\nTu reserva para *{clase}* ha sido confirmada.\n\n📅 {fecha}\n⏰ {hora}\n👨‍🏫 {instructor}\n\n¡Te esperamos en Balance Room Pilates!',
     send_cancellation_notice: '❌ *Reserva Cancelada*\n\nHola {nombre},\n\nTu reserva para *{clase}* del {fecha} a las {hora} ha sido cancelada.\n\nSi tienes créditos disponibles, puedes reservar otra clase.',
     send_membership_expiring: '⚠️ *Tu Membresía está por Vencer*\n\nHola {nombre}!\n\nTu membresía *{plan}* vence el *{fecha}*.\n\nTe quedan {creditos} créditos.\n\n¿Deseas renovar? Contáctanos o renueva desde la app.',
-    send_points_earned: '🎉 *¡Ganaste Puntos!*\n\nHola {nombre}!\n\nHas ganado *{puntos} puntos* de lealtad.\n\nTu saldo actual: {saldo} puntos.\n\n¡Sigue acumulando!',
 };
 
 const templateVariables: { [key: string]: string[] } = {
@@ -38,7 +36,6 @@ const templateVariables: { [key: string]: string[] } = {
     send_booking_confirmation: ['nombre', 'clase', 'fecha', 'hora', 'instructor'],
     send_cancellation_notice: ['nombre', 'clase', 'fecha', 'hora'],
     send_membership_expiring: ['nombre', 'plan', 'fecha', 'creditos'],
-    send_points_earned: ['nombre', 'puntos', 'saldo'],
 };
 
 export default function NotificationSettings() {
@@ -51,7 +48,6 @@ export default function NotificationSettings() {
         send_cancellation_notice: true,
         send_class_reminder: true,
         send_membership_expiring: true,
-        send_points_earned: true,
     });
     const [templates, setTemplates] = useState<TemplateConfig>(defaultTemplates);
     const [editingKey, setEditingKey] = useState<string | null>(null);
@@ -262,7 +258,7 @@ export default function NotificationSettings() {
                 <CardHeader>
                     <CardTitle>Notificaciones de Membresía</CardTitle>
                     <CardDescription>
-                        Avisos sobre membresías y puntos
+                        Avisos sobre membresías
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -280,25 +276,6 @@ export default function NotificationSettings() {
                                 onCheckedChange={(checked) => setSettings({
                                     ...settings,
                                     send_membership_expiring: checked
-                                })}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                            <Label>Puntos ganados</Label>
-                            <p className="text-sm text-muted-foreground">
-                                Notificar cuando el cliente gana puntos de lealtad
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <TemplateButtons settingKey="send_points_earned" />
-                            <Switch
-                                checked={settings.send_points_earned}
-                                onCheckedChange={(checked) => setSettings({
-                                    ...settings,
-                                    send_points_earned: checked
                                 })}
                             />
                         </div>
@@ -345,71 +322,7 @@ export default function NotificationSettings() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-
-                <WalletPushTest />
         </div>
         </AdminLayout>
-    );
-}
-
-function WalletPushTest() {
-    const { toast } = useToast();
-    const [membershipId, setMembershipId] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [diagnostics, setDiagnostics] = useState<any>(null);
-
-    useEffect(() => {
-        api.get('/wallet/apple/diagnostics').then(r => setDiagnostics(r.data)).catch(() => {});
-    }, []);
-
-    const sendTestPush = async () => {
-        if (!membershipId.trim()) {
-            toast({ title: 'Ingresa un ID de membresía', variant: 'destructive' });
-            return;
-        }
-        setLoading(true);
-        try {
-            const { data } = await api.post('/wallet/test-push', { membershipId: membershipId.trim() });
-            toast({ title: data.message || 'Push enviada' });
-        } catch (e: any) {
-            toast({ title: 'Error', description: e.response?.data?.error || 'No se pudo enviar', variant: 'destructive' });
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Apple Wallet Push</CardTitle>
-                <CardDescription>Envía una notificación de actualización al pase de un miembro</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                {diagnostics && (
-                    <div className="flex flex-wrap gap-2 text-xs">
-                        <span className={`px-2 py-1 rounded-full ${diagnostics.configured ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                            {diagnostics.configured ? '✓ Configurado' : '✗ No configurado'}
-                        </span>
-                        <span className={`px-2 py-1 rounded-full ${diagnostics.canSendPush ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                            {diagnostics.canSendPush ? '✓ Push habilitado' : '✗ Push no disponible'}
-                        </span>
-                    </div>
-                )}
-                <div className="flex gap-2">
-                    <Input
-                        placeholder="ID de membresía (UUID)"
-                        value={membershipId}
-                        onChange={(e) => setMembershipId(e.target.value)}
-                        className="flex-1"
-                    />
-                    <Button onClick={sendTestPush} disabled={loading || !diagnostics?.canSendPush}>
-                        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Enviar Push'}
-                    </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                    El dispositivo recibirá una señal para descargar la versión actualizada del pase.
-                </p>
-            </CardContent>
-        </Card>
     );
 }

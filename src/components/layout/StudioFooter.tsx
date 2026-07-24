@@ -101,9 +101,6 @@ export default function StudioFooter() {
           <p className="font-body text-sm text-primary-foreground/50">
             © 2026 {studio.name}. Todos los derechos reservados.
           </p>
-          <p className="font-body text-sm text-primary-foreground/50">
-            Powered by <span className="text-secondary font-semibold">WalletClub</span>
-          </p>
         </div>
       </div>
     </footer>

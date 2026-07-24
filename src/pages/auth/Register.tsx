@@ -170,7 +170,7 @@ export default function Register() {
                                 Una práctica cercana, constante y tuya.
                             </h1>
                             <p className="mt-5 max-w-md font-body text-base leading-relaxed text-white/75">
-                                Crea tu cuenta para reservar en grupos pequeños, comprar paquetes y acumular puntos de lealtad.
+                                Crea tu cuenta para reservar en grupos pequeños y comprar paquetes.
                             </p>
                         </div>
 
@@ -182,7 +182,7 @@ export default function Register() {
                                 {[
                                     '7 disciplinas para moverte distinto',
                                     '6 lugares por clase',
-                                    'Puntos y recompensas por constancia',
+                                    'Seguimiento cercano en cada clase',
                                 ].map((item) => (
                                     <div key={item} className="flex items-center gap-3 font-body text-sm text-white/80">
                                         <CheckCircle2 className="h-4 w-4 text-white/70" />
@@ -224,7 +224,7 @@ export default function Register() {
                                     </h2>
                                 </div>
                                 <p className="font-body text-sm leading-relaxed text-muted-foreground">
-                                    Reserva clases, compra paquetes y participa en el programa de lealtad desde una experiencia simple y cuidada.
+                                    Reserva clases y compra paquetes desde una experiencia simple y cuidada.
                                 </p>
                             </div>
 
@@ -399,7 +399,7 @@ export default function Register() {
                                                 className="mt-0.5"
                                             />
                                             <label htmlFor="acceptsCommunications" className="cursor-pointer font-body text-sm leading-relaxed text-[#332A22]/80">
-                                                Deseo recibir promociones, novedades y recompensas por email.
+                                                Deseo recibir promociones y novedades por email.
                                             </label>
                                         </div>
                                     </div>
@@ -420,7 +420,7 @@ export default function Register() {
                                         className="h-12 rounded-2xl border-[#D8D0C2] bg-white/80 uppercase shadow-sm focus-visible:ring-[#7E8579]/30"
                                     />
                                     <p className="font-body text-xs text-muted-foreground">
-                                        Si alguien te invitó, ingresa su código para que ambos ganen puntos.
+                                        Si alguien te invitó, ingresa su código para obtener 10% de descuento en tu primer paquete.
                                     </p>
                                 </motion.div>
 

@@ -49,7 +49,6 @@ const Footer = () => {
                 { label: "Mi cuenta", href: "/login" },
                 { label: "Paquetes", href: "#precios" },
                 { label: "Horarios", href: "#horarios" },
-                { label: "Lealtad", href: "#lealtad" },
               ].map((link) => (
                 <li key={link.label}>
                   <a
@@ -134,10 +133,6 @@ const Footer = () => {
         <div className="pt-8 border-t border-primary-foreground/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="font-body text-sm text-primary-foreground/50">
             © 2026 Balance Room Pilates. Todos los derechos reservados.
-          </p>
-          <p className="font-body text-sm text-primary-foreground/50">
-            Programa de{" "}
-            <span className="text-balance-olive font-semibold">lealtad activo</span>
           </p>
         </div>
       </div>

@@ -163,7 +163,7 @@ export default function Login() {
                                     Entra a tu cuenta
                                 </h2>
                                 <p className="mt-3 font-body text-sm leading-relaxed text-muted-foreground">
-                                    Reserva clases, consulta tus creditos y sigue tu programa de lealtad.
+                                    Reserva clases y consulta tus creditos.
                                 </p>
                             </div>
 

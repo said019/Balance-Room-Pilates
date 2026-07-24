@@ -3,7 +3,6 @@ import Hero from "@/components/Hero";
 import ClassTypes from "@/components/ClassTypes";
 import Schedule from "@/components/Schedule";
 import Instructors from "@/components/Instructors";
-import WalletClub from "@/components/WalletClub";
 import Pricing from "@/components/Pricing";
 import Testimonials from "@/components/Testimonials";
 import Location from "@/components/Location";
@@ -17,7 +16,6 @@ const Index = () => {
       <ClassTypes />
       <Schedule />
       <Instructors />
-      <WalletClub />
       <Pricing />
       <Testimonials />
       <Location />

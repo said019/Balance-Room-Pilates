@@ -18,27 +18,13 @@ import {
   AlertTriangle,
   Calendar,
   Clock,
-  Gift,
   ChevronRight,
   Plus,
   RefreshCw,
-  Sparkles,
   Play,
   Leaf,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-interface WalletSummary {
-  pointsBalance: number;
-}
-
-interface LoyaltyReward {
-  id: string;
-  name: string;
-  points_cost: number;
-  is_active: boolean;
-  stock: number | null;
-}
 
 const statusLabel: Record<ClientMembership['status'], string> = {
   active: 'Activa',
@@ -63,16 +49,6 @@ export default function ClientDashboard() {
   const { data: bookings, isLoading: bookingsLoading } = useQuery<BookingClient[]>({
     queryKey: ['my-bookings'],
     queryFn: async () => (await api.get('/bookings/my-bookings')).data,
-  });
-
-  const { data: walletSummary } = useQuery<WalletSummary>({
-    queryKey: ['wallet-pass'],
-    queryFn: async () => (await api.get('/wallet/pass')).data,
-  });
-
-  const { data: loyaltyRewards, isLoading: loyaltyRewardsLoading } = useQuery<LoyaltyReward[]>({
-    queryKey: ['loyalty-rewards'],
-    queryFn: async () => (await api.get('/loyalty/rewards')).data,
   });
 
   const { data: latestVideos } = useQuery<any[]>({
@@ -112,15 +88,6 @@ export default function ClientDashboard() {
   const classesProgress = classLimit && classesRemaining !== null
     ? (classesRemaining / classLimit) * 100
     : null;
-  const pointsBalance = walletSummary?.pointsBalance ?? 0;
-  const nextReward = useMemo(() => {
-    return (loyaltyRewards || [])
-      .filter((reward) => reward.is_active && (reward.stock === null || reward.stock > 0))
-      .sort((a, b) => a.points_cost - b.points_cost)[0] || null;
-  }, [loyaltyRewards]);
-  const rewardTarget = nextReward?.points_cost ?? null;
-  const pointsRemaining = rewardTarget ? Math.max(rewardTarget - pointsBalance, 0) : 0;
-  const rewardProgress = rewardTarget ? Math.min((pointsBalance / rewardTarget) * 100, 100) : 0;
 
   return (
     <AuthGuard requiredRoles={['client']}>
@@ -137,13 +104,12 @@ export default function ClientDashboard() {
                   Hola, {user?.display_name?.split(' ')[0] || 'bienvenida'}. Tu siguiente clase empieza desde aquí.
                 </h1>
                 <p className="mt-3 max-w-[58ch] text-sm leading-6 text-balance-dark/62">
-                  Reserva, revisa tus créditos y consulta tus recompensas en una experiencia pensada para clases pequeñas.
+                  Reserva y revisa tus créditos en una experiencia pensada para clases pequeñas.
                 </p>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <DashboardMiniStat label="Clases" value={upcomingClasses.length} />
-                <DashboardMiniStat label="Puntos" value={pointsBalance} />
                 <DashboardMiniStat label="Créditos" value={classesRemaining ?? 0} />
               </div>
             </div>
@@ -207,7 +173,7 @@ export default function ClientDashboard() {
                         Tu membresía {membership.status === 'expired' ? 'venció' : 'fue cancelada'}{membership.end_date ? ` el ${format(parseISO(membership.end_date), 'dd MMM yyyy', { locale: es })}` : ''}
                       </p>
                       <p className="text-xs text-amber-600">
-                        Renueva para seguir reservando clases y acumulando puntos de lealtad.
+                        Renueva para seguir reservando clases.
                       </p>
                     </div>
                   </div>
@@ -263,20 +229,12 @@ export default function ClientDashboard() {
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Button asChild size="lg" className="h-auto rounded-[1.35rem] bg-balance-olive py-5 text-balance-cream shadow-[0_18px_40px_-30px_rgba(51,42,34,0.85)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-balance-olive/90">
-              <Link to="/app/book">
-                <Plus className="h-5 w-5" />
-                <span className="font-semibold">Reservar clase</span>
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="h-auto rounded-[1.35rem] border-balance-olive/25 bg-balance-cream/55 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-balance-olive/40 hover:bg-balance-olive/8">
-              <Link to="/app/wallet">
-                <Gift className="h-5 w-5 text-balance-olive" />
-                <span className="font-semibold">Lealtad</span>
-              </Link>
-            </Button>
-          </div>
+          <Button asChild size="lg" className="h-auto w-full rounded-[1.35rem] bg-balance-olive py-5 text-balance-cream shadow-[0_18px_40px_-30px_rgba(51,42,34,0.85)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-balance-olive/90">
+            <Link to="/app/book">
+              <Plus className="h-5 w-5" />
+              <span className="font-semibold">Reservar clase</span>
+            </Link>
+          </Button>
 
           <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.58)] transition-shadow duration-300">
             <CardHeader className="pb-2">
@@ -397,51 +355,6 @@ export default function ClientDashboard() {
               </CardContent>
             </Card>
           )}
-
-          <Card className="rounded-[1.75rem] border-balance-olive/25 bg-balance-olive/8 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.58)]">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg flex items-center gap-2 font-heading">
-                  <Sparkles className="h-5 w-5 text-balance-olive" />
-                  Lealtad
-                </CardTitle>
-                <span className="text-2xl font-semibold text-balance-olive">{pointsBalance} pts</span>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {loyaltyRewardsLoading ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-44" />
-                  <Skeleton className="h-2 w-full" />
-                </div>
-              ) : nextReward ? (
-                <div className="space-y-2">
-                  <div className="flex justify-between gap-3 text-sm">
-                    <span className="text-muted-foreground truncate">
-                      Próxima recompensa: {nextReward.name}
-                    </span>
-                    <span className="shrink-0 text-muted-foreground">
-                      {pointsRemaining > 0 ? `${pointsRemaining} pts más` : 'Lista para canjear'}
-                    </span>
-                  </div>
-                  <Progress value={rewardProgress} className="h-2" />
-                  <p className="text-xs text-muted-foreground">
-                    Meta: {rewardTarget} pts
-                  </p>
-                </div>
-              ) : (
-                <div className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-                  Sin recompensas configuradas por ahora.
-                </div>
-              )}
-              <Button variant="outline" asChild className="w-full rounded-xl border-balance-olive/25 bg-balance-cream/55 hover:border-balance-olive/40 hover:bg-balance-olive/8">
-                <Link to="/app/wallet">
-                  Ver recompensas
-                  <ChevronRight className="ml-1 h-4 w-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
         </div>
       </ClientLayout>
     </AuthGuard>

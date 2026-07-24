@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { getStudioBySlug } from '@/data/studios';
 import heroImage from '@/assets/hero.jpeg';
-import WalletClub from '@/components/WalletClub';
 import Testimonials from '@/components/Testimonials';
 
 export default function StudioHome() {
@@ -88,7 +87,7 @@ export default function StudioHome() {
               </div>
               <p className="font-heading text-lg">Check-in con Membresía</p>
               <p className="text-sm text-muted-foreground">
-                Membresías digitales y puntos de lealtad.
+                Membresías digitales y acceso sin fricción.
               </p>
             </CardContent>
           </Card>
@@ -138,7 +137,6 @@ export default function StudioHome() {
         </div>
       </section>
 
-      <WalletClub />
       <Testimonials />
     </StudioLayout>
   );

@@ -179,9 +179,6 @@ export default function Profile() {
                   <Button asChild className="w-full justify-between rounded-full border-balance-olive/25 bg-balance-cream/55" variant="outline">
                     <Link to="/app/profile/preferences">Preferencias <ChevronRight className="h-4 w-4" /></Link>
                   </Button>
-                  <Button asChild className="w-full justify-between rounded-full border-balance-olive/25 bg-balance-cream/55" variant="outline">
-                    <Link to="/app/wallet">Lealtad <ChevronRight className="h-4 w-4" /></Link>
-                  </Button>
                   <Button
                     className="w-full rounded-full border-balance-olive/25 bg-balance-cream/55"
                     variant="outline"

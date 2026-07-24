@@ -15,7 +15,6 @@ import {
     LayoutDashboard,
     Calendar,
     ClipboardList,
-    Gift,
     User,
     LogOut,
     Menu,
@@ -39,16 +38,14 @@ const navItems = [
     { href: '/app/checkout', label: 'Comprar', icon: ShoppingBag },
     { href: '/app/events', label: 'Eventos', icon: PartyPopper },
     { href: '/app/videos', label: 'Videos', icon: Play },
-    { href: '/app/wallet', label: 'Lealtad', icon: Gift },
 ];
 
-// Bottom nav: only 5 most important items for mobile
+// Bottom nav: only the most important items for mobile
 const bottomNavItems = [
     { href: '/app', label: 'Inicio', icon: LayoutDashboard },
     { href: '/app/book', label: 'Reservar', icon: Calendar },
     { href: '/app/checkout', label: 'Comprar', icon: ShoppingBag },
     { href: '/app/classes', label: 'Clases', icon: ClipboardList },
-    { href: '/app/wallet', label: 'Lealtad', icon: Gift },
 ];
 
 export function ClientLayout({ children }: ClientLayoutProps) {
@@ -219,7 +216,7 @@ export function ClientLayout({ children }: ClientLayoutProps) {
             <main className="relative mx-auto max-w-[1480px] px-4 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))] pt-5 sm:px-6 sm:py-7 lg:px-8 lg:pb-7">{children}</main>
 
             <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-balance-sand/70 bg-[#F2ECE0]/98 shadow-[0_-24px_60px_-42px_rgba(51,42,34,0.85)] backdrop-blur-xl lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-                <div className="grid grid-cols-5 gap-1 px-2 py-2">
+                <div className="grid grid-cols-4 gap-1 px-2 py-2">
                     {bottomNavItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = isActivePath(item.href);

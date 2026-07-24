@@ -28,7 +28,6 @@ export interface Review {
   status: ReviewStatus;
   is_anonymous: boolean;
   is_featured: boolean;
-  points_earned: number;
   created_at: string;
   updated_at: string;
 }
@@ -76,7 +75,6 @@ export interface MyReview {
   comment?: string;
   status: ReviewStatus;
   is_anonymous: boolean;
-  points_earned: number;
   created_at: string;
   class_date: string;
   class_type: string;

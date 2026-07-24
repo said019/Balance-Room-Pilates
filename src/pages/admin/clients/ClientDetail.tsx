@@ -155,8 +155,6 @@ export default function ClientDetail() {
             founder_assigned_at: string | null;
             founder_first_package_used: boolean;
             founder_first_used_at: string | null;
-            founder_double_points_used: boolean;
-            founder_double_points_used_at: string | null;
         };
         audit: Array<{ action: string; created_at: string }>;
     }>({
@@ -179,7 +177,7 @@ export default function ClientDetail() {
         mutationFn: async () => api.post(`/users/${id}/founder/reset`, {}),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['founder', id] });
-            toast({ title: 'Beneficios reseteados', description: 'El cliente puede volver a usar el descuento y los puntos dobles.' });
+            toast({ title: 'Beneficios reseteados', description: 'El cliente puede volver a usar el descuento.' });
         },
         onError: (e) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(e) }),
     });
@@ -600,12 +598,6 @@ export default function ClientDetail() {
                                             <p className="font-body">{client.health_notes}</p>
                                         </div>
                                     )}
-
-                                    {/* Loyalty Points */}
-                                    <div className="w-full mt-4 p-3.5 bg-balance-gold/5 text-balance-gold rounded-xl text-sm text-left border border-balance-gold/10">
-                                        <p className="font-semibold font-heading">Puntos de Lealtad</p>
-                                        <p className="text-2xl font-bold font-heading">{client.loyaltyPoints || 0}</p>
-                                    </div>
                                 </CardContent>
                             </Card>
 
@@ -639,7 +631,7 @@ export default function ClientDetail() {
                                                     <p className="text-xs text-muted-foreground">
                                                         {founderData.user.is_founder
                                                             ? `Activo desde ${founderData.user.founder_assigned_at ? new Date(founderData.user.founder_assigned_at).toLocaleDateString('es-MX') : '—'}`
-                                                            : 'Activa para otorgar 10% de descuento + dobles puntos en su primera compra.'}
+                                                            : 'Activa para otorgar 10% de descuento en su primera compra.'}
                                                     </p>
                                                 </div>
                                             </div>
@@ -658,7 +650,7 @@ export default function ClientDetail() {
                                         </div>
 
                                         {founderData.user.is_founder && (
-                                            <div className="grid gap-3 sm:grid-cols-2">
+                                            <div className="grid gap-3">
                                                 <div className="rounded-xl border border-balance-gold/20 bg-white/50 p-3">
                                                     <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Descuento 10% primer paquete</p>
                                                     <p className="mt-1 font-semibold">
@@ -667,18 +659,10 @@ export default function ClientDetail() {
                                                             : <span className="text-balance-olive">Disponible</span>}
                                                     </p>
                                                 </div>
-                                                <div className="rounded-xl border border-balance-gold/20 bg-white/50 p-3">
-                                                    <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Dobles puntos primera compra</p>
-                                                    <p className="mt-1 font-semibold">
-                                                        {founderData.user.founder_double_points_used
-                                                            ? <span className="text-muted-foreground">Usado el {founderData.user.founder_double_points_used_at ? new Date(founderData.user.founder_double_points_used_at).toLocaleDateString('es-MX') : '—'}</span>
-                                                            : <span className="text-balance-olive">Disponible</span>}
-                                                    </p>
-                                                </div>
                                             </div>
                                         )}
 
-                                        {founderData.user.is_founder && (founderData.user.founder_first_package_used || founderData.user.founder_double_points_used) && (
+                                        {founderData.user.is_founder && founderData.user.founder_first_package_used && (
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
                                                     <Button size="sm" variant="ghost" className="text-xs text-muted-foreground hover:text-balance-dark">
@@ -689,7 +673,7 @@ export default function ClientDetail() {
                                                     <AlertDialogHeader>
                                                         <AlertDialogTitle>¿Resetear beneficios founder?</AlertDialogTitle>
                                                         <AlertDialogDescription>
-                                                            El cliente podrá usar el 10% de descuento y los dobles puntos otra vez en su próxima compra. Solo úsalo en casos excepcionales.
+                                                            El cliente podrá usar el 10% de descuento otra vez en su próxima compra. Solo úsalo en casos excepcionales.
                                                         </AlertDialogDescription>
                                                     </AlertDialogHeader>
                                                     <AlertDialogFooter>

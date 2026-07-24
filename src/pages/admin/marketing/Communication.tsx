@@ -10,14 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
-import { Cake, Megaphone, Send, Loader2, MessageCircle, Mail, ShieldCheck, Pause, Play, History, Users } from 'lucide-react';
-
-interface BirthdayClient {
-    id: string;
-    display_name: string;
-    email: string | null;
-    phone: string | null;
-}
+import { Megaphone, Send, Loader2, MessageCircle, Mail, ShieldCheck, Pause, Play, History, Users } from 'lucide-react';
 
 interface WaBroadcast {
     id: string;
@@ -38,7 +31,6 @@ const statusLabel = (s: string): string =>
 export default function Communication() {
     const { toast } = useToast();
     const queryClient = useQueryClient();
-    const [greetingId, setGreetingId] = useState<string | null>(null);
 
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
@@ -96,30 +88,6 @@ export default function Communication() {
             toast({ title: 'Envío reanudado', description: 'Continúa desde donde se había quedado.' });
         },
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
-    });
-
-    const { data: birthdays = [], isLoading: loadingBdays } = useQuery<BirthdayClient[]>({
-        queryKey: ['marketing-birthdays'],
-        queryFn: async () => (await api.get('/marketing/birthdays')).data,
-    });
-
-    const greetMutation = useMutation({
-        mutationFn: async (userId: string) => {
-            setGreetingId(userId);
-            return (await api.post(`/marketing/birthdays/${userId}/greet`)).data;
-        },
-        onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ['marketing-birthdays'] });
-            toast({
-                title: 'Saludo enviado 🎉',
-                description: data.sent
-                    ? 'WhatsApp de cumpleaños enviado.'
-                    : (data.hasPhone ? 'No se pudo enviar el WhatsApp (revisa la conexión).' : 'El cliente no tiene teléfono; solo se otorgaron los puntos.'),
-                variant: data.sent || !data.hasPhone ? 'default' : 'destructive',
-            });
-        },
-        onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
-        onSettled: () => setGreetingId(null),
     });
 
     const broadcastMutation = useMutation({
@@ -182,43 +150,8 @@ export default function Communication() {
                 <div className="space-y-6 max-w-3xl">
                     <div>
                         <h1 className="text-2xl font-heading font-bold">Comunicación</h1>
-                        <p className="text-muted-foreground">Saludos de cumpleaños y correos masivos de promociones.</p>
+                        <p className="text-muted-foreground">Correos masivos de promociones por email y WhatsApp.</p>
                     </div>
-
-                    {/* Cumpleaños de hoy */}
-                    <section className="rounded-xl border bg-card p-6">
-                        <div className="flex items-center gap-2 mb-4">
-                            <Cake className="h-5 w-5 text-balance-olive" />
-                            <h2 className="text-lg font-semibold">Cumpleaños de hoy</h2>
-                        </div>
-                        {loadingBdays ? (
-                            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                        ) : birthdays.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">Nadie cumple años hoy. 🎂</p>
-                        ) : (
-                            <div className="space-y-2">
-                                {birthdays.map((b) => (
-                                    <div key={b.id} className="flex items-center justify-between gap-3 rounded-lg border p-3">
-                                        <div className="min-w-0">
-                                            <div className="font-medium truncate">{b.display_name}</div>
-                                            <div className="text-xs text-muted-foreground truncate">
-                                                {b.phone || 'Sin teléfono'}{b.email ? ` · ${b.email}` : ''}
-                                            </div>
-                                        </div>
-                                        <Button
-                                            size="sm"
-                                            onClick={() => greetMutation.mutate(b.id)}
-                                            disabled={greetMutation.isPending}
-                                        >
-                                            {greetingId === b.id
-                                                ? <Loader2 className="h-4 w-4 animate-spin" />
-                                                : <>🎉 Enviar saludo</>}
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </section>
 
                     {/* Correo masivo */}
                     <section className="rounded-xl border bg-card p-6">

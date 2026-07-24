@@ -99,9 +99,6 @@ export default function ProfileMembership() {
                     <Button className="sm:w-auto" asChild>
                       <Link to="/app/checkout">Renovar membresía</Link>
                     </Button>
-                    <Button variant="outline" asChild className="sm:w-auto">
-                      <Link to="/app/wallet">Ver lealtad</Link>
-                    </Button>
                   </div>
                 </>
               ) : (

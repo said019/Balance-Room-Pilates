@@ -36,7 +36,7 @@ interface EventDetailViewProps {
   onDelete?: (eventId: string) => void;
   onUpdateRegistration?: (eventId: string, regId: string, status: string) => void;
   onCheckin?: (eventId: string, regId: string) => void;
-  onUpdateConfig?: (eventId: string, config: Partial<Pick<StudioEvent, 'waitlistEnabled' | 'requiredPayment' | 'walletPass' | 'autoReminders' | 'allowCancellations'>>) => void;
+  onUpdateConfig?: (eventId: string, config: Partial<Pick<StudioEvent, 'waitlistEnabled' | 'requiredPayment' | 'autoReminders' | 'allowCancellations'>>) => void;
   onNotify?: (eventId: string) => void;
   isNotifying?: boolean;
 }
@@ -449,7 +449,7 @@ export default function EventDetailView({ event, onBack, onEdit, onUpdateStatus,
                 </div>
                 <h3 className="text-lg font-heading font-bold">Check-in con QR</h3>
                 <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                  Escanea el Wallet Pass del asistente para registrar su llegada automáticamente
+                  Escanea el código QR del asistente para registrar su llegada automáticamente
                 </p>
                 <Button className="gap-2" onClick={() => { setIsQrScannerOpen(true); setQrResult(null); }}>
                   <ScanLine className="h-4 w-4" /> Abrir Escáner
@@ -519,7 +519,6 @@ export default function EventDetailView({ event, onBack, onEdit, onUpdateStatus,
                 {[
                   { key: 'waitlistEnabled' as const, label: 'Lista de espera', desc: 'Permitir inscripciones cuando se llene la capacidad', backendKey: 'waitlist_enabled' },
                   { key: 'requiredPayment' as const, label: 'Pago obligatorio', desc: 'Requiere pago para confirmar inscripción', backendKey: 'required_payment' },
-                  { key: 'walletPass' as const, label: 'Wallet Pass', desc: 'Generar pase digital para Apple/Google Wallet', backendKey: 'wallet_pass' },
                   { key: 'autoReminders' as const, label: 'Recordatorios automáticos', desc: 'Enviar recordatorio 24h y 1h antes', backendKey: 'auto_reminders' },
                   { key: 'allowCancellations' as const, label: 'Permitir cancelaciones', desc: 'Las asistentes pueden cancelar hasta 48h antes', backendKey: 'allow_cancellations' },
                 ].map((setting) => (

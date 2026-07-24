@@ -145,13 +145,13 @@ export default function MembershipsList({
     const cancelMutation = useMutation({
         mutationFn: async ({ id, reason, refund }: { id: string; reason?: string; refund: boolean }) => {
             const { data } = await api.post(`/memberships/${id}/cancel`, { reason, refund });
-            return data as { refund?: { applied: boolean; payments_refunded: string[]; points_reversed: number } };
+            return data as { refund?: { applied: boolean; payments_refunded: string[] } };
         },
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['memberships'] });
             const refundInfo = data?.refund;
             const description = refundInfo?.applied
-                ? `Reembolsados ${refundInfo.payments_refunded.length} pago(s) y revertidos ${refundInfo.points_reversed} puntos.`
+                ? `Reembolsados ${refundInfo.payments_refunded.length} pago(s).`
                 : 'La membresía ha sido cancelada.';
             toast({ title: 'Membresía cancelada', description });
             setCancellationMembership(null);
@@ -473,7 +473,7 @@ export default function MembershipsList({
                                             Devolver el dinero al cliente
                                         </Label>
                                         <p className="text-xs text-muted-foreground">
-                                            Marca los pagos asociados como reembolsados y revierte los puntos otorgados.
+                                            Marca los pagos asociados como reembolsados.
                                             Deja sin marcar si el dinero se queda en el estudio.
                                         </p>
                                     </div>
