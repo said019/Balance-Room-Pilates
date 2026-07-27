@@ -49,11 +49,28 @@ const EMPTY_WELLHUB: PlatformSettingsRow = {
     extra_config: {},
 };
 
+const EMPTY_TOTALPASS: PlatformSettingsRow = {
+    channel: 'totalpass',
+    environment: 'sandbox',
+    is_enabled: false,
+    api_base_url: '',
+    booking_base_url: '',
+    access_base_url: '',
+    access_token: '',
+    webhook_secret: '',
+    gym_id: '',
+    webhook_url: '',
+    extra_config: {},
+};
+
 export default function Plataformas() {
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const [wellhub, setWellhub] = useState<PlatformSettingsRow>(EMPTY_WELLHUB);
     const [extraConfigText, setExtraConfigText] = useState('{}');
+    const [totalpass, setTotalpass] = useState<PlatformSettingsRow>(EMPTY_TOTALPASS);
+    const [tpTesting, setTpTesting] = useState(false);
+    const [tpSubscribing, setTpSubscribing] = useState(false);
 
     const { data, isLoading } = useQuery<PlatformSettingsRow[]>({
         queryKey: ['partner-settings'],
@@ -61,14 +78,21 @@ export default function Plataformas() {
     });
 
     useEffect(() => {
-        const row = data?.find((r) => r.channel === 'wellhub');
-        if (row) {
-            setWellhub({ ...EMPTY_WELLHUB, ...row });
-            setExtraConfigText(JSON.stringify(row.extra_config || {}, null, 2));
+        const wh = data?.find((r) => r.channel === 'wellhub');
+        if (wh) {
+            setWellhub({ ...EMPTY_WELLHUB, ...wh });
+            setExtraConfigText(JSON.stringify(wh.extra_config || {}, null, 2));
         }
+        const tp = data?.find((r) => r.channel === 'totalpass');
+        if (tp) setTotalpass({ ...EMPTY_TOTALPASS, ...tp });
     }, [data]);
 
-    const saveMutation = useMutation({
+    // extra_config helper for TotalPass
+    const tpExtra = totalpass.extra_config || {};
+    const setTpExtra = (patch: Record<string, any>) =>
+        setTotalpass((t) => ({ ...t, extra_config: { ...(t.extra_config || {}), ...patch } }));
+
+    const saveWellhub = useMutation({
         mutationFn: async () => {
             let extraConfig: Record<string, any>;
             try {
@@ -76,8 +100,7 @@ export default function Plataformas() {
             } catch {
                 throw new Error('El JSON de configuración extra no es válido');
             }
-            const response = await api.put('/partners/settings', [{ ...wellhub, extra_config: extraConfig }]);
-            return response.data;
+            return (await api.put('/partners/settings', [{ ...wellhub, extra_config: extraConfig }])).data;
         },
         onSuccess: () => {
             toast({ title: 'Guardado', description: 'Configuración de Wellhub actualizada' });
@@ -87,13 +110,52 @@ export default function Plataformas() {
             toast({
                 title: 'Error',
                 description: error?.response?.data?.details?.join?.(' · ')
-                    || error?.response?.data?.error
-                    || error?.message
-                    || 'Error guardando configuración',
+                    || error?.response?.data?.error || error?.message || 'Error guardando configuración',
                 variant: 'destructive',
             });
         },
     });
+
+    const saveTotalpass = useMutation({
+        mutationFn: async () => (await api.put('/partners/settings', [totalpass])).data,
+        onSuccess: () => {
+            toast({ title: 'Guardado', description: 'Configuración de TotalPass actualizada' });
+            queryClient.invalidateQueries({ queryKey: ['partner-settings'] });
+        },
+        onError: (error: any) => {
+            toast({
+                title: 'Error',
+                description: error?.response?.data?.details?.join?.(' · ')
+                    || error?.response?.data?.error || error?.message || 'Error guardando configuración',
+                variant: 'destructive',
+            });
+        },
+    });
+
+    const testTotalpass = async () => {
+        setTpTesting(true);
+        try {
+            const { data } = await api.get('/partners/totalpass/test');
+            const plans = (data?.place?.plans || []).map((p: any) => `${p.name} (id ${p.id})`).join(', ');
+            toast({ title: 'Conexión OK', description: `Place: ${data?.place?.name || '—'}. Planes: ${plans || '—'}` });
+        } catch (error: any) {
+            toast({ title: 'Falló la prueba', description: error?.response?.data?.error || error?.message, variant: 'destructive' });
+        } finally {
+            setTpTesting(false);
+        }
+    };
+
+    const subscribeTotalpassWebhook = async () => {
+        setTpSubscribing(true);
+        try {
+            await api.post('/partners/totalpass/webhook/subscribe');
+            toast({ title: 'Webhook registrado', description: 'Se registró el webhook de check-in en TotalPass' });
+        } catch (error: any) {
+            toast({ title: 'Error', description: error?.response?.data?.error || error?.message, variant: 'destructive' });
+        } finally {
+            setTpSubscribing(false);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -111,12 +173,13 @@ export default function Plataformas() {
             <div>
                 <h2 className="text-2xl font-bold tracking-tight">Plataformas</h2>
                 <p className="text-muted-foreground">
-                    Credenciales propias de Balance Room. El gateway compartido únicamente
-                    reenvía los bytes del webhook; este backend valida la firma con el secreto
-                    de Balance Room.
+                    Integraciones de convenios (Wellhub, TotalPass). Cada plataforma tiene sus
+                    propias credenciales; el backend importa reservas, comparte cupo y confirma
+                    check-ins.
                 </p>
             </div>
 
+            {/* ── Wellhub ─────────────────────────────────────────────── */}
             <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between">
@@ -136,11 +199,6 @@ export default function Plataformas() {
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">
-                        Este studio se enruta por Gym ID en <code>GYM_ROUTES</code> del gateway
-                        (Railway, proyecto <code>wellhub-gateway</code>). Para agregar o cambiar el
-                        studio no hay que avisar a Wellhub, solo actualizar esa variable.
-                    </div>
                     <div className="flex items-center gap-3">
                         <Switch
                             checked={wellhub.is_enabled}
@@ -156,9 +214,7 @@ export default function Plataformas() {
                                 value={wellhub.environment}
                                 onValueChange={(v: 'sandbox' | 'production') => setWellhub((w) => ({ ...w, environment: v }))}
                             >
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="sandbox">Sandbox</SelectItem>
                                     <SelectItem value="production">Producción</SelectItem>
@@ -192,36 +248,6 @@ export default function Plataformas() {
                             onChange={(e) => setWellhub((w) => ({ ...w, webhook_secret: e.target.value }))}
                             placeholder="Secreto de firma HMAC-SHA1 que da Wellhub"
                         />
-                        <p className="text-xs text-muted-foreground">
-                            Si se deja vacío, la firma NO se verifica (solo el filtro por Gym ID) — no dejar vacío en producción.
-                        </p>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-3">
-                        <div className="space-y-2">
-                            <Label>API Base URL (opcional)</Label>
-                            <Input
-                                value={wellhub.api_base_url || ''}
-                                onChange={(e) => setWellhub((w) => ({ ...w, api_base_url: e.target.value }))}
-                                placeholder="Default según entorno"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Booking Base URL (opcional)</Label>
-                            <Input
-                                value={wellhub.booking_base_url || ''}
-                                onChange={(e) => setWellhub((w) => ({ ...w, booking_base_url: e.target.value }))}
-                                placeholder="Default según entorno"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Access Base URL (opcional)</Label>
-                            <Input
-                                value={wellhub.access_base_url || ''}
-                                onChange={(e) => setWellhub((w) => ({ ...w, access_base_url: e.target.value }))}
-                                placeholder="Default según entorno"
-                            />
-                        </div>
                     </div>
 
                     <div className="space-y-2">
@@ -231,18 +257,137 @@ export default function Plataformas() {
                             onChange={(e) => setExtraConfigText(e.target.value)}
                             rows={4}
                             className="font-mono text-xs"
-                            placeholder='{"default_product_id": 123, "events_report_url": "..."}'
+                            placeholder='{"default_product_id": 123}'
+                        />
+                    </div>
+
+                    <Button onClick={() => saveWellhub.mutate()} disabled={saveWellhub.isPending}>
+                        {saveWellhub.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                        Guardar Wellhub
+                    </Button>
+                </CardContent>
+            </Card>
+
+            {/* ── TotalPass ───────────────────────────────────────────── */}
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle className="flex items-center gap-2">
+                                <Link2 className="w-5 h-5" />
+                                TotalPass
+                            </CardTitle>
+                            <CardDescription>
+                                La <code>place_api_key</code> la genera el estudio en su panel de TotalPass
+                                (Integraciones → WalletClub → Crear código). La <code>partner_api_key</code> es
+                                la llave maestra de WalletClub.
+                            </CardDescription>
+                        </div>
+                        <Badge variant={totalpass.is_enabled ? 'default' : 'secondary'} className={totalpass.is_enabled ? 'bg-success' : ''}>
+                            {totalpass.is_enabled ? 'Habilitado' : 'Deshabilitado'}
+                        </Badge>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex items-center gap-3">
+                        <Switch
+                            checked={totalpass.is_enabled}
+                            onCheckedChange={(checked) => setTotalpass((t) => ({ ...t, is_enabled: checked }))}
+                        />
+                        <Label>Habilitar integración TotalPass</Label>
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                            <Label>Entorno</Label>
+                            <Select
+                                value={totalpass.environment}
+                                onValueChange={(v: 'sandbox' | 'production') => setTotalpass((t) => ({ ...t, environment: v }))}
+                            >
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="sandbox">Sandbox</SelectItem>
+                                    <SelectItem value="production">Producción</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Unit ID (ID de la unidad del panel)</Label>
+                            <Input
+                                value={totalpass.gym_id || ''}
+                                onChange={(e) => setTotalpass((t) => ({ ...t, gym_id: e.target.value }))}
+                                placeholder="ej. 197529"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>Place API Key (del panel del estudio)</Label>
+                        <Input
+                            value={tpExtra.place_api_key || ''}
+                            onChange={(e) => setTpExtra({ place_api_key: e.target.value })}
+                            placeholder="UUID que genera el estudio (Integraciones → WalletClub → Crear código)"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>Partner API Key (llave maestra WalletClub)</Label>
+                        <Input
+                            type="password"
+                            value={tpExtra.partner_api_key || ''}
+                            onChange={(e) => setTpExtra({ partner_api_key: e.target.value })}
+                            placeholder="Llave secreta de WalletClub (una para todos los estudios)"
                         />
                         <p className="text-xs text-muted-foreground">
-                            Campos usados: <code>default_product_id</code> (publicar clases),{' '}
-                            <code>events_report_url</code> / <code>daily_report_url</code> (reporte diario).
+                            Llave maestra: sirve para todos los estudios. Manéjala con cuidado.
                         </p>
                     </div>
 
-                    <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
-                        {saveMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                        Guardar
-                    </Button>
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                            <Label>Plan ID (opcional — se deriva del place)</Label>
+                            <Input
+                                value={tpExtra.plan_id ?? ''}
+                                onChange={(e) => setTpExtra({ plan_id: e.target.value ? Number(e.target.value) : null })}
+                                placeholder="Se obtiene de getPlace() si se deja vacío"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Horas para cancelar antes del inicio</Label>
+                            <Input
+                                value={tpExtra.default_max_cancel_hours ?? ''}
+                                onChange={(e) => setTpExtra({ default_max_cancel_hours: e.target.value ? Number(e.target.value) : null })}
+                                placeholder="Default 4"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>Webhook URL de check-in (este backend)</Label>
+                        <Input
+                            value={totalpass.webhook_url || ''}
+                            onChange={(e) => setTotalpass((t) => ({ ...t, webhook_url: e.target.value }))}
+                            placeholder="https://<tu-backend>/webhooks/totalpass/checkin"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Se registra en TotalPass con el botón "Registrar webhook check-in".
+                        </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                        <Button onClick={() => saveTotalpass.mutate()} disabled={saveTotalpass.isPending}>
+                            {saveTotalpass.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            Guardar TotalPass
+                        </Button>
+                        <Button variant="outline" onClick={testTotalpass} disabled={tpTesting}>
+                            {tpTesting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            Probar credenciales
+                        </Button>
+                        <Button variant="outline" onClick={subscribeTotalpassWebhook} disabled={tpSubscribing}>
+                            {tpSubscribing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            Registrar webhook check-in
+                        </Button>
+                    </div>
                 </CardContent>
             </Card>
         </div>
