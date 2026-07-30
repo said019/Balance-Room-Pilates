@@ -23,6 +23,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/components/ui/use-toast';
+import { WellhubBadge } from '@/components/partners/WellhubBadge';
+import { TotalPassBadge } from '@/components/partners/TotalPassBadge';
 import api, { getErrorMessage } from '@/lib/api';
 import type { BookingAdmin } from '@/types/booking';
 import { CheckCircle2, Loader2, Search } from 'lucide-react';
@@ -58,14 +60,16 @@ export default function BookingsList({
 }: BookingsListProps) {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState(initialStatus);
+  const [channel, setChannel] = useState('all');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery<BookingAdmin[]>({
-    queryKey: ['admin-bookings', status, search],
+    queryKey: ['admin-bookings', status, channel, search],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (status !== 'all') params.append('status', status);
+      if (channel !== 'all') params.append('channel', channel);
       if (search) params.append('search', search);
       const { data } = await api.get(`/bookings?${params.toString()}`);
       return data;
@@ -105,19 +109,33 @@ export default function BookingsList({
               />
             </div>
 
-            <Select value={status} onValueChange={setStatus} disabled={statusLocked}>
-              <SelectTrigger className="w-full md:w-56">
-                <SelectValue placeholder="Estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="confirmed">Confirmadas</SelectItem>
-                <SelectItem value="waitlist">Lista de espera</SelectItem>
-                <SelectItem value="checked_in">Check-in</SelectItem>
-                <SelectItem value="cancelled">Canceladas</SelectItem>
-                <SelectItem value="no_show">No show</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex w-full flex-col gap-2 sm:flex-row md:w-auto">
+              <Select value={channel} onValueChange={setChannel}>
+                <SelectTrigger aria-label="Filtrar por origen" className="w-full sm:w-52">
+                  <SelectValue placeholder="Origen" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los orígenes</SelectItem>
+                  <SelectItem value="wellhub">Wellhub</SelectItem>
+                  <SelectItem value="totalpass">TotalPass</SelectItem>
+                  <SelectItem value="balance">Balance</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={status} onValueChange={setStatus} disabled={statusLocked}>
+                <SelectTrigger aria-label="Filtrar por estado" className="w-full sm:w-56">
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los estados</SelectItem>
+                  <SelectItem value="confirmed">Confirmadas</SelectItem>
+                  <SelectItem value="waitlist">Lista de espera</SelectItem>
+                  <SelectItem value="checked_in">Check-in</SelectItem>
+                  <SelectItem value="cancelled">Canceladas</SelectItem>
+                  <SelectItem value="no_show">No show</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="rounded-md border bg-card">
@@ -125,6 +143,7 @@ export default function BookingsList({
               <TableHeader>
                 <TableRow>
                   <TableHead>Cliente</TableHead>
+                  <TableHead>Origen</TableHead>
                   <TableHead>Clase</TableHead>
                   <TableHead>Horario</TableHead>
                   <TableHead>Estado</TableHead>
@@ -135,13 +154,13 @@ export default function BookingsList({
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
+                    <TableCell colSpan={7} className="text-center py-8">
                       <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
                     </TableCell>
                   </TableRow>
                 ) : bookings.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                       No se encontraron reservas.
                     </TableCell>
                   </TableRow>
@@ -151,6 +170,20 @@ export default function BookingsList({
                       <TableCell>
                         <div className="font-medium">{booking.user_name}</div>
                         <div className="text-xs text-muted-foreground">{booking.user_email}</div>
+                      </TableCell>
+                      <TableCell>
+                        {booking.channel === 'wellhub' ? (
+                          <WellhubBadge />
+                        ) : booking.channel === 'totalpass' ? (
+                          <TotalPassBadge />
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="border-balance-sand/70 bg-balance-cream/65 text-balance-dark/65"
+                          >
+                            Balance
+                          </Badge>
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="font-medium">{booking.class_name}</div>

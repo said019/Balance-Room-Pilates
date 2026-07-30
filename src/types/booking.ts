@@ -1,6 +1,7 @@
 export interface BookingAdmin {
   booking_id: string;
   booking_status: 'confirmed' | 'waitlist' | 'checked_in' | 'no_show' | 'cancelled';
+  channel: string;
   created_at: string;
   checked_in_at: string | null;
   waitlist_position: number | null;

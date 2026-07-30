@@ -55,6 +55,11 @@ import {
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+import { WellhubBadge } from '@/components/partners/WellhubBadge';
+import {
+    AttendeeChannelFilter,
+    type AttendeeChannelFilterValue,
+} from '@/components/partners/AttendeeChannelFilter';
 
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
 
@@ -209,7 +214,9 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isAttendeesOpen, setIsAttendeesOpen] = useState(false);
     const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+    const [attendeeChannelFilter, setAttendeeChannelFilter] = useState<AttendeeChannelFilterValue>('all');
     const [classTypeFilter, setClassTypeFilter] = useState<string>('all');
+    const [wellhubClassFilter, setWellhubClassFilter] = useState<'all' | 'published' | 'not_published'>('all');
     const [studioFilter, setStudioFilter] = useState<string>('all');
     const [showCancelled, setShowCancelled] = useState(false);
     const [userSearch, setUserSearch] = useState('');
@@ -549,6 +556,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     };
 
     const handleClassClick = (c: Class) => {
+        setAttendeeChannelFilter('all');
         setSelectedClass(c);
         setIsAttendeesOpen(true);
     };
@@ -575,7 +583,11 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
             const typeMatch = classTypeFilter === 'all' || c.class_type_id === classTypeFilter;
             const studioMatch = studioFilter === 'all' || (c.facility_name?.trim() || 'Studio') === studioFilter;
             const cancelledMatch = showCancelled || c.status !== 'cancelled';
-            return dateMatch && typeMatch && studioMatch && cancelledMatch;
+            const wellhubMatch =
+                wellhubClassFilter === 'all' ||
+                (wellhubClassFilter === 'published' && c.wellhub_published) ||
+                (wellhubClassFilter === 'not_published' && !c.wellhub_published);
+            return dateMatch && typeMatch && studioMatch && cancelledMatch && wellhubMatch;
         }) || [];
     };
 
@@ -593,6 +605,13 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
 
     const confirmedCount = attendees?.filter(a => a.status === 'confirmed' || a.status === 'checked_in').length || 0;
     const checkedInCount = attendees?.filter(a => a.status === 'checked_in').length || 0;
+    const wellhubAttendeeCount = attendees?.filter((attendee) => attendee.channel === 'wellhub').length || 0;
+    const balanceAttendeeCount = (attendees?.length || 0) - wellhubAttendeeCount;
+    const filteredAttendees = attendees?.filter((attendee) => {
+        if (attendeeChannelFilter === 'wellhub') return attendee.channel === 'wellhub';
+        if (attendeeChannelFilter === 'balance') return attendee.channel !== 'wellhub';
+        return true;
+    }) || [];
 
     const bulkDeleteMutation = useMutation({
         mutationFn: async () => {
@@ -613,6 +632,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
 
     const weekDays = Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
     const activeClasses = classes?.filter((c) => c.status !== 'cancelled') || [];
+    const wellhubPublishedClassCount = activeClasses.filter((c) => c.wellhub_published).length;
+    const notPublishedClassCount = activeClasses.length - wellhubPublishedClassCount;
 
     const studioBreakdown = useMemo(() => {
         const PREFERRED = ['Wunda', 'Barre', 'Hot Room'];
@@ -812,6 +833,57 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                             ))}
                         </div>
                     )}
+
+                    <div className="space-y-2 px-1">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-balance-dark/48">
+                            Publicación en Wellhub
+                        </p>
+                        <div
+                            aria-label="Filtrar clases por publicación en Wellhub"
+                            className="flex flex-wrap items-center gap-2"
+                            role="group"
+                        >
+                            <button
+                                type="button"
+                                aria-pressed={wellhubClassFilter === 'all'}
+                                onClick={() => setWellhubClassFilter('all')}
+                                className={cn(
+                                    'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
+                                    wellhubClassFilter === 'all'
+                                        ? 'border-balance-olive bg-balance-olive text-balance-cream'
+                                        : 'border-balance-sand/65 bg-balance-cream/75 text-balance-dark/65 hover:border-balance-olive/40'
+                                )}
+                            >
+                                Todas <span className="ml-1 tabular-nums">{activeClasses.length}</span>
+                            </button>
+                            <button
+                                type="button"
+                                aria-pressed={wellhubClassFilter === 'published'}
+                                onClick={() => setWellhubClassFilter('published')}
+                                className={cn(
+                                    'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
+                                    wellhubClassFilter === 'published'
+                                        ? 'border-[#A8C900] bg-[#D7FE51] text-[#243000]'
+                                        : 'border-[#A8C900]/60 bg-[#D7FE51]/25 text-[#526300] hover:bg-[#D7FE51]/45'
+                                )}
+                            >
+                                En Wellhub <span className="ml-1 tabular-nums">{wellhubPublishedClassCount}</span>
+                            </button>
+                            <button
+                                type="button"
+                                aria-pressed={wellhubClassFilter === 'not_published'}
+                                onClick={() => setWellhubClassFilter('not_published')}
+                                className={cn(
+                                    'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
+                                    wellhubClassFilter === 'not_published'
+                                        ? 'border-balance-dark bg-balance-dark text-white'
+                                        : 'border-balance-sand/65 bg-balance-cream/75 text-balance-dark/65 hover:border-balance-dark/35'
+                                )}
+                            >
+                                Fuera de Wellhub <span className="ml-1 tabular-nums">{notPublishedClassCount}</span>
+                            </button>
+                        </div>
+                    </div>
 
                     <div className="overflow-hidden rounded-[1.75rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)]">
                         <div className="overflow-x-auto">
@@ -1113,6 +1185,15 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 {/* Attendees List */}
                                 <div className="space-y-3">
                                     <h3 className="font-semibold">Asistentes</h3>
+                                    {!attendeesLoading && !!attendees?.length && (
+                                        <AttendeeChannelFilter
+                                            value={attendeeChannelFilter}
+                                            onValueChange={setAttendeeChannelFilter}
+                                            totalCount={attendees.length}
+                                            wellhubCount={wellhubAttendeeCount}
+                                            balanceCount={balanceAttendeeCount}
+                                        />
+                                    )}
                                     {attendeesLoading ? (
                                         <div className="flex justify-center py-8">
                                             <Loader2 className="h-6 w-6 animate-spin" />
@@ -1121,8 +1202,12 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                         <div className="text-center py-8 text-muted-foreground">
                                             No hay reservas para esta clase.
                                         </div>
+                                    ) : filteredAttendees.length === 0 ? (
+                                        <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+                                            No hay reservas de este origen.
+                                        </div>
                                     ) : (
-                                        attendees?.map((attendee) => (
+                                        filteredAttendees.map((attendee) => (
                                             <div
                                                 key={attendee.booking_id}
                                                 className={cn(
@@ -1141,9 +1226,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                         <p className="font-medium">{attendee.display_name}</p>
                                                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                                             {attendee.channel === 'wellhub' ? (
-                                                                <Badge variant="outline" className="text-xs border-primary/40 text-primary">
-                                                                    Wellhub
-                                                                </Badge>
+                                                                <WellhubBadge />
                                                             ) : attendee.plan_name && (
                                                                 <Badge variant="outline" className="text-xs">
                                                                     {attendee.plan_name}
@@ -1742,6 +1825,14 @@ function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void })
                     <span className="truncate text-sm font-semibold text-balance-dark">{formatClassTime(item.start_time)}</span>
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
+                    {item.wellhub_published && (
+                        <span
+                            className="rounded-full border border-[#A8C900] bg-[#D7FE51] px-2 py-0.5 text-[10px] font-bold text-[#243000] shadow-sm"
+                            title={`Publicada en Wellhub · cupo ${Number(item.wellhub_booked || 0)}/${Number(item.wellhub_quota || 0)}`}
+                        >
+                            Wellhub
+                        </span>
+                    )}
                     {isMexico && (
                         <span className="rounded-full bg-balance-cream/80 px-2 py-0.5 text-[10px] font-bold tracking-wide" title="Clase temática">
                             🇲🇽

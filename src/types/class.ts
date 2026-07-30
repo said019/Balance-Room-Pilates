@@ -71,4 +71,7 @@ export interface Class {
     is_free?: boolean;
     free_label?: string | null;
     theme?: string | null; // 'none' | 'mexico'
+    wellhub_published?: boolean;
+    wellhub_quota?: number;
+    wellhub_booked?: number;
 }
