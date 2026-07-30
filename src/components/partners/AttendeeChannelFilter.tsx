@@ -49,14 +49,14 @@ export function AttendeeChannelFilter({
                             className={cn(
                                 'h-8 rounded-full px-3 text-xs',
                                 isActive && !isWellhub && 'bg-balance-dark text-white hover:bg-balance-dark/90',
-                                isActive && isWellhub && 'border-[#A8C900] bg-[#D7FE51] text-[#243000] hover:bg-[#D7FE51]',
+                                isActive && isWellhub && 'border-[#CF3153] bg-[#F2496B] text-[#2A0810] hover:bg-[#F2496B]',
                             )}
                             onClick={() => onValueChange(option.value)}
                             size="sm"
                             style={isActive && isWellhub ? {
-                                backgroundColor: '#D7FE51',
-                                borderColor: '#A8C900',
-                                color: '#243000',
+                                backgroundColor: '#F2496B',
+                                borderColor: '#CF3153',
+                                color: '#2A0810',
                             } : undefined}
                             type="button"
                             variant="outline"

@@ -217,13 +217,20 @@ export default function BookingsList({
                       <TableCell className="text-right">
                         {booking.booking_status === 'confirmed' && (
                           <Button
+                            disabled={checkInMutation.isPending}
                             size="sm"
                             variant="ghost"
                             className="text-success hover:text-success hover:bg-success/10"
                             onClick={() => checkInMutation.mutate(booking.booking_id)}
                           >
-                            <CheckCircle2 className="mr-2 h-4 w-4" />
-                            Check-in
+                            {checkInMutation.isPending && checkInMutation.variables === booking.booking_id ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <CheckCircle2 className="mr-2 h-4 w-4" />
+                            )}
+                            {checkInMutation.isPending && checkInMutation.variables === booking.booking_id
+                              ? 'Registrando...'
+                              : 'Check-in'}
                           </Button>
                         )}
                       </TableCell>

@@ -4,7 +4,7 @@ export function WellhubBadge() {
     return (
         <Badge
             aria-label="Reserva de Wellhub"
-            className="shrink-0 border-[#A8C900] bg-[#D7FE51] text-[#243000] shadow-sm hover:bg-[#D7FE51]"
+            className="shrink-0 border-[#CF3153] bg-[#F2496B] text-[#2A0810] shadow-sm hover:bg-[#F2496B]"
             variant="outline"
         >
             Wellhub

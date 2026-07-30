@@ -179,7 +179,12 @@ function WellhubClassControl({ classId }: { classId: string }) {
                 />
             </div>
             {status?.published ? (
-                <Badge variant="secondary">En Wellhub · cupo {status.booked}/{status.quota}</Badge>
+                <Badge
+                    className="border-[#CF3153] bg-[#F2496B] text-[#2A0810] hover:bg-[#F2496B]"
+                    variant="outline"
+                >
+                    En Wellhub · cupo {status.booked}/{status.quota}
+                </Badge>
             ) : (
                 <div className="flex items-center gap-2">
                     <Label className="text-xs text-muted-foreground">Cupo a publicar</Label>
@@ -863,8 +868,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 className={cn(
                                     'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
                                     wellhubClassFilter === 'published'
-                                        ? 'border-[#A8C900] bg-[#D7FE51] text-[#243000]'
-                                        : 'border-[#A8C900]/60 bg-[#D7FE51]/25 text-[#526300] hover:bg-[#D7FE51]/45'
+                                        ? 'border-[#CF3153] bg-[#F2496B] text-[#2A0810]'
+                                        : 'border-[#F2496B]/60 bg-[#FDE8EC] text-[#7A1830] hover:bg-[#FAD1DA]'
                                 )}
                             >
                                 En Wellhub <span className="ml-1 tabular-nums">{wellhubPublishedClassCount}</span>
@@ -1827,7 +1832,7 @@ function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void })
                 <div className="flex shrink-0 items-center gap-1">
                     {item.wellhub_published && (
                         <span
-                            className="rounded-full border border-[#A8C900] bg-[#D7FE51] px-2 py-0.5 text-[10px] font-bold text-[#243000] shadow-sm"
+                            className="rounded-full border border-[#CF3153] bg-[#F2496B] px-2 py-0.5 text-[10px] font-bold text-[#2A0810] shadow-sm"
                             title={`Publicada en Wellhub · cupo ${Number(item.wellhub_booked || 0)}/${Number(item.wellhub_quota || 0)}`}
                         >
                             Wellhub
