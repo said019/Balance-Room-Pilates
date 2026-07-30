@@ -53,6 +53,7 @@ import ClassesCalendar from "./pages/admin/classes/ClassesCalendar";
 import GenerateClasses from "./pages/admin/classes/GenerateClasses";
 import BookingsList from "./pages/admin/bookings/BookingsList";
 import Waitlist from "./pages/admin/bookings/Waitlist";
+import TotalPassToday from "./pages/admin/bookings/TotalPassToday";
 import MemberNew from "./pages/admin/members/MemberNew";
 import AssignMembership from "./pages/admin/members/AssignMembership";
 import PhysicalSale from "./pages/admin/members/PhysicalSale";
@@ -156,6 +157,7 @@ const App = () => (
 
             <Route path="/admin/bookings" element={<BookingsList />} />
             <Route path="/admin/bookings/waitlist" element={<Waitlist />} />
+            <Route path="/admin/totalpass/checkins" element={<TotalPassToday />} />
 
             <Route path="/admin/classes/schedules" element={<WeeklySchedule />} />
             <Route path="/admin/classes/types" element={<ClassTypesList />} />

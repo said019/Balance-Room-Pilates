@@ -71,6 +71,7 @@ const sidebarItems: SidebarItem[] = [
         children: [
             { href: '/admin/bookings', label: 'Reservas' },
             { href: '/admin/bookings/waitlist', label: 'Lista de espera' },
+            { href: '/admin/totalpass/checkins', label: 'TotalPass hoy' },
         ],
     },
     {
@@ -133,6 +134,7 @@ const pageNames: Record<string, string> = {
     'discount-codes': 'Descuentos',
     calendar: 'Agenda',
     bookings: 'Reservas',
+    totalpass: 'TotalPass',
     classes: 'Clases',
     members: 'Comunidad',
     memberships: 'Membresías',

@@ -14,10 +14,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Link2 } from 'lucide-react';
+import { Loader2, Link2, RefreshCw, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import api from '@/lib/api';
+import api, { getErrorMessage } from '@/lib/api';
 
 const WELLHUB_RECEIVER_URL = 'https://wellhub-gateway-production.up.railway.app/webhooks/wellhub';
 
@@ -71,10 +71,21 @@ export default function Plataformas() {
     const [totalpass, setTotalpass] = useState<PlatformSettingsRow>(EMPTY_TOTALPASS);
     const [tpTesting, setTpTesting] = useState(false);
     const [tpSubscribing, setTpSubscribing] = useState(false);
+    const [tpSyncing, setTpSyncing] = useState(false);
 
     const { data, isLoading } = useQuery<PlatformSettingsRow[]>({
         queryKey: ['partner-settings'],
         queryFn: async () => (await api.get('/partners/settings')).data,
+    });
+
+    const { data: tpAccessStatus } = useQuery<{
+        configured: boolean;
+        serviceProviderCode: string | null;
+        servicePlanCode: string | null;
+    }>({
+        queryKey: ['totalpass-access-status'],
+        queryFn: async () => (await api.get('/partners/totalpass/access/status')).data,
+        retry: false,
     });
 
     useEffect(() => {
@@ -121,6 +132,7 @@ export default function Plataformas() {
         onSuccess: () => {
             toast({ title: 'Guardado', description: 'Configuración de TotalPass actualizada' });
             queryClient.invalidateQueries({ queryKey: ['partner-settings'] });
+            queryClient.invalidateQueries({ queryKey: ['totalpass-access-status'] });
         },
         onError: (error: any) => {
             toast({
@@ -148,12 +160,39 @@ export default function Plataformas() {
     const subscribeTotalpassWebhook = async () => {
         setTpSubscribing(true);
         try {
-            await api.post('/partners/totalpass/webhook/subscribe');
-            toast({ title: 'Webhook registrado', description: 'Se registró el webhook de check-in en TotalPass' });
-        } catch (error: any) {
-            toast({ title: 'Error', description: error?.response?.data?.error || error?.message, variant: 'destructive' });
+            const { data } = await api.post('/partners/totalpass/webhook/subscribe');
+            toast({
+                title: 'Webhook registrado',
+                description: data?.result?.webhookUrl
+                    ? `TotalPass enviará check-ins a ${data.result.webhookUrl}`
+                    : 'Se registró el webhook de check-in en TotalPass',
+            });
+            queryClient.invalidateQueries({ queryKey: ['partner-settings'] });
+        } catch (error: unknown) {
+            toast({ title: 'Error', description: getErrorMessage(error), variant: 'destructive' });
         } finally {
             setTpSubscribing(false);
+        }
+    };
+
+    const syncTotalpassReservations = async () => {
+        setTpSyncing(true);
+        try {
+            const { data } = await api.post('/partners/totalpass/import-reservations');
+            toast({
+                title: 'Reservas sincronizadas',
+                description: `${data?.imported || 0} nuevas · ${data?.cancelled || 0} canceladas · ${data?.skipped || 0} omitidas`,
+            });
+            queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+            queryClient.invalidateQueries({ queryKey: ['totalpass-today'] });
+        } catch (error: unknown) {
+            toast({
+                title: 'Error al sincronizar',
+                description: getErrorMessage(error),
+                variant: 'destructive',
+            });
+        } finally {
+            setTpSyncing(false);
         }
     };
 
@@ -370,8 +409,79 @@ export default function Plataformas() {
                             placeholder="https://<tu-backend>/webhooks/totalpass/checkin"
                         />
                         <p className="text-xs text-muted-foreground">
-                            Se registra en TotalPass con el botón "Registrar webhook check-in".
+                            Si se deja vacío, el servidor usa automáticamente su URL pública.
                         </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="totalpass-webhook-secret">Secreto del webhook</Label>
+                        <Input
+                            id="totalpass-webhook-secret"
+                            type="password"
+                            value={totalpass.webhook_secret || ''}
+                            onChange={(e) => setTotalpass((t) => ({ ...t, webhook_secret: e.target.value }))}
+                            placeholder="Opcional: se genera automáticamente al registrar el webhook"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Viaja dentro de la URL registrada y evita aceptar check-ins falsos.
+                        </p>
+                    </div>
+
+                    <div className="rounded-xl border bg-muted/30 p-4">
+                        <div className="mb-4 flex items-center justify-between gap-3">
+                            <div>
+                                <h3 className="flex items-center gap-2 font-semibold">
+                                    <ShieldCheck className="h-4 w-4" />
+                                    Access Control
+                                </h3>
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                    Registra la visita en TotalPass cuando recepción hace el check-in.
+                                </p>
+                            </div>
+                            <Badge variant={tpAccessStatus?.configured ? 'default' : 'secondary'}>
+                                {tpAccessStatus?.configured ? 'Configurado' : 'Pendiente'}
+                            </Badge>
+                        </div>
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <Label htmlFor="totalpass-access-api-key">Access API Key (x-api-key)</Label>
+                                <Input
+                                    id="totalpass-access-api-key"
+                                    type="password"
+                                    value={tpExtra.access_api_key || ''}
+                                    onChange={(e) => setTpExtra({ access_api_key: e.target.value })}
+                                    placeholder="Llave proporcionada por TotalPass"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="totalpass-service-provider-code">Service Provider Code</Label>
+                                <Input
+                                    id="totalpass-service-provider-code"
+                                    value={tpExtra.service_provider_code || ''}
+                                    onChange={(e) => setTpExtra({ service_provider_code: e.target.value })}
+                                    placeholder="Código del estudio en TotalPass"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="totalpass-service-plan-code">Service Plan Code (opcional)</Label>
+                                <Input
+                                    id="totalpass-service-plan-code"
+                                    value={tpExtra.service_provider_plan_code || ''}
+                                    onChange={(e) => setTpExtra({ service_provider_plan_code: e.target.value })}
+                                    placeholder="Sólo si existe más de un plan"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="totalpass-access-base-url">Access Base URL (opcional)</Label>
+                                <Input
+                                    id="totalpass-access-base-url"
+                                    value={totalpass.access_base_url || ''}
+                                    onChange={(e) => setTotalpass((t) => ({ ...t, access_base_url: e.target.value }))}
+                                    placeholder="https://api.totalpass.com/service/v1"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <div className="flex flex-wrap gap-2">
@@ -386,6 +496,12 @@ export default function Plataformas() {
                         <Button variant="outline" onClick={subscribeTotalpassWebhook} disabled={tpSubscribing}>
                             {tpSubscribing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                             Registrar webhook check-in
+                        </Button>
+                        <Button variant="outline" onClick={syncTotalpassReservations} disabled={tpSyncing}>
+                            {tpSyncing
+                                ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                : <RefreshCw className="w-4 h-4 mr-2" />}
+                            Sincronizar reservas
                         </Button>
                     </div>
                 </CardContent>
