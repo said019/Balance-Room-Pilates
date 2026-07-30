@@ -9,11 +9,11 @@
 //    /assets/, so they are safe to cache aggressively until the next deploy
 //    invalidates them via a new filename).
 //
-// VERSION must be bumped (or auto-bumped at build time) whenever the cache
-// strategy or precached files change. The activate handler removes any caches
-// that don't match the current version.
+// Vite replaces this placeholder with a unique value on every production build.
+// That makes every deploy install a fresh worker, clear stale caches and reload
+// already-open tabs instead of leaving them on the previous JavaScript bundle.
 
-const VERSION = 'br-v3';
+const VERSION = '__BUILD_VERSION__';
 const STATIC_CACHE = `${VERSION}-static`;
 
 self.addEventListener('install', (event) => {

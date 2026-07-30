@@ -12,8 +12,11 @@ createRoot(document.getElementById("root")!).render(<App />);
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('/sw.js', { scope: '/' })
+      .register('/sw.js', { scope: '/', updateViaCache: 'none' })
       .then((reg) => {
+        // Check immediately on every page load, then periodically while open.
+        reg.update().catch(() => {});
+
         // Periodic update check (every 5 min while the tab is open)
         setInterval(() => reg.update().catch(() => {}), 5 * 60 * 1000);
 
