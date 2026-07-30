@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/components/ui/use-toast';
 import api, { getErrorMessage } from '@/lib/api';
+import { ChannelBadge, resolveChannel } from '@/components/admin/ChannelBadge';
 import type { BookingAdmin } from '@/types/booking';
 import { CheckCircle2, Loader2, Search } from 'lucide-react';
 
@@ -58,6 +59,7 @@ export default function BookingsList({
 }: BookingsListProps) {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState(initialStatus);
+  const [channel, setChannel] = useState('all');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -83,7 +85,11 @@ export default function BookingsList({
     },
   });
 
-  const bookings = useMemo(() => data || [], [data]);
+  const bookings = useMemo(() => {
+    const all = data || [];
+    if (channel === 'all') return all;
+    return all.filter((booking) => resolveChannel(booking.channel) === channel);
+  }, [data, channel]);
 
   return (
     <AuthGuard requiredRoles={['admin', 'instructor']}>
@@ -118,6 +124,18 @@ export default function BookingsList({
                 <SelectItem value="no_show">No show</SelectItem>
               </SelectContent>
             </Select>
+
+            <Select value={channel} onValueChange={setChannel}>
+              <SelectTrigger className="w-full md:w-48">
+                <SelectValue placeholder="Origen" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los origenes</SelectItem>
+                <SelectItem value="direct">Directas</SelectItem>
+                <SelectItem value="wellhub">Wellhub</SelectItem>
+                <SelectItem value="totalpass">TotalPass</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="rounded-md border bg-card">
@@ -149,7 +167,10 @@ export default function BookingsList({
                   bookings.map((booking) => (
                     <TableRow key={booking.booking_id}>
                       <TableCell>
-                        <div className="font-medium">{booking.user_name}</div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-medium">{booking.user_name}</span>
+                          <ChannelBadge channel={booking.channel} />
+                        </div>
                         <div className="text-xs text-muted-foreground">{booking.user_email}</div>
                       </TableCell>
                       <TableCell>

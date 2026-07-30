@@ -16,6 +16,8 @@ export interface BookingAdmin {
   instructor_name: string;
   membership_id: string | null;
   plan_name: string | null;
+  /** Origen de la reserva: 'wellhub', 'totalpass' o null/'direct' si es propia. */
+  channel?: string | null;
 }
 
 export interface BookingClient {

@@ -39,6 +39,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { ChannelBadge, getChannel, type ChannelSource } from '@/components/admin/ChannelBadge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2, MoreHorizontal, Search, Eye, ShoppingCart, UserPlus, Trash2, Coins, Plus, Minus } from 'lucide-react';
@@ -53,7 +54,7 @@ interface Plan {
     class_limit: number | null;
 }
 
-interface UserWithMembership extends User {
+interface UserWithMembership extends User, ChannelSource {
     membership_id?: string;
     membership_status?: string;
     membership_start_date?: string;
@@ -312,6 +313,7 @@ export default function ClientsList() {
                                                     <div>
                                                         <div className="font-medium flex items-center gap-1.5 flex-wrap">
                                                             {user.display_name}
+                                                            <ChannelBadge channel={getChannel(user)} className="text-[10px] px-1.5 py-0" />
                                                             {user.is_founder && (
                                                                 <Badge className="text-[10px] bg-balance-gold/15 text-balance-gold border border-balance-gold/30 hover:bg-balance-gold/20 px-1.5 py-0">
                                                                     ★ Founder

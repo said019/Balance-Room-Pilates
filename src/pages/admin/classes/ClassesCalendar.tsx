@@ -45,6 +45,7 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
+import { ChannelBadge, isPartnerChannel, resolveChannel } from '@/components/admin/ChannelBadge';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
@@ -1139,12 +1140,9 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                     </Link>
                                                     <div>
                                                         <p className="font-medium">{attendee.display_name}</p>
-                                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                                            {attendee.channel === 'wellhub' ? (
-                                                                <Badge variant="outline" className="text-xs border-primary/40 text-primary">
-                                                                    Wellhub
-                                                                </Badge>
-                                                            ) : attendee.plan_name && (
+                                                        <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                                                            <ChannelBadge channel={attendee.channel} />
+                                                            {!isPartnerChannel(resolveChannel(attendee.channel)) && attendee.plan_name && (
                                                                 <Badge variant="outline" className="text-xs">
                                                                     {attendee.plan_name}
                                                                 </Badge>

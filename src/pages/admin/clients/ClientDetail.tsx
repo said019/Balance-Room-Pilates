@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { ChannelBadge, getChannel } from '@/components/admin/ChannelBadge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
 import {
@@ -489,6 +490,9 @@ export default function ClientDetail() {
                                     </Avatar>
                                     <h2 className="text-xl font-heading font-bold">{client.display_name}</h2>
 
+                                    {/* Origen del cliente (convenio) */}
+                                    <ChannelBadge channel={getChannel(client)} className="mt-2" />
+
                                     {/* Account Status Badge */}
                                     {client.is_active === false && (
                                         <Badge variant="destructive" className="mt-2">
@@ -828,7 +832,10 @@ export default function ClientDetail() {
                                                                     <Calendar className="h-4 w-4 text-balance-gold" />
                                                                 </div>
                                                                 <div>
-                                                                    <div className="font-medium font-body text-sm">{b.class_name}</div>
+                                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                                        <span className="font-medium font-body text-sm">{b.class_name}</span>
+                                                                        <ChannelBadge channel={getChannel(b)} />
+                                                                    </div>
                                                                     <div className="text-xs text-muted-foreground font-body">
                                                                         {formatDbDate(b.date)} - {b.start_time?.substring(0, 5)}
                                                                     </div>
