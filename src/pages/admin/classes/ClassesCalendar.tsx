@@ -56,6 +56,7 @@ import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { WellhubBadge } from '@/components/partners/WellhubBadge';
+import { TotalPassLogo, WellhubLogo } from '@/components/partners/PartnerLogos';
 import {
     AttendeeChannelFilter,
     type AttendeeChannelFilterValue,
@@ -176,8 +177,9 @@ function WellhubClassControl({ classId }: { classId: string }) {
     return (
         <div className="rounded-xl border border-balance-sand/55 bg-balance-cream/45 p-3 space-y-2">
             <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Wellhub</span>
+                <WellhubLogo className="h-[1.15rem]" />
                 <Switch
+                    aria-label={status?.published ? 'Despublicar de Wellhub' : 'Publicar en Wellhub'}
                     checked={!!status?.published}
                     disabled={publishMutation.isPending || unpublishMutation.isPending}
                     onCheckedChange={(checked) => {
@@ -276,7 +278,7 @@ function TotalPassClassControl({
     return (
         <div className="space-y-2 rounded-xl border border-sky-300/70 bg-sky-50/65 p-3">
             <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">TotalPass</span>
+                <TotalPassLogo />
                 <Switch
                     aria-label={status?.published ? 'Despublicar de TotalPass' : 'Publicar en TotalPass'}
                     checked={!!status?.published}
