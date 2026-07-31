@@ -115,6 +115,14 @@ interface WellhubClassStatus {
     externalSlotId: string | null;
 }
 
+interface TotalPassClassStatus {
+    published: boolean;
+    quota: number;
+    booked: number;
+    externalClassId: string | null;
+    externalSlotId: string | null;
+}
+
 function WellhubClassControl({ classId }: { classId: string }) {
     const { toast } = useToast();
     const queryClient = useQueryClient();
@@ -195,6 +203,120 @@ function WellhubClassControl({ classId }: { classId: string }) {
                         onChange={(e) => setQuota(Math.max(1, Number(e.target.value) || 1))}
                         className="h-8 w-20"
                     />
+                </div>
+            )}
+        </div>
+    );
+}
+
+function TotalPassClassControl({
+    classId,
+    maxCapacity,
+}: {
+    classId: string;
+    maxCapacity: number;
+}) {
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+    const [quota, setQuota] = useState(2);
+
+    const { data: status, isLoading } = useQuery<TotalPassClassStatus>({
+        queryKey: ['totalpass-class-status', classId],
+        queryFn: async () => (await api.get(`/partners/totalpass/class-status/${classId}`)).data,
+    });
+
+    useEffect(() => {
+        if (status && !status.published) {
+            setQuota(Math.min(maxCapacity, status.quota || 2));
+        }
+    }, [maxCapacity, status]);
+
+    const publishMutation = useMutation({
+        mutationFn: async () => (
+            await api.post(`/partners/totalpass/publish/${classId}`, { quota })
+        ).data,
+        onSuccess: () => {
+            toast({ title: 'Publicado en TotalPass', description: `Cupo: ${quota}` });
+            queryClient.invalidateQueries({ queryKey: ['totalpass-class-status', classId] });
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+        },
+        onError: (error: unknown) => {
+            toast({
+                title: 'Error al publicar en TotalPass',
+                description: getErrorMessage(error),
+                variant: 'destructive',
+            });
+        },
+    });
+
+    const unpublishMutation = useMutation({
+        mutationFn: async () => (
+            await api.post(`/partners/totalpass/unpublish/${classId}`)
+        ).data,
+        onSuccess: () => {
+            toast({ title: 'Despublicado de TotalPass' });
+            queryClient.invalidateQueries({ queryKey: ['totalpass-class-status', classId] });
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+        },
+        onError: (error: unknown) => {
+            toast({
+                title: 'Error al despublicar de TotalPass',
+                description: getErrorMessage(error),
+                variant: 'destructive',
+            });
+        },
+    });
+
+    if (isLoading) {
+        return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
+    }
+
+    const isPending = publishMutation.isPending || unpublishMutation.isPending;
+
+    return (
+        <div className="space-y-2 rounded-xl border border-sky-300/70 bg-sky-50/65 p-3">
+            <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">TotalPass</span>
+                <Switch
+                    aria-label={status?.published ? 'Despublicar de TotalPass' : 'Publicar en TotalPass'}
+                    checked={!!status?.published}
+                    disabled={isPending}
+                    onCheckedChange={(checked) => {
+                        if (checked) publishMutation.mutate();
+                        else unpublishMutation.mutate();
+                    }}
+                />
+            </div>
+            {status?.published ? (
+                <Badge
+                    className="border-sky-400 bg-sky-100 text-sky-900 hover:bg-sky-100"
+                    variant="outline"
+                >
+                    En TotalPass · cupo {status.booked}/{status.quota}
+                </Badge>
+            ) : (
+                <div className="flex items-center gap-2">
+                    <Label
+                        className="text-xs text-muted-foreground"
+                        htmlFor={`totalpass-quota-${classId}`}
+                    >
+                        Cupo a publicar
+                    </Label>
+                    <Input
+                        className="h-8 w-20"
+                        id={`totalpass-quota-${classId}`}
+                        max={maxCapacity}
+                        min={1}
+                        onChange={(event) => {
+                            setQuota(Math.min(
+                                maxCapacity,
+                                Math.max(1, Number(event.target.value) || 1),
+                            ));
+                        }}
+                        type="number"
+                        value={quota}
+                    />
+                    {isPending && <Loader2 className="h-4 w-4 animate-spin text-sky-700" />}
                 </div>
             )}
         </div>
@@ -1035,7 +1157,13 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 </div>
 
                                 {selectedClass?.status !== 'cancelled' && selectedClass?.id && (
-                                    <WellhubClassControl classId={selectedClass.id} />
+                                    <div className="space-y-3">
+                                        <WellhubClassControl classId={selectedClass.id} />
+                                        <TotalPassClassControl
+                                            classId={selectedClass.id}
+                                            maxCapacity={selectedClass.max_capacity}
+                                        />
+                                    </div>
                                 )}
 
                                 {/* Actions */}
