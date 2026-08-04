@@ -56,6 +56,7 @@ import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { WellhubBadge } from '@/components/partners/WellhubBadge';
+import { TotalPassBadge } from '@/components/partners/TotalPassBadge';
 import { TotalPassLogo, WellhubLogo } from '@/components/partners/PartnerLogos';
 import {
     AttendeeChannelFilter,
@@ -735,10 +736,14 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const confirmedCount = attendees?.filter(a => a.status === 'confirmed' || a.status === 'checked_in').length || 0;
     const checkedInCount = attendees?.filter(a => a.status === 'checked_in').length || 0;
     const wellhubAttendeeCount = attendees?.filter((attendee) => attendee.channel === 'wellhub').length || 0;
-    const balanceAttendeeCount = (attendees?.length || 0) - wellhubAttendeeCount;
+    const totalPassAttendeeCount = attendees?.filter((attendee) => attendee.channel === 'totalpass').length || 0;
+    const balanceAttendeeCount = (attendees?.length || 0) - wellhubAttendeeCount - totalPassAttendeeCount;
     const filteredAttendees = attendees?.filter((attendee) => {
         if (attendeeChannelFilter === 'wellhub') return attendee.channel === 'wellhub';
-        if (attendeeChannelFilter === 'balance') return attendee.channel !== 'wellhub';
+        if (attendeeChannelFilter === 'totalpass') return attendee.channel === 'totalpass';
+        if (attendeeChannelFilter === 'balance') {
+            return attendee.channel !== 'wellhub' && attendee.channel !== 'totalpass';
+        }
         return true;
     }) || [];
 
@@ -1326,6 +1331,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                             onValueChange={setAttendeeChannelFilter}
                                             totalCount={attendees.length}
                                             wellhubCount={wellhubAttendeeCount}
+                                            totalPassCount={totalPassAttendeeCount}
                                             balanceCount={balanceAttendeeCount}
                                         />
                                     )}
@@ -1362,6 +1368,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                                             {attendee.channel === 'wellhub' ? (
                                                                 <WellhubBadge />
+                                                            ) : attendee.channel === 'totalpass' ? (
+                                                                <TotalPassBadge />
                                                             ) : attendee.plan_name && (
                                                                 <Badge variant="outline" className="text-xs">
                                                                     {attendee.plan_name}

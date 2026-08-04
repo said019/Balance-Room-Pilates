@@ -1,13 +1,14 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-export type AttendeeChannelFilterValue = 'all' | 'wellhub' | 'balance';
+export type AttendeeChannelFilterValue = 'all' | 'wellhub' | 'totalpass' | 'balance';
 
 interface AttendeeChannelFilterProps {
     value: AttendeeChannelFilterValue;
     onValueChange: (value: AttendeeChannelFilterValue) => void;
     totalCount: number;
     wellhubCount: number;
+    totalPassCount: number;
     balanceCount: number;
 }
 
@@ -16,6 +17,7 @@ export function AttendeeChannelFilter({
     onValueChange,
     totalCount,
     wellhubCount,
+    totalPassCount,
     balanceCount,
 }: AttendeeChannelFilterProps) {
     const options: Array<{
@@ -25,6 +27,7 @@ export function AttendeeChannelFilter({
     }> = [
         { value: 'all', label: 'Todas', count: totalCount },
         { value: 'wellhub', label: 'Wellhub', count: wellhubCount },
+        { value: 'totalpass', label: 'TotalPass', count: totalPassCount },
         { value: 'balance', label: 'Balance', count: balanceCount },
     ];
 
@@ -41,6 +44,7 @@ export function AttendeeChannelFilter({
                 {options.map((option) => {
                     const isActive = value === option.value;
                     const isWellhub = option.value === 'wellhub';
+                    const isTotalPass = option.value === 'totalpass';
 
                     return (
                         <Button
@@ -48,16 +52,27 @@ export function AttendeeChannelFilter({
                             aria-pressed={isActive}
                             className={cn(
                                 'h-8 rounded-full px-3 text-xs',
-                                isActive && !isWellhub && 'bg-balance-dark text-white hover:bg-balance-dark/90',
+                                isActive && !isWellhub && !isTotalPass && 'bg-balance-dark text-white hover:bg-balance-dark/90',
                                 isActive && isWellhub && 'border-[#CF3153] bg-[#F2496B] text-[#2A0810] hover:bg-[#F2496B]',
+                                isActive && isTotalPass && 'border-sky-400 bg-sky-100 text-sky-900 hover:bg-sky-100',
                             )}
                             onClick={() => onValueChange(option.value)}
                             size="sm"
-                            style={isActive && isWellhub ? {
-                                backgroundColor: '#F2496B',
-                                borderColor: '#CF3153',
-                                color: '#2A0810',
-                            } : undefined}
+                            style={isActive
+                                ? isWellhub
+                                    ? {
+                                        backgroundColor: '#F2496B',
+                                        borderColor: '#CF3153',
+                                        color: '#2A0810',
+                                    }
+                                    : isTotalPass
+                                        ? {
+                                            backgroundColor: '#E0F2FE',
+                                            borderColor: '#38BDF8',
+                                            color: '#0C4A6E',
+                                        }
+                                        : undefined
+                                : undefined}
                             type="button"
                             variant="outline"
                         >
