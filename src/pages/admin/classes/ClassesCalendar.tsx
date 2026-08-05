@@ -347,6 +347,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const [attendeeChannelFilter, setAttendeeChannelFilter] = useState<AttendeeChannelFilterValue>('all');
     const [classTypeFilter, setClassTypeFilter] = useState<string>('all');
     const [wellhubClassFilter, setWellhubClassFilter] = useState<'all' | 'published' | 'not_published'>('all');
+    const [totalpassClassFilter, setTotalpassClassFilter] = useState<'all' | 'published' | 'not_published'>('all');
     const [studioFilter, setStudioFilter] = useState<string>('all');
     const [showCancelled, setShowCancelled] = useState(false);
     const [userSearch, setUserSearch] = useState('');
@@ -717,7 +718,11 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                 wellhubClassFilter === 'all' ||
                 (wellhubClassFilter === 'published' && c.wellhub_published) ||
                 (wellhubClassFilter === 'not_published' && !c.wellhub_published);
-            return dateMatch && typeMatch && studioMatch && cancelledMatch && wellhubMatch;
+            const totalpassMatch =
+                totalpassClassFilter === 'all' ||
+                (totalpassClassFilter === 'published' && c.totalpass_published) ||
+                (totalpassClassFilter === 'not_published' && !c.totalpass_published);
+            return dateMatch && typeMatch && studioMatch && cancelledMatch && wellhubMatch && totalpassMatch;
         }) || [];
     };
 
@@ -768,6 +773,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const activeClasses = classes?.filter((c) => c.status !== 'cancelled') || [];
     const wellhubPublishedClassCount = activeClasses.filter((c) => c.wellhub_published).length;
     const notPublishedClassCount = activeClasses.length - wellhubPublishedClassCount;
+    const totalpassPublishedClassCount = activeClasses.filter((c) => c.totalpass_published).length;
+    const notPublishedTotalpassClassCount = activeClasses.length - totalpassPublishedClassCount;
 
     const studioBreakdown = useMemo(() => {
         const PREFERRED = ['Wunda', 'Barre', 'Hot Room'];
@@ -1015,6 +1022,57 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 )}
                             >
                                 Fuera de Wellhub <span className="ml-1 tabular-nums">{notPublishedClassCount}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2 px-1">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-balance-dark/48">
+                            Publicación en TotalPass
+                        </p>
+                        <div
+                            aria-label="Filtrar clases por publicación en TotalPass"
+                            className="flex flex-wrap items-center gap-2"
+                            role="group"
+                        >
+                            <button
+                                type="button"
+                                aria-pressed={totalpassClassFilter === 'all'}
+                                onClick={() => setTotalpassClassFilter('all')}
+                                className={cn(
+                                    'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
+                                    totalpassClassFilter === 'all'
+                                        ? 'border-balance-olive bg-balance-olive text-balance-cream'
+                                        : 'border-balance-sand/65 bg-balance-cream/75 text-balance-dark/65 hover:border-balance-olive/40'
+                                )}
+                            >
+                                Todas <span className="ml-1 tabular-nums">{activeClasses.length}</span>
+                            </button>
+                            <button
+                                type="button"
+                                aria-pressed={totalpassClassFilter === 'published'}
+                                onClick={() => setTotalpassClassFilter('published')}
+                                className={cn(
+                                    'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
+                                    totalpassClassFilter === 'published'
+                                        ? 'border-sky-500 bg-sky-500 text-white'
+                                        : 'border-sky-400/60 bg-sky-100 text-sky-900 hover:bg-sky-200/70'
+                                )}
+                            >
+                                En TotalPass <span className="ml-1 tabular-nums">{totalpassPublishedClassCount}</span>
+                            </button>
+                            <button
+                                type="button"
+                                aria-pressed={totalpassClassFilter === 'not_published'}
+                                onClick={() => setTotalpassClassFilter('not_published')}
+                                className={cn(
+                                    'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
+                                    totalpassClassFilter === 'not_published'
+                                        ? 'border-balance-dark bg-balance-dark text-white'
+                                        : 'border-balance-sand/65 bg-balance-cream/75 text-balance-dark/65 hover:border-balance-dark/35'
+                                )}
+                            >
+                                Fuera de TotalPass <span className="ml-1 tabular-nums">{notPublishedTotalpassClassCount}</span>
                             </button>
                         </div>
                     </div>
@@ -1962,18 +2020,26 @@ function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void })
                     style={{ background: 'linear-gradient(90deg, #006847 0 33.3%, #ffffff 33.3% 66.6%, #CE1126 66.6% 100%)' }}
                 />
             )}
-            <div className="flex items-start justify-between gap-2">
-                <div className="flex min-w-0 items-center gap-2">
-                    <span className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
-                    <span className="truncate text-sm font-semibold text-balance-dark">{formatClassTime(item.start_time)}</span>
+            <div className="flex flex-wrap items-center justify-between gap-1.5">
+                <div className="flex shrink-0 items-center gap-2">
+                    <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
+                    <span className="text-sm font-semibold text-balance-dark">{formatClassTime(item.start_time)}</span>
                 </div>
-                <div className="flex shrink-0 items-center gap-1">
+                <div className="flex flex-wrap shrink-0 items-center justify-end gap-1">
                     {item.wellhub_published && (
                         <span
                             className="rounded-full border border-[#CF3153] bg-[#F2496B] px-2 py-0.5 text-[10px] font-bold text-[#2A0810] shadow-sm"
                             title={`Publicada en Wellhub · cupo ${Number(item.wellhub_booked || 0)}/${Number(item.wellhub_quota || 0)}`}
                         >
                             Wellhub
+                        </span>
+                    )}
+                    {item.totalpass_published && (
+                        <span
+                            className="rounded-full border border-sky-500 bg-sky-100 px-2 py-0.5 text-[10px] font-bold text-sky-900 shadow-sm"
+                            title={`Publicada en TotalPass · cupo ${Number(item.totalpass_booked || 0)}/${Number(item.totalpass_quota || 0)}`}
+                        >
+                            TotalPass
                         </span>
                     )}
                     {isMexico && (

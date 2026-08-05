@@ -74,4 +74,7 @@ export interface Class {
     wellhub_published?: boolean;
     wellhub_quota?: number;
     wellhub_booked?: number;
+    totalpass_published?: boolean;
+    totalpass_quota?: number;
+    totalpass_booked?: number;
 }
