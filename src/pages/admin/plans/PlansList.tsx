@@ -261,20 +261,20 @@ export default function PlansList() {
         <AuthGuard requiredRoles={['admin']}>
             <AdminLayout>
                 <div className="space-y-6">
-                    <div className="flex flex-col gap-4 rounded-[1.6rem] border border-balance-olive/25 bg-balance-olive/10 p-5 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.45)] sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-4 rounded-[1.6rem] border border-altitud-olive/25 bg-altitud-olive/10 p-5 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.45)] sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-balance-olive">Visible en venta</p>
-                            <h1 className="mt-1 text-2xl font-bold tracking-tight text-balance-dark">Precios y paquetes</h1>
-                            <p className="max-w-2xl text-sm text-balance-dark/65">
+                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-altitud-olive">Visible en venta</p>
+                            <h1 className="mt-1 text-2xl font-bold tracking-tight text-altitud-dark">Precios y paquetes</h1>
+                            <p className="max-w-2xl text-sm text-altitud-dark/65">
                                 Edita clase suelta, paquetes, vigencia y créditos. Estos precios se reflejan en la landing, checkout y /app.
                             </p>
                         </div>
-                        <Button onClick={handleCreate} className="bg-balance-olive text-balance-cream hover:bg-balance-olive/90">
+                        <Button onClick={handleCreate} className="bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90">
                             <Plus className="mr-2 h-4 w-4" /> Nuevo paquete
                         </Button>
                     </div>
 
-                    <div className="overflow-hidden rounded-[1.35rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] shadow-[0_18px_58px_-50px_rgba(51,42,34,0.45)]">
+                    <div className="overflow-hidden rounded-[1.35rem] border border-altitud-sand/65 bg-[hsl(var(--admin-panel))] shadow-[0_18px_58px_-50px_rgba(51,42,34,0.45)]">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -308,7 +308,7 @@ export default function PlansList() {
                                                     <div className="flex items-center gap-2">
                                                         <span>{plan.name}</span>
                                                         {isPromoActive(plan) && (
-                                                            <Badge className="bg-balance-gold text-balance-cream hover:bg-balance-gold">
+                                                            <Badge className="bg-altitud-gold text-altitud-cream hover:bg-altitud-gold">
                                                                 PROMO
                                                             </Badge>
                                                         )}
@@ -329,7 +329,7 @@ export default function PlansList() {
                                                 <TableCell>
                                                     <Badge
                                                         variant={plan.is_active ? 'default' : 'secondary'}
-                                                        className={plan.is_active ? 'bg-balance-olive text-balance-cream hover:bg-balance-olive' : ''}
+                                                        className={plan.is_active ? 'bg-altitud-olive text-altitud-cream hover:bg-altitud-olive' : ''}
                                                     >
                                                         {plan.is_active ? 'Activo' : 'Inactivo'}
                                                     </Badge>
@@ -460,8 +460,8 @@ export default function PlansList() {
                                     <Input id="sortOrder" type="number" {...register('sortOrder')} placeholder="0" />
                                 </div>
 
-                                <div className="space-y-4 rounded-md border border-balance-sand/65 p-3">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-balance-olive">
+                                <div className="space-y-4 rounded-md border border-altitud-sand/65 p-3">
+                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-altitud-olive">
                                         Promoción (opcional)
                                     </p>
                                     <div className="grid grid-cols-2 gap-4">
@@ -488,7 +488,7 @@ export default function PlansList() {
                                     <Button type="button" variant="outline" onClick={() => handleDialogChange(false)}>
                                         Cancelar
                                     </Button>
-                                    <Button type="submit" disabled={isSubmitting || savePlanMutation.isPending} className="bg-balance-olive text-balance-cream hover:bg-balance-olive/90">
+                                    <Button type="submit" disabled={isSubmitting || savePlanMutation.isPending} className="bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90">
                                         {(isSubmitting || savePlanMutation.isPending) && (
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         )}

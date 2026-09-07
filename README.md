@@ -1,73 +1,50 @@
-# Welcome to your Lovable project
+# 2707 Altitud
 
-## Project info
+Sitio de entrenamiento híbrido y funcional, rediseñado a partir del manual de marca y del briefing del studio.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Vista local
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+npm install
+npm run dev -- --host 127.0.0.1 --port 2707
 ```
 
-**Edit a file directly in GitHub**
+Abrir http://127.0.0.1:2707.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Identidad
 
-**Use GitHub Codespaces**
+- Carrois Gothic Regular y Source Sans 3 Light, alojadas localmente.
+- Carbón `#1C1C19`, marfil `#F6F4EE`, arena `#CFBD9D`, olivo `#5F632C`, tierra `#7F6146`.
+- Los tres logotipos vectoriales y las fotografías de `public/brand` se extrajeron del PDF proporcionado. Los trazos, proporciones y colores de los logos son los originales; se excluyeron los fondos y textos de presentación del manual mediante recorte de vista y eliminación del fondo de página.
+- La asociación entre nombres y colores sigue el briefing del usuario; la página de colores del PDF intercambia las etiquetas de tierra y olivo.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Recorridos
 
-## What technologies are used for this project?
+- `/`: portada, studio, entrenamientos, comunidad, membresías y preguntas frecuentes.
+- `/reservar`: agenda de muestra con filtros, fechas, confirmación, persistencia local y cancelación.
+- `/pricing`: estado de preparación de membresías, sin precios inventados.
+- `/login`, `/register`, `/forgot-password`: nueva experiencia de acceso.
+- `/privacy`, `/terms`, `/cancellation-policy`: documentos pendientes de aprobación del nuevo studio.
 
-This project is built with:
+La agenda es explícitamente ilustrativa. No cobra ni crea reservas reales. Las muestras solo se guardan en el navegador con la clave `altitud2707-preview-bookings`.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+El frontend ya no apunta al servicio anterior. Antes de habilitar cuentas y operación real, configurar una API propia mediante `VITE_API_URL`, además de horarios, cupos, tarifas, contactos, ubicación exacta y políticas oficiales. No reutilizar bases de datos, proveedores de pago o credenciales del negocio anterior.
 
-## How can I deploy this project?
+La aplicación conserva sus rutas de gestión y clientes, con identidad y estilos nuevos. Estas requieren un servicio de 2707 Altitud configurado; no se validaron contra datos de producción.
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## Verificación
 
-## Can I connect a custom domain to my Lovable project?
+```sh
+npm run build
+npx tsc --noEmit -p tsconfig.app.json
+```
 
-Yes, you can!
+## App de usuario
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Vista recorrible sin credenciales: `/app/preview`.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+La app comparte el nuevo diseño entre las pantallas de cliente y la vista previa: navegación lateral, barra inferior móvil, inicio, calendario, reservas, membresía y perfil. Las pantallas existentes de edición de datos, pagos, órdenes y eventos conservan sus operaciones dentro de la nueva navegación.
+
+La vista previa utiliza `altitud2707-member-preview-v1` para guardar localmente reservas, cancelaciones y ajustes de ejemplo. No establece una sesión, no envía notificaciones, no realiza cobros y no hace peticiones a la API. Las rutas reales `/app` conservan su control de acceso y sus integraciones existentes.
+
+Verificado en navegador: filtros y enlaces a disciplinas, confirmación y cancelación de reservas, crédito descontado/devuelto, persistencia al recargar, edición del perfil, preferencias y adaptación de las diez secciones a 320 px. La operación real con usuarios del studio requiere configurar su API.

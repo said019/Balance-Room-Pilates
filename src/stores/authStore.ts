@@ -124,7 +124,7 @@ export const useAuthStore = create<AuthState>()(
             },
         }),
         {
-            name: 'auth-storage',
+            name: 'altitud2707-auth-storage',
             partialize: (state) => ({
                 user: state.user,
                 token: state.token,

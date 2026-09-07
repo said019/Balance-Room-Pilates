@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        heading: ["var(--font-heading)", "serif"],
+        heading: ["var(--font-heading)", "sans-serif"],
         body: ["var(--font-body)", "sans-serif"],
       },
       colors: {
@@ -63,12 +63,12 @@ export default {
           DEFAULT: "hsl(var(--info))",
           foreground: "hsl(var(--info-foreground))",
         },
-        balance: {
-          dark: "#332A22",
-          olive: "#7E8579",
-          cream: "#F3EEE2",
-          gold: "#8A8174",
-          sand: "#CFC8B8",
+        altitud: {
+          dark: "#1C1C19",
+          olive: "#5F632C",
+          cream: "#F6F4EE",
+          gold: "#7F6146",
+          sand: "#CFBD9D",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

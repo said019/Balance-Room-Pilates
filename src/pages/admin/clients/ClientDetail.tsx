@@ -56,7 +56,7 @@ const statusLabels: Record<string, string> = {
 };
 
 const statusColors: Record<string, string> = {
-    active: 'bg-balance-olive/10 text-balance-olive',
+    active: 'bg-altitud-olive/10 text-altitud-olive',
     expired: 'bg-red-100 text-red-800',
     cancelled: 'bg-muted text-foreground',
     pending_payment: 'bg-yellow-100 text-yellow-800',
@@ -373,7 +373,7 @@ export default function ClientDetail() {
                         <div className="flex flex-col gap-2 items-end">
                             {/* Acción primaria */}
                             <Button
-                                className="rounded-xl font-body bg-balance-gold hover:bg-balance-gold/90 text-white shadow-sm"
+                                className="rounded-xl font-body bg-altitud-gold hover:bg-altitud-gold/90 text-white shadow-sm"
                                 onClick={() => navigate(`/admin/members/${id}/physical-sale`)}
                             >
                                 <DollarSign className="mr-2 h-4 w-4" />
@@ -385,7 +385,7 @@ export default function ClientDetail() {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    className="rounded-xl font-body border-border/60 hover:border-balance-gold/50 hover:text-balance-gold transition-colors"
+                                    className="rounded-xl font-body border-border/60 hover:border-altitud-gold/50 hover:text-altitud-gold transition-colors"
                                     onClick={openEditDialog}
                                 >
                                     <Pencil className="mr-2 h-4 w-4" />
@@ -402,7 +402,7 @@ export default function ClientDetail() {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="rounded-xl font-body border-border/60 hover:border-balance-gold/50 hover:text-balance-gold transition-colors"
+                                            className="rounded-xl font-body border-border/60 hover:border-altitud-gold/50 hover:text-altitud-gold transition-colors"
                                             disabled={resendCredentialsMutation.isPending}
                                         >
                                             {resendCredentialsMutation.isPending ? (
@@ -426,7 +426,7 @@ export default function ClientDetail() {
                                             <AlertDialogCancel className="rounded-xl font-body">Cancelar</AlertDialogCancel>
                                             <AlertDialogAction
                                                 onClick={() => resendCredentialsMutation.mutate()}
-                                                className="bg-balance-gold text-white hover:bg-balance-gold/90 rounded-xl font-body"
+                                                className="bg-altitud-gold text-white hover:bg-altitud-gold/90 rounded-xl font-body"
                                             >
                                                 Sí, reenviar
                                             </AlertDialogAction>
@@ -439,7 +439,7 @@ export default function ClientDetail() {
                                     size="sm"
                                     className={`rounded-xl font-body transition-colors ${
                                         client.is_active === false
-                                            ? 'border-balance-olive/50 text-balance-olive hover:bg-balance-olive/10'
+                                            ? 'border-altitud-olive/50 text-altitud-olive hover:bg-altitud-olive/10'
                                             : 'border-orange-300/60 text-orange-600 hover:bg-orange-50'
                                     }`}
                                     onClick={() => toggleStatusMutation.mutate(client.is_active === false)}
@@ -483,9 +483,9 @@ export default function ClientDetail() {
                         <div className="md:col-span-4 lg:col-span-3 space-y-6">
                             <Card className="rounded-2xl border-border/40 overflow-hidden">
                                 <CardContent className="pt-6 flex flex-col items-center text-center">
-                                    <Avatar className="h-24 w-24 mb-4 ring-2 ring-balance-gold/20 ring-offset-2">
+                                    <Avatar className="h-24 w-24 mb-4 ring-2 ring-altitud-gold/20 ring-offset-2">
                                         <AvatarImage src={client.photo_url} />
-                                        <AvatarFallback className="text-lg bg-balance-gold/10 text-balance-gold font-heading">{getInitials(client.display_name)}</AvatarFallback>
+                                        <AvatarFallback className="text-lg bg-altitud-gold/10 text-altitud-gold font-heading">{getInitials(client.display_name)}</AvatarFallback>
                                     </Avatar>
                                     <h2 className="text-xl font-heading font-bold">{client.display_name}</h2>
 
@@ -499,7 +499,7 @@ export default function ClientDetail() {
 
                                     {/* Founder badge */}
                                     {founderData?.user.is_founder && (
-                                        <Badge className="mt-2 bg-balance-gold/15 text-balance-gold border border-balance-gold/30 hover:bg-balance-gold/20">
+                                        <Badge className="mt-2 bg-altitud-gold/15 text-altitud-gold border border-altitud-gold/30 hover:bg-altitud-gold/20">
                                             <Heart className="h-3 w-3 mr-1" fill="currentColor" />
                                             Founder Member
                                         </Badge>
@@ -518,9 +518,9 @@ export default function ClientDetail() {
 
                                     {/* Current Plan Info */}
                                     {client.currentMembership && (
-                                        <div className="w-full mt-4 p-3.5 bg-balance-olive/5 rounded-xl text-sm text-left border border-balance-olive/10">
+                                        <div className="w-full mt-4 p-3.5 bg-altitud-olive/5 rounded-xl text-sm text-left border border-altitud-olive/10">
                                             <div className="flex items-center gap-2 font-semibold mb-2 font-heading">
-                                                <CreditCard className="h-4 w-4 text-balance-olive" /> Plan Actual
+                                                <CreditCard className="h-4 w-4 text-altitud-olive" /> Plan Actual
                                             </div>
                                             <p className="font-medium font-body">{client.currentMembership.plan_name}</p>
                                             <div className="text-muted-foreground mt-1 space-y-1 font-body">
@@ -540,15 +540,15 @@ export default function ClientDetail() {
 
                                     <div className="w-full mt-6 space-y-4 text-left">
                                         <div className="flex items-center gap-3 text-sm text-muted-foreground font-body">
-                                            <Mail className="h-4 w-4 text-balance-gold/70" />
+                                            <Mail className="h-4 w-4 text-altitud-gold/70" />
                                             <span className="truncate">{client.email}</span>
                                         </div>
                                         <div className="flex items-center gap-3 text-sm text-muted-foreground font-body">
-                                            <Phone className="h-4 w-4 text-balance-gold/70" />
+                                            <Phone className="h-4 w-4 text-altitud-gold/70" />
                                             <span>{client.phone}</span>
                                         </div>
                                         <div className="flex items-center gap-3 text-sm text-muted-foreground font-body">
-                                            <Calendar className="h-4 w-4 text-balance-gold/70" />
+                                            <Calendar className="h-4 w-4 text-altitud-gold/70" />
                                             {editingBirthday ? (
                                                 <div className="flex items-center gap-1 flex-1">
                                                     <Input
@@ -619,11 +619,11 @@ export default function ClientDetail() {
                         <div className="md:col-span-8 lg:col-span-9 space-y-6">
                             {/* Founder Member */}
                             {founderData && (
-                                <Card className="rounded-2xl border-balance-gold/40 bg-gradient-to-br from-balance-gold/5 to-transparent">
+                                <Card className="rounded-2xl border-altitud-gold/40 bg-gradient-to-br from-altitud-gold/5 to-transparent">
                                     <CardContent className="pt-5 pb-5 space-y-4">
                                         <div className="flex items-center justify-between gap-4">
                                             <div className="flex items-center gap-3">
-                                                <div className={`flex h-10 w-10 items-center justify-center rounded-full ${founderData.user.is_founder ? 'bg-balance-gold/20 text-balance-gold' : 'bg-muted text-muted-foreground'}`}>
+                                                <div className={`flex h-10 w-10 items-center justify-center rounded-full ${founderData.user.is_founder ? 'bg-altitud-gold/20 text-altitud-gold' : 'bg-muted text-muted-foreground'}`}>
                                                     <Heart className="h-5 w-5" fill={founderData.user.is_founder ? 'currentColor' : 'none'} />
                                                 </div>
                                                 <div>
@@ -640,7 +640,7 @@ export default function ClientDetail() {
                                                 <Button
                                                     size="sm"
                                                     variant={founderData.user.is_founder ? 'outline' : 'default'}
-                                                    className={founderData.user.is_founder ? 'border-balance-gold/40 text-balance-gold hover:bg-balance-gold/10' : 'bg-balance-gold text-white hover:bg-balance-gold/90'}
+                                                    className={founderData.user.is_founder ? 'border-altitud-gold/40 text-altitud-gold hover:bg-altitud-gold/10' : 'bg-altitud-gold text-white hover:bg-altitud-gold/90'}
                                                     onClick={() => toggleFounderMutation.mutate(!founderData.user.is_founder)}
                                                     disabled={toggleFounderMutation.isPending}
                                                 >
@@ -651,12 +651,12 @@ export default function ClientDetail() {
 
                                         {founderData.user.is_founder && (
                                             <div className="grid gap-3">
-                                                <div className="rounded-xl border border-balance-gold/20 bg-white/50 p-3">
+                                                <div className="rounded-xl border border-altitud-gold/20 bg-white/50 p-3">
                                                     <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Descuento 10% primer paquete</p>
                                                     <p className="mt-1 font-semibold">
                                                         {founderData.user.founder_first_package_used
                                                             ? <span className="text-muted-foreground">Usado el {founderData.user.founder_first_used_at ? new Date(founderData.user.founder_first_used_at).toLocaleDateString('es-MX') : '—'}</span>
-                                                            : <span className="text-balance-olive">Disponible</span>}
+                                                            : <span className="text-altitud-olive">Disponible</span>}
                                                     </p>
                                                 </div>
                                             </div>
@@ -665,7 +665,7 @@ export default function ClientDetail() {
                                         {founderData.user.is_founder && founderData.user.founder_first_package_used && (
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
-                                                    <Button size="sm" variant="ghost" className="text-xs text-muted-foreground hover:text-balance-dark">
+                                                    <Button size="sm" variant="ghost" className="text-xs text-muted-foreground hover:text-altitud-dark">
                                                         Resetear beneficios
                                                     </Button>
                                                 </AlertDialogTrigger>
@@ -680,7 +680,7 @@ export default function ClientDetail() {
                                                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                                         <AlertDialogAction
                                                             onClick={() => resetFounderMutation.mutate()}
-                                                            className="bg-balance-gold text-white hover:bg-balance-gold/90"
+                                                            className="bg-altitud-gold text-white hover:bg-altitud-gold/90"
                                                         >
                                                             Sí, resetear
                                                         </AlertDialogAction>
@@ -694,9 +694,9 @@ export default function ClientDetail() {
 
                             <Tabs defaultValue="memberships">
                                 <TabsList className="rounded-xl bg-muted/50">
-                                    <TabsTrigger value="memberships" className="rounded-lg font-body data-[state=active]:bg-balance-gold data-[state=active]:text-white">Membresias</TabsTrigger>
-                                    <TabsTrigger value="history" className="rounded-lg font-body data-[state=active]:bg-balance-gold data-[state=active]:text-white">Historial Clases</TabsTrigger>
-                                    <TabsTrigger value="notes" className="rounded-lg font-body data-[state=active]:bg-balance-gold data-[state=active]:text-white">Notas Internas</TabsTrigger>
+                                    <TabsTrigger value="memberships" className="rounded-lg font-body data-[state=active]:bg-altitud-gold data-[state=active]:text-white">Membresias</TabsTrigger>
+                                    <TabsTrigger value="history" className="rounded-lg font-body data-[state=active]:bg-altitud-gold data-[state=active]:text-white">Historial Clases</TabsTrigger>
+                                    <TabsTrigger value="notes" className="rounded-lg font-body data-[state=active]:bg-altitud-gold data-[state=active]:text-white">Notas Internas</TabsTrigger>
                                 </TabsList>
 
                                 {/* Memberships Tab */}
@@ -776,7 +776,7 @@ export default function ClientDetail() {
                                                         className="rounded-xl font-body"
                                                     />
                                                     <div className="flex justify-end">
-                                                        <Button type="submit" disabled={isSubmitting} size="sm" className="rounded-xl font-body bg-balance-gold hover:bg-balance-gold/90">
+                                                        <Button type="submit" disabled={isSubmitting} size="sm" className="rounded-xl font-body bg-altitud-gold hover:bg-altitud-gold/90">
                                                             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                                             Guardar Nota
                                                         </Button>
@@ -789,8 +789,8 @@ export default function ClientDetail() {
                                             {client.notes?.length > 0 ? (
                                                 client.notes.map((note: any) => (
                                                     <div key={note.id} className="flex gap-4 p-4 border border-border/40 rounded-xl bg-card hover:border-border/60 transition-colors">
-                                                        <div className="h-8 w-8 rounded-lg bg-balance-olive/10 flex items-center justify-center shrink-0">
-                                                            <MessageSquare className="h-4 w-4 text-balance-olive" />
+                                                        <div className="h-8 w-8 rounded-lg bg-altitud-olive/10 flex items-center justify-center shrink-0">
+                                                            <MessageSquare className="h-4 w-4 text-altitud-olive" />
                                                         </div>
                                                         <div className="flex-1 space-y-1">
                                                             <div className="flex justify-between items-start">
@@ -824,8 +824,8 @@ export default function ClientDetail() {
                                                     {client.recentBookings.map((b: any) => (
                                                         <div key={b.id} className="flex items-center justify-between p-3.5 bg-muted/20 rounded-xl border border-border/30 hover:border-border/50 transition-colors">
                                                             <div className="flex items-center gap-3">
-                                                                <div className="h-8 w-8 rounded-lg bg-balance-gold/10 flex items-center justify-center">
-                                                                    <Calendar className="h-4 w-4 text-balance-gold" />
+                                                                <div className="h-8 w-8 rounded-lg bg-altitud-gold/10 flex items-center justify-center">
+                                                                    <Calendar className="h-4 w-4 text-altitud-gold" />
                                                                 </div>
                                                                 <div>
                                                                     <div className="font-medium font-body text-sm">{b.class_name}</div>
@@ -974,7 +974,7 @@ export default function ClientDetail() {
                                 <Button
                                     type="submit"
                                     disabled={updateProfileMutation.isPending}
-                                    className="rounded-xl font-body bg-balance-gold hover:bg-balance-gold/90 text-white"
+                                    className="rounded-xl font-body bg-altitud-gold hover:bg-altitud-gold/90 text-white"
                                 >
                                     {updateProfileMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     Guardar Cambios

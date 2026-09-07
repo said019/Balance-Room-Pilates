@@ -65,7 +65,7 @@ export default function OrderDetail() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [transferReference, setTransferReference] = useState('');
   const [transferDate, setTransferDate] = useState('');
   const [proofNotes, setProofNotes] = useState('');
@@ -73,26 +73,26 @@ export default function OrderDetail() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  
+
   // Fetch order details
   const { data: order, isLoading } = useQuery<OrderWithProofs>({
     queryKey: ['order', orderId],
     queryFn: async () => (await api.get(`/orders/${orderId}`)).data,
     enabled: !!orderId,
   });
-  
+
   // Fetch bank info
   const { data: bankInfo } = useQuery<BankInfo>({
     queryKey: ['bank-info'],
     queryFn: async () => (await api.get('/settings/bank-info')).data,
     enabled: order?.payment_method === 'bank_transfer',
   });
-  
+
   // Upload proof mutation
   const uploadProof = useMutation({
     mutationFn: async () => {
       if (!orderId) throw new Error('No order selected');
-      
+
       // Convert file to base64 if present
       let fileData = null;
       if (selectedFile) {
@@ -103,7 +103,7 @@ export default function OrderDetail() {
           reader.readAsDataURL(selectedFile);
         });
       }
-      
+
       const res = await api.post(`/orders/${orderId}/upload-proof`, {
         transfer_reference: transferReference || '',
         transfer_date: transferDate || null,
@@ -135,7 +135,7 @@ export default function OrderDetail() {
       });
     },
   });
-  
+
   // Cancel order mutation
   const cancelOrder = useMutation({
     mutationFn: async () => {
@@ -160,11 +160,11 @@ export default function OrderDetail() {
       });
     },
   });
-  
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     // Validate file type
     const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
     if (!validTypes.includes(file.type)) {
@@ -175,7 +175,7 @@ export default function OrderDetail() {
       });
       return;
     }
-    
+
     // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
       toast({
@@ -185,9 +185,9 @@ export default function OrderDetail() {
       });
       return;
     }
-    
+
     setSelectedFile(file);
-    
+
     // Create preview for images
     if (file.type.startsWith('image/')) {
       const reader = new FileReader();
@@ -197,7 +197,7 @@ export default function OrderDetail() {
       setFilePreview(null);
     }
   };
-  
+
   const removeFile = () => {
     setSelectedFile(null);
     setFilePreview(null);
@@ -205,7 +205,7 @@ export default function OrderDetail() {
       fileInputRef.current.value = '';
     }
   };
-  
+
   const handleUpload = async () => {
     if (!selectedFile) {
       toast({
@@ -222,19 +222,19 @@ export default function OrderDetail() {
       setUploading(false);
     }
   };
-  
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({ title: 'Copiado al portapapeles' });
   };
-  
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
       currency: 'MXN',
     }).format(price);
   };
-  
+
   if (isLoading) {
     return (
       <AuthGuard requiredRoles={['client']}>
@@ -248,7 +248,7 @@ export default function OrderDetail() {
       </AuthGuard>
     );
   }
-  
+
   if (!order) {
     return (
       <AuthGuard requiredRoles={['client']}>
@@ -263,12 +263,12 @@ export default function OrderDetail() {
       </AuthGuard>
     );
   }
-  
+
   const statusInfo = statusConfig[order.status];
   const canUploadProof = order.status === 'pending_payment' && order.payment_method === 'bank_transfer';
   const hasProofs = order.payment_proofs && order.payment_proofs.length > 0;
   const canPayWithCard = order.status === 'pending_payment';
-  
+
   return (
     <AuthGuard requiredRoles={['client']}>
       <ClientLayout>
@@ -289,7 +289,7 @@ export default function OrderDetail() {
               {statusInfo.label}
             </Badge>
           </div>
-          
+
           {/* Order Details Card */}
           <Card>
             <CardHeader>
@@ -309,16 +309,16 @@ export default function OrderDetail() {
                 </div>
                 <p className="font-medium">{formatPrice(order.subtotal)}</p>
               </div>
-              
+
               <Separator />
-              
+
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between font-bold text-base">
                   <span>Total a pagar</span>
                   <span className="text-primary">{formatPrice(order.total)}</span>
                 </div>
               </div>
-              
+
               {order.notes && (
                 <>
                   <Separator />
@@ -328,7 +328,7 @@ export default function OrderDetail() {
                   </div>
                 </>
               )}
-              
+
               {order.admin_notes && (
                 <>
                   <Separator />
@@ -340,13 +340,13 @@ export default function OrderDetail() {
               )}
             </CardContent>
           </Card>
-          
+
           {/* Stripe card payment (backend devuelve la URL de Stripe como mp_checkout_url) */}
           {canPayWithCard && (
-            <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88">
+            <Card className="rounded-[1.75rem] border-altitud-sand/65 bg-[hsl(var(--card))]/88">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-balance-olive" />
+                  <CreditCard className="h-5 w-5 text-altitud-olive" />
                   Pagar con tarjeta
                 </CardTitle>
               </CardHeader>
@@ -355,7 +355,7 @@ export default function OrderDetail() {
                   Serás redirigido a una página de pago segura para completar tu compra con tarjeta.
                 </p>
                 <Button
-                  className="w-full rounded-full bg-balance-olive text-balance-cream hover:bg-balance-olive/90"
+                  className="w-full rounded-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90"
                   onClick={async () => {
                     try {
                       if (order.mp_checkout_url) {
@@ -402,7 +402,7 @@ export default function OrderDetail() {
                       <p className="font-medium">{bankInfo.bank_name}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                     <div>
                       <p className="text-xs text-muted-foreground">Titular</p>
@@ -416,7 +416,7 @@ export default function OrderDetail() {
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
-                  
+
                   <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                     <div>
                       <p className="text-xs text-muted-foreground">Número de cuenta</p>
@@ -430,7 +430,7 @@ export default function OrderDetail() {
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
-                  
+
                   <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                     <div>
                       <p className="text-xs text-muted-foreground">CLABE interbancaria</p>
@@ -444,13 +444,13 @@ export default function OrderDetail() {
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
-                  
+
                   <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
                     <p className="text-xs text-muted-foreground">Monto a transferir</p>
                     <p className="font-bold text-lg text-primary">{formatPrice(order.total)}</p>
                   </div>
                 </div>
-                
+
                 {bankInfo.reference_instructions && (
                   <div className="text-sm text-muted-foreground">
                     <p className="font-medium">Instrucciones adicionales:</p>
@@ -460,7 +460,7 @@ export default function OrderDetail() {
               </CardContent>
             </Card>
           )}
-          
+
           {/* Upload Proof Section */}
           {canUploadProof && (
             <Card>
@@ -484,7 +484,7 @@ export default function OrderDetail() {
                     onChange={handleFileSelect}
                     className="hidden"
                   />
-                  
+
                   {!selectedFile ? (
                     <button
                       type="button"
@@ -507,12 +507,12 @@ export default function OrderDetail() {
                       >
                         <X className="h-4 w-4" />
                       </Button>
-                      
+
                       {filePreview ? (
                         <div className="flex flex-col items-center gap-2">
-                          <img 
-                            src={filePreview} 
-                            alt="Preview" 
+                          <img
+                            src={filePreview}
+                            alt="Preview"
                             className="max-h-48 rounded object-contain"
                           />
                           <p className="text-sm text-muted-foreground">{selectedFile.name}</p>
@@ -531,7 +531,7 @@ export default function OrderDetail() {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Transfer details */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
@@ -553,7 +553,7 @@ export default function OrderDetail() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="proofNotes">Notas adicionales (opcional)</Label>
                   <Textarea
@@ -583,7 +583,7 @@ export default function OrderDetail() {
               </CardFooter>
             </Card>
           )}
-          
+
           {/* Uploaded Proofs */}
           {hasProofs && (
             <Card>
@@ -594,7 +594,7 @@ export default function OrderDetail() {
                 {order.payment_proofs.map((proof, index) => {
                   const isBase64Image = proof.file_url?.startsWith('data:image/');
                   const isImage = isBase64Image || proof.file_type?.startsWith('image/');
-                  
+
                   return (
                     <div
                       key={proof.id || index}
@@ -614,12 +614,12 @@ export default function OrderDetail() {
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Preview image */}
                       {isImage && proof.file_url && (
                         <div className="mt-3">
-                          <img 
-                            src={proof.file_url} 
+                          <img
+                            src={proof.file_url}
                             alt="Comprobante de pago"
                             className="max-h-64 w-full rounded-lg border object-contain cursor-pointer hover:opacity-90 transition-opacity"
                             onClick={() => setImagePreview(proof.file_url)}
@@ -635,7 +635,7 @@ export default function OrderDetail() {
               </CardContent>
             </Card>
           )}
-          
+
           {/* Status Messages */}
           {order.status === 'pending_verification' && (
             <Card className="border-yellow-500/50 bg-yellow-500/5">
@@ -653,7 +653,7 @@ export default function OrderDetail() {
               </CardContent>
             </Card>
           )}
-          
+
           {order.status === 'approved' && (
             <Card className="border-success/50 bg-success/5">
               <CardContent className="py-4">
@@ -672,7 +672,7 @@ export default function OrderDetail() {
               </CardContent>
             </Card>
           )}
-          
+
           {order.status === 'rejected' && (
             <Card className="border-red-500/50 bg-red-500/5">
               <CardContent className="py-4">
@@ -688,7 +688,7 @@ export default function OrderDetail() {
               </CardContent>
             </Card>
           )}
-          
+
           {/* Actions */}
           <div className="flex gap-3">
             <Button variant="outline" asChild className="flex-1">
@@ -736,9 +736,9 @@ export default function OrderDetail() {
               <DialogTitle>Vista previa del comprobante</DialogTitle>
             </DialogHeader>
             {imagePreview && (
-              <img 
-                src={imagePreview} 
-                alt="Comprobante de pago" 
+              <img
+                src={imagePreview}
+                alt="Comprobante de pago"
                 className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
               />
             )}

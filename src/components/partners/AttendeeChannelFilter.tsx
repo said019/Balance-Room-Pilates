@@ -52,7 +52,7 @@ export function AttendeeChannelFilter({
                             aria-pressed={isActive}
                             className={cn(
                                 'h-8 rounded-full px-3 text-xs',
-                                isActive && !isWellhub && !isTotalPass && 'bg-balance-dark text-white hover:bg-balance-dark/90',
+                                isActive && !isWellhub && !isTotalPass && 'bg-altitud-dark text-white hover:bg-altitud-dark/90',
                                 isActive && isWellhub && 'border-[#CF3153] bg-[#F2496B] text-[#2A0810] hover:bg-[#F2496B]',
                                 isActive && isTotalPass && 'border-sky-400 bg-sky-100 text-sky-900 hover:bg-sky-100',
                             )}

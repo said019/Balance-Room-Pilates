@@ -120,10 +120,10 @@ export default function AdminDashboard() {
             <AdminLayout>
                 <div className="space-y-6">
                     <section className="grid gap-4">
-                        <div className="rounded-[2rem] bg-balance-olive p-6">
+                        <div className="rounded-[2rem] bg-altitud-olive p-6">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-semibold uppercase tracking-[0.2em] text-balance-cream">Atención</span>
-                                <span className="rounded-full bg-balance-cream/20 px-2.5 py-1 text-xs font-bold text-balance-cream">{totalAttention}</span>
+                                <span className="text-sm font-semibold uppercase tracking-[0.2em] text-altitud-cream">Atención</span>
+                                <span className="rounded-full bg-altitud-cream/20 px-2.5 py-1 text-xs font-bold text-altitud-cream">{totalAttention}</span>
                             </div>
                             <div className="mt-4 space-y-3">
                                 <FocusRow icon={Banknote} label="Pagos por revisar" value={pendingVerificationOrders.length} />
@@ -132,19 +132,19 @@ export default function AdminDashboard() {
                             </div>
                             <Link
                                 to="/admin/payments"
-                                className="group mt-5 inline-flex w-full items-center justify-between rounded-full bg-balance-cream px-4 py-2.5 text-sm font-semibold text-balance-dark transition-all duration-200 hover:bg-balance-sand active:scale-[0.98]"
+                                className="group mt-5 inline-flex w-full items-center justify-between rounded-full bg-altitud-cream px-4 py-2.5 text-sm font-semibold text-altitud-dark transition-all duration-200 hover:bg-altitud-sand active:scale-[0.98]"
                             >
                                 Revisar operación
-                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-balance-cream/10 transition-transform group-hover:translate-x-0.5">
+                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-altitud-cream/10 transition-transform group-hover:translate-x-0.5">
                                     <ArrowUpRight className="h-4 w-4" />
                                 </span>
                             </Link>
                             <Link
                                 to="/admin/payments?tab=manual-income"
-                                className="group mt-3 inline-flex w-full items-center justify-between rounded-full border border-balance-cream/35 px-4 py-2.5 text-sm font-semibold text-balance-cream transition-all duration-200 hover:bg-balance-cream/10 active:scale-[0.98]"
+                                className="group mt-3 inline-flex w-full items-center justify-between rounded-full border border-altitud-cream/35 px-4 py-2.5 text-sm font-semibold text-altitud-cream transition-all duration-200 hover:bg-altitud-cream/10 active:scale-[0.98]"
                             >
                                 Registrar ingreso
-                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-balance-cream/10 transition-transform group-hover:translate-x-0.5">
+                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-altitud-cream/10 transition-transform group-hover:translate-x-0.5">
                                     <Banknote className="h-4 w-4" />
                                 </span>
                             </Link>
@@ -180,13 +180,13 @@ export default function AdminDashboard() {
                     </section>
 
                     {stats?.classesByStudio && stats.classesByStudio.length > 0 && (
-                        <section className="rounded-[1.6rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] p-4 shadow-[0_18px_58px_-48px_rgba(51,42,34,0.72)]">
-                            <span className="text-sm font-semibold text-balance-dark/62">Clases hoy por estudio</span>
+                        <section className="rounded-[1.6rem] border border-altitud-sand/65 bg-[hsl(var(--admin-panel))] p-4 shadow-[0_18px_58px_-48px_rgba(51,42,34,0.72)]">
+                            <span className="text-sm font-semibold text-altitud-dark/62">Clases hoy por estudio</span>
                             <div className="mt-4 grid gap-3 sm:grid-cols-3">
                                 {stats.classesByStudio.map((s) => (
-                                    <div key={s.facilityId} className="flex items-center justify-between rounded-[1rem] bg-balance-cream px-4 py-3">
-                                        <span className="text-sm font-medium text-balance-dark/70">{s.name}</span>
-                                        <span className="text-2xl font-semibold tabular-nums tracking-[-0.05em] text-balance-dark">{s.count}</span>
+                                    <div key={s.facilityId} className="flex items-center justify-between rounded-[1rem] bg-altitud-cream px-4 py-3">
+                                        <span className="text-sm font-medium text-altitud-dark/70">{s.name}</span>
+                                        <span className="text-2xl font-semibold tabular-nums tracking-[-0.05em] text-altitud-dark">{s.count}</span>
                                     </div>
                                 ))}
                             </div>
@@ -211,20 +211,20 @@ export default function AdminDashboard() {
                                             <Link
                                                 key={membership.id}
                                                 to={`/admin/members/${membership.user_id || ''}`}
-                                                className="group flex items-start gap-3 rounded-[1.15rem] bg-balance-cream/55 p-3 transition-all duration-200 hover:bg-balance-cream active:scale-[0.995]"
+                                                className="group flex items-start gap-3 rounded-[1.15rem] bg-altitud-cream/55 p-3 transition-all duration-200 hover:bg-altitud-cream active:scale-[0.995]"
                                             >
-                                                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] bg-balance-olive/12 text-balance-olive">
+                                                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] bg-altitud-olive/12 text-altitud-olive">
                                                     <UserPlus className="h-[18px] w-[18px]" />
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="truncate text-sm font-semibold text-balance-dark transition-colors group-hover:text-balance-olive">
+                                                    <p className="truncate text-sm font-semibold text-altitud-dark transition-colors group-hover:text-altitud-olive">
                                                         {membership.user_name}
                                                     </p>
-                                                    <p className="mt-1 truncate text-xs text-balance-dark/55">
+                                                    <p className="mt-1 truncate text-xs text-altitud-dark/55">
                                                         {membership.plan_name} · {translateMembershipStatus(membership.status)}
                                                     </p>
                                                 </div>
-                                                <span className="shrink-0 text-[11px] text-balance-dark/45">
+                                                <span className="shrink-0 text-[11px] text-altitud-dark/45">
                                                     {new Date(membership.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
                                                 </span>
                                             </Link>
@@ -257,18 +257,18 @@ export default function AdminDashboard() {
                                                 <Link
                                                     key={reg.id}
                                                     to="/admin/events"
-                                                    className="group flex items-start gap-3 rounded-[1.15rem] bg-balance-cream/55 p-3 transition-all duration-200 hover:bg-balance-cream active:scale-[0.995]"
+                                                    className="group flex items-start gap-3 rounded-[1.15rem] bg-altitud-cream/55 p-3 transition-all duration-200 hover:bg-altitud-cream active:scale-[0.995]"
                                                 >
-                                                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] bg-balance-sand/35 text-balance-dark">
+                                                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] bg-altitud-sand/35 text-altitud-dark">
                                                         <Ticket className="h-[18px] w-[18px]" />
                                                     </div>
                                                     <div className="min-w-0 flex-1">
-                                                        <p className="truncate text-sm font-semibold text-balance-dark transition-colors group-hover:text-balance-olive">{reg.user_name}</p>
-                                                        <p className="mt-1 truncate text-xs text-balance-dark/55">
+                                                        <p className="truncate text-sm font-semibold text-altitud-dark transition-colors group-hover:text-altitud-olive">{reg.user_name}</p>
+                                                        <p className="mt-1 truncate text-xs text-altitud-dark/55">
                                                             {reg.event_title} · {formatMoney(Number(reg.amount))}
                                                         </p>
                                                     </div>
-                                                    <Badge variant="outline" className="rounded-full border-balance-sand/80 bg-balance-sand/25 text-[10px] text-balance-dark/70">
+                                                    <Badge variant="outline" className="rounded-full border-altitud-sand/80 bg-altitud-sand/25 text-[10px] text-altitud-dark/70">
                                                         Evento
                                                     </Badge>
                                                 </Link>
@@ -283,18 +283,18 @@ export default function AdminDashboard() {
                     </section>
 
                     {birthdays.length > 0 && (
-                        <section className="rounded-[2rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] p-5 shadow-[0_20px_70px_-54px_rgba(51,42,34,0.65)]">
+                        <section className="rounded-[2rem] border border-altitud-sand/65 bg-[hsl(var(--admin-panel))] p-5 shadow-[0_20px_70px_-54px_rgba(51,42,34,0.65)]">
                             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-11 w-11 items-center justify-center rounded-[1.1rem] bg-balance-olive/12 text-balance-olive">
+                                    <div className="flex h-11 w-11 items-center justify-center rounded-[1.1rem] bg-altitud-olive/12 text-altitud-olive">
                                         <Cake className="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-balance-olive">Comunidad</p>
-                                        <h3 className="text-lg font-semibold tracking-[-0.03em] text-balance-dark">Cumpleaños del mes</h3>
+                                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-altitud-olive">Comunidad</p>
+                                        <h3 className="text-lg font-semibold tracking-[-0.03em] text-altitud-dark">Cumpleaños del mes</h3>
                                     </div>
                                 </div>
-                                <Badge className="rounded-full bg-balance-dark px-3 py-1 text-balance-cream">
+                                <Badge className="rounded-full bg-altitud-dark px-3 py-1 text-altitud-cream">
                                     {birthdays.length}
                                 </Badge>
                             </div>
@@ -312,20 +312,20 @@ export default function AdminDashboard() {
                                             to={`/admin/members/${b.id}`}
                                             className={`flex items-center gap-3 rounded-[1.15rem] p-3 transition-all duration-200 active:scale-[0.995] ${
                                                 isToday
-                                                    ? 'bg-balance-dark text-balance-cream'
+                                                    ? 'bg-altitud-dark text-altitud-cream'
                                                     : isPast
-                                                    ? 'bg-balance-cream/42 opacity-65'
-                                                    : 'bg-balance-cream/72 hover:bg-balance-cream'
+                                                    ? 'bg-altitud-cream/42 opacity-65'
+                                                    : 'bg-altitud-cream/72 hover:bg-altitud-cream'
                                             }`}
                                         >
                                             <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold tabular-nums ${
-                                                isToday ? 'bg-balance-cream text-balance-dark' : 'bg-balance-sand/35 text-balance-dark'
+                                                isToday ? 'bg-altitud-cream text-altitud-dark' : 'bg-altitud-sand/35 text-altitud-dark'
                                             }`}>
                                                 {day}
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <p className="truncate text-sm font-semibold">{b.display_name}</p>
-                                                <p className={`truncate text-xs ${isToday ? 'text-balance-sand' : 'text-balance-dark/55'}`}>
+                                                <p className={`truncate text-xs ${isToday ? 'text-altitud-sand' : 'text-altitud-dark/55'}`}>
                                                     {isToday ? 'Cumple años hoy' : `${day} de ${format(bday, 'MMMM', { locale: es })}`}
                                                 </p>
                                             </div>
@@ -344,11 +344,11 @@ export default function AdminDashboard() {
 function FocusRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: number }) {
     return (
         <div className="flex items-center justify-between gap-3 rounded-[1rem] bg-white/15 px-3 py-2.5">
-            <span className="flex min-w-0 items-center gap-2 text-sm text-balance-cream">
+            <span className="flex min-w-0 items-center gap-2 text-sm text-altitud-cream">
                 <Icon className="h-4 w-4 shrink-0" />
                 <span className="truncate">{label}</span>
             </span>
-            <span className="font-semibold tabular-nums text-balance-cream">{value}</span>
+            <span className="font-semibold tabular-nums text-altitud-cream">{value}</span>
         </div>
     );
 }
@@ -365,16 +365,16 @@ function AttentionBanner({
     action: string;
 }) {
     return (
-        <div className="flex flex-col gap-3 rounded-[1.45rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] p-4 shadow-[0_18px_58px_-48px_rgba(51,42,34,0.7)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-[1.45rem] border border-altitud-sand/65 bg-[hsl(var(--admin-panel))] p-4 shadow-[0_18px_58px_-48px_rgba(51,42,34,0.7)] sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[1.05rem] bg-balance-olive/12 text-balance-olive">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[1.05rem] bg-altitud-olive/12 text-altitud-olive">
                     <Icon className="h-5 w-5" />
                 </div>
-                <span className="text-sm font-semibold text-balance-dark">{label}</span>
+                <span className="text-sm font-semibold text-altitud-dark">{label}</span>
             </div>
             <Link
                 to={to}
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-balance-dark px-4 py-2 text-sm font-semibold text-balance-cream transition-all duration-200 hover:bg-balance-olive active:scale-[0.98]"
+                className="group inline-flex items-center justify-center gap-2 rounded-full bg-altitud-dark px-4 py-2 text-sm font-semibold text-altitud-cream transition-all duration-200 hover:bg-altitud-olive active:scale-[0.98]"
             >
                 {action}
                 <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -398,16 +398,16 @@ function MetricCard({
 }) {
     const Icon = kpi.icon;
     const toneClass = {
-        sage: 'bg-balance-olive/12 text-balance-olive',
-        taupe: 'bg-balance-sand/35 text-balance-dark',
-        cream: 'bg-balance-cream text-balance-dark',
-        dark: 'bg-balance-dark text-balance-cream',
-    }[kpi.tone] || 'bg-balance-cream text-balance-dark';
+        sage: 'bg-altitud-olive/12 text-altitud-olive',
+        taupe: 'bg-altitud-sand/35 text-altitud-dark',
+        cream: 'bg-altitud-cream text-altitud-dark',
+        dark: 'bg-altitud-dark text-altitud-cream',
+    }[kpi.tone] || 'bg-altitud-cream text-altitud-dark';
 
     return (
-        <div className="group rounded-[1.6rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] p-4 shadow-[0_18px_58px_-48px_rgba(51,42,34,0.72)] transition-all duration-200 hover:-translate-y-0.5 hover:border-balance-olive/35">
+        <div className="group rounded-[1.6rem] border border-altitud-sand/65 bg-[hsl(var(--admin-panel))] p-4 shadow-[0_18px_58px_-48px_rgba(51,42,34,0.72)] transition-all duration-200 hover:-translate-y-0.5 hover:border-altitud-olive/35">
             <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-semibold text-balance-dark/62">{kpi.title}</span>
+                <span className="text-sm font-semibold text-altitud-dark/62">{kpi.title}</span>
                 <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] ${toneClass}`}>
                     <Icon className="h-[18px] w-[18px]" />
                 </div>
@@ -415,11 +415,11 @@ function MetricCard({
             {loading ? (
                 <Skeleton className="mt-5 h-9 w-24 rounded-xl" />
             ) : (
-                <p className="mt-5 text-3xl font-semibold tabular-nums tracking-[-0.05em] text-balance-dark">
+                <p className="mt-5 text-3xl font-semibold tabular-nums tracking-[-0.05em] text-altitud-dark">
                     {kpi.value}
                 </p>
             )}
-            <p className="mt-1 text-xs font-medium text-balance-dark/50">{kpi.detail}</p>
+            <p className="mt-1 text-xs font-medium text-altitud-dark/50">{kpi.detail}</p>
         </div>
     );
 }
@@ -438,15 +438,15 @@ function PanelShell({
     children: React.ReactNode;
 }) {
     return (
-        <div className="rounded-[2rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] p-5 shadow-[0_20px_70px_-54px_rgba(51,42,34,0.65)]">
+        <div className="rounded-[2rem] border border-altitud-sand/65 bg-[hsl(var(--admin-panel))] p-5 shadow-[0_20px_70px_-54px_rgba(51,42,34,0.65)]">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                 <div>
-                    <h3 className="text-lg font-semibold tracking-[-0.03em] text-balance-dark">{title}</h3>
-                    <p className="mt-1 text-sm text-balance-dark/55">{description}</p>
+                    <h3 className="text-lg font-semibold tracking-[-0.03em] text-altitud-dark">{title}</h3>
+                    <p className="mt-1 text-sm text-altitud-dark/55">{description}</p>
                 </div>
                 <Link
                     to={to}
-                    className="group inline-flex items-center gap-2 rounded-full border border-balance-sand/65 bg-balance-cream/65 px-3.5 py-2 text-xs font-semibold text-balance-dark transition-all duration-200 hover:bg-balance-dark hover:text-balance-cream active:scale-[0.98]"
+                    className="group inline-flex items-center gap-2 rounded-full border border-altitud-sand/65 bg-altitud-cream/65 px-3.5 py-2 text-xs font-semibold text-altitud-dark transition-all duration-200 hover:bg-altitud-dark hover:text-altitud-cream active:scale-[0.98]"
                 >
                     {action}
                     <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -463,25 +463,25 @@ function PaymentRow({ order }: { order: Order }) {
     return (
         <Link
             to="/admin/payments"
-            className="group flex items-start gap-3 rounded-[1.15rem] bg-balance-cream/55 p-3 transition-all duration-200 hover:bg-balance-cream active:scale-[0.995]"
+            className="group flex items-start gap-3 rounded-[1.15rem] bg-altitud-cream/55 p-3 transition-all duration-200 hover:bg-altitud-cream active:scale-[0.995]"
         >
-            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] bg-balance-olive/12 text-balance-olive">
+            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] bg-altitud-olive/12 text-altitud-olive">
                 <Receipt className="h-[18px] w-[18px]" />
             </div>
             <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-balance-dark transition-colors group-hover:text-balance-olive">
+                <p className="truncate text-sm font-semibold text-altitud-dark transition-colors group-hover:text-altitud-olive">
                     {order.user_name}
                 </p>
-                <p className="mt-1 truncate text-xs text-balance-dark/55">
+                <p className="mt-1 truncate text-xs text-altitud-dark/55">
                     {order.plan_name} · {formatMoney(Number(order.total))}
                 </p>
             </div>
             <div className="shrink-0 text-right">
-                <Badge variant="outline" className="rounded-full border-balance-sand/80 bg-balance-sand/25 text-[10px] text-balance-dark/70">
+                <Badge variant="outline" className="rounded-full border-altitud-sand/80 bg-altitud-sand/25 text-[10px] text-altitud-dark/70">
                     <Clock className="mr-1 h-3 w-3" />
                     {isVerification ? 'Verificar' : 'Cobrar'}
                 </Badge>
-                <p className="mt-1 text-[11px] text-balance-dark/45">
+                <p className="mt-1 text-[11px] text-altitud-dark/45">
                     {format(parseISO(order.created_at), 'd MMM', { locale: es })}
                 </p>
             </div>
@@ -491,19 +491,19 @@ function PaymentRow({ order }: { order: Order }) {
 
 function EmptyState({ icon: Icon, title, text }: { icon: React.ElementType; title: string; text: string }) {
     return (
-        <div className="flex min-h-[12rem] flex-col items-center justify-center rounded-[1.35rem] bg-balance-cream/48 px-6 py-8 text-center">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-[1.15rem] bg-balance-sand/35 text-balance-dark/65">
+        <div className="flex min-h-[12rem] flex-col items-center justify-center rounded-[1.35rem] bg-altitud-cream/48 px-6 py-8 text-center">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-[1.15rem] bg-altitud-sand/35 text-altitud-dark/65">
                 <Icon className="h-5 w-5" />
             </div>
-            <p className="text-sm font-semibold text-balance-dark">{title}</p>
-            <p className="mt-1 max-w-[28ch] text-xs leading-5 text-balance-dark/52">{text}</p>
+            <p className="text-sm font-semibold text-altitud-dark">{title}</p>
+            <p className="mt-1 max-w-[28ch] text-xs leading-5 text-altitud-dark/52">{text}</p>
         </div>
     );
 }
 
 function ListSkeleton() {
     return (
-        <div className="flex items-center gap-3 rounded-[1.15rem] bg-balance-cream/45 p-3">
+        <div className="flex items-center gap-3 rounded-[1.15rem] bg-altitud-cream/45 p-3">
             <Skeleton className="h-10 w-10 rounded-[1rem]" />
             <div className="flex-1 space-y-2">
                 <Skeleton className="h-4 w-44 rounded-full" />

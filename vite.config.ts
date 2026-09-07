@@ -5,7 +5,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 function stampServiceWorkerVersion(): Plugin {
-  const buildVersion = `br-${Date.now().toString(36)}`;
+  const buildVersion = `altitud-${Date.now().toString(36)}`;
 
   return {
     name: "stamp-service-worker-version",

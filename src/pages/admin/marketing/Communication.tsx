@@ -135,7 +135,7 @@ export default function Communication() {
                 const label = p.promo_label ? ` (${p.promo_label})` : '';
                 return `💛 ${p.name}\nAntes $${before} → Ahora $${now} MXN${label}`;
             });
-            setSubject('🎉 Promociones por tiempo limitado — Balance Room');
+            setSubject('🎉 Promociones por tiempo limitado — 2707 Altitud');
             setMessage(`¡Aprovecha nuestras promos!\n\n${lines.join('\n\n')}\n\n¡Te esperamos! 🧘`);
             toast({ title: 'Promos cargadas', description: `${promos.length} plan(es) en promoción. Revisa el mensaje y envíalo.` });
         },
@@ -157,7 +157,7 @@ export default function Communication() {
                     <section className="rounded-xl border bg-card p-6">
                         <div className="flex items-center justify-between gap-2 mb-4">
                             <div className="flex items-center gap-2">
-                                <Megaphone className="h-5 w-5 text-balance-olive" />
+                                <Megaphone className="h-5 w-5 text-altitud-olive" />
                                 <h2 className="text-lg font-semibold">Correo masivo (promociones)</h2>
                             </div>
                             <Button
@@ -292,7 +292,7 @@ export default function Communication() {
                     {/* Historial de envíos por WhatsApp (pausar / reanudar) */}
                     <section className="rounded-xl border bg-card p-6">
                         <div className="flex items-center gap-2 mb-4">
-                            <History className="h-5 w-5 text-balance-olive" />
+                            <History className="h-5 w-5 text-altitud-olive" />
                             <h2 className="text-lg font-semibold">Historial de WhatsApp</h2>
                         </div>
                         {waBroadcasts.length === 0 ? (

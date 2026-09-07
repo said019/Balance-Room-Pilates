@@ -21,7 +21,7 @@ function getDefaultDates() {
 
 function exportToExcel(overview: any, startDate: string, endDate: string) {
     const rows = [
-        ['Reporte General - Balance Room Pilates'],
+        ['Reporte General - 2707 Altitud'],
         [`Período: ${startDate} al ${endDate}`],
         [''],
         ['RESUMEN FINANCIERO'],

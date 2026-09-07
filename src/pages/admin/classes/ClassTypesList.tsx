@@ -71,7 +71,7 @@ export default function ClassTypesList() {
             level: 'all',
             durationMinutes: 60,
             maxCapacity: 6,
-            color: '#7E8579',
+            color: '#5F632C',
             isActive: true,
         },
     });
@@ -144,7 +144,7 @@ export default function ClassTypesList() {
         setValue('level', item.level);
         setValue('durationMinutes', item.duration_minutes);
         setValue('maxCapacity', item.max_capacity);
-        setValue('color', item.color || '#7E8579');
+        setValue('color', item.color || '#5F632C');
         setValue('isActive', item.is_active);
         setIsDialogOpen(true);
     };
@@ -159,15 +159,15 @@ export default function ClassTypesList() {
         <AuthGuard requiredRoles={['admin']}>
             <AdminLayout>
                 <div className="space-y-6">
-                    <div className="flex flex-col gap-4 rounded-[1.6rem] border border-balance-olive/25 bg-balance-olive/10 p-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-4 rounded-[1.6rem] border border-altitud-olive/25 bg-altitud-olive/10 p-5 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-balance-olive">Visible para clientas</p>
-                            <h1 className="mt-1 text-2xl font-bold tracking-tight text-balance-dark">Disciplinas y clases</h1>
-                            <p className="max-w-2xl text-sm text-balance-dark/65">
+                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-altitud-olive">Visible para clientas</p>
+                            <h1 className="mt-1 text-2xl font-bold tracking-tight text-altitud-dark">Disciplinas y clases</h1>
+                            <p className="max-w-2xl text-sm text-altitud-dark/65">
                                 Edita las clases que se ofrecen en el studio. Las disciplinas activas se usan para agenda, reservas en `/app` y se pueden reflejar en el landing.
                             </p>
                         </div>
-                        <Button onClick={handleCreate} className="bg-balance-olive text-balance-cream hover:bg-balance-olive/90">
+                        <Button onClick={handleCreate} className="bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90">
                             <Plus className="mr-2 h-4 w-4" /> Nueva disciplina
                         </Button>
                     </div>
@@ -257,14 +257,14 @@ export default function ClassTypesList() {
                             <DialogHeader>
                                 <DialogTitle>{editingType ? 'Editar disciplina' : 'Nueva disciplina'}</DialogTitle>
                                 <DialogDescription>
-                                    Nombre, color, duración y cupo. Usa 6 lugares para respetar el formato boutique de Balance Room.
+                                    Nombre, color, duración y cupo. Configura el cupo oficial para cada entrenamiento de 2707 Altitud.
                                 </DialogDescription>
                             </DialogHeader>
 
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="name">Nombre</Label>
-                                    <Input id="name" {...register('name')} placeholder="Ej. Hot Pilates" />
+                                    <Input id="name" {...register('name')} placeholder="Ej. Híbrido" />
                                     {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
                                 </div>
 
@@ -308,10 +308,10 @@ export default function ClassTypesList() {
                                     <div className="space-y-2">
                                         <Label htmlFor="color">Color en agenda</Label>
                                         <div className="flex gap-2">
-                                            <Input id="color" {...register('color')} placeholder="#7E8579" />
+                                            <Input id="color" {...register('color')} placeholder="#5F632C" />
                                             <div
                                                 className="w-10 h-10 rounded-md border shrink-0"
-                                                style={{ backgroundColor: selectedColor || '#7E8579' }}
+                                                style={{ backgroundColor: selectedColor || '#5F632C' }}
                                             />
                                         </div>
                                         {errors.color && <p className="text-xs text-destructive">{errors.color.message}</p>}

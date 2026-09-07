@@ -1,88 +1,91 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 
 // Public pages
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import CancellationPolicy from "./pages/CancellationPolicy";
-import MapsExport from "./pages/MapsExport";
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const CancellationPolicy = lazy(() => import("./pages/CancellationPolicy"));
+const MapsExport = lazy(() => import("./pages/MapsExport"));
 
 // Auth pages
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
-import ForgotPassword from "./pages/auth/ForgotPassword";
+const Login = lazy(() => import("./pages/auth/Login"));
+const Register = lazy(() => import("./pages/auth/Register"));
+const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
+
+const MemberPreview = lazy(() => import("./pages/client/MemberApp"));
 
 // Client pages
-import ClientDashboard from "./pages/client/Dashboard";
-import BookClasses from "./pages/client/BookClasses";
-import BookClassConfirm from "./pages/client/BookClassConfirm";
-import MyBookings from "./pages/client/MyBookings";
-import ClassBookingDetail from "./pages/client/ClassBookingDetail";
-import ClientProfile from "./pages/client/Profile";
-import ProfileEdit from "./pages/client/ProfileEdit";
-import ProfileMembership from "./pages/client/ProfileMembership";
-import ProfilePreferences from "./pages/client/ProfilePreferences";
-import Notifications from "./pages/client/Notifications";
-import News from "./pages/client/News";
-import ClientCheckout from "./pages/client/Checkout";
-import ClientOrders from "./pages/client/Orders";
-import ClientOrderDetail from "./pages/client/OrderDetail";
-import ClientEvents from "./pages/client/Events";
-import Checkout from "./pages/Checkout";
+const ClientDashboard = lazy(() => import("./pages/client/Dashboard"));
+const BookClasses = lazy(() => import("./pages/client/BookClasses"));
+const BookClassConfirm = lazy(() => import("./pages/client/BookClassConfirm"));
+const MyBookings = lazy(() => import("./pages/client/MyBookings"));
+const ClassBookingDetail = lazy(() => import("./pages/client/ClassBookingDetail"));
+const ClientProfile = lazy(() => import("./pages/client/Profile"));
+const ProfileEdit = lazy(() => import("./pages/client/ProfileEdit"));
+const ProfileMembership = lazy(() => import("./pages/client/ProfileMembership"));
+const ProfilePreferences = lazy(() => import("./pages/client/ProfilePreferences"));
+const Notifications = lazy(() => import("./pages/client/Notifications"));
+const News = lazy(() => import("./pages/client/News"));
+const ClientCheckout = lazy(() => import("./pages/client/Checkout"));
+const ClientOrders = lazy(() => import("./pages/client/Orders"));
+const ClientOrderDetail = lazy(() => import("./pages/client/OrderDetail"));
+const ClientEvents = lazy(() => import("./pages/client/Events"));
+const Checkout = lazy(() => import("./pages/AltitudMemberships"));
+const AltitudBooking = lazy(() => import("./pages/AltitudBooking"));
 
 // Admin pages
-import AdminDashboard from "./pages/admin/Dashboard";
-import PlansList from "./pages/admin/plans/PlansList";
-import ClientsList from "./pages/admin/clients/ClientsList";
-import ClientDetail from "./pages/admin/clients/ClientDetail";
-import PendingMemberships from "./pages/admin/memberships/PendingMemberships";
-import MembershipsActive from "./pages/admin/memberships/MembershipsActive";
-import MembershipsExpiring from "./pages/admin/memberships/MembershipsExpiring";
-import MembershipsAll from "./pages/admin/memberships/MembershipsAll";
-import InstructorsList from "./pages/admin/staff/InstructorsList";
-import ClassTypesList from "./pages/admin/classes/ClassTypesList";
-import WeeklySchedule from "./pages/admin/schedules/WeeklySchedule";
-import ClassesCalendar from "./pages/admin/classes/ClassesCalendar";
-import GenerateClasses from "./pages/admin/classes/GenerateClasses";
-import BookingsList from "./pages/admin/bookings/BookingsList";
-import Waitlist from "./pages/admin/bookings/Waitlist";
-import TotalPassToday from "./pages/admin/bookings/TotalPassToday";
-import MemberNew from "./pages/admin/members/MemberNew";
-import AssignMembership from "./pages/admin/members/AssignMembership";
-import PhysicalSale from "./pages/admin/members/PhysicalSale";
-import PaymentsHub from "./pages/admin/payments/PaymentsHub";
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
+const PlansList = lazy(() => import("./pages/admin/plans/PlansList"));
+const ClientsList = lazy(() => import("./pages/admin/clients/ClientsList"));
+const ClientDetail = lazy(() => import("./pages/admin/clients/ClientDetail"));
+const PendingMemberships = lazy(() => import("./pages/admin/memberships/PendingMemberships"));
+const MembershipsActive = lazy(() => import("./pages/admin/memberships/MembershipsActive"));
+const MembershipsExpiring = lazy(() => import("./pages/admin/memberships/MembershipsExpiring"));
+const MembershipsAll = lazy(() => import("./pages/admin/memberships/MembershipsAll"));
+const InstructorsList = lazy(() => import("./pages/admin/staff/InstructorsList"));
+const ClassTypesList = lazy(() => import("./pages/admin/classes/ClassTypesList"));
+const WeeklySchedule = lazy(() => import("./pages/admin/schedules/WeeklySchedule"));
+const ClassesCalendar = lazy(() => import("./pages/admin/classes/ClassesCalendar"));
+const GenerateClasses = lazy(() => import("./pages/admin/classes/GenerateClasses"));
+const BookingsList = lazy(() => import("./pages/admin/bookings/BookingsList"));
+const Waitlist = lazy(() => import("./pages/admin/bookings/Waitlist"));
+const TotalPassToday = lazy(() => import("./pages/admin/bookings/TotalPassToday"));
+const MemberNew = lazy(() => import("./pages/admin/members/MemberNew"));
+const AssignMembership = lazy(() => import("./pages/admin/members/AssignMembership"));
+const PhysicalSale = lazy(() => import("./pages/admin/members/PhysicalSale"));
+const PaymentsHub = lazy(() => import("./pages/admin/payments/PaymentsHub"));
 
 // Settings pages
-import GeneralSettings from "./pages/admin/settings/GeneralSettings";
-import StudioSettings from "./pages/admin/settings/StudioSettings";
-import PoliciesSettings from "./pages/admin/settings/PoliciesSettings";
-import AdminCancellationPolicy from "./pages/admin/settings/CancellationPolicy";
-import NotificationSettings from "./pages/admin/settings/NotificationSettings";
-import WhatsAppSettings from "./pages/admin/settings/WhatsAppSettings";
-import Plataformas from "./pages/admin/settings/Plataformas";
+const GeneralSettings = lazy(() => import("./pages/admin/settings/GeneralSettings"));
+const StudioSettings = lazy(() => import("./pages/admin/settings/StudioSettings"));
+const PoliciesSettings = lazy(() => import("./pages/admin/settings/PoliciesSettings"));
+const AdminCancellationPolicy = lazy(() => import("./pages/admin/settings/CancellationPolicy"));
+const NotificationSettings = lazy(() => import("./pages/admin/settings/NotificationSettings"));
+const WhatsAppSettings = lazy(() => import("./pages/admin/settings/WhatsAppSettings"));
+const Plataformas = lazy(() => import("./pages/admin/settings/Plataformas"));
 
 // Reports pages
-import ReportsOverview from "./pages/admin/reports/ReportsOverview";
-import ReportsClasses from "./pages/admin/reports/ReportsClasses";
-import ReportsRevenue from "./pages/admin/reports/ReportsRevenue";
-import ReportsRetention from "./pages/admin/reports/ReportsRetention";
-import ReportsInstructors from "./pages/admin/reports/ReportsInstructors";
-import InstructorDetail from "./pages/admin/reports/InstructorDetail";
+const ReportsOverview = lazy(() => import("./pages/admin/reports/ReportsOverview"));
+const ReportsClasses = lazy(() => import("./pages/admin/reports/ReportsClasses"));
+const ReportsRevenue = lazy(() => import("./pages/admin/reports/ReportsRevenue"));
+const ReportsRetention = lazy(() => import("./pages/admin/reports/ReportsRetention"));
+const ReportsInstructors = lazy(() => import("./pages/admin/reports/ReportsInstructors"));
+const InstructorDetail = lazy(() => import("./pages/admin/reports/InstructorDetail"));
 
 // Orders/Payments verification page
 
 
-import EventsManager from "./pages/admin/events/EventsManager";
-import Communication from "./pages/admin/marketing/Communication";
-import DiscountCodes from "./pages/admin/discount-codes/DiscountCodes";
-import FacilitiesList from "./pages/admin/facilities/FacilitiesList";
+const EventsManager = lazy(() => import("./pages/admin/events/EventsManager"));
+const Communication = lazy(() => import("./pages/admin/marketing/Communication"));
+const DiscountCodes = lazy(() => import("./pages/admin/discount-codes/DiscountCodes"));
+const FacilitiesList = lazy(() => import("./pages/admin/facilities/FacilitiesList"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -92,6 +95,16 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+function RoutePosition() {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (!hash) window.scrollTo(0, 0);
+    const titles: Record<string, string> = { '/reservar': 'Horarios', '/login': 'Mi cuenta', '/register': 'Crear cuenta', '/pricing': 'Membresías', '/forgot-password': 'Recuperar contraseña' };
+    document.title = `${pathname.startsWith('/app') ? 'Mi Altitud · App de usuario' : titles[pathname] || 'Entrenamiento híbrido y funcional'} | 2707 Altitud`;
+  }, [pathname, hash]);
+  return null;
+}
 
 // Component to check auth on app load
 function AuthInitializer({ children }: { children: React.ReactNode }) {
@@ -115,10 +128,13 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <RoutePosition />
         <AuthInitializer>
+          <Suspense fallback={<div className="alt-loading" role="status" aria-label="Cargando página"><div /><div /><div /><span>Cargando 2707 Altitud…</span></div>}>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
+            <Route path="/reservar" element={<AltitudBooking />} />
             <Route path="/pricing" element={<Checkout />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
@@ -131,6 +147,7 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
 
             {/* Client Routes */}
+            <Route path="/app/preview/*" element={<MemberPreview preview />} />
             <Route path="/app" element={<ClientDashboard />} />
             <Route path="/app/book" element={<BookClasses />} />
             <Route path="/app/book/:classId" element={<BookClassConfirm />} />
@@ -226,6 +243,7 @@ const App = () => (
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+        </Suspense>
         </AuthInitializer>
       </BrowserRouter>
     </TooltipProvider>

@@ -1,4 +1,4 @@
-// Balance Room — service worker
+// 2707 Altitud — service worker
 //
 // Strategy:
 // 1. NEVER cache /api/* responses — those must always come from the network so
@@ -50,7 +50,7 @@ self.addEventListener('fetch', (event) => {
   if (
     url.pathname.startsWith('/api/') ||
     url.hostname.includes('railway.app') ||
-    url.hostname.includes('balance-room-api')
+    url.hostname.includes('altitud2707-api')
   ) {
     return; // let the browser handle, no SW intervention
   }

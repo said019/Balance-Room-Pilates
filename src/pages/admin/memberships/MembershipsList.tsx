@@ -275,7 +275,7 @@ export default function MembershipsList({
                                                             m.status === 'pending_activation' ? 'Por Activar' :
                                                                 m.status === 'cancelled' ? 'Cancelada' :
                                                                     m.status === 'expired' ? 'Vencida' :
-                                                                        m.status === 'completed' ? 'Terminada' : m.status}
+                                                                        m.status === 'paused' ? 'Pausada' : m.status}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-sm">
@@ -401,8 +401,8 @@ export default function MembershipsList({
                                     const discount = Math.round(price * 0.1 * 100) / 100;
                                     const final = Math.round((price - discount) * 100) / 100;
                                     return (
-                                        <div className="rounded-md border border-balance-gold/40 bg-balance-gold/10 p-3 text-sm">
-                                            <p className="font-medium text-balance-gold">Descuento founder 10%</p>
+                                        <div className="rounded-md border border-altitud-gold/40 bg-altitud-gold/10 p-3 text-sm">
+                                            <p className="font-medium text-altitud-gold">Descuento founder 10%</p>
                                             <p className="text-muted-foreground">
                                                 Este cliente es <strong>founder</strong> y aún no ha usado su descuento.
                                                 Al asignar, el sistema cobrará <strong>${final.toFixed(2)}</strong>

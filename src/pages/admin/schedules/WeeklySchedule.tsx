@@ -164,9 +164,9 @@ export default function WeeklySchedule() {
                     <div className="flex gap-2 flex-wrap">
                         {[
                             { id: 'all', label: 'Todas' },
-                            { id: 'Wunda', label: 'Wunda' },
-                            { id: 'Barre', label: 'Barre' },
-                            { id: 'Hot Room', label: 'Hot Room' },
+                            { id: 'Híbrido', label: 'Híbrido' },
+                            { id: 'Funcional', label: 'Funcional' },
+
                         ].map((f) => (
                             <button
                                 key={f.id}
@@ -298,8 +298,8 @@ export default function WeeklySchedule() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label>Inicio</Label>
-                                        <TimePicker 
-                                            value={watch('startTime')} 
+                                        <TimePicker
+                                            value={watch('startTime')}
                                             onChange={(val) => setValue('startTime', val)}
                                             placeholder="Hora inicio"
                                             minuteStep={5}
@@ -308,8 +308,8 @@ export default function WeeklySchedule() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Fin</Label>
-                                        <TimePicker 
-                                            value={watch('endTime')} 
+                                        <TimePicker
+                                            value={watch('endTime')}
                                             onChange={(val) => setValue('endTime', val)}
                                             placeholder="Hora fin"
                                             minuteStep={5}

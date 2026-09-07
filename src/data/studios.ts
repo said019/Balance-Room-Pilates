@@ -57,148 +57,52 @@ export interface StudioInfo {
   palette: StudioPalette;
 }
 
-const studioDirectory: Record<string, StudioInfo> = {
-  balance: {
-    slug: 'balance',
-    name: 'Balance Room Pilates',
-    tagline: 'Yoga, Pilates, Barre y Sculpt en un espacio sereno.',
-    description:
-      'Sesiones pequeñas, atención personalizada y paquetes de créditos con vigencia mensual.',
-    addressLine: 'Av. Insurgentes 51, Mz. 006',
-    city: 'San Salvador Tizatlalli',
-    state: 'Edo. Méx.',
-    postalCode: '52172',
-    phone: '',
-    whatsapp: '',
-    email: 'hola@balanceroom.mx',
-    instagram: '@balanceroom.pilates',
-    mapUrl: 'https://maps.app.goo.gl/d54t7iVdL5DzWgYy9?g_st=iw',
-    classTypes: [
-      {
-        name: 'Yoga',
-        description:
-          'Movimiento consciente, respiración y movilidad para entrar en calma sin perder fuerza.',
-        level: 'all',
-        durationMinutes: 50,
-        maxCapacity: 6,
-        icon: 'leaf',
-      },
-      {
-        name: 'Pilates Mat',
-        description:
-          'Trabajo preciso de core, postura y control con progresiones para todos los niveles.',
-        level: 'all',
-        durationMinutes: 50,
-        maxCapacity: 6,
-        icon: 'target',
-      },
-      {
-        name: 'Hot yoga',
-        description:
-          'Secuencias fluidas en ambiente cálido para sudar, soltar tensión y mejorar resistencia.',
-        level: 'all',
-        durationMinutes: 50,
-        maxCapacity: 6,
-        icon: 'flame',
-      },
-      {
-        name: 'Hot Pilates',
-        description:
-          'Pilates con intensidad y calor: fuerza, estabilidad y energía en una sesión retadora.',
-        level: 'all',
-        durationMinutes: 50,
-        maxCapacity: 6,
-        icon: 'flame',
-      },
-      {
-        name: 'Silla wunda',
-        description:
-          'Clase boutique con equipo, resistencia y correcciones puntuales para activar músculos profundos.',
-        level: 'all',
-        durationMinutes: 50,
-        maxCapacity: 6,
-        icon: 'sparkles',
-      },
-      {
-        name: 'Sculpt',
-        description:
-          'Entrenamiento de cuerpo completo (full body) o enfocado en grupos musculares específicos con movimientos controlados, sentadillas, planchas y ejercicios con resistencia para tonificar. Fusiona elementos de fuerza, entrenamiento funcional, pilates y a veces yoga o HIIT. Mejora la fuerza, potencia, resistencia, flexibilidad y quema calorías.',
-        level: 'all',
-        durationMinutes: 50,
-        maxCapacity: 6,
-        icon: 'waves',
-      },
-      {
-        name: 'Barre',
-        description:
-          'Ballet, pilates y pulsos finos para alargar, tonificar y mejorar postura.',
-        level: 'all',
-        durationMinutes: 50,
-        maxCapacity: 6,
-        icon: 'sparkles',
-      },
-    ],
-    bank: {
-      name: 'BBVA',
-      account: '0123456789',
-      clabe: '012345678901234567',
-      beneficiary: 'Balance Room Pilates',
-    },
-    businessHours: [
-      { label: 'Mañana', hours: '3 clases desde las 7:00' },
-      { label: 'Tarde', hours: '3 clases desde las 17:00' },
-      { label: 'Estudios', hours: '3 salas con cupo de 6' },
-      { label: 'Cancelación', hours: 'Hasta 5 horas antes' },
-    ],
-    palette: {
-      background: '44 32% 94%',
-      foreground: '38 12% 30%',
-      card: '44 28% 96%',
-      cardForeground: '38 12% 30%',
-      popover: '44 32% 94%',
-      popoverForeground: '38 12% 30%',
-      primary: '38 14% 38%',
-      primaryForeground: '44 32% 94%',
-      secondary: '70 12% 46%',
-      secondaryForeground: '44 32% 94%',
-      muted: '44 20% 88%',
-      mutedForeground: '38 10% 46%',
-      accent: '40 22% 82%',
-      accentForeground: '38 12% 30%',
-      border: '42 16% 84%',
-      input: '42 16% 84%',
-      ring: '38 14% 38%',
-      heroGradient:
-        'linear-gradient(135deg, hsl(44 34% 95%) 0%, hsl(40 26% 91%) 50%, hsl(70 16% 84%) 100%)',
-      cardGradient:
-        'linear-gradient(180deg, hsl(44 30% 96%) 0%, hsl(44 22% 92%) 100%)',
-      overlayDark:
-        'linear-gradient(180deg, hsla(38, 12%, 25%, 0.2) 0%, hsla(38, 12%, 25%, 0.55) 100%)',
-      glowSage: '0 12px 32px hsla(70, 12%, 46%, 0.2)',
-      glowWarm: '0 12px 32px hsla(40, 22%, 60%, 0.18)',
-    },
+const studio: StudioInfo = {
+  "slug": "altitud2707",
+  "name": "2707 Altitud",
+  "tagline": "Tu siguiente nivel empieza aquí.",
+  "description": "Entrenamiento híbrido y funcional en grupos pequeños.",
+  "addressLine": "Ubicación exacta por confirmar",
+  "city": "Zinacantepec",
+  "state": "Estado de México",
+  "postalCode": "",
+  "phone": "",
+  "whatsapp": "",
+  "email": "",
+  "instagram": "",
+  "mapUrl": "",
+  "classTypes": [],
+  "bank": {
+    "name": "",
+    "account": "",
+    "clabe": "",
+    "beneficiary": ""
   },
+  "businessHours": [],
+  "palette": {
+    "background": "45 31% 95%",
+    "foreground": "60 6% 10%",
+    "card": "45 31% 97%",
+    "cardForeground": "60 6% 10%",
+    "popover": "45 31% 95%",
+    "popoverForeground": "60 6% 10%",
+    "primary": "64 38% 28%",
+    "primaryForeground": "45 31% 95%",
+    "secondary": "28 29% 39%",
+    "secondaryForeground": "45 31% 95%",
+    "muted": "44 20% 88%",
+    "mutedForeground": "60 7% 36%",
+    "accent": "38 34% 71%",
+    "accentForeground": "60 6% 10%",
+    "border": "38 22% 78%",
+    "input": "38 22% 78%",
+    "ring": "64 38% 28%",
+    "heroGradient": "#F6F4EE",
+    "cardGradient": "#F6F4EE",
+    "overlayDark": "linear-gradient(180deg,transparent,#1C1C19)",
+    "glowSage": "none",
+    "glowWarm": "none"
+  }
 };
 
-const formatSlugName = (slug: string) =>
-  slug
-    .split('-')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-
-export const getStudioBySlug = (slug?: string): StudioInfo => {
-  if (!slug) {
-    return studioDirectory.balance;
-  }
-
-  const normalized = slug.toLowerCase();
-  if (studioDirectory[normalized]) {
-    return studioDirectory[normalized];
-  }
-
-  return {
-    ...studioDirectory.balance,
-    slug: normalized,
-    name: formatSlugName(normalized),
-  };
-};
+export const getStudioBySlug = (_slug?: string): StudioInfo => studio;

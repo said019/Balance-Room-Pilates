@@ -74,7 +74,7 @@ const flows: Flow[] = [
             { actor: 'admin', action: 'Abre Panel → Horario → Selecciona la clase', detail: 'Navega al dia y horario solicitado.' },
             { actor: 'admin', action: 'Busca a la clienta por nombre o telefono → Agregar', detail: 'Un clic y la reserva queda confirmada.' },
             { actor: 'system', action: 'Reserva confirmada automaticamente', detail: 'El sistema registra la reserva y descuenta del paquete.' },
-            { actor: 'system', action: 'Recordatorio WhatsApp 24h antes de la clase', detail: '"Hola Maria, recuerda que tienes clase manana jueves a las 10am en Balance Room."' },
+            { actor: 'system', action: 'Recordatorio WhatsApp 24h antes de la clase', detail: '"Hola Maria, recuerda que tienes clase manana jueves a las 10am en 2707 Altitud."' },
             { actor: 'system', action: 'Si tiene Wallet Pass: push notification al celular', detail: 'Le aparece como notificacion normal en su celular, sin abrir nada.' },
         ],
     },
@@ -105,7 +105,7 @@ const flows: Flow[] = [
             { actor: 'admin', action: 'Busca a la clienta por nombre → Inscribir', detail: 'Selecciona y listo, queda inscrita.' },
             { actor: 'admin', action: 'Registra pago manual (efectivo/transferencia)', detail: 'No necesita pasar por checkout online ni Stripe.' },
             { actor: 'system', action: 'Genera confirmacion automatica', detail: 'El sistema registra la inscripcion y si tiene Wallet Pass, genera uno del evento.' },
-            { actor: 'system', action: 'Recordatorio WhatsApp antes del evento', detail: '"Recuerda que manana es el workshop de Barre a las 5pm."' },
+            { actor: 'system', action: 'Recordatorio WhatsApp antes del evento', detail: '"Recuerda que manana es el workshop de Funcional a las 5pm."' },
         ],
     },
     {

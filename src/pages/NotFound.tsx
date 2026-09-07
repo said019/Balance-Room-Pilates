@@ -1,24 +1,3 @@
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
-
-const NotFound = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-  }, [location.pathname]);
-
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-muted">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">Oops! Page not found</p>
-        <a href="/" className="text-primary underline hover:text-primary/90">
-          Return to Home
-        </a>
-      </div>
-    </div>
-  );
-};
-
-export default NotFound;
+import { Link } from 'react-router-dom';
+import { SiteHeader, SiteFooter, Arrow } from '@/components/altitud/SiteShell';
+export default function NotFound(){return <div className="alt-site"><SiteHeader/><main className="alt-not-found"><div className="alt-eyebrow">404 · FUERA DE RUTA</div><h1>RETOMA<br />TU CAMINO.</h1><p>Esta página no existe. Tu siguiente entrenamiento sí tiene un lugar.</p><Link to="/" className="alt-button alt-button-olive">Volver a Altitud <Arrow/></Link></main><SiteFooter/></div>}

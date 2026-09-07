@@ -311,7 +311,7 @@ export default function InstructorsList() {
         onSuccess: (response, variables) => {
             // Invalidate to refetch the list
             queryClient.invalidateQueries({ queryKey: ['instructors'] });
-            
+
             // **FIX DEL BUG**: Actualizar el instructor en edición con la nueva foto
             if (editingInstructor) {
                 setEditingInstructor({
@@ -319,7 +319,7 @@ export default function InstructorsList() {
                     photo_url: response.data.photo_url
                 });
             }
-            
+
             toast({ title: 'Foto actualizada', description: 'La foto del instructor ha sido actualizada.' });
         },
         onError: (error) => {
@@ -339,8 +339,8 @@ export default function InstructorsList() {
                 email: response.data.email,
                 password: response.data.tempPassword,
             });
-            toast({ 
-                title: 'Acceso generado', 
+            toast({
+                title: 'Acceso generado',
                 description: 'Credenciales de coach creadas exitosamente.',
             });
         },
@@ -360,8 +360,8 @@ export default function InstructorsList() {
                 email: response.data.email,
                 password: response.data.tempPassword,
             });
-            toast({ 
-                title: 'Contraseña restablecida', 
+            toast({
+                title: 'Contraseña restablecida',
                 description: 'Nueva contraseña temporal generada.',
             });
         },
@@ -377,13 +377,13 @@ export default function InstructorsList() {
         },
         onSuccess: (response) => {
             if (response.data.warning) {
-                const title = response.data.needsDomainVerification 
-                    ? '⚠️ Resend requiere dominio verificado' 
+                const title = response.data.needsDomainVerification
+                    ? '⚠️ Resend requiere dominio verificado'
                     : 'Advertencia';
-                
-                toast({ 
+
+                toast({
                     variant: 'destructive',
-                    title, 
+                    title,
                     description: response.data.warning,
                     duration: 8000, // Longer duration for important messages
                 });
@@ -395,8 +395,8 @@ export default function InstructorsList() {
                     });
                 }
             } else {
-                toast({ 
-                    title: '✅ Email enviado', 
+                toast({
+                    title: '✅ Email enviado',
                     description: `Credenciales enviadas a ${response.data.email}`,
                 });
             }
@@ -540,7 +540,7 @@ export default function InstructorsList() {
                                                             <Pencil className="mr-2 h-4 w-4" /> Editar Perfil
                                                         </DropdownMenuItem>
                                                         {!instructor.coach_number ? (
-                                                            <DropdownMenuItem 
+                                                            <DropdownMenuItem
                                                                 onClick={() => {
                                                                     if (confirm('¿Generar acceso al portal de coach?')) {
                                                                         generateAccessMutation.mutate(instructor.id);
@@ -551,7 +551,7 @@ export default function InstructorsList() {
                                                             </DropdownMenuItem>
                                                         ) : (
                                                             <>
-                                                                <DropdownMenuItem 
+                                                                <DropdownMenuItem
                                                                     onClick={() => {
                                                                         const email = instructor.email || prompt('Ingresa el email del instructor:');
                                                                         if (email) {
@@ -561,7 +561,7 @@ export default function InstructorsList() {
                                                                 >
                                                                     <Mail className="mr-2 h-4 w-4" /> Enviar Credenciales por Email
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuItem 
+                                                                <DropdownMenuItem
                                                                     onClick={() => {
                                                                         if (confirm('¿Restablecer contraseña del coach?')) {
                                                                             resetPasswordMutation.mutate(instructor.id);
@@ -613,7 +613,7 @@ export default function InstructorsList() {
                                         placeholder="coach@ejemplo.com"
                                     />
                                     {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
-                                    
+
                                     {/* Show search results when creating */}
                                     {!editingInstructor && !linkedUser && foundUsers && foundUsers.length > 0 && watchedEmail && watchedEmail.length >= 3 && (
                                         <div className="border rounded-md max-h-32 overflow-y-auto bg-popover">
@@ -736,7 +736,7 @@ export default function InstructorsList() {
                                     <Textarea
                                         id="priorities"
                                         {...register('priorities')}
-                                        placeholder="Barre Studio&#10;Pilates Mat&#10;Hot Pilates"
+                                        placeholder="Híbrido&#10;Funcional"
                                         rows={3}
                                     />
                                 </div>
@@ -791,9 +791,9 @@ export default function InstructorsList() {
                                 <div className="space-y-2">
                                     <Label>Email / Usuario</Label>
                                     <div className="flex items-center gap-2">
-                                        <Input 
-                                            value={showCredentials?.email || ''} 
-                                            readOnly 
+                                        <Input
+                                            value={showCredentials?.email || ''}
+                                            readOnly
                                             className="font-mono"
                                         />
                                         <Button
@@ -813,9 +813,9 @@ export default function InstructorsList() {
                                 <div className="space-y-2">
                                     <Label>Contraseña Temporal</Label>
                                     <div className="flex items-center gap-2">
-                                        <Input 
-                                            value={showCredentials?.password || ''} 
-                                            readOnly 
+                                        <Input
+                                            value={showCredentials?.password || ''}
+                                            readOnly
                                             className="font-mono"
                                         />
                                         <Button

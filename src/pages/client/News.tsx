@@ -4,26 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
-const newsItems = [
-  {
-    id: '1',
-    title: 'Semana de Open House',
-    description: 'Invita a un amigo y recibe 2 créditos extra.',
-    date: '10 Ene',
-  },
-  {
-    id: '2',
-    title: 'Nueva clase: Hot Pilates',
-    description: 'Todos los miércoles a las 7:00am.',
-    date: '7 Ene',
-  },
-  {
-    id: '3',
-    title: 'Descuento de aniversario',
-    description: '20% en planes trimestrales durante enero.',
-    date: '1 Ene',
-  },
-];
+const newsItems: Array<{id: string; title: string; description: string; date: string}> = [];
 
 export default function News() {
   return (
@@ -41,6 +22,7 @@ export default function News() {
           </div>
 
           <div className="space-y-4">
+            {newsItems.length === 0 && <p className="py-12 text-muted-foreground">Las novedades de 2707 Altitud aparecerán aquí.</p>}
             {newsItems.map((item) => (
               <Card key={item.id}>
                 <CardHeader>

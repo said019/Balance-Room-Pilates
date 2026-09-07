@@ -313,7 +313,7 @@ export default function ClientsList() {
                                                         <div className="font-medium flex items-center gap-1.5 flex-wrap">
                                                             {user.display_name}
                                                             {user.is_founder && (
-                                                                <Badge className="text-[10px] bg-balance-gold/15 text-balance-gold border border-balance-gold/30 hover:bg-balance-gold/20 px-1.5 py-0">
+                                                                <Badge className="text-[10px] bg-altitud-gold/15 text-altitud-gold border border-altitud-gold/30 hover:bg-altitud-gold/20 px-1.5 py-0">
                                                                     ★ Founder
                                                                 </Badge>
                                                             )}

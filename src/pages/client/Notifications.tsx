@@ -6,15 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const notifications = [
-  {
-    id: '1',
-    title: 'Reserva confirmada',
-    body: 'Barre Studio • Mañana 9:00am',
-    time: 'Hace 2h',
-    unread: true,
-  },
-];
+const notifications: Array<{id: string; title: string; body: string; time: string; unread: boolean}> = [];
 
 export default function Notifications() {
   return (
@@ -37,9 +29,10 @@ export default function Notifications() {
                 <Bell className="h-5 w-5 text-muted-foreground" />
                 Recientes
               </CardTitle>
-              <Button variant="outline" size="sm">Marcar todo leído</Button>
+
             </CardHeader>
             <CardContent className="space-y-4">
+              {notifications.length === 0 && <p className="py-8 text-muted-foreground">No tienes notificaciones por ahora.</p>}
               {notifications.map((item) => (
                 <div key={item.id} className="flex items-start justify-between gap-4">
                   <div>

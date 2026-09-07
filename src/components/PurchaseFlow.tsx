@@ -154,15 +154,15 @@ export function PurchaseFlow() {
   if (step === 'select-plan') {
     return (
       <div className="space-y-7 pb-28 lg:pb-4">
-        <div className="rounded-[2rem] bg-balance-cream/60 p-5 ring-1 ring-balance-sand/60 sm:p-7">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-balance-olive">
+        <div className="rounded-[2rem] bg-altitud-cream/60 p-5 ring-1 ring-altitud-sand/60 sm:p-7">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-altitud-olive">
             paquetes claros
           </span>
           <h2 className="mt-3 text-3xl font-heading font-bold tracking-[-0.04em] text-foreground sm:text-4xl">
             Elige cómo quieres moverte
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground font-body sm:text-base">
-            Individual es para enfocarte en una sala. Mixto es para moverte entre Wunda, Barre y Hot Room con libertad.
+            Individual es para enfocarte en una sala. Mixto es para moverte entre los entrenamientos del studio con libertad.
           </p>
         </div>
 
@@ -174,7 +174,7 @@ export function PurchaseFlow() {
           <div className="space-y-5">
             {groupedPlans.map((group) => (
               <section key={group.type} className={`overflow-hidden rounded-[2rem] p-3 ring-1 ${group.panel}`}>
-                <div className="rounded-[1.55rem] bg-balance-dark/[0.035] p-4 sm:p-5">
+                <div className="rounded-[1.55rem] bg-altitud-dark/[0.035] p-4 sm:p-5">
                   <div className="mb-4 flex items-start justify-between gap-4">
                     <div>
                       <span className={`inline-flex rounded-full px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] ${group.chip}`}>
@@ -230,7 +230,7 @@ export function PurchaseFlow() {
                                 ${effectivePrice.toLocaleString('es-MX')}
                               </p>
                               {promoActive && plan.promo_label && (
-                                <span className="mt-1 inline-flex rounded-full bg-balance-olive px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-balance-cream">
+                                <span className="mt-1 inline-flex rounded-full bg-altitud-olive px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-altitud-cream">
                                   {plan.promo_label}
                                 </span>
                               )}
@@ -241,12 +241,12 @@ export function PurchaseFlow() {
                           </div>
 
                           <div className="mt-5 flex flex-wrap items-center gap-2">
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-balance-cream/70 px-3 py-1.5 text-sm font-semibold ring-1 ring-balance-dark/8">
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-altitud-cream/70 px-3 py-1.5 text-sm font-semibold ring-1 ring-altitud-dark/8">
                               <Star className="h-4 w-4" />
                               {getClassesLabel(plan.class_limit, 0)}
                             </span>
                             {pricePerClass && (
-                              <span className="rounded-full bg-balance-cream/70 px-3 py-1.5 text-xs font-semibold ring-1 ring-balance-dark/8">
+                              <span className="rounded-full bg-altitud-cream/70 px-3 py-1.5 text-xs font-semibold ring-1 ring-altitud-dark/8">
                                 ${pricePerClass} por clase
                               </span>
                             )}
@@ -315,7 +315,7 @@ export function PurchaseFlow() {
                 <div>
                   <h3 className="font-heading font-semibold text-lg">{selectedPlan.name}</h3>
                   <p className="text-sm text-muted-foreground font-body">
-                    {selectedPlan.class_limit 
+                    {selectedPlan.class_limit
                       ? `${selectedPlan.class_limit} clases`
                       : 'Clases ilimitadas'
                     }
@@ -331,7 +331,7 @@ export function PurchaseFlow() {
                     ${getPromo(selectedPlan).effectivePrice.toLocaleString()}
                   </p>
                   {getPromo(selectedPlan).active && selectedPlan.promo_label && (
-                    <span className="mt-1 inline-flex rounded-full bg-balance-olive px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-balance-cream">
+                    <span className="mt-1 inline-flex rounded-full bg-altitud-olive px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-altitud-cream">
                       {selectedPlan.promo_label}
                     </span>
                   )}
@@ -386,9 +386,9 @@ export function PurchaseFlow() {
             <AlertDescription className="text-foreground space-y-2">
               <p className="font-semibold font-heading">Datos bancarios:</p>
               <div className="space-y-1 text-sm font-body">
-                <p><strong>Banco:</strong> BBVA</p>
-                <p><strong>CLABE:</strong> 012 180 0123 4567 8901</p>
-                <p><strong>Titular:</strong> Balance Room Pilates</p>
+                <p>Los datos bancarios oficiales están pendientes de configuración.</p>
+
+
                 <p><strong>Concepto:</strong> Membresía {selectedPlan?.name}</p>
               </div>
             </AlertDescription>

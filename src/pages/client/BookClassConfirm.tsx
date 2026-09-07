@@ -66,17 +66,7 @@ export default function BookClassConfirm() {
   const isFull = (data?.current_bookings || 0) >= (data?.max_capacity || 0);
   const isCancelled = data?.status === 'cancelled';
   const isPast = data ? parseISO(`${data.date.slice(0, 10)}T${data.start_time}`).getTime() <= Date.now() : false;
-  // "Lugares" mostrado: casi lleno (escasez) salvo jueves, que muestra el real.
-  // Solo visual: la reserva la valida el backend con el cupo real.
-  const lugaresLabel = (() => {
-    if (!data) return '';
-    const isThursday = parseISO(`${data.date.slice(0, 10)}T12:00:00`).getDay() === 4;
-    if (isThursday) return `${data.current_bookings}/${data.max_capacity}`;
-    const seed = data.id.split('').reduce((a, ch) => a + ch.charCodeAt(0), 0);
-    const fakeFree = Math.min(1 + (seed % 2), data.max_capacity);
-    const occupied = Math.max(data.current_bookings, data.max_capacity - fakeFree);
-    return `${occupied}/${data.max_capacity}`;
-  })();
+  const lugaresLabel = data ? `${Math.max(0, data.max_capacity - data.current_bookings)} disponibles de ${data.max_capacity}` : '';
 
   return (
     <AuthGuard requiredRoles={['client']}>

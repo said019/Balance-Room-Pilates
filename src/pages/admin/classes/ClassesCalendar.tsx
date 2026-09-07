@@ -176,7 +176,7 @@ function WellhubClassControl({ classId }: { classId: string }) {
     }
 
     return (
-        <div className="rounded-xl border border-balance-sand/55 bg-balance-cream/45 p-3 space-y-2">
+        <div className="rounded-xl border border-altitud-sand/55 bg-altitud-cream/45 p-3 space-y-2">
             <div className="flex items-center justify-between">
                 <WellhubLogo className="h-[1.15rem]" />
                 <Switch
@@ -453,7 +453,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
 
     // `scope` is now a facility ID (or the 'all'/'__none__' sentinels), so we never
     // silently widen to "all rooms" because a name didn't match — that was the bug
-    // where copying "Hot Room" pulled every room's classes.
+    // where copying "Híbrido" pulled every room's classes.
     const scopeToFacility = (scope: string): { facilityId?: string | null } => {
         if (scope === 'all') return {};
         if (scope === '__none__') return { facilityId: null };
@@ -777,7 +777,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const notPublishedTotalpassClassCount = activeClasses.length - totalpassPublishedClassCount;
 
     const studioBreakdown = useMemo(() => {
-        const PREFERRED = ['Wunda', 'Barre', 'Hot Room'];
+        const PREFERRED = ['Híbrido', 'Funcional'];
         const counts = new Map<string, number>();
         // Seed preferred studios so the 3 always render (even with 0).
         for (const name of PREFERRED) counts.set(name, 0);
@@ -801,17 +801,17 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         <AuthGuard requiredRoles={['admin', 'instructor']}>
             <AdminLayout>
                 <div className="space-y-5">
-                    <section className="overflow-hidden rounded-[2rem] border border-balance-olive/25 bg-balance-olive/10 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)]">
+                    <section className="overflow-hidden rounded-[2rem] border border-altitud-olive/25 bg-altitud-olive/10 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)]">
                         <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-end lg:justify-between">
                             <div className="min-w-0">
-                                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-balance-olive/25 bg-balance-cream/55 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-balance-olive">
+                                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-altitud-olive/25 bg-altitud-cream/55 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-altitud-olive">
                                     <Sparkles className="h-3.5 w-3.5" />
                                     Semana activa
                                 </div>
-                                <h1 className="text-3xl font-semibold capitalize tracking-[-0.04em] text-balance-dark">
+                                <h1 className="text-3xl font-semibold capitalize tracking-[-0.04em] text-altitud-dark">
                                     {format(currentDate, 'MMMM yyyy', { locale: es })}
                                 </h1>
-                                <p className="mt-1 text-sm text-balance-dark/62">{weekRange}</p>
+                                <p className="mt-1 text-sm text-altitud-dark/62">{weekRange}</p>
                             </div>
 
                             <div className="space-y-3 lg:min-w-[29rem]">
@@ -820,16 +820,16 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                     <CalendarStat label="Reservas" value={totalBookings} />
                                     <CalendarStat label="Cupos libres" value={openSpots} />
                                 </div>
-                                <div className="rounded-[1.15rem] border border-balance-olive/16 bg-balance-cream/45 px-4 py-3">
+                                <div className="rounded-[1.15rem] border border-altitud-olive/16 bg-altitud-cream/45 px-4 py-3">
                                     <div className="mb-2 flex items-center justify-between gap-2">
-                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-balance-dark/48">
+                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-altitud-dark/48">
                                             Clases por estudio
                                         </p>
                                         {studioFilter !== 'all' && (
                                             <button
                                                 type="button"
                                                 onClick={() => setStudioFilter('all')}
-                                                className="text-[11px] font-semibold text-balance-olive underline-offset-2 hover:underline"
+                                                className="text-[11px] font-semibold text-altitud-olive underline-offset-2 hover:underline"
                                             >
                                                 Ver todos
                                             </button>
@@ -846,12 +846,12 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                     aria-pressed={isActive}
                                                     className={`flex items-center justify-between gap-2 rounded-[0.9rem] border px-3 py-2 text-left transition-colors ${
                                                         isActive
-                                                            ? 'border-balance-olive/60 bg-balance-olive/15'
-                                                            : 'border-balance-olive/14 bg-balance-cream/60 hover:border-balance-olive/30 hover:bg-balance-cream/80'
+                                                            ? 'border-altitud-olive/60 bg-altitud-olive/15'
+                                                            : 'border-altitud-olive/14 bg-altitud-cream/60 hover:border-altitud-olive/30 hover:bg-altitud-cream/80'
                                                     }`}
                                                 >
-                                                    <span className="truncate text-xs font-semibold text-balance-dark/65">{s.name}</span>
-                                                    <span className="text-base font-semibold tabular-nums tracking-[-0.03em] text-balance-dark">{s.count}</span>
+                                                    <span className="truncate text-xs font-semibold text-altitud-dark/65">{s.name}</span>
+                                                    <span className="text-base font-semibold tabular-nums tracking-[-0.03em] text-altitud-dark">{s.count}</span>
                                                 </button>
                                             );
                                         })}
@@ -860,9 +860,9 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-3 border-t border-balance-olive/18 bg-balance-cream/36 p-4 xl:flex-row xl:items-center xl:justify-between">
+                        <div className="flex flex-col gap-3 border-t border-altitud-olive/18 bg-altitud-cream/36 p-4 xl:flex-row xl:items-center xl:justify-between">
                             <div className="flex flex-wrap items-center gap-2">
-                                <div className="flex items-center overflow-hidden rounded-full border border-balance-sand/65 bg-balance-cream/75">
+                                <div className="flex items-center overflow-hidden rounded-full border border-altitud-sand/65 bg-altitud-cream/75">
                                     <Button variant="ghost" size="icon" className="rounded-full" onClick={handlePrevWeek}>
                                         <ChevronLeft className="h-4 w-4" />
                                     </Button>
@@ -873,7 +873,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                         <ChevronRight className="h-4 w-4" />
                                     </Button>
                                 </div>
-                                <Badge variant="outline" className="rounded-full border-balance-olive/30 bg-balance-olive/10 px-3 py-1 text-balance-olive">
+                                <Badge variant="outline" className="rounded-full border-altitud-olive/30 bg-altitud-olive/10 px-3 py-1 text-altitud-olive">
                                     {occupancy}% ocupación
                                 </Badge>
                             </div>
@@ -893,12 +893,12 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                     {bulkDeleteMutation.isPending ? 'Borrando...' : 'Limpiar semana'}
                                 </Button>
 
-                                <Button variant="outline" className="border-balance-sand/70 bg-balance-cream/70" onClick={() => setIsGenerateOpen(true)}>
+                                <Button variant="outline" className="border-altitud-sand/70 bg-altitud-cream/70" onClick={() => setIsGenerateOpen(true)}>
                                     <Repeat className="mr-2 h-4 w-4" /> Generar semana
                                 </Button>
                                 <Button
                                     variant="outline"
-                                    className="border-balance-sand/70 bg-balance-cream/70"
+                                    className="border-altitud-sand/70 bg-altitud-cream/70"
                                     onClick={() => {
                                         const initial = initialCopyScope();
                                         setIsCopyOpen(true);
@@ -909,7 +909,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 </Button>
                                 <Button
                                     variant="outline"
-                                    className={cn('border-balance-sand/70 bg-balance-cream/70', showCancelled && 'border-destructive/40 bg-destructive/10 text-destructive')}
+                                    className={cn('border-altitud-sand/70 bg-altitud-cream/70', showCancelled && 'border-destructive/40 bg-destructive/10 text-destructive')}
                                     onClick={() => setShowCancelled(v => !v)}
                                 >
                                     {showCancelled ? 'Ocultar canceladas' : 'Ver canceladas'}
@@ -928,7 +928,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 <Button variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" onClick={() => setIsBulkFreeOpen(true)}>
                                     <Sparkles className="mr-2 h-4 w-4" /> Marcar como gratis
                                 </Button>
-                                <Button className="bg-balance-olive text-balance-cream hover:bg-balance-olive/90" onClick={() => handleDayClick(new Date())}>
+                                <Button className="bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90" onClick={() => handleDayClick(new Date())}>
                                     <Plus className="mr-2 h-4 w-4" /> Nueva clase
                                 </Button>
                             </div>
@@ -943,8 +943,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 className={cn(
                                     'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
                                     classTypeFilter === 'all'
-                                        ? 'border-balance-olive bg-balance-olive text-balance-cream'
-                                        : 'border-balance-sand/65 bg-balance-cream/75 text-balance-dark/65 hover:border-balance-olive/40 hover:text-balance-olive'
+                                        ? 'border-altitud-olive bg-altitud-olive text-altitud-cream'
+                                        : 'border-altitud-sand/65 bg-altitud-cream/75 text-altitud-dark/65 hover:border-altitud-olive/40 hover:text-altitud-olive'
                                 )}
                             >
                                 Todas
@@ -958,16 +958,16 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                         'flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
                                         classTypeFilter === ct.id
                                             ? 'text-white'
-                                            : 'border-balance-sand/65 bg-balance-cream/75 text-balance-dark/65 hover:border-balance-olive/40 hover:text-balance-olive'
+                                            : 'border-altitud-sand/65 bg-altitud-cream/75 text-altitud-dark/65 hover:border-altitud-olive/40 hover:text-altitud-olive'
                                     )}
                                     style={classTypeFilter === ct.id ? {
-                                        backgroundColor: ct.color || '#7E8579',
-                                        borderColor: ct.color || '#7E8579',
+                                        backgroundColor: ct.color || '#5F632C',
+                                        borderColor: ct.color || '#5F632C',
                                     } : {}}
                                 >
                                     <span
                                         className="h-2 w-2 rounded-full"
-                                        style={{ backgroundColor: ct.color || '#7E8579' }}
+                                        style={{ backgroundColor: ct.color || '#5F632C' }}
                                     />
                                     {ct.name}
                                 </button>
@@ -976,7 +976,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                     )}
 
                     <div className="space-y-2 px-1">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-balance-dark/48">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-altitud-dark/48">
                             Publicación en Wellhub
                         </p>
                         <div
@@ -991,8 +991,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 className={cn(
                                     'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
                                     wellhubClassFilter === 'all'
-                                        ? 'border-balance-olive bg-balance-olive text-balance-cream'
-                                        : 'border-balance-sand/65 bg-balance-cream/75 text-balance-dark/65 hover:border-balance-olive/40'
+                                        ? 'border-altitud-olive bg-altitud-olive text-altitud-cream'
+                                        : 'border-altitud-sand/65 bg-altitud-cream/75 text-altitud-dark/65 hover:border-altitud-olive/40'
                                 )}
                             >
                                 Todas <span className="ml-1 tabular-nums">{activeClasses.length}</span>
@@ -1017,8 +1017,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 className={cn(
                                     'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
                                     wellhubClassFilter === 'not_published'
-                                        ? 'border-balance-dark bg-balance-dark text-white'
-                                        : 'border-balance-sand/65 bg-balance-cream/75 text-balance-dark/65 hover:border-balance-dark/35'
+                                        ? 'border-altitud-dark bg-altitud-dark text-white'
+                                        : 'border-altitud-sand/65 bg-altitud-cream/75 text-altitud-dark/65 hover:border-altitud-dark/35'
                                 )}
                             >
                                 Fuera de Wellhub <span className="ml-1 tabular-nums">{notPublishedClassCount}</span>
@@ -1027,7 +1027,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                     </div>
 
                     <div className="space-y-2 px-1">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-balance-dark/48">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-altitud-dark/48">
                             Publicación en TotalPass
                         </p>
                         <div
@@ -1042,8 +1042,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 className={cn(
                                     'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
                                     totalpassClassFilter === 'all'
-                                        ? 'border-balance-olive bg-balance-olive text-balance-cream'
-                                        : 'border-balance-sand/65 bg-balance-cream/75 text-balance-dark/65 hover:border-balance-olive/40'
+                                        ? 'border-altitud-olive bg-altitud-olive text-altitud-cream'
+                                        : 'border-altitud-sand/65 bg-altitud-cream/75 text-altitud-dark/65 hover:border-altitud-olive/40'
                                 )}
                             >
                                 Todas <span className="ml-1 tabular-nums">{activeClasses.length}</span>
@@ -1068,8 +1068,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 className={cn(
                                     'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
                                     totalpassClassFilter === 'not_published'
-                                        ? 'border-balance-dark bg-balance-dark text-white'
-                                        : 'border-balance-sand/65 bg-balance-cream/75 text-balance-dark/65 hover:border-balance-dark/35'
+                                        ? 'border-altitud-dark bg-altitud-dark text-white'
+                                        : 'border-altitud-sand/65 bg-altitud-cream/75 text-altitud-dark/65 hover:border-altitud-dark/35'
                                 )}
                             >
                                 Fuera de TotalPass <span className="ml-1 tabular-nums">{notPublishedTotalpassClassCount}</span>
@@ -1077,10 +1077,10 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                         </div>
                     </div>
 
-                    <div className="overflow-hidden rounded-[1.75rem] border border-balance-sand/65 bg-[hsl(var(--admin-panel))] shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)]">
+                    <div className="overflow-hidden rounded-[1.75rem] border border-altitud-sand/65 bg-[hsl(var(--admin-panel))] shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)]">
                         <div className="overflow-x-auto">
                             <div className="min-w-[980px]">
-                                <div className="grid grid-cols-7 border-b border-balance-sand/60 bg-balance-cream/55">
+                                <div className="grid grid-cols-7 border-b border-altitud-sand/60 bg-altitud-cream/55">
                                     {weekDays.map((day, i) => {
                                         const isToday = isSameDay(day, new Date());
                                         const isClosed = closedDaySet.has(format(day, 'yyyy-MM-dd'));
@@ -1091,18 +1091,18 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                 type="button"
                                                 onClick={() => handleDayClick(day)}
                                                 className={cn(
-                                                    'min-h-[6.75rem] border-r border-balance-sand/55 p-4 text-left transition-colors last:border-r-0 hover:bg-balance-olive/8',
-                                                    isToday && 'bg-balance-olive/12',
+                                                    'min-h-[6.75rem] border-r border-altitud-sand/55 p-4 text-left transition-colors last:border-r-0 hover:bg-altitud-olive/8',
+                                                    isToday && 'bg-altitud-olive/12',
                                                     isClosed && 'bg-destructive/5'
                                                 )}
                                             >
                                                 <div className="flex items-start justify-between gap-2">
                                                     <div>
-                                                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-balance-dark/50">{DAYS[i]}</p>
+                                                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-altitud-dark/50">{DAYS[i]}</p>
                                                         <div className="mt-2 flex items-center gap-2">
                                                             <span className={cn(
-                                                                'flex h-10 w-10 items-center justify-center rounded-full text-xl font-semibold tabular-nums text-balance-dark',
-                                                                isToday && 'bg-balance-olive text-balance-cream'
+                                                                'flex h-10 w-10 items-center justify-center rounded-full text-xl font-semibold tabular-nums text-altitud-dark',
+                                                                isToday && 'bg-altitud-olive text-altitud-cream'
                                                             )}>
                                                                 {format(day, 'd')}
                                                             </span>
@@ -1111,7 +1111,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                             )}
                                                         </div>
                                                     </div>
-                                                    <span className="rounded-full bg-balance-cream px-2.5 py-1 text-[11px] font-semibold text-balance-dark/58">
+                                                    <span className="rounded-full bg-altitud-cream px-2.5 py-1 text-[11px] font-semibold text-altitud-dark/58">
                                                         {dayClasses.length} clase{dayClasses.length === 1 ? '' : 's'}
                                                     </span>
                                                 </div>
@@ -1130,7 +1130,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                             <div
                                                 key={format(day, 'yyyy-MM-dd')}
                                                 className={cn(
-                                                    'min-h-[34rem] border-r border-balance-sand/55 bg-balance-cream/18 p-3 last:border-r-0',
+                                                    'min-h-[34rem] border-r border-altitud-sand/55 bg-altitud-cream/18 p-3 last:border-r-0',
                                                     isClosed && 'bg-destructive/5'
                                                 )}
                                             >
@@ -1145,13 +1145,13 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                         <Link
                                                             key={ev.id}
                                                             to="/admin/events"
-                                                            className="block rounded-[1.1rem] border border-balance-gold/45 bg-balance-gold/12 p-2.5 text-left transition-colors hover:bg-balance-gold/20"
+                                                            className="block rounded-[1.1rem] border border-altitud-gold/45 bg-altitud-gold/12 p-2.5 text-left transition-colors hover:bg-altitud-gold/20"
                                                         >
-                                                            <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-balance-gold">
+                                                            <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-altitud-gold">
                                                                 <Sparkles className="h-3 w-3" /> Evento
                                                             </div>
-                                                            <div className="mt-0.5 truncate text-sm font-semibold text-balance-dark">{ev.title}</div>
-                                                            <div className="text-xs text-balance-dark/60">
+                                                            <div className="mt-0.5 truncate text-sm font-semibold text-altitud-dark">{ev.title}</div>
+                                                            <div className="text-xs text-altitud-dark/60">
                                                                 {(ev.startTime || '').slice(0, 5)}{ev.endTime ? `–${ev.endTime.slice(0, 5)}` : ''}
                                                             </div>
                                                         </Link>
@@ -1164,7 +1164,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                 {dayClasses.length === 0 && dayEvents.length === 0 && !isClosed && (
                                                     <button
                                                         type="button"
-                                                        className="mt-2 flex min-h-[10rem] w-full flex-col items-center justify-center rounded-[1.1rem] border border-dashed border-balance-sand/70 bg-balance-cream/35 text-center text-balance-dark/48 transition-colors hover:border-balance-olive/40 hover:bg-balance-olive/8 hover:text-balance-olive"
+                                                        className="mt-2 flex min-h-[10rem] w-full flex-col items-center justify-center rounded-[1.1rem] border border-dashed border-altitud-sand/70 bg-altitud-cream/35 text-center text-altitud-dark/48 transition-colors hover:border-altitud-olive/40 hover:bg-altitud-olive/8 hover:text-altitud-olive"
                                                         onClick={() => handleDayClick(day)}
                                                     >
                                                         <Plus className="mb-2 h-4 w-4" />
@@ -1175,7 +1175,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                 {(dayClasses.length > 0 || dayEvents.length > 0) && (
                                                     <Button
                                                         variant="ghost"
-                                                        className="mt-3 h-9 w-full rounded-full border border-dashed border-balance-sand/65 text-xs text-balance-dark/55 hover:border-balance-olive/40 hover:bg-balance-olive/8 hover:text-balance-olive"
+                                                        className="mt-3 h-9 w-full rounded-full border border-dashed border-altitud-sand/65 text-xs text-altitud-dark/55 hover:border-altitud-olive/40 hover:bg-altitud-olive/8 hover:text-altitud-olive"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             handleDayClick(day);
@@ -1269,7 +1269,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
 
                                 {/* Free class toggle */}
                                 {selectedClass?.status !== 'cancelled' && (
-                                    <div className={`rounded-xl border p-3 ${selectedClass?.is_free ? 'border-emerald-300 bg-emerald-50' : 'border-balance-sand/55 bg-balance-cream/45'}`}>
+                                    <div className={`rounded-xl border p-3 ${selectedClass?.is_free ? 'border-emerald-300 bg-emerald-50' : 'border-altitud-sand/55 bg-altitud-cream/45'}`}>
                                         <div className="flex items-center justify-between mb-2">
                                             <div>
                                                 <p className="text-sm font-semibold">Clase gratis</p>
@@ -1326,7 +1326,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
 
                                 {/* Add user to class */}
                                 {selectedClass?.status !== 'cancelled' && (
-                                    <div className="rounded-xl border border-balance-sand/55 bg-balance-cream/45 p-3 space-y-2">
+                                    <div className="rounded-xl border border-altitud-sand/55 bg-altitud-cream/45 p-3 space-y-2">
                                         <p className="text-sm font-semibold">Agregar usuario a la clase</p>
                                         <div className="relative">
                                             <Input
@@ -1358,7 +1358,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                             if (!selectedClass) return;
                                                             adminBookMutation.mutate({ classId: selectedClass.id, userId: u.id });
                                                         }}
-                                                        className="flex w-full items-center gap-3 rounded-lg border border-transparent px-2 py-1.5 text-left text-xs hover:border-balance-olive/30 hover:bg-balance-olive/8 disabled:opacity-50"
+                                                        className="flex w-full items-center gap-3 rounded-lg border border-transparent px-2 py-1.5 text-left text-xs hover:border-altitud-olive/30 hover:bg-altitud-olive/8 disabled:opacity-50"
                                                     >
                                                         <Avatar className="h-6 w-6 shrink-0">
                                                             <AvatarImage src={u.photo_url || undefined} />
@@ -1371,7 +1371,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                         {adminBookMutation.isPending ? (
                                                             <Loader2 className="ml-auto h-3 w-3 animate-spin shrink-0" />
                                                         ) : (
-                                                            <Plus className="ml-auto h-3 w-3 shrink-0 text-balance-olive opacity-0 group-hover:opacity-100" />
+                                                            <Plus className="ml-auto h-3 w-3 shrink-0 text-altitud-olive opacity-0 group-hover:opacity-100" />
                                                         )}
                                                     </button>
                                                 ))}
@@ -1596,7 +1596,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                     </Select>
                                 </div>
 
-                                <div className="rounded-lg border border-balance-olive/20 bg-balance-cream/40 px-3 py-2 text-sm text-balance-dark/80">
+                                <div className="rounded-lg border border-altitud-olive/20 bg-altitud-cream/40 px-3 py-2 text-sm text-altitud-dark/80">
                                     {previewCopyMutation.isPending ? (
                                         'Calculando…'
                                     ) : copyPreview && copyPreview.wouldCopy > 0 ? (
@@ -1617,7 +1617,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                             <DialogFooter>
                                 <Button variant="outline" onClick={() => setIsCopyOpen(false)}>Cancelar</Button>
                                 <Button
-                                    className="bg-balance-olive text-balance-cream hover:bg-balance-olive/90"
+                                    className="bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90"
                                     onClick={() => copyWeekMutation.mutate(copyScope)}
                                     disabled={copyWeekMutation.isPending || previewCopyMutation.isPending || !copyPreview || copyPreview.wouldCopy === 0}
                                 >
@@ -1893,7 +1893,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                         />
                                     </div>
                                 </div>
-                                <div className="rounded-lg border border-balance-sand/55 bg-balance-cream/40 p-3 space-y-2">
+                                <div className="rounded-lg border border-altitud-sand/55 bg-altitud-cream/40 p-3 space-y-2">
                                     <div className="flex items-center justify-between">
                                         <Label className="text-xs font-semibold">Filtro de horario de clase</Label>
                                         <button
@@ -1904,7 +1904,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                             Todo el día
                                         </button>
                                     </div>
-                                    <p className="text-[11px] text-balance-dark/55">Solo las clases cuyo horario de inicio esté dentro de este rango quedarán gratis.</p>
+                                    <p className="text-[11px] text-altitud-dark/55">Solo las clases cuyo horario de inicio esté dentro de este rango quedarán gratis.</p>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
                                             <Label className="text-xs">Clase empieza desde</Label>
@@ -1980,15 +1980,15 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
 
 function CalendarStat({ label, value }: { label: string; value: number }) {
     return (
-        <div className="rounded-[1.15rem] border border-balance-olive/16 bg-balance-cream/55 px-4 py-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-balance-dark/48">{label}</p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums tracking-[-0.04em] text-balance-dark">{value}</p>
+        <div className="rounded-[1.15rem] border border-altitud-olive/16 bg-altitud-cream/55 px-4 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-altitud-dark/48">{label}</p>
+            <p className="mt-1 text-2xl font-semibold tabular-nums tracking-[-0.04em] text-altitud-dark">{value}</p>
         </div>
     );
 }
 
 function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void }) {
-    const baseColor = item.class_type_color || '#7E8579';
+    const baseColor = item.class_type_color || '#5F632C';
     const isFree = !!item.is_free;
     const isMexico = (item.theme || 'none') === 'mexico';
     const color = isFree ? '#16a34a' : baseColor;
@@ -2023,7 +2023,7 @@ function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void })
             <div className="flex flex-wrap items-center justify-between gap-1.5">
                 <div className="flex shrink-0 items-center gap-2">
                     <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
-                    <span className="text-sm font-semibold text-balance-dark">{formatClassTime(item.start_time)}</span>
+                    <span className="text-sm font-semibold text-altitud-dark">{formatClassTime(item.start_time)}</span>
                 </div>
                 <div className="flex flex-wrap shrink-0 items-center justify-end gap-1">
                     {item.wellhub_published && (
@@ -2043,7 +2043,7 @@ function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void })
                         </span>
                     )}
                     {isMexico && (
-                        <span className="rounded-full bg-balance-cream/80 px-2 py-0.5 text-[10px] font-bold tracking-wide" title="Clase temática">
+                        <span className="rounded-full bg-altitud-cream/80 px-2 py-0.5 text-[10px] font-bold tracking-wide" title="Clase temática">
                             🇲🇽
                         </span>
                     )}
@@ -2055,15 +2055,15 @@ function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void })
                     {isCancelled ? (
                         <Badge variant="destructive" className="rounded-full text-[10px]">Cancelada</Badge>
                     ) : (
-                        <span className="rounded-full bg-balance-cream/75 px-2 py-0.5 text-[10px] font-semibold text-balance-dark/55">
+                        <span className="rounded-full bg-altitud-cream/75 px-2 py-0.5 text-[10px] font-semibold text-altitud-dark/55">
                             {bookings}/{capacity}
                         </span>
                     )}
                 </div>
             </div>
 
-            <p className="mt-2 truncate text-sm font-semibold leading-5 text-balance-dark">{item.class_type_name}</p>
-            <div className="mt-2 space-y-1.5 text-[11px] text-balance-dark/56">
+            <p className="mt-2 truncate text-sm font-semibold leading-5 text-altitud-dark">{item.class_type_name}</p>
+            <div className="mt-2 space-y-1.5 text-[11px] text-altitud-dark/56">
                 <p className="flex min-w-0 items-center gap-1.5">
                     <Users className="h-3.5 w-3.5 shrink-0" />
                     <span className="truncate">{item.instructor_name || 'Coach por asignar'}</span>
@@ -2078,7 +2078,7 @@ function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void })
                 </p>
             </div>
 
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-balance-dark/10">
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-altitud-dark/10">
                 <div
                     className="h-full rounded-full transition-[width] duration-300"
                     style={{ width: `${ratio}%`, backgroundColor: color }}

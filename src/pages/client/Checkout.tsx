@@ -135,13 +135,13 @@ export default function Checkout() {
     },
   });
 
-  // Fetch user membership status 
+  // Fetch user membership status
   // We need to know if they have an active "membership_fee" plan
   const { data: myMembership } = useQuery({
     queryKey: ['my-membership-status'],
     queryFn: async () => {
       try {
-        // We can check /bookings/my-bookings or a specific endpoint. 
+        // We can check /bookings/my-bookings or a specific endpoint.
         // Or simpler: /memberships/my-active-fee
         // Since we dont have that, let's use the generic my-membership and check plan details if possible.
         // Actually, `ProfileMembership` uses `fetchMyMembership`. Let's assume user might have multiple or we check the backend check.
@@ -149,7 +149,7 @@ export default function Checkout() {
         // Let's use `api.get('/memberships/active')` if it exists, or check the existing `my-membership` logic.
         // Existing code uses `fetchMyMembership`. Let's rely on that.
         const res = await api.get('/memberships/my');
-        // BE endpoint /api/memberships/my returns the active membership usually. 
+        // BE endpoint /api/memberships/my returns the active membership usually.
         // But we specifically need to know if they have the "Fee" membership.
         // Let's assume the backend endpoint returns plan details.
         return res.data;
@@ -364,12 +364,12 @@ export default function Checkout() {
     <AuthGuard requiredRoles={['client']}>
       <ClientLayout>
         <div className="mx-auto max-w-5xl space-y-6">
-          <section className="rounded-[2rem] border border-balance-olive/25 bg-balance-olive/10 p-5 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)] sm:p-6">
+          <section className="rounded-[2rem] border border-altitud-olive/25 bg-altitud-olive/10 p-5 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)] sm:p-6">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full bg-balance-cream/65"
+              className="rounded-full bg-altitud-cream/65"
               onClick={() => {
                 if (step === 'payment') setStep('plan');
                 else if (step === 'confirm') setStep('payment');
@@ -379,12 +379,12 @@ export default function Checkout() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-semibold tracking-[-0.04em] text-balance-dark sm:text-4xl">
+              <h1 className="text-3xl font-semibold tracking-[-0.04em] text-altitud-dark sm:text-4xl">
                 {step === 'plan' && 'Elige tu plan'}
                 {step === 'payment' && 'Método de pago'}
                 {step === 'confirm' && 'Confirmar orden'}
               </h1>
-              <p className="mt-1 text-sm text-balance-dark/62">
+              <p className="mt-1 text-sm text-altitud-dark/62">
                 {step === 'plan' && 'Selecciona el plan que mejor se adapte a ti'}
                 {step === 'payment' && 'Elige cómo quieres pagar'}
                 {step === 'confirm' && 'Revisa los detalles de tu compra'}
@@ -394,11 +394,11 @@ export default function Checkout() {
           </section>
 
           <div className="flex items-center gap-2 text-sm">
-            <Badge variant={step === 'plan' ? 'default' : 'secondary'} className={step === 'plan' ? 'rounded-full bg-balance-olive text-balance-cream' : 'rounded-full'}>1. Plan</Badge>
+            <Badge variant={step === 'plan' ? 'default' : 'secondary'} className={step === 'plan' ? 'rounded-full bg-altitud-olive text-altitud-cream' : 'rounded-full'}>1. Plan</Badge>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            <Badge variant={step === 'payment' ? 'default' : 'secondary'} className={step === 'payment' ? 'rounded-full bg-balance-olive text-balance-cream' : 'rounded-full'}>2. Pago</Badge>
+            <Badge variant={step === 'payment' ? 'default' : 'secondary'} className={step === 'payment' ? 'rounded-full bg-altitud-olive text-altitud-cream' : 'rounded-full'}>2. Pago</Badge>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            <Badge variant={step === 'confirm' ? 'default' : 'secondary'} className={step === 'confirm' ? 'rounded-full bg-balance-olive text-balance-cream' : 'rounded-full'}>3. Confirmar</Badge>
+            <Badge variant={step === 'confirm' ? 'default' : 'secondary'} className={step === 'confirm' ? 'rounded-full bg-altitud-olive text-altitud-cream' : 'rounded-full'}>3. Confirmar</Badge>
           </div>
 
           {/* Step 1: Select Plan */}
@@ -413,7 +413,7 @@ export default function Checkout() {
               ) : groupedPlans.length > 0 ? (
                 groupedPlans.map((group) => (
                   <section key={group.type} className={`rounded-[1.9rem] p-3 ring-1 ${group.panel}`}>
-                    <div className="rounded-[1.45rem] bg-balance-dark/[0.035] p-4 sm:p-5">
+                    <div className="rounded-[1.45rem] bg-altitud-dark/[0.035] p-4 sm:p-5">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                           <span className={`inline-flex rounded-full px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] ${group.chip}`}>
@@ -462,7 +462,7 @@ export default function Checkout() {
                                       {presentation.accentLabel}
                                     </span>
                                     {isMembershipFeePlan(plan) && (
-                                      <span className="rounded-full bg-balance-cream/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-balance-dark/70 ring-1 ring-balance-dark/10">
+                                      <span className="rounded-full bg-altitud-cream/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-altitud-dark/70 ring-1 ring-altitud-dark/10">
                                         acceso anual
                                       </span>
                                     )}
@@ -492,7 +492,7 @@ export default function Checkout() {
                                     {formatPrice(price)}
                                   </p>
                                   {promoActive && plan.promo_label && (
-                                    <span className="mt-1 inline-flex rounded-full bg-balance-olive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-balance-olive">
+                                    <span className="mt-1 inline-flex rounded-full bg-altitud-olive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-altitud-olive">
                                       {plan.promo_label}
                                     </span>
                                   )}
@@ -503,12 +503,12 @@ export default function Checkout() {
                               </div>
 
                               <div className="mt-5 flex flex-wrap items-center gap-2">
-                                <span className="inline-flex items-center gap-1.5 rounded-full bg-balance-cream/70 px-3 py-1.5 text-sm font-semibold ring-1 ring-balance-dark/8">
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-altitud-cream/70 px-3 py-1.5 text-sm font-semibold ring-1 ring-altitud-dark/8">
                                   <Star className="h-4 w-4" />
                                   {classesLabel}
                                 </span>
                                 {pricePerClass && (
-                                  <span className="rounded-full bg-balance-cream/70 px-3 py-1.5 text-xs font-semibold ring-1 ring-balance-dark/8">
+                                  <span className="rounded-full bg-altitud-cream/70 px-3 py-1.5 text-xs font-semibold ring-1 ring-altitud-dark/8">
                                     {pricePerClass} por clase
                                   </span>
                                 )}
@@ -567,7 +567,7 @@ export default function Checkout() {
           {step === 'payment' && selectedPlan && (
             <div className="space-y-4">
               {/* Selected plan summary */}
-              <Card className="rounded-[1.5rem] border-balance-sand/65 bg-balance-cream/45">
+              <Card className="rounded-[1.5rem] border-altitud-sand/65 bg-altitud-cream/45">
                 <CardContent className="py-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -586,7 +586,7 @@ export default function Checkout() {
                       )}
                       <p className="text-xl font-bold">{formatPrice(getEffectivePrice(selectedPlan).effectivePrice)}</p>
                       {getEffectivePrice(selectedPlan).promoActive && selectedPlan.promo_label && (
-                        <span className="inline-flex rounded-full bg-balance-olive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-balance-olive">{selectedPlan.promo_label}</span>
+                        <span className="inline-flex rounded-full bg-altitud-olive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-altitud-olive">{selectedPlan.promo_label}</span>
                       )}
                     </div>
                   </div>
@@ -594,7 +594,7 @@ export default function Checkout() {
               </Card>
 
               {/* Payment methods */}
-              <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88">
+              <Card className="rounded-[1.75rem] border-altitud-sand/65 bg-[hsl(var(--card))]/88">
                 <CardHeader>
                   <CardTitle className="text-lg">Selecciona método de pago</CardTitle>
                 </CardHeader>
@@ -608,15 +608,15 @@ export default function Checkout() {
                       <div
                         key={method.value}
                         className={`flex cursor-pointer items-start space-x-3 rounded-[1.25rem] border p-4 transition-colors ${selectedPaymentMethod === method.value
-                          ? 'border-balance-olive bg-balance-olive/8'
-                          : 'border-balance-sand/65 hover:bg-balance-cream/55'
+                          ? 'border-altitud-olive bg-altitud-olive/8'
+                          : 'border-altitud-sand/65 hover:bg-altitud-cream/55'
                           }`}
                         onClick={() => setSelectedPaymentMethod(method.value)}
                       >
                         <RadioGroupItem value={method.value} id={method.value} className="mt-1" />
                         <div className="flex-1">
                           <Label htmlFor={method.value} className="flex items-center gap-2 cursor-pointer">
-                            <method.icon className="h-5 w-5 text-balance-olive" />
+                            <method.icon className="h-5 w-5 text-altitud-olive" />
                             <span className="font-medium">{method.label}</span>
                           </Label>
                           <p className="text-sm text-muted-foreground mt-1">
@@ -628,7 +628,7 @@ export default function Checkout() {
                   </RadioGroup>
                 </CardContent>
                 <CardFooter>
-                  <Button onClick={handlePaymentMethodSelect} className="w-full rounded-full bg-balance-olive text-balance-cream hover:bg-balance-olive/90">
+                  <Button onClick={handlePaymentMethodSelect} className="w-full rounded-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90">
                     Continuar
                     <ChevronRight className="h-4 w-4 ml-2" />
                   </Button>
@@ -640,7 +640,7 @@ export default function Checkout() {
           {/* Step 3: Confirm Order */}
           {step === 'confirm' && selectedPlan && (
             <div className="space-y-4">
-              <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88">
+              <Card className="rounded-[1.75rem] border-altitud-sand/65 bg-[hsl(var(--card))]/88">
                 <CardHeader>
                   <CardTitle className="text-lg">Resumen de tu orden</CardTitle>
                 </CardHeader>
@@ -765,7 +765,7 @@ export default function Checkout() {
                         </div>
                       )}
                       {founderDiscount > 0 && (
-                        <div className="flex items-center justify-between text-sm text-balance-gold">
+                        <div className="flex items-center justify-between text-sm text-altitud-gold">
                           <span className="flex items-center gap-1">
                             <Sparkles className="h-3 w-3" />
                             Founder member -10% (uso único)
@@ -779,7 +779,7 @@ export default function Checkout() {
                   {/* Total */}
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-lg">Total</span>
-                    <span className="font-bold text-lg text-balance-olive">
+                    <span className="font-bold text-lg text-altitud-olive">
                       {formatPrice(finalTotal)}
                     </span>
                   </div>
@@ -798,7 +798,7 @@ export default function Checkout() {
 
                   {/* Bank transfer info preview */}
                   {selectedPaymentMethod === 'bank_transfer' && bankInfo && (
-                    <div className="space-y-3 rounded-[1.25rem] bg-balance-cream/45 p-4">
+                    <div className="space-y-3 rounded-[1.25rem] bg-altitud-cream/45 p-4">
                       <p className="text-sm font-medium flex items-center gap-2">
                         <Building2 className="h-4 w-4" />
                         Datos para transferencia
@@ -854,9 +854,9 @@ export default function Checkout() {
                             {copiedField === 'clabe' ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
                           </Button>
                         </div>
-                        <div className="rounded-md border border-balance-olive/20 bg-balance-olive/8 p-2.5">
+                        <div className="rounded-md border border-altitud-olive/20 bg-altitud-olive/8 p-2.5">
                           <p className="text-xs text-muted-foreground">Monto a transferir</p>
-                          <p className="font-bold text-balance-olive">{formatPrice(finalTotal)}</p>
+                          <p className="font-bold text-altitud-olive">{formatPrice(finalTotal)}</p>
                         </div>
                       </div>
                       <p className="text-xs text-muted-foreground">
@@ -897,7 +897,7 @@ export default function Checkout() {
                 <CardFooter className="flex-col gap-3">
                   <Button
                     onClick={handleConfirmOrder}
-                    className="w-full rounded-full bg-balance-olive text-balance-cream hover:bg-balance-olive/90"
+                    className="w-full rounded-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90"
                     disabled={createOrder.isPending}
                   >
                     {createOrder.isPending ? (

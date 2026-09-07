@@ -2,7 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import type { ApiError } from '@/types/auth';
 
 // API base URL - change in production
-const API_URL = import.meta.env.VITE_API_URL || 'https://balance-room-api-production.up.railway.app/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Create axios instance
 const api = axios.create({
@@ -14,9 +14,9 @@ const api = axios.create({
 });
 
 // Token storage key
-const TOKEN_KEY = 'forma_pilates_token';
-// Admin API token (separate from JWT) used by /evolution endpoints in balance-room-api
-const ADMIN_TOKEN_KEY = 'balance_room_admin_token';
+const TOKEN_KEY = 'altitud2707_token';
+// Admin API token (separate from JWT) used by /evolution endpoints in altitud2707-api
+const ADMIN_TOKEN_KEY = 'altitud2707_admin_token';
 
 export function getAdminApiToken(): string | null {
     return localStorage.getItem(ADMIN_TOKEN_KEY);
@@ -52,7 +52,7 @@ api.interceptors.request.use(
         if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        // Attach admin token for /evolution/* endpoints (balance-room-api)
+        // Attach admin token for /evolution/* endpoints (altitud2707-api)
         const adminToken = getAdminApiToken();
         if (adminToken && config.headers && (config.url || '').startsWith('/evolution')) {
             config.headers['x-admin-token'] = adminToken;

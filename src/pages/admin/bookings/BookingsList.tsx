@@ -179,7 +179,7 @@ export default function BookingsList({
                         ) : (
                           <Badge
                             variant="outline"
-                            className="border-balance-sand/70 bg-balance-cream/65 text-balance-dark/65"
+                            className="border-altitud-sand/70 bg-altitud-cream/65 text-altitud-dark/65"
                           >
                             Balance
                           </Badge>

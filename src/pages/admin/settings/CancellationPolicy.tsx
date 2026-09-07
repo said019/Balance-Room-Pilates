@@ -104,16 +104,16 @@ export default function CancellationPolicy() {
             <AdminLayout>
                 <div className="mx-auto max-w-3xl space-y-6">
                     <div>
-                        <h1 className="text-3xl font-semibold tracking-[-0.04em] text-balance-dark">Política de cancelación</h1>
-                        <p className="mt-1 text-sm text-balance-dark/62">
+                        <h1 className="text-3xl font-semibold tracking-[-0.04em] text-altitud-dark">Política de cancelación</h1>
+                        <p className="mt-1 text-sm text-altitud-dark/62">
                             Define cuándo y cómo pueden cancelar tus clientes. Estos cambios afectan a todas las clases inmediatamente.
                         </p>
                     </div>
 
-                    <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88">
+                    <Card className="rounded-[1.75rem] border-altitud-sand/65 bg-[hsl(var(--card))]/88">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-lg">
-                                <Info className="h-5 w-5 text-balance-olive" />
+                                <Info className="h-5 w-5 text-altitud-olive" />
                                 Vista previa
                             </CardTitle>
                             <CardDescription>{previewText}</CardDescription>
@@ -121,15 +121,15 @@ export default function CancellationPolicy() {
                     </Card>
 
                     <form onSubmit={onSubmit} className="space-y-5">
-                        <Card className="rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88">
+                        <Card className="rounded-[1.75rem] border-altitud-sand/65 bg-[hsl(var(--card))]/88">
                             <CardHeader>
                                 <CardTitle className="text-lg">Configuración</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                <div className="flex items-center justify-between rounded-xl border border-balance-sand/55 px-4 py-3">
+                                <div className="flex items-center justify-between rounded-xl border border-altitud-sand/55 px-4 py-3">
                                     <div>
                                         <Label className="text-sm font-semibold">Permitir cancelaciones</Label>
-                                        <p className="text-xs text-balance-dark/55">Si lo apagas, ningún cliente puede cancelar.</p>
+                                        <p className="text-xs text-altitud-dark/55">Si lo apagas, ningún cliente puede cancelar.</p>
                                     </div>
                                     <Switch
                                         checked={values.enabled}
@@ -139,7 +139,7 @@ export default function CancellationPolicy() {
 
                                 <div className="space-y-2">
                                     <Label className="flex items-center gap-2 text-sm font-semibold">
-                                        <Clock className="h-4 w-4 text-balance-olive" />
+                                        <Clock className="h-4 w-4 text-altitud-olive" />
                                         Horas mínimas antes de la clase
                                     </Label>
                                     <Input
@@ -151,7 +151,7 @@ export default function CancellationPolicy() {
                                         className="w-32 text-base"
                                         disabled={!values.enabled}
                                     />
-                                    <p className="text-xs text-balance-dark/55">
+                                    <p className="text-xs text-altitud-dark/55">
                                         Por debajo de este margen, la cancelación se rechaza. Rango 0–168 (1 semana).
                                     </p>
                                     {form.formState.errors.min_hours && (
@@ -159,10 +159,10 @@ export default function CancellationPolicy() {
                                     )}
                                 </div>
 
-                                <div className="flex items-center justify-between rounded-xl border border-balance-sand/55 px-4 py-3">
+                                <div className="flex items-center justify-between rounded-xl border border-altitud-sand/55 px-4 py-3">
                                     <div>
                                         <Label className="text-sm font-semibold">Devolver crédito al cancelar</Label>
-                                        <p className="text-xs text-balance-dark/55">
+                                        <p className="text-xs text-altitud-dark/55">
                                             Si está apagado, la reserva se cancela pero el crédito no regresa.
                                         </p>
                                     </div>
@@ -186,7 +186,7 @@ export default function CancellationPolicy() {
                                         className="w-32 text-base"
                                         disabled={!values.enabled}
                                     />
-                                    <p className="text-xs text-balance-dark/55">
+                                    <p className="text-xs text-altitud-dark/55">
                                         Cuántas veces puede cancelar un cliente dentro del mismo paquete antes de que se rechacen sus cancelaciones. Aplica solo a paquetes nuevos. Los administradores siempre pueden cancelar.
                                     </p>
                                     {form.formState.errors.cancellations_per_membership && (
@@ -204,7 +204,7 @@ export default function CancellationPolicy() {
                                         placeholder="Ej: Tu clase está muy próxima. Llega con tiempo o avisanos por WhatsApp."
                                         {...form.register('late_cancel_message')}
                                     />
-                                    <p className="text-xs text-balance-dark/55">
+                                    <p className="text-xs text-altitud-dark/55">
                                         Aparecerá en la app cuando el cliente intente cancelar fuera de tiempo. Máx 280 caracteres.
                                     </p>
                                 </div>
@@ -215,7 +215,7 @@ export default function CancellationPolicy() {
                             <Button
                                 type="submit"
                                 disabled={mutation.isPending || !form.formState.isDirty}
-                                className="rounded-full bg-balance-olive text-balance-cream hover:bg-balance-olive/90"
+                                className="rounded-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90"
                             >
                                 {mutation.isPending ? 'Guardando…' : (
                                     <>

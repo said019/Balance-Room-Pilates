@@ -79,7 +79,7 @@ export default function TotalPassToday() {
         title: variables.retryTotalPass ? 'TotalPass confirmado' : 'Asistencia enviada',
         description: variables.retryTotalPass
           ? 'La visita quedó registrada correctamente en TotalPass.'
-          : 'Balance Room registró el check-in y está confirmándolo con TotalPass.',
+          : '2707 Altitud registró el check-in y está confirmándolo con TotalPass.',
       });
       window.setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['totalpass-today'] });

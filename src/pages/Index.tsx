@@ -1,27 +1,31 @@
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import ClassTypes from "@/components/ClassTypes";
-import Schedule from "@/components/Schedule";
-import Instructors from "@/components/Instructors";
-import Pricing from "@/components/Pricing";
-import Testimonials from "@/components/Testimonials";
-import Location from "@/components/Location";
-import Footer from "@/components/Footer";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { SiteHeader, SiteFooter, Arrow } from '@/components/altitud/SiteShell';
 
-const Index = () => {
-  return (
-    <main className="min-h-screen bg-background">
-      <Navbar />
-      <Hero />
-      <ClassTypes />
-      <Schedule />
-      <Instructors />
-      <Pricing />
-      <Testimonials />
-      <Location />
-      <Footer />
-    </main>
-  );
-};
-
-export default Index;
+const disciplines = [
+  { id: '01', name: 'HÍBRIDO', label: 'FUERZA + RESISTENCIA', description: 'Lo mejor de dos mundos. Construye fuerza, trabaja tu capacidad cardiovascular y descubre de lo que eres capaz.', image: 'hybrid-training.jpg', note: 'Entrena para ir más lejos' },
+  { id: '02', name: 'FUNCIONAL', label: 'MOVIMIENTO + CONTROL', description: 'Muévete mejor, dentro y fuera del studio. Técnica, estabilidad y fuerza que se sienten en tu día a día.', image: 'community-training.jpg', note: 'Una base fuerte lo cambia todo' },
+];
+const questions = [
+  ['¿Puedo entrenar si estoy empezando?', 'Sí. Aquí tu punto de partida es tuyo. El coaching cercano nos permite adaptar el trabajo a tu nivel, cuidar tu técnica y acompañarte para construir una base sólida.'],
+  ['¿Qué significa entrenamiento híbrido?', 'Combinamos trabajo de fuerza y resistencia cardiovascular. Es una forma de desarrollar una condición física completa y prepararte para distintos retos deportivos.'],
+  ['¿Necesito experiencia en HYROX?', 'No necesitas haber competido. El entrenamiento híbrido es para quienes quieren comenzar y para atletas que buscan complementar su preparación para retos como HYROX.'],
+  ['¿Qué llevo a mi primera clase?', 'Ropa deportiva cómoda, tenis para entrenar, agua y una toalla. Ven con disposición de aprender; el resto lo construimos juntos.'],
+  ['¿Cómo reservo mi lugar?', 'Entra a Horarios, elige tu sesión y sigue los pasos de reserva. La agenda que puedes explorar ahora es una muestra del nuevo sitio; los horarios y membresías oficiales se publicarán al confirmar la operación del studio.'],
+];
+export default function Index() {
+  const [openQuestion, setOpenQuestion] = useState<number | null>(0);
+  return <div className="alt-site"><a href="#contenido" className="alt-skip">Ir al contenido</a><SiteHeader /><main id="contenido">
+    <section className="alt-hero">
+      <div className="alt-hero-copy"><div className="alt-eyebrow"><span className="alt-status-dot" /> STUDIO DE ENTRENAMIENTO · ZINACANTEPEC</div><h1>TU SIGUIENTE<br />NIVEL EMPIEZA<br /><span>AQUÍ.</span></h1><p>Entrenamiento híbrido y funcional.<br />Grupos pequeños. Una comunidad que te impulsa.</p><div className="alt-hero-buttons"><Link className="alt-button alt-button-olive" to="/reservar">Encuentra tu clase <Arrow /></Link><a className="alt-text-link" href="#studio">Conoce Altitud <span aria-hidden="true">↓</span></a></div><div className="alt-hero-bottom"><span>2707 M S. N. M.</span><span>EL ORIGEN DE NUESTRO NOMBRE.<br />EL INICIO DE TU EVOLUCIÓN.</span></div></div>
+      <div className="alt-hero-visual"><img src="/brand/hybrid-training.jpg" alt="Entrenamiento híbrido con empuje de trineo" width="1920" height="1080" /><div className="alt-image-top"><span>DISCIPLINA EN CADA REPETICIÓN.</span><span>2707 ALTITUD</span></div><div className="alt-image-bottom"><span>PERFORMANCE<br /><span className="alt-outline-word">LIFESTYLE.</span></span><a href="#entrenamientos" aria-label="Descubre los entrenamientos" className="alt-circle-link"><Arrow /></a></div></div>
+    </section>
+    <div className="alt-values-strip"><span>ALTITUD</span><span aria-hidden="true">↗</span><span>DISCIPLINA</span><span aria-hidden="true">↗</span><span>COMUNIDAD</span><span aria-hidden="true">↗</span><span>EVOLUCIÓN</span><span aria-hidden="true">↗</span></div>
+    <section className="alt-section alt-intro" id="studio"><div className="alt-eyebrow">01 — NUESTRA ESENCIA</div><div><h2>NO SE TRATA DE QUÉ TAN ALTO ESTÁS.<br /><span>SE TRATA DE HASTA DÓNDE<br className="alt-desktop-break" /> PUEDES LLEGAR.</span></h2><div className="alt-intro-bottom"><p>Nacimos en Zinacantepec, a 2707 metros sobre el nivel del mar. Inspirados en el Nevado de Toluca, hacemos de cada entrenamiento una oportunidad para evolucionar.</p><p>Entrenamiento de alto nivel, atención cercana y un espacio donde cabes tal como eres. Aquí el progreso es personal. La energía es de todos.</p></div></div></section>
+    <section className="alt-section alt-training" id="entrenamientos"><div className="alt-section-heading"><div><div className="alt-eyebrow">02 — ENCUENTRA TU MOVIMIENTO</div><h2>DIFERENTES FORMAS.<br />LA MISMA ACTITUD.</h2></div><p>Más fuerza. Más resistencia. Más tú.<br />Elige cómo quieres empezar.</p></div><div className="alt-discipline-grid">{disciplines.map(d => <article className="alt-discipline" key={d.id}><div className="alt-discipline-image"><img src={`/brand/${d.image}`} alt={d.name === 'HÍBRIDO' ? 'Trabajo de fuerza y resistencia con trineo' : 'Entrenamiento funcional con cuerdas'} loading="lazy" width="1920" height="1080" /><div className="alt-discipline-overline"><span>{d.id} / {d.label}</span><span>PARA TODOS LOS NIVELES</span></div><h3>{d.name}</h3></div><div className="alt-discipline-info"><div><p>{d.description}</p><span>{d.note}</span></div><Link className="alt-circle-link alt-circle-dark" to={`/reservar?tipo=${d.name === 'HÍBRIDO' ? 'Híbrido' : 'Funcional'}`} aria-label={`Ver clases de ${d.name.toLowerCase()}`}><Arrow /></Link></div></article>)}</div><div className="alt-hyrox"><span className="alt-eyebrow">¿TIENES UN NUEVO RETO?</span><p>De tu primera sesión a tu próxima carrera.<br /><strong>Construye tu base para el entrenamiento híbrido y HYROX.</strong></p><Link to="/reservar" className="alt-text-link">Vamos por más <Arrow /></Link></div></section>
+    <section className="alt-community"><div className="alt-community-image"><img src="/brand/community-training.jpg" alt="Atleta entrenando con cuerdas de batalla" loading="lazy" width="1920" height="1080" /></div><div className="alt-community-copy"><div className="alt-eyebrow">03 — EL PODER DE ENTRENAR JUNTOS</div><h2>EL ESFUERZO<br />ES TUYO.<br /><span>EL IMPULSO,<br />DE TODOS.</span></h2><p>Más que un lugar donde entrenas. Una comunidad a la que quieres pertenecer.</p><ul><li><span>01</span>Grupos pequeños, atención real.</li><li><span>02</span>Coaching que conoce tu proceso.</li><li><span>03</span>Energía que se contagia.</li></ul><Link className="alt-button alt-button-cream" to="/reservar">Encuentra tu lugar <Arrow /></Link></div></section>
+    <section className="alt-section alt-memberships" id="membresias"><div><div className="alt-eyebrow">04 — HAZLO PARTE DE TU VIDA</div><h2>TU RITMO.<br />TU CONSTANCIA.<br /><span>TU ALTITUD.</span></h2><p>Entrenar una vez es empezar.<br />Volver es lo que te transforma.</p></div><div className="alt-membership-options"><article><div><span className="alt-eyebrow">EL PRIMER PASO</span><h3>Conoce la experiencia</h3><p>Descubre el entrenamiento, el espacio y la energía de Altitud en tu primera sesión.</p></div><Link to="/reservar" aria-label="Explorar primera sesión"><Arrow /></Link></article><article><div><span className="alt-eyebrow">CONSTRUYE TU RUTINA</span><h3>Entrena con constancia</h3><p>Encuentra una membresía que acompañe tus objetivos y tu forma de entrenar.</p></div><Link to="/pricing" aria-label="Ver membresías"><Arrow /></Link></article><p className="alt-availability-note">Membresías y tarifas en preparación. Pronto podrás elegir la tuya.</p></div></section>
+    <section className="alt-section alt-faq" id="preguntas"><div><div className="alt-eyebrow">ANTES DE EMPEZAR</div><h2>TODO EMPIEZA<br />CON UNA PREGUNTA.</h2><p>Tu primera clase, con confianza.</p></div><div>{questions.map(([q,a],i)=><div className="alt-faq-item" key={q}><h3><button aria-expanded={openQuestion===i} aria-controls={`answer-${i}`} onClick={()=>setOpenQuestion(openQuestion===i?null:i)}>{q}<span aria-hidden="true">{openQuestion===i?'−':'+'}</span></button></h3><div id={`answer-${i}`} hidden={openQuestion!==i}><p>{a}</p></div></div>)}</div></section>
+    <section className="alt-final-cta"><div className="alt-eyebrow">TU PRÓXIMA VERSIÓN TE ESTÁ ESPERANDO.</div><div><h2>NOS VEMOS<br />EN ALTITUD.</h2><Link className="alt-button alt-button-dark" to="/reservar">Vamos a entrenar <Arrow /></Link></div><span className="alt-cta-coordinate">ZINACANTEPEC, MÉXICO · 2707 M S. N. M.</span></section>
+  </main><SiteFooter /></div>;
+}

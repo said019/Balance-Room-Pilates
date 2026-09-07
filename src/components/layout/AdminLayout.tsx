@@ -275,14 +275,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                                     className={cn(
                                         'group flex w-full items-center justify-between rounded-[1rem] px-3 py-2.5 text-sm font-semibold transition-[background,color,transform] duration-200 ease-admin-flow active:scale-[0.99]',
                                         hasActiveChild
-                                            ? 'bg-balance-olive text-balance-cream shadow-[0_14px_34px_-24px_rgba(126,133,121,0.65)]'
-                                            : 'text-balance-dark/62 hover:bg-balance-cream/80 hover:text-balance-dark'
+                                            ? 'bg-altitud-olive text-altitud-cream shadow-[0_14px_34px_-24px_rgba(126,133,121,0.65)]'
+                                            : 'text-altitud-dark/62 hover:bg-altitud-cream/80 hover:text-altitud-dark'
                                     )}
                                 >
                                     <span className="flex min-w-0 items-center gap-3">
                                         <span className={cn(
                                             'flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.85rem] transition-colors',
-                                            hasActiveChild ? 'bg-balance-cream/16 text-balance-cream' : 'bg-balance-olive/10 text-balance-olive group-hover:bg-balance-olive/16'
+                                            hasActiveChild ? 'bg-altitud-cream/16 text-altitud-cream' : 'bg-altitud-olive/10 text-altitud-olive group-hover:bg-altitud-olive/16'
                                         )}>
                                             <Icon className="h-[18px] w-[18px]" />
                                         </span>
@@ -301,7 +301,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: -4 }}
                                             transition={{ duration: 0.16 }}
-                                            className="ml-5 mt-1 space-y-1 border-l border-balance-sand/60 pl-4"
+                                            className="ml-5 mt-1 space-y-1 border-l border-altitud-sand/60 pl-4"
                                         >
                                             {item.children.map((child) => (
                                                 <Link
@@ -311,8 +311,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                                                     className={cn(
                                                         'block rounded-[0.85rem] px-3 py-2 text-sm transition-[background,color,transform] duration-200 active:scale-[0.99]',
                                                         isActive(child.href)
-                                                            ? 'bg-balance-olive/14 text-balance-dark font-semibold'
-                                                            : 'text-balance-dark/56 hover:bg-balance-cream/75 hover:text-balance-dark'
+                                                            ? 'bg-altitud-olive/14 text-altitud-dark font-semibold'
+                                                            : 'text-altitud-dark/56 hover:bg-altitud-cream/75 hover:text-altitud-dark'
                                                     )}
                                                 >
                                                     {child.label}
@@ -333,13 +333,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                                 className={cn(
                                     'group flex items-center gap-3 rounded-[1rem] px-3 py-2.5 text-sm font-semibold transition-[background,color,transform] duration-200 ease-admin-flow active:scale-[0.99]',
                                     isActive(item.href!)
-                                        ? 'bg-balance-olive text-balance-cream shadow-[0_14px_34px_-24px_rgba(126,133,121,0.65)]'
-                                        : 'text-balance-dark/62 hover:bg-balance-cream/80 hover:text-balance-dark'
+                                        ? 'bg-altitud-olive text-altitud-cream shadow-[0_14px_34px_-24px_rgba(126,133,121,0.65)]'
+                                        : 'text-altitud-dark/62 hover:bg-altitud-cream/80 hover:text-altitud-dark'
                                 )}
                             >
                                 <span className={cn(
                                     'flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.85rem] transition-colors',
-                                    isActive(item.href!) ? 'bg-balance-cream/16 text-balance-cream' : 'bg-balance-olive/10 text-balance-olive group-hover:bg-balance-olive/16'
+                                    isActive(item.href!) ? 'bg-altitud-cream/16 text-altitud-cream' : 'bg-altitud-olive/10 text-altitud-olive group-hover:bg-altitud-olive/16'
                                 )}>
                                     <Icon className="h-[18px] w-[18px]" />
                                 </span>
@@ -353,12 +353,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     );
 
     return (
-        <div className="admin-shell min-h-screen bg-[hsl(var(--admin-bg))] text-balance-dark">
+        <div className="admin-shell min-h-screen bg-[hsl(var(--admin-bg))] text-altitud-dark">
             <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_14%_6%,rgba(126,133,121,0.26),transparent_34%),radial-gradient(circle_at_82%_12%,rgba(126,133,121,0.16),transparent_28%),radial-gradient(circle_at_72%_88%,rgba(207,200,184,0.42),transparent_32%)]" />
 
             <aside
                 className={cn(
-                    'fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-balance-sand/55 bg-[hsl(var(--admin-panel))]/95 shadow-[18px_0_55px_-46px_rgba(51,42,34,0.7)] transition-[width] duration-300 ease-admin-flow md:flex',
+                    'fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-altitud-sand/55 bg-[hsl(var(--admin-panel))]/95 shadow-[18px_0_55px_-46px_rgba(51,42,34,0.7)] transition-[width] duration-300 ease-admin-flow md:flex',
                     sidebarCollapsed ? 'w-[5.25rem]' : 'w-[18rem]'
                 )}
             >
@@ -366,13 +366,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     {!sidebarCollapsed && (
                         <Link to="/admin/dashboard" className="flex min-w-0 items-center gap-3">
                             <img
-                                src="/balance-room-logo-transparent.png"
-                                alt="Balance Room Pilates"
+                                src="/brand/logo.svg"
+                                alt="2707 Altitud"
                                 className="h-11 w-auto object-contain"
                             />
                             <div className="min-w-0">
-                                <span className="block truncate text-[0.95rem] font-semibold tracking-[-0.02em] text-balance-dark">Balance Room</span>
-                                <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-balance-olive">Studio admin</span>
+                                <span className="block truncate text-[0.95rem] font-semibold tracking-[-0.02em] text-altitud-dark">2707 Altitud</span>
+                                <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-altitud-olive">Studio admin</span>
                             </div>
                         </Link>
                     )}
@@ -381,7 +381,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                         size="icon"
                         onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                         className={cn(
-                            'h-10 w-10 rounded-full border border-balance-olive/25 bg-balance-olive/10 text-balance-olive transition-all duration-200 hover:bg-balance-olive hover:text-balance-cream active:scale-[0.96]',
+                            'h-10 w-10 rounded-full border border-altitud-olive/25 bg-altitud-olive/10 text-altitud-olive transition-all duration-200 hover:bg-altitud-olive hover:text-altitud-cream active:scale-[0.96]',
                             sidebarCollapsed && 'mx-auto'
                         )}
                         aria-label={sidebarCollapsed ? 'Expandir navegación' : 'Contraer navegación'}
@@ -399,7 +399,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-40 bg-balance-dark/35 backdrop-blur-sm md:hidden"
+                            className="fixed inset-0 z-40 bg-altitud-dark/35 backdrop-blur-sm md:hidden"
                             onClick={() => setMobileMenuOpen(false)}
                         />
                         <motion.aside
@@ -407,24 +407,24 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
                             transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
-                            className="fixed inset-y-0 left-0 z-50 flex w-[19rem] max-w-[88vw] flex-col border-r border-balance-sand/60 bg-[hsl(var(--admin-panel))] shadow-2xl md:hidden"
+                            className="fixed inset-y-0 left-0 z-50 flex w-[19rem] max-w-[88vw] flex-col border-r border-altitud-sand/60 bg-[hsl(var(--admin-panel))] shadow-2xl md:hidden"
                         >
                             <div className="flex h-[5.25rem] items-center justify-between px-4">
                                 <Link to="/admin/dashboard" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3">
                                     <img
-                                        src="/balance-room-logo-transparent.png"
-                                        alt="Balance Room Pilates"
+                                        src="/brand/logo.svg"
+                                        alt="2707 Altitud"
                                         className="h-10 w-auto object-contain"
                                     />
                                     <div>
-                                        <span className="block text-sm font-semibold text-balance-dark">Balance Room</span>
-                                        <span className="block text-[10px] uppercase tracking-[0.22em] text-balance-olive">Admin</span>
+                                        <span className="block text-sm font-semibold text-altitud-dark">2707 Altitud</span>
+                                        <span className="block text-[10px] uppercase tracking-[0.22em] text-altitud-olive">Admin</span>
                                     </div>
                                 </Link>
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-10 w-10 rounded-full bg-balance-cream/80"
+                                    className="h-10 w-10 rounded-full bg-altitud-cream/80"
                                     onClick={() => setMobileMenuOpen(false)}
                                     aria-label="Cerrar navegación"
                                 >
@@ -443,12 +443,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     sidebarCollapsed ? 'md:pl-[5.25rem]' : 'md:pl-[18rem]'
                 )}
             >
-                <header className="sticky top-0 z-30 border-b border-balance-sand/45 bg-[hsl(var(--admin-bg))]/82 px-4 py-3 backdrop-blur-xl md:px-6">
+                <header className="sticky top-0 z-30 border-b border-altitud-sand/45 bg-[hsl(var(--admin-bg))]/82 px-4 py-3 backdrop-blur-xl md:px-6">
                     <div className="mx-auto flex max-w-[1480px] items-center gap-3">
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="h-10 w-10 rounded-full border border-balance-sand/65 bg-balance-cream/70 md:hidden"
+                            className="h-10 w-10 rounded-full border border-altitud-sand/65 bg-altitud-cream/70 md:hidden"
                             onClick={() => setMobileMenuOpen(true)}
                             aria-label="Abrir navegación"
                         >
@@ -456,22 +456,22 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                         </Button>
 
                         <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-balance-olive">
+                            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-altitud-olive">
                                 <Command className="h-3.5 w-3.5" />
                                 Operación
                             </div>
-                            <h1 className="truncate text-lg font-semibold tracking-[-0.02em] text-balance-dark md:text-xl">
+                            <h1 className="truncate text-lg font-semibold tracking-[-0.02em] text-altitud-dark md:text-xl">
                                 {pageTitle}
                             </h1>
                         </div>
 
                         <div className="hidden min-w-[280px] max-w-md flex-1 lg:block">
                             <div className="relative">
-                                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-balance-dark/42" />
+                                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-altitud-dark/42" />
                                 <input
                                     type="search"
                                     placeholder="Buscar clientas, clases o pagos"
-                                    className="h-11 w-full rounded-full border border-balance-sand/65 bg-balance-cream/65 pl-11 pr-4 text-sm text-balance-dark outline-none transition-all duration-200 placeholder:text-balance-dark/38 focus:border-balance-olive/55 focus:bg-balance-cream focus:ring-4 focus:ring-balance-olive/10"
+                                    className="h-11 w-full rounded-full border border-altitud-sand/65 bg-altitud-cream/65 pl-11 pr-4 text-sm text-altitud-dark outline-none transition-all duration-200 placeholder:text-altitud-dark/38 focus:border-altitud-olive/55 focus:bg-altitud-cream focus:ring-4 focus:ring-altitud-olive/10"
                                 />
                             </div>
                         </div>
@@ -482,26 +482,26 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="relative h-10 w-10 rounded-full border border-balance-sand/65 bg-balance-cream/70 transition-all hover:bg-balance-dark hover:text-balance-cream active:scale-[0.96]"
+                                        className="relative h-10 w-10 rounded-full border border-altitud-sand/65 bg-altitud-cream/70 transition-all hover:bg-altitud-dark hover:text-altitud-cream active:scale-[0.96]"
                                         aria-label="Notificaciones"
                                     >
                                         <Bell className="h-[18px] w-[18px]" />
                                         {unreadCount > 0 && (
-                                            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-balance-olive px-1 text-[10px] font-bold text-balance-cream">
+                                            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-altitud-olive px-1 text-[10px] font-bold text-altitud-cream">
                                                 {unreadCount > 9 ? '9+' : unreadCount}
                                             </span>
                                         )}
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-[1.5rem] border-balance-sand/70 bg-[hsl(var(--admin-panel))] p-0 shadow-[0_24px_70px_-42px_rgba(51,42,34,0.75)]" align="end">
-                                    <div className="flex items-center justify-between border-b border-balance-sand/50 px-4 py-3">
-                                        <h4 className="text-sm font-semibold text-balance-dark">Actividad reciente</h4>
-                                        <span className="rounded-full bg-balance-cream px-2.5 py-1 text-[11px] font-semibold text-balance-dark/60">{unreadCount} nuevas</span>
+                                <PopoverContent className="w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-[1.5rem] border-altitud-sand/70 bg-[hsl(var(--admin-panel))] p-0 shadow-[0_24px_70px_-42px_rgba(51,42,34,0.75)]" align="end">
+                                    <div className="flex items-center justify-between border-b border-altitud-sand/50 px-4 py-3">
+                                        <h4 className="text-sm font-semibold text-altitud-dark">Actividad reciente</h4>
+                                        <span className="rounded-full bg-altitud-cream px-2.5 py-1 text-[11px] font-semibold text-altitud-dark/60">{unreadCount} nuevas</span>
                                     </div>
                                     <ScrollArea className="h-[380px]">
                                         {notifications.length === 0 ? (
-                                            <div className="flex flex-col items-center justify-center px-6 py-12 text-center text-balance-dark/55">
-                                                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-[1.1rem] bg-balance-cream">
+                                            <div className="flex flex-col items-center justify-center px-6 py-12 text-center text-altitud-dark/55">
+                                                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-[1.1rem] bg-altitud-cream">
                                                     <Bell className="h-5 w-5" />
                                                 </div>
                                                 <p className="text-sm font-medium">Sin actividad reciente</p>
@@ -511,15 +511,15 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                                                 {notifications.map((n: any) => {
                                                     const isRecent = new Date(n.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
                                                     const icon = n.type === 'payment' ? (
-                                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.9rem] bg-balance-olive/12 text-balance-olive">
+                                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.9rem] bg-altitud-olive/12 text-altitud-olive">
                                                             <DollarSign className="h-4 w-4" />
                                                         </div>
                                                     ) : n.type === 'membership' ? (
-                                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.9rem] bg-balance-sand/35 text-balance-dark">
+                                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.9rem] bg-altitud-sand/35 text-altitud-dark">
                                                             <UserPlus className="h-4 w-4" />
                                                         </div>
                                                     ) : (
-                                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.9rem] bg-balance-cream text-balance-dark">
+                                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.9rem] bg-altitud-cream text-altitud-dark">
                                                             <CalendarCheck className="h-4 w-4" />
                                                         </div>
                                                     );
@@ -536,8 +536,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                                                         <button
                                                             key={`${n.type}-${n.id}`}
                                                             className={cn(
-                                                                'flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-balance-cream/60',
-                                                                isRecent && 'bg-balance-olive/5'
+                                                                'flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-altitud-cream/60',
+                                                                isRecent && 'bg-altitud-olive/5'
                                                             )}
                                                             onClick={() => {
                                                                 setNotifOpen(false);
@@ -546,10 +546,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                                                         >
                                                             {icon}
                                                             <span className="min-w-0 flex-1">
-                                                                <span className="block truncate text-sm font-semibold text-balance-dark">{n.user_name}</span>
-                                                                <span className="block truncate text-xs text-balance-dark/55">{label}</span>
+                                                                <span className="block truncate text-sm font-semibold text-altitud-dark">{n.user_name}</span>
+                                                                <span className="block truncate text-xs text-altitud-dark/55">{label}</span>
                                                             </span>
-                                                            <span className="mt-0.5 shrink-0 text-[10px] text-balance-dark/45">{timeAgo}</span>
+                                                            <span className="mt-0.5 shrink-0 text-[10px] text-altitud-dark/45">{timeAgo}</span>
                                                         </button>
                                                     );
                                                 })}
@@ -562,37 +562,37 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 transition-transform active:scale-[0.96]">
-                                        <Avatar className="h-10 w-10 border border-balance-sand/70 bg-balance-cream">
+                                        <Avatar className="h-10 w-10 border border-altitud-sand/70 bg-altitud-cream">
                                             <AvatarImage src={user?.photo_url || undefined} alt={user?.display_name} />
-                                            <AvatarFallback className="bg-balance-dark text-sm font-semibold text-balance-cream">
+                                            <AvatarFallback className="bg-altitud-dark text-sm font-semibold text-altitud-cream">
                                                 {user?.display_name ? getInitials(user.display_name) : 'A'}
                                             </AvatarFallback>
                                         </Avatar>
                                         {user?.is_instructor && (
-                                            <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-[hsl(var(--admin-bg))] bg-balance-olive">
-                                                <Dumbbell className="h-2.5 w-2.5 text-balance-cream" />
+                                            <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-[hsl(var(--admin-bg))] bg-altitud-olive">
+                                                <Dumbbell className="h-2.5 w-2.5 text-altitud-cream" />
                                             </span>
                                         )}
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-64 rounded-[1.25rem] border-balance-sand/70 bg-[hsl(var(--admin-panel))]" align="end" forceMount>
+                                <DropdownMenuContent className="w-64 rounded-[1.25rem] border-altitud-sand/70 bg-[hsl(var(--admin-panel))]" align="end" forceMount>
                                     <DropdownMenuLabel className="font-normal">
                                         <div className="flex items-center gap-3 py-1">
                                             <Avatar className="h-10 w-10">
                                                 <AvatarImage src={user?.photo_url || undefined} alt={user?.display_name} />
-                                                <AvatarFallback className="bg-balance-dark text-balance-cream">
+                                                <AvatarFallback className="bg-altitud-dark text-altitud-cream">
                                                     {user?.display_name ? getInitials(user.display_name) : 'A'}
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="min-w-0 flex-1">
-                                                <p className="truncate text-sm font-semibold leading-none text-balance-dark">{user?.display_name}</p>
-                                                <p className="mt-1 truncate text-xs leading-none text-balance-dark/55">{user?.email}</p>
+                                                <p className="truncate text-sm font-semibold leading-none text-altitud-dark">{user?.display_name}</p>
+                                                <p className="mt-1 truncate text-xs leading-none text-altitud-dark/55">{user?.email}</p>
                                                 <div className="mt-2 flex flex-wrap items-center gap-1">
-                                                    <span className="inline-flex items-center rounded-md bg-balance-olive/10 px-2 py-0.5 text-xs font-semibold capitalize text-balance-olive">
+                                                    <span className="inline-flex items-center rounded-md bg-altitud-olive/10 px-2 py-0.5 text-xs font-semibold capitalize text-altitud-olive">
                                                         {user?.role}
                                                     </span>
                                                     {user?.is_instructor && (
-                                                        <span className="inline-flex items-center rounded-md bg-balance-sand/40 px-2 py-0.5 text-xs font-semibold text-balance-dark/70">
+                                                        <span className="inline-flex items-center rounded-md bg-altitud-sand/40 px-2 py-0.5 text-xs font-semibold text-altitud-dark/70">
                                                             Coach
                                                         </span>
                                                     )}

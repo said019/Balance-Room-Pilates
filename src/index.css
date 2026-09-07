@@ -1,4 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap');
+@font-face{font-family:'Carrois Gothic';font-style:normal;font-weight:400;font-display:swap;src:url('/brand/fonts/carrois-gothic.ttf') format('truetype');}
+@font-face{font-family:'Source Sans 3';font-style:normal;font-weight:300;font-display:swap;src:url('/brand/fonts/source-sans-3-light.ttf') format('truetype');}
+@font-face{font-family:'Source Sans 3';font-style:normal;font-weight:400;font-display:swap;src:url('/brand/fonts/source-sans-3-regular.ttf') format('truetype');}
+@font-face{font-family:'Source Sans 3';font-style:normal;font-weight:600;font-display:swap;src:url('/brand/fonts/source-sans-3-semibold.ttf') format('truetype');}
+
 
 @tailwind base;
 @tailwind components;
@@ -6,44 +10,38 @@
 
 @layer base {
   :root {
-    /* Balance Room Pilates Palette
-     * Beige papel:       #F3EEE2 — Background
-     * Gris cálido:       #CFC8B8 — Borders and quiet surfaces
-     * Verde grisáceo:    #7E8579 — Primary actions and calm accents
-     * Chocolate suave:   #332A22 — Foreground
-     * Chukret / taupe:   #8A8174 — Secondary details
-     */
-    --background: 43 34% 92%;
-    --foreground: 30 20% 17%;
+    /* 2707 Altitud — official palette */
+    --background: 45 31% 95%;
+    --foreground: 60 6% 10%;
 
-    --card: 42 32% 97%;
-    --card-foreground: 30 20% 17%;
+    --card: 45 31% 97%;
+    --card-foreground: 60 6% 10%;
 
-    --popover: 42 32% 97%;
-    --popover-foreground: 30 20% 17%;
+    --popover: 45 31% 95%;
+    --popover-foreground: 60 6% 10%;
 
-    --primary: 105 6% 50%;
-    --primary-foreground: 42 32% 97%;
+    --primary: 64 38% 28%;
+    --primary-foreground: 45 31% 95%;
 
-    --secondary: 29 9% 50%;
-    --secondary-foreground: 42 32% 97%;
+    --secondary: 28 29% 39%;
+    --secondary-foreground: 45 31% 95%;
 
-    --muted: 42 22% 86%;
-    --muted-foreground: 30 10% 40%;
+    --muted: 44 20% 88%;
+    --muted-foreground: 60 7% 36%;
 
-    --accent: 42 22% 80%;
-    --accent-foreground: 30 20% 17%;
+    --accent: 38 34% 71%;
+    --accent-foreground: 60 6% 10%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 60 40% 98%;
 
-    --border: 42 18% 78%;
-    --input: 42 18% 78%;
-    --ring: 105 6% 50%;
+    --border: 38 22% 78%;
+    --input: 38 22% 78%;
+    --ring: 64 38% 28%;
 
     --radius: 0.5rem;
 
-    /* Custom tokens — Balance Room Pilates */
+    /* Custom tokens — 2707 Altitud */
     --hero-gradient: linear-gradient(135deg, hsl(43 34% 92%) 0%, hsl(42 22% 86%) 52%, hsl(105 6% 82%) 100%);
     --card-gradient: linear-gradient(180deg, hsl(42 32% 97%) 0%, hsl(42 22% 90%) 100%);
     --overlay-dark: linear-gradient(180deg, hsla(30, 20%, 17%, 0.2) 0%, hsla(30, 20%, 17%, 0.55) 100%);
@@ -51,38 +49,38 @@
     --glow-warm: 0 18px 42px hsla(29, 9%, 50%, 0.14);
 
     /* Typography */
-    --font-heading: 'Cormorant', serif;
-    --font-body: 'Outfit', sans-serif;
+    --font-heading: 'Carrois Gothic', sans-serif;
+    --font-body: 'Source Sans 3', sans-serif;
 
     /* Animations */
     --transition-smooth: all 0.32s cubic-bezier(0.22, 1, 0.36, 1);
     --transition-bounce: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 
     /* Admin shell tokens */
-    --admin-bg: 42 27% 91%;
-    --admin-panel: 42 34% 96%;
-    --admin-rail: 43 24% 88%;
+    --admin-bg: 45 31% 95%;
+    --admin-panel: 45 31% 97%;
+    --admin-rail: 44 20% 90%;
 
-    /* Balance Room semantic status colors — verde oliva #81836F */
-    --success: 105 6% 50%;
+    /* Semantic status colors */
+    --success: 64 38% 28%;
     --success-foreground: 60 40% 97%;
     --warning: 38 50% 52%;
     --warning-foreground: 36 25% 16%;
     --info: 42 30% 60%;
     --info-foreground: 36 25% 16%;
 
-    --sidebar-background: 42 32% 97%;
-    --sidebar-foreground: 30 20% 17%;
-    --sidebar-primary: 105 6% 50%;
+    --sidebar-background: 45 31% 95%;
+    --sidebar-foreground: 60 6% 10%;
+    --sidebar-primary: 64 38% 28%;
     --sidebar-primary-foreground: 42 32% 97%;
     --sidebar-accent: 42 22% 89%;
     --sidebar-accent-foreground: 30 20% 17%;
     --sidebar-border: 42 18% 82%;
-    --sidebar-ring: 105 6% 50%;
+    --sidebar-ring: 64 38% 28%;
   }
 
   .dark {
-    /* Balance Room Pilates Dark Mode */
+    /* 2707 Altitud Dark Mode */
     --background: 36 25% 8%;
     --foreground: 42 30% 92%;
 

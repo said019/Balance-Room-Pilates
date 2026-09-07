@@ -56,7 +56,7 @@ export default function StudioLayout({ children }: StudioLayoutProps) {
   );
 
   useEffect(() => {
-    document.title = `${studio.name} | Balance Room Pilates`;
+    document.title = `${studio.name} | 2707 Altitud`;
   }, [studio.name]);
 
   const isActive = (path: string) => {

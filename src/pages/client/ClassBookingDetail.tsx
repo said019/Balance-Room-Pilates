@@ -85,17 +85,17 @@ export default function ClassBookingDetail() {
     <AuthGuard requiredRoles={['client']}>
       <ClientLayout>
         <div className="space-y-6">
-          <section className="rounded-[2rem] border border-balance-olive/25 bg-balance-olive/10 p-5 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)] sm:p-6">
+          <section className="rounded-[2rem] border border-altitud-olive/25 bg-altitud-olive/10 p-5 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)] sm:p-6">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-balance-olive/25 bg-balance-cream/65 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-balance-olive">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-altitud-olive/25 bg-altitud-cream/65 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-altitud-olive">
                 <Sparkles className="h-3.5 w-3.5" />
                 Reserva
               </div>
-              <h1 className="text-3xl font-semibold tracking-[-0.04em] text-balance-dark sm:text-4xl">Detalle de clase</h1>
-              <p className="mt-1 text-sm text-balance-dark/62">Información de tu reserva.</p>
+              <h1 className="text-3xl font-semibold tracking-[-0.04em] text-altitud-dark sm:text-4xl">Detalle de clase</h1>
+              <p className="mt-1 text-sm text-altitud-dark/62">Información de tu reserva.</p>
             </div>
-            <Button variant="ghost" className="rounded-full bg-balance-cream/60" asChild>
+            <Button variant="ghost" className="rounded-full bg-altitud-cream/60" asChild>
               <Link to="/app/classes">Volver</Link>
             </Button>
           </div>
@@ -110,19 +110,19 @@ export default function ClassBookingDetail() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="relative overflow-hidden rounded-[1.75rem] border-balance-sand/65 bg-[hsl(var(--card))]/88 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.58)]">
+            <Card className="relative overflow-hidden rounded-[1.75rem] border-altitud-sand/65 bg-[hsl(var(--card))]/88 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.58)]">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-3">
                     {data.class_type_color && (
-                      <div 
+                      <div
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: data.class_type_color }}
                       />
                     )}
                     {data.class_name}
                   </CardTitle>
-                  <Badge variant="outline" className="rounded-full border-balance-olive/25 bg-balance-olive/8 text-balance-olive">{statusLabel[data.booking_status] || data.booking_status}</Badge>
+                  <Badge variant="outline" className="rounded-full border-altitud-olive/25 bg-altitud-olive/8 text-altitud-olive">{statusLabel[data.booking_status] || data.booking_status}</Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -168,7 +168,7 @@ export default function ClassBookingDetail() {
                   >
                     {cancelMutation.isPending ? 'Cancelando...' : 'Cancelar reserva'}
                   </Button>
-                  <p className="text-center text-xs text-balance-dark/55">{refundHint}</p>
+                  <p className="text-center text-xs text-altitud-dark/55">{refundHint}</p>
                 </div>
               );
             }
@@ -178,10 +178,10 @@ export default function ClassBookingDetail() {
               preview?.reason ||
               'Esta reserva ya no puede cancelarse.';
             return (
-              <div className="rounded-2xl border border-balance-sand/65 bg-balance-cream/45 p-4 text-center">
-                <p className="text-sm text-balance-dark/72">{lateMsg}</p>
+              <div className="rounded-2xl border border-altitud-sand/65 bg-altitud-cream/45 p-4 text-center">
+                <p className="text-sm text-altitud-dark/72">{lateMsg}</p>
                 {policy && policy.enabled && policy.min_hours > 0 && preview?.code !== 'CLASS_ALREADY_STARTED' && (
-                  <p className="mt-1 text-xs text-balance-dark/45">
+                  <p className="mt-1 text-xs text-altitud-dark/45">
                     Las cancelaciones aplican hasta {policy.min_hours}h antes de la clase.
                   </p>
                 )}
