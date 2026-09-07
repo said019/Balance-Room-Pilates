@@ -665,8 +665,8 @@ export default function OrderDetail() {
                   <div>
                     <p className="font-medium text-yellow-800">En revisión</p>
                     <p className="text-sm text-yellow-700">
-                      Tu comprobante está siendo revisado. Te notificaremos cuando sea validado.
-                      Esto puede tomar hasta 24 horas hábiles.
+                      Tu comprobante está siendo revisado. Consulta aquí el estado de tu pago;
+                      el studio activará tu plan después de validarlo.
                     </p>
                   </div>
                 </div>
