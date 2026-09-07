@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowRightIcon, ArrowTopRightIcon } from '@radix-ui/react-icons';
+import { STUDIO } from '@/lib/studio';
+import '@/altitud-studio.css';
 
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   const Icon = diagonal ? ArrowTopRightIcon : ArrowRightIcon;
@@ -9,7 +11,7 @@ export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
-  const links = [['El studio', '/#studio'], ['Entrenamientos', '/#entrenamientos'], ['Horarios', '/reservar'], ['Membresías', '/#membresias']];
+  const links = [['El studio', '/#studio'], ['Entrenamientos', '/#entrenamientos'], ['Horarios', '/#horarios'], ['Membresías', '/pricing']];
   return <header className="alt-header">
     <Link to="/" aria-label="2707 Altitud — Inicio" className="alt-brand"><img src="/brand/logo.svg" alt="2707 Altitud" width="747" height="350" /></Link>
     <nav aria-label="Navegación principal" className="alt-desktop-nav">{links.map(([name, href]) => <a key={name} href={href} aria-current={pathname === href ? 'page' : undefined}>{name}</a>)}</nav>
@@ -19,5 +21,5 @@ export function SiteHeader() {
   </header>;
 }
 export function SiteFooter() {
-  return <footer className="alt-footer"><div className="alt-footer-main"><div><img className="alt-footer-logo" src="/brand/logo-light.svg" alt="2707 Altitud" width="280" height="140" /><p>Un lugar. Un nivel. Tu siguiente versión.</p></div><div><span className="alt-eyebrow">ENCUÉNTRANOS</span><p>Zinacantepec<br />Estado de México</p><span className="alt-footer-note">Inspirados en el Nevado de Toluca.</span></div><div className="alt-footer-links"><span className="alt-eyebrow">SIGUE EN MOVIMIENTO</span><a href="/#entrenamientos">Entrenamientos <Arrow /></a><Link to="/reservar">Reserva tu clase <Arrow /></Link><Link to="/login">Mi cuenta <Arrow /></Link></div></div><div className="alt-footer-bottom"><span>© {new Date().getFullYear()} 2707 ALTITUD</span><span>PERFORMANCE MEETS LIFESTYLE</span><div><Link to="/privacy">Privacidad</Link><Link to="/terms">Términos</Link></div></div></footer>;
+  return <footer className="alt-footer"><div className="alt-footer-main"><div><img className="alt-footer-logo" src="/brand/logo-light.svg" alt="2707 Altitud" width="280" height="140" /><p>Un lugar. Un nivel. Tu siguiente versión.</p><div className="alt-footer-socials"><a href={STUDIO.instagramHref} target="_blank" rel="noopener noreferrer">Instagram <Arrow diagonal /></a><a href={STUDIO.facebookHref} target="_blank" rel="noopener noreferrer">Facebook <Arrow diagonal /></a></div></div><div><span className="alt-eyebrow">ENCUÉNTRANOS</span><p>Plaza Bosques, locales 4 y 5<br />Zinacantepec, Estado de México</p><a className="alt-footer-location" href={STUDIO.mapHref} target="_blank" rel="noopener noreferrer">Cómo llegar <Arrow diagonal /></a><a className="alt-footer-location" href={STUDIO.whatsappHref} target="_blank" rel="noopener noreferrer">WhatsApp · {STUDIO.phone} <Arrow diagonal /></a></div><div className="alt-footer-links"><span className="alt-eyebrow">SIGUE EN MOVIMIENTO</span><a href="/#horarios">Horarios <Arrow /></a><Link to="/pricing">Clases y membresías <Arrow /></Link><Link to="/reservar">Reserva tu clase <Arrow /></Link><Link to="/login">Mi cuenta <Arrow /></Link></div></div><div className="alt-footer-bottom"><span>© {new Date().getFullYear()} 2707 ALTITUD</span><span>PERFORMANCE MEETS LIFESTYLE</span><div><Link to="/cancellation-policy">Cancelaciones</Link><Link to="/privacy">Privacidad</Link><Link to="/terms">Términos</Link></div></div></footer>;
 }

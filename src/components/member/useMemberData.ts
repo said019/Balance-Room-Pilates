@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import api from "@/lib/api";
+import { STUDIO, STUDIO_SERVICES } from "@/lib/studio";
 import { fetchMyMembership } from "@/lib/memberships";
 import { useAuthStore } from "@/stores/authStore";
 import type { BookingClient } from "@/types/booking";
@@ -9,7 +10,7 @@ import type { Class } from "@/types/class";
 import type { ClientMembership } from "@/types/membership";
 
 export const dateKey = (d: Date) => format(d, "yyyy-MM-dd");
-const key = "altitud2707-member-preview-v1";
+const key = "altitud2707-member-preview-v2";
 export type PreviewProfile = {
   name: string;
   goal: number;
@@ -17,29 +18,35 @@ export type PreviewProfile = {
   news: boolean;
 };
 type PreviewState = { bookings: BookingClient[]; profile: PreviewProfile };
+
+export function isLateCancellation(booking: BookingClient, now = Date.now()) {
+  const begins = new Date(`${booking.date.slice(0, 10)}T${booking.start_time.slice(0, 5)}:00-06:00`).getTime();
+  return begins - now < STUDIO.cancellationHours * 60 * 60 * 1000;
+}
 function initialState(): PreviewState {
   const tomorrow = dateKey(addDays(new Date(), 1));
   const previous = dateKey(addDays(new Date(), -1));
+  const nextTime = [0, 6].includes(addDays(new Date(), 1).getDay()) ? "08:00" : "07:00";
   return {
     profile: { name: "Atleta Altitud", goal: 3, reminders: true, news: false },
     bookings: [
       {
         booking_id: "preview-next",
-        class_id: `${tomorrow}-0700`,
+        class_id: `${tomorrow}-${nextTime.replace(":", "")}`,
         date: tomorrow,
-        start_time: "07:00",
-        end_time: "07:50",
-        class_type_name: "Híbrido",
+        start_time: nextTime,
+        end_time: `${nextTime.slice(0, 2)}:50`,
+        class_type_name: [0, 6].includes(addDays(new Date(), 1).getDay()) ? STUDIO_SERVICES[0].name : STUDIO_SERVICES[1].name,
         instructor_name: "Coach Altitud",
         booking_status: "confirmed",
       },
       {
         booking_id: "preview-history",
-        class_id: `${previous}-0830`,
+        class_id: `${previous}-0800`,
         date: previous,
-        start_time: "08:30",
-        end_time: "09:20",
-        class_type_name: "Funcional",
+        start_time: "08:00",
+        end_time: "08:50",
+        class_type_name: "TRAIN",
         instructor_name: "Coach Altitud",
         booking_status: "checked_in",
       },
@@ -78,28 +85,30 @@ function readPreview(): PreviewState {
   return initialState();
 }
 export function demoClasses(start: Date): Class[] {
-  return Array.from({ length: 7 }, (_, i) => addDays(start, i)).flatMap((d) =>
-    d.getDay() === 0
-      ? []
-      : [
-          ["07:00", "07:50", "Híbrido"],
-          ["08:30", "09:20", "Funcional"],
-          ["18:00", "18:50", "Híbrido"],
-        ].map(([time, end, type], i) => ({
-          id: `${dateKey(d)}-${time.replace(":", "")}`,
-          class_type_id: type,
-          instructor_id: "preview",
-          date: dateKey(d),
-          start_time: time,
-          end_time: end,
-          max_capacity: 8,
-          current_bookings: [5, 3, 8][i],
-          status: "scheduled" as const,
-          class_type_name: type,
-          instructor_name: "Coach Altitud",
-          facility_name: "Studio Altitud",
-        })),
-  );
+  const trainingTypes = STUDIO_SERVICES.map((service) => service.name);
+  return Array.from({ length: 7 }, (_, i) => addDays(start, i)).flatMap((date) => {
+    const weekend = [0, 6].includes(date.getDay());
+    const times = weekend ? STUDIO.weekendTimes : STUDIO.weekdayTimes;
+    return times.map((label, index) => {
+      const [clock, period] = label.split(" ");
+      const [hour, minute] = clock.split(":");
+      const time = `${String(Number(hour) % 12 + (period === "PM" ? 12 : 0)).padStart(2, "0")}:${minute}`;
+      return {
+        id: `${dateKey(date)}-${time.replace(":", "")}`,
+      class_type_id: trainingTypes[index % trainingTypes.length],
+      instructor_id: "preview",
+      date: dateKey(date),
+      start_time: time,
+      end_time: `${time.slice(0, 2)}:50`,
+      max_capacity: STUDIO.capacity,
+      current_bookings: [5, 3, 12, 8, 6, 4, 9][index],
+      status: "scheduled" as const,
+      class_type_name: trainingTypes[index % trainingTypes.length],
+      instructor_name: "Coach Altitud",
+      facility_name: "2707 Altitud",
+      };
+    });
+  });
 }
 export function useMemberData(preview: boolean, start: Date) {
   const [demo, setDemo] = useState(readPreview);
@@ -154,8 +163,8 @@ export function useMemberData(preview: boolean, start: Date) {
     ? {
         id: "preview",
         status: "active",
-        plan_name: "Constancia",
-        plan_price: null,
+        plan_name: "12 clases",
+        plan_price: 1399,
         plan_currency: "MXN",
         plan_duration_days: 30,
         start_date: dateKey(addDays(new Date(), -8)),
@@ -190,7 +199,7 @@ export function useMemberData(preview: boolean, start: Date) {
         throw new Error("Esta sesión está completa. Elige otro horario.");
       if ((membership?.classes_remaining ?? 0) <= 0)
         throw new Error(
-          "Ya utilizaste tus créditos de muestra. Cancela una reserva para seguir explorando.",
+          "Ya utilizaste tus créditos de muestra. Una cancelación con al menos 4 horas de anticipación devuelve el crédito.",
         );
       save({
         ...demo,
@@ -214,7 +223,8 @@ export function useMemberData(preview: boolean, start: Date) {
     }
   }
   async function cancel(b: BookingClient) {
-    if (preview)
+    if (preview) {
+      if (isLateCancellation(b)) throw new Error("Cancela con al menos 4 horas de anticipación. Este plazo ya terminó; la clase se considera utilizada si no asistes.");
       save({
         ...demo,
         bookings: demo.bookings.map((x) =>
@@ -223,7 +233,7 @@ export function useMemberData(preview: boolean, start: Date) {
             : x,
         ),
       });
-    else {
+    } else {
       await api.post(`/bookings/${b.booking_id}/cancel`);
       await refresh();
     }

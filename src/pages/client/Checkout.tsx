@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthGuard } from '@/components/layout/AuthGuard';
 import { ClientLayout } from '@/components/layout/ClientLayout';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,36 +9,13 @@ import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import api from '@/lib/api';
-import {
-  getClassesLabel,
-  getPackagePresentation,
-  getPackageType,
-  packageOrder,
-  packagePresentations,
-} from '@/lib/planPresentation';
-import type { OrderPaymentMethod, CreateOrderRequest, Order } from '@/types/order';
-import {
-  CreditCard,
-  Building2,
-  Banknote,
-  ChevronRight,
-  ArrowRight,
-  CheckCircle2,
-  ArrowLeft,
-  Sparkles,
-  Tag,
-  X,
-  Loader2,
-  Copy,
-  Check,
-  Star,
-} from 'lucide-react';
+import api, { getErrorMessage } from '@/lib/api';
+import { STUDIO, STUDIO_PLANS, FOUNDING_50, formatMxn } from '@/lib/studio';
+import type { OrderPaymentMethod, CreateOrderRequest, Order, BankInfo } from '@/types/order';
+import { CreditCard, Building2, Banknote, ChevronRight, ArrowRight, CheckCircle2, ArrowLeft, Copy, Check } from 'lucide-react';
 
 interface Plan {
   id: string;
@@ -49,873 +26,174 @@ interface Plan {
   description: string | null;
   is_active: boolean;
   is_unlimited: boolean;
-  category: string;
-  is_exclusive: boolean;
   sort_order?: number;
-  package_type?: 'individual' | 'mixto' | 'sample';
-  requires_studio_selection?: boolean;
-  features?: string[];
-  promo_price?: number | null;
-  promo_label?: string | null;
-  promo_active_until?: string | null;
 }
-
-// Promo directo al precio (sin codigo). Devuelve el precio efectivo a cobrar.
-function getEffectivePrice(plan: Plan): { promoActive: boolean; effectivePrice: number; listPrice: number } {
-  const listPrice = Number(plan.price);
-  const promoActive = plan.promo_price != null
-    && Number(plan.promo_price) < listPrice
-    && (!plan.promo_active_until || new Date(plan.promo_active_until) > new Date());
-  return { promoActive, effectivePrice: promoActive ? Number(plan.promo_price) : listPrice, listPrice };
-}
-
-interface BankInfo {
-  bank_name: string;
-  account_holder: string;
-  account_number: string;
-  clabe: string;
-  reference_instructions: string;
-}
-
-function isMembershipFeePlan(plan: Plan) {
-  return (
-    plan.category === 'membership_fee' ||
-    plan.name.toLowerCase().includes('social') ||
-    plan.name.toLowerCase().includes('inscrip') ||
-    Number(plan.price) === 500
-  );
-}
-
-function getRewardPoints(classLimit: number | null) {
-  const points: Record<number, number> = { 4: 30, 8: 60, 12: 100, 24: 160 };
-  return classLimit ? points[classLimit] : null;
-}
+type PaymentAvailability = { bank_transfer: boolean; cash: boolean; card: boolean };
+const methodOptions = [
+  { value: 'bank_transfer', label: 'Transferencia bancaria', icon: Building2, description: 'Sube tu comprobante. El studio valida el pago y activa tu plan.' },
+  { value: 'cash', label: 'Pago en el studio', icon: Banknote, description: 'Genera tu orden y presenta su número al pagar en recepción.' },
+  { value: 'card', label: 'Tarjeta de crédito o débito', icon: CreditCard, description: 'Completa tu pago en la página segura del proveedor.' },
+] as const;
+const planSummary = (plan: Plan) => `${plan.is_unlimited || plan.class_limit == null ? 'Clases ilimitadas' : `${plan.class_limit} clases`} · ${plan.duration_days} días`;
 
 export default function Checkout() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  const preselectedPlanId = searchParams.get('plan');
-
-  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(preselectedPlanId);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(searchParams.get('plan'));
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<OrderPaymentMethod>('bank_transfer');
   const [notes, setNotes] = useState('');
   const [copiedField, setCopiedField] = useState<string | null>(null);
-
-  const copyToClipboard = (text: string, field: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedField(field);
-    setTimeout(() => setCopiedField(null), 2000);
-  };
   const [step, setStep] = useState<'plan' | 'payment' | 'confirm'>('plan');
 
-  // Discount code state
-  const [discountCode, setDiscountCode] = useState('');
-  const [discountResult, setDiscountResult] = useState<{
-    valid: boolean;
-    codeId: string;
-    discountAmount: number;
-    finalTotal: number;
-    discountType: string;
-    discountValue: number;
-    description?: string;
-    code: string;
-  } | null>(null);
-  const [discountError, setDiscountError] = useState('');
-  const [isValidatingDiscount, setIsValidatingDiscount] = useState(false);
-
-  // Fetch available plans
-  const { data: plans, isLoading: plansLoading } = useQuery<Plan[]>({
+  const plansQuery = useQuery<Plan[]>({
     queryKey: ['plans-active'],
     queryFn: async () => {
       const res = await api.get('/plans');
-      return res.data.filter((p: Plan) => p.is_active).sort((a: Plan, b: Plan) => (a.sort_order || 0) - (b.sort_order || 0));
+      return res.data.filter((plan: Plan) => plan.is_active)
+        .sort((a: Plan, b: Plan) => (a.sort_order || 0) - (b.sort_order || 0));
     },
   });
-
-  // Fetch user membership status
-  // We need to know if they have an active "membership_fee" plan
-  const { data: myMembership } = useQuery({
-    queryKey: ['my-membership-status'],
-    queryFn: async () => {
-      try {
-        // We can check /bookings/my-bookings or a specific endpoint.
-        // Or simpler: /memberships/my-active-fee
-        // Since we dont have that, let's use the generic my-membership and check plan details if possible.
-        // Actually, `ProfileMembership` uses `fetchMyMembership`. Let's assume user might have multiple or we check the backend check.
-        // For UI, let's just assume we need to handle the visual lock.
-        // Let's use `api.get('/memberships/active')` if it exists, or check the existing `my-membership` logic.
-        // Existing code uses `fetchMyMembership`. Let's rely on that.
-        const res = await api.get('/memberships/my');
-        // BE endpoint /api/memberships/my returns the active membership usually.
-        // But we specifically need to know if they have the "Fee" membership.
-        // Let's assume the backend endpoint returns plan details.
-        return res.data;
-      } catch (e) {
-        return null;
-      }
-    },
-    retry: false
+  const methodsQuery = useQuery<PaymentAvailability>({
+    queryKey: ['payment-methods'],
+    queryFn: async () => (await api.get('/settings/payment-methods')).data,
   });
-
-  const hasActiveMembershipFee = myMembership?.some((m: any) => (
-    m.status === 'active' && (
-      m.plan_category === 'membership_fee' ||
-      m.plan_name?.toLowerCase().includes('inscripci') ||
-      m.plan_name?.toLowerCase().includes('social')
-    )
-  ));
-
-
-  // Fetch facilities (studios) for individual-package studio selection
-  const { data: facilities = [] } = useQuery<{ id: string; name: string }[]>({
-    queryKey: ['facilities'],
-    queryFn: async () => (await api.get('/facilities')).data,
-  });
-  const [selectedFacilityId, setSelectedFacilityId] = useState<string>('');
-
-  // Fetch bank info for transfer instructions
-  const { data: bankInfo } = useQuery<BankInfo>({
+  const bankQuery = useQuery<BankInfo>({
     queryKey: ['bank-info'],
     queryFn: async () => (await api.get('/settings/bank-info')).data,
     enabled: selectedPaymentMethod === 'bank_transfer',
   });
+  const selectedPlan = plansQuery.data?.find((plan) => plan.id === selectedPlanId);
+  const methods = methodOptions.filter((method) => methodsQuery.data?.[method.value]);
+  const methodAvailable = methods.some((method) => method.value === selectedPaymentMethod);
+  const bankInfo = bankQuery.data;
+  const bankReady = Boolean(bankInfo?.bank_name && bankInfo?.account_holder && bankInfo?.clabe);
 
-  // Create order mutation
   const createOrder = useMutation({
-    mutationFn: async (data: CreateOrderRequest) => {
-      const res = await api.post('/orders', data);
-      return res.data as Order;
-    },
+    mutationFn: async (data: CreateOrderRequest) => (await api.post('/orders', data)).data as Order,
     onSuccess: (order) => {
       queryClient.invalidateQueries({ queryKey: ['my-orders'] });
-      if (order.mp_checkout_url) {
+      if (selectedPaymentMethod === 'card' && order.mp_checkout_url) {
         window.location.href = order.mp_checkout_url;
         return;
       }
-      toast({
-        title: '¡Orden creada!',
-        description: `Tu orden ${order.order_number} ha sido creada.`,
-      });
+      toast({ title: 'Orden creada', description: 'Completa el pago para que el studio pueda activar tu plan.' });
       navigate(`/app/orders/${order.id}`);
     },
-    onError: (error: any) => {
-      // Handle specific error codes
-      if (error.response?.data?.code === 'MEMBERSHIP_REQUIRED') {
-        toast({
-          title: 'Membresía Requerida',
-          description: 'Este plan es exclusivo para miembros activos.',
-          variant: 'destructive',
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description: error.response?.data?.error || 'No se pudo crear la orden',
-          variant: 'destructive',
-        });
-      }
-    },
+    onError: (error) => toast({ title: 'No pudimos crear tu orden', description: getErrorMessage(error), variant: 'destructive' }),
   });
-
-  const selectedPlan = plans?.find(p => p.id === selectedPlanId);
-  const visiblePlans = (plans || []).filter((plan) => {
-    if (isMembershipFeePlan(plan) && hasActiveMembershipFee) return false;
-    return true;
-  });
-  const groupedPlans = packageOrder
-    .map((type) => ({
-      ...packagePresentations[type],
-      plans: visiblePlans.filter((plan) => getPackageType(plan) === type),
-    }))
-    .filter((group) => group.plans.length > 0);
-  const needsStudio = !!selectedPlan?.requires_studio_selection;
-
-  const handlePlanSelect = (planId: string) => {
-    setSelectedPlanId(planId);
-    // Clear discount when changing plan (may not apply to new plan)
-    handleRemoveDiscount();
-    // Force bank_transfer for trial/individual plans
-    const plan = plans?.find(p => p.id === planId);
-    if (plan && (plan.name.toLowerCase().includes('muestra') || plan.name.toLowerCase().includes('individual') || plan.name.toLowerCase().includes('prueba'))) {
-      setSelectedPaymentMethod('bank_transfer');
-    }
+  const selectPlan = (id: string) => {
+    setSelectedPlanId(id);
+    if (!methodAvailable && methods.length) setSelectedPaymentMethod(methods[0].value);
     setStep('payment');
   };
-
-  const handlePaymentMethodSelect = () => {
-    if (!selectedPlanId) return;
-    setStep('confirm');
-  };
-
-  const handleConfirmOrder = () => {
-    if (!selectedPlanId) return;
-
-    if (needsStudio && !selectedFacilityId) {
-      toast({
-        title: 'Falta el estudio',
-        description: 'Elige un estudio para tu paquete individual.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    createOrder.mutate({
-      plan_id: selectedPlanId,
-      payment_method: selectedPaymentMethod,
-      notes: notes || undefined,
-      discount_code_id: discountResult?.codeId || undefined,
-      discount_amount: discountResult?.discountAmount || undefined,
-      facility_id: needsStudio ? selectedFacilityId : undefined,
-    } as any);
-  };
-
-  const handleValidateDiscount = async () => {
-    if (!discountCode.trim() || !selectedPlan) return;
-
-    setIsValidatingDiscount(true);
-    setDiscountError('');
-    setDiscountResult(null);
-
+  const copy = async (value: string, field: string) => {
     try {
-      const res = await api.post('/discount-codes/validate', {
-        code: discountCode.trim(),
-        plan_id: selectedPlan.id,
-        subtotal: getEffectivePrice(selectedPlan).effectivePrice,
-      });
-
-      setDiscountResult(res.data);
-      toast({
-        title: '¡Código aplicado!',
-        description: `Descuento de ${formatPrice(res.data.discountAmount)} aplicado`,
-      });
-    } catch (error: any) {
-      const msg = error.response?.data?.error || 'Código no válido';
-      setDiscountError(msg);
-      toast({
-        title: 'Código no válido',
-        description: msg,
-        variant: 'destructive',
-      });
-    } finally {
-      setIsValidatingDiscount(false);
+      await navigator.clipboard.writeText(value);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch {
+      toast({ title: 'No se pudo copiar', description: 'Selecciona el dato y cópialo manualmente.' });
     }
   };
-
-  const handleRemoveDiscount = () => {
-    setDiscountResult(null);
-    setDiscountCode('');
-    setDiscountError('');
+  const confirm = () => {
+    if (!selectedPlan || !methodAvailable || (selectedPaymentMethod === 'bank_transfer' && !bankReady)) return;
+    createOrder.mutate({ plan_id: selectedPlan.id, payment_method: selectedPaymentMethod, notes: notes.trim() || undefined });
   };
-
-  // Founder benefits preview (10% off first paid package, single use)
-  const { data: founderInfo } = useQuery<{
-    user: { is_founder: boolean; founder_first_package_used: boolean };
-  }>({
-    queryKey: ['founder-self'],
-    queryFn: async () => (await api.get('/users/me/founder-self')).data,
-    retry: false,
-  });
-
-  const founderEligible = !!(founderInfo?.user?.is_founder && !founderInfo.user.founder_first_package_used);
-
-  const selectedEffectivePrice = selectedPlan ? getEffectivePrice(selectedPlan).effectivePrice : 0;
-  const subtotalAfterCode = discountResult
-    ? discountResult.finalTotal
-    : selectedEffectivePrice;
-  const founderDiscount = founderEligible && selectedPlan
-    ? Math.round(subtotalAfterCode * 0.10 * 100) / 100
-    : 0;
-  const baseAfterDiscounts = Math.max(subtotalAfterCode - founderDiscount, 0);
-  // El pago con tarjeta ya NO tiene recargo: Stripe reemplazó a MercadoPago y se
-  // eliminó la comisión del 4%. Todos los métodos cobran el total con descuentos.
-  const finalTotal = Math.round(baseAfterDiscounts * 100) / 100;
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-    }).format(price);
-  };
-
-  const paymentMethods: { value: OrderPaymentMethod; label: string; icon: typeof CreditCard; description: string }[] = [
-    {
-      value: 'card',
-      label: 'Tarjeta de crédito / débito',
-      icon: CreditCard,
-      description: 'Paga con tarjeta de forma segura, sin recargos',
-    },
-    {
-      value: 'bank_transfer',
-      label: 'Transferencia bancaria',
-      icon: Building2,
-      description: 'Realiza una transferencia y sube tu comprobante',
-    },
-    {
-      value: 'cash' as OrderPaymentMethod,
-      label: 'Efectivo en estudio',
-      icon: Banknote,
-      description: 'Genera tu orden y paga en el estudio; el staff la aprueba',
-    },
-  ];
 
   return (
     <AuthGuard requiredRoles={['client']}>
       <ClientLayout>
-        <div className="mx-auto max-w-5xl space-y-6">
-          <section className="rounded-[2rem] border border-altitud-olive/25 bg-altitud-olive/10 p-5 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)] sm:p-6">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full bg-altitud-cream/65"
-              onClick={() => {
-                if (step === 'payment') setStep('plan');
-                else if (step === 'confirm') setStep('payment');
-                else navigate('/app');
-              }}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
+        <div className="mx-auto max-w-4xl space-y-6">
+          <div className="flex items-start gap-4">
+            <Button variant="ghost" size="icon" className="shrink-0 rounded-full" aria-label="Volver" onClick={() => {
+              if (step === 'confirm') setStep('payment');
+              else if (step === 'payment') setStep('plan');
+              else navigate('/app');
+            }}><ArrowLeft className="h-5 w-5" /></Button>
             <div>
-              <h1 className="text-3xl font-semibold tracking-[-0.04em] text-altitud-dark sm:text-4xl">
-                {step === 'plan' && 'Elige tu plan'}
-                {step === 'payment' && 'Método de pago'}
-                {step === 'confirm' && 'Confirmar orden'}
-              </h1>
-              <p className="mt-1 text-sm text-altitud-dark/62">
-                {step === 'plan' && 'Selecciona el plan que mejor se adapte a ti'}
-                {step === 'payment' && 'Elige cómo quieres pagar'}
-                {step === 'confirm' && 'Revisa los detalles de tu compra'}
-              </p>
+              <h1 className="text-3xl text-altitud-dark">{step === 'plan' ? 'Elige tu ritmo.' : step === 'payment' ? 'Tu forma de pago.' : 'Revisa tu orden.'}</h1>
+              <p className="mt-2 text-muted-foreground">{step === 'plan' ? 'Paquetes y membresías para seguir avanzando en Altitud.' : step === 'payment' ? 'Tu plan se activa después de validar el pago.' : 'Confirma el paquete y completa tu pago en el siguiente paso.'}</p>
             </div>
           </div>
-          </section>
+          <nav aria-label="Pasos de compra" className="flex flex-wrap items-center gap-2 text-sm">
+            {(['plan', 'payment', 'confirm'] as const).map((value, index) => (
+              <span key={value} className="inline-flex items-center gap-2">
+                {index > 0 && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                <Badge variant={step === value ? 'default' : 'outline'} className={step === value ? 'rounded-full bg-altitud-olive text-altitud-cream' : 'rounded-full'} aria-current={step === value ? 'step' : undefined}>{index + 1}. {['Plan', 'Pago', 'Confirmar'][index]}</Badge>
+              </span>
+            ))}
+          </nav>
 
-          <div className="flex items-center gap-2 text-sm">
-            <Badge variant={step === 'plan' ? 'default' : 'secondary'} className={step === 'plan' ? 'rounded-full bg-altitud-olive text-altitud-cream' : 'rounded-full'}>1. Plan</Badge>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            <Badge variant={step === 'payment' ? 'default' : 'secondary'} className={step === 'payment' ? 'rounded-full bg-altitud-olive text-altitud-cream' : 'rounded-full'}>2. Pago</Badge>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            <Badge variant={step === 'confirm' ? 'default' : 'secondary'} className={step === 'confirm' ? 'rounded-full bg-altitud-olive text-altitud-cream' : 'rounded-full'}>3. Confirmar</Badge>
-          </div>
+          {step === 'plan' && <>
+            <section aria-label="Paquetes disponibles">
+              {plansQuery.isLoading ? <Skeleton className="h-64 w-full rounded-2xl" /> : plansQuery.isError ? (
+                <div className="space-y-3 py-8" role="alert"><p>No pudimos cargar los paquetes disponibles.</p><Button variant="outline" onClick={() => void plansQuery.refetch()}>Volver a intentar</Button></div>
+              ) : plansQuery.data?.length ? (
+                <div className="divide-y divide-altitud-sand/60 border-y border-altitud-sand/60">
+                  {plansQuery.data.map((plan) => <button key={plan.id} type="button" className="flex w-full flex-wrap items-center justify-between gap-4 px-3 py-6 text-left transition-colors hover:bg-altitud-sand/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-altitud-olive" onClick={() => selectPlan(plan.id)}>
+                    <div><h2 className="text-2xl">{plan.name}</h2><p className="mt-1 text-sm text-muted-foreground">{planSummary(plan)}</p>{plan.description && <p className="mt-2 max-w-lg text-sm text-muted-foreground">{plan.description}</p>}</div>
+                    <span className="flex items-center gap-6"><strong className="whitespace-nowrap text-2xl font-normal text-altitud-olive">{formatMxn(Number(plan.price))}<small className="ml-1 text-xs">MXN</small></strong><ArrowRight className="h-5 w-5" aria-hidden="true" /></span>
+                  </button>)}
+                </div>
+              ) : <p className="py-8">Los paquetes se habilitarán aquí cuando estén disponibles. <a href={STUDIO.whatsappHref} target="_blank" rel="noreferrer" className="underline">Consulta con el studio</a>.</p>}
+              <p className="mt-4 text-sm text-muted-foreground">Los paquetes de 4, 8 y 12 clases y Unlimited tienen vigencia de 30 días. Las clases no utilizadas no son acumulables ni transferibles, salvo excepción autorizada por Altitud.</p>
+            </section>
+            <section className="space-y-4 py-3" aria-labelledby="first-session-heading">
+              <h2 id="first-session-heading" className="text-2xl">Conoce el studio.</h2>
+              <dl className="divide-y divide-altitud-sand/50">
+                {STUDIO_PLANS.filter((plan) => plan.validityDays == null).map((plan) => <div key={plan.id} className="flex items-center justify-between gap-4 py-3"><dt>{plan.name}</dt><dd className="shrink-0">{formatMxn(plan.price)} MXN</dd></div>)}
+              </dl>
+              <p className="text-sm text-muted-foreground">Para clase prueba, clase suelta y primera vez de 5 clases, confirma la vigencia y la compra con el studio.</p>
+              <Button variant="outline" asChild><a href={STUDIO.whatsappHref} target="_blank" rel="noreferrer">Consultar por WhatsApp <ArrowRight className="ml-2 h-4 w-4" /></a></Button>
+            </section>
+            <section className="space-y-4 rounded-2xl bg-altitud-sand/25 p-6" aria-labelledby="founding-heading">
+              <p className="text-xs uppercase tracking-widest">PROMOCIÓN DE LANZAMIENTO</p>
+              <h2 id="founding-heading" className="text-3xl">Founding 50</h2>
+              <p className="text-xl">Unlimited · {formatMxn(FOUNDING_50.price)} MXN al mes</p>
+              <p className="max-w-2xl text-sm">Precio congelado durante 6 meses desde la activación. Exclusivo para las primeras 50 personas que realicen su primer pago y mantengan la membresía activa con pagos consecutivos.</p>
+              <details className="text-sm"><summary className="cursor-pointer py-2 font-semibold">Ver beneficios y requisitos</summary><h3 className="mt-4 font-semibold">Beneficios</h3><ul className="mt-2 list-disc space-y-2 pl-5">{FOUNDING_50.benefits.map((item) => <li key={item}>{item}</li>)}</ul><h3 className="mt-5 font-semibold">Requisitos</h3><ul className="mt-2 list-disc space-y-2 pl-5">{FOUNDING_50.requirements.map((item) => <li key={item}>{item}</li>)}</ul></details>
+              <Button asChild className="rounded-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90"><a href={FOUNDING_50.whatsappHref} target="_blank" rel="noreferrer">Consultar disponibilidad <ArrowRight className="ml-2 h-4 w-4" /></a></Button>
+              <p className="text-xs text-muted-foreground">El studio confirma la disponibilidad y el proceso para asegurar tu lugar.</p>
+            </section>
+          </>}
 
-          {/* Step 1: Select Plan */}
-          {step === 'plan' && (
-            <div className="space-y-5">
-              {plansLoading ? (
-                <>
-                  <Skeleton className="h-44 w-full rounded-[1.75rem]" />
-                  <Skeleton className="h-44 w-full rounded-[1.75rem]" />
-                  <Skeleton className="h-44 w-full rounded-[1.75rem]" />
-                </>
-              ) : groupedPlans.length > 0 ? (
-                groupedPlans.map((group) => (
-                  <section key={group.type} className={`rounded-[1.9rem] p-3 ring-1 ${group.panel}`}>
-                    <div className="rounded-[1.45rem] bg-altitud-dark/[0.035] p-4 sm:p-5">
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                        <div>
-                          <span className={`inline-flex rounded-full px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] ${group.chip}`}>
-                            {group.eyebrow}
-                          </span>
-                          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.035em]">{group.title}</h2>
-                          <p className={`mt-1 text-sm leading-relaxed ${group.text}`}>{group.detail}</p>
-                        </div>
-                        <p className="max-w-[16rem] text-xs font-medium leading-relaxed opacity-70">
-                          {group.rule}
-                        </p>
-                      </div>
-
-                      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                        {group.plans.map((plan) => {
-                          const presentation = getPackagePresentation(plan);
-                          const isSelected = selectedPlanId === plan.id;
-                          const rewardPoints = getRewardPoints(plan.class_limit);
-                          const { promoActive, effectivePrice, listPrice } = getEffectivePrice(plan);
-                          const price = effectivePrice;
-                          const classesLabel = plan.is_unlimited
-                            ? 'Clases ilimitadas'
-                            : plan.class_limit
-                              ? getClassesLabel(plan.class_limit)
-                              : 'Acceso membresía';
-                          const pricePerClass = plan.class_limit
-                            ? formatPrice(Math.round(price / plan.class_limit))
-                            : null;
-
-                          return (
-                            <button
-                              key={plan.id}
-                              type="button"
-                              className={`group relative w-full overflow-hidden rounded-[1.55rem] p-5 text-left ring-1 transition duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 active:scale-[0.99] ${presentation.card} ${
-                                isSelected ? presentation.selected : ''
-                              }`}
-                              aria-pressed={isSelected}
-                              onClick={() => handlePlanSelect(plan.id)}
-                            >
-                              <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-current/25 to-transparent" />
-
-                              <div className="flex items-start justify-between gap-4">
-                                <div className="min-w-0">
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <span className={`inline-flex rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${presentation.badge}`}>
-                                      {presentation.accentLabel}
-                                    </span>
-                                    {isMembershipFeePlan(plan) && (
-                                      <span className="rounded-full bg-altitud-cream/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-altitud-dark/70 ring-1 ring-altitud-dark/10">
-                                        acceso anual
-                                      </span>
-                                    )}
-                                    {isSelected && (
-                                      <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${presentation.chip}`}>
-                                        <CheckCircle2 className="h-3 w-3" />
-                                        Seleccionado
-                                      </span>
-                                    )}
-                                  </div>
-                                  <h4 className="mt-3 text-2xl font-heading font-bold leading-tight tracking-[-0.045em] text-current">
-                                    {plan.name}
-                                  </h4>
-                                  {plan.description && (
-                                    <p className={`mt-2 text-sm leading-relaxed font-body ${presentation.text}`}>
-                                      {plan.description}
-                                    </p>
-                                  )}
-                                </div>
-                                <div className="shrink-0 text-right">
-                                  {promoActive && (
-                                    <p className="text-sm font-heading font-medium text-current/55 line-through">
-                                      {formatPrice(listPrice)}
-                                    </p>
-                                  )}
-                                  <p className="text-3xl font-heading font-bold tracking-[-0.06em] text-current">
-                                    {formatPrice(price)}
-                                  </p>
-                                  {promoActive && plan.promo_label && (
-                                    <span className="mt-1 inline-flex rounded-full bg-altitud-olive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-altitud-olive">
-                                      {plan.promo_label}
-                                    </span>
-                                  )}
-                                  <p className={`mt-1 text-xs font-semibold ${presentation.text}`}>
-                                    {plan.duration_days} días
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="mt-5 flex flex-wrap items-center gap-2">
-                                <span className="inline-flex items-center gap-1.5 rounded-full bg-altitud-cream/70 px-3 py-1.5 text-sm font-semibold ring-1 ring-altitud-dark/8">
-                                  <Star className="h-4 w-4" />
-                                  {classesLabel}
-                                </span>
-                                {pricePerClass && (
-                                  <span className="rounded-full bg-altitud-cream/70 px-3 py-1.5 text-xs font-semibold ring-1 ring-altitud-dark/8">
-                                    {pricePerClass} por clase
-                                  </span>
-                                )}
-                                {rewardPoints && (
-                                  <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ring-1 ${presentation.badge}`}>
-                                    <Star className="h-3.5 w-3.5 fill-current" />
-                                    +{rewardPoints} pts
-                                  </span>
-                                )}
-                              </div>
-
-                              {plan.features && plan.features.length > 0 && (
-                                <ul className="mt-4 space-y-2">
-                                  {plan.features.map((feature, idx) => (
-                                    <li key={idx} className="flex items-start gap-2 text-sm">
-                                      <Check className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                                      <span className="font-body">{feature}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-
-                              <div className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold ${presentation.cta}`}>
-                                {isSelected ? (
-                                  <>
-                                    <CheckCircle2 className="h-4 w-4" />
-                                    Seleccionado
-                                  </>
-                                ) : (
-                                  <>
-                                    Seleccionar {presentation.shortTitle.toLowerCase()}
-                                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                                  </>
-                                )}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </section>
-                ))
-              ) : (
-                <Card>
-                  <CardContent className="py-8 text-center">
-                    <p className="text-muted-foreground">
-                      No hay planes disponibles en este momento.
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          )}
-
-          {/* Step 2: Select Payment Method */}
-          {step === 'payment' && selectedPlan && (
-            <div className="space-y-4">
-              {/* Selected plan summary */}
-              <Card className="rounded-[1.5rem] border-altitud-sand/65 bg-altitud-cream/45">
-                <CardContent className="py-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">{selectedPlan.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {selectedPlan.is_unlimited || !selectedPlan.class_limit
-                          ? 'Clases ilimitadas'
-                          : `${selectedPlan.class_limit} clases`}
-                        {' · '}
-                        {selectedPlan.duration_days} días
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      {getEffectivePrice(selectedPlan).promoActive && (
-                        <p className="text-sm text-muted-foreground line-through">{formatPrice(getEffectivePrice(selectedPlan).listPrice)}</p>
-                      )}
-                      <p className="text-xl font-bold">{formatPrice(getEffectivePrice(selectedPlan).effectivePrice)}</p>
-                      {getEffectivePrice(selectedPlan).promoActive && selectedPlan.promo_label && (
-                        <span className="inline-flex rounded-full bg-altitud-olive/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-altitud-olive">{selectedPlan.promo_label}</span>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Payment methods */}
-              <Card className="rounded-[1.75rem] border-altitud-sand/65 bg-[hsl(var(--card))]/88">
-                <CardHeader>
-                  <CardTitle className="text-lg">Selecciona método de pago</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <RadioGroup
-                    value={selectedPaymentMethod}
-                    onValueChange={(v) => setSelectedPaymentMethod(v as OrderPaymentMethod)}
-                    className="space-y-3"
-                  >
-                    {paymentMethods.map((method) => (
-                      <div
-                        key={method.value}
-                        className={`flex cursor-pointer items-start space-x-3 rounded-[1.25rem] border p-4 transition-colors ${selectedPaymentMethod === method.value
-                          ? 'border-altitud-olive bg-altitud-olive/8'
-                          : 'border-altitud-sand/65 hover:bg-altitud-cream/55'
-                          }`}
-                        onClick={() => setSelectedPaymentMethod(method.value)}
-                      >
-                        <RadioGroupItem value={method.value} id={method.value} className="mt-1" />
-                        <div className="flex-1">
-                          <Label htmlFor={method.value} className="flex items-center gap-2 cursor-pointer">
-                            <method.icon className="h-5 w-5 text-altitud-olive" />
-                            <span className="font-medium">{method.label}</span>
-                          </Label>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {method.description}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+          {step !== 'plan' && selectedPlan && <>
+            <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-altitud-sand/20 p-5"><div><h2 className="text-xl">{selectedPlan.name}</h2><p className="mt-1 text-sm text-muted-foreground">{planSummary(selectedPlan)}</p></div><strong className="text-2xl font-normal">{formatMxn(Number(selectedPlan.price))} MXN</strong></div>
+            {step === 'payment' && <Card className="rounded-2xl border-altitud-sand/60">
+              <CardHeader><CardTitle className="text-xl">Selecciona cómo pagar</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                {methodsQuery.isLoading ? <Skeleton className="h-36 w-full" /> : methodsQuery.isError ? <div role="alert" className="space-y-3"><p>No pudimos consultar las formas de pago.</p><Button variant="outline" onClick={() => void methodsQuery.refetch()}>Volver a intentar</Button></div> : methods.length ? (
+                  <RadioGroup value={selectedPaymentMethod} onValueChange={(value) => setSelectedPaymentMethod(value as OrderPaymentMethod)} className="space-y-3">
+                    {methods.map((method) => <Label key={method.value} htmlFor={method.value} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 ${selectedPaymentMethod === method.value ? 'border-altitud-olive bg-altitud-olive/5' : 'border-altitud-sand/60'}`}><RadioGroupItem value={method.value} id={method.value} className="mt-1" /><span><span className="flex items-center gap-2 font-semibold"><method.icon className="h-5 w-5 text-altitud-olive" />{method.label}</span><span className="mt-2 block text-sm font-normal leading-relaxed text-muted-foreground">{method.description}</span></span></Label>)}
                   </RadioGroup>
-                </CardContent>
-                <CardFooter>
-                  <Button onClick={handlePaymentMethodSelect} className="w-full rounded-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90">
-                    Continuar
-                    <ChevronRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
-          )}
-
-          {/* Step 3: Confirm Order */}
-          {step === 'confirm' && selectedPlan && (
-            <div className="space-y-4">
-              <Card className="rounded-[1.75rem] border-altitud-sand/65 bg-[hsl(var(--card))]/88">
-                <CardHeader>
-                  <CardTitle className="text-lg">Resumen de tu orden</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Plan details */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">{selectedPlan.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {selectedPlan.is_unlimited || !selectedPlan.class_limit
-                          ? 'Clases ilimitadas'
-                          : `${selectedPlan.class_limit} clases`}
-                        {' · '}
-                        {selectedPlan.duration_days} días
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      {getEffectivePrice(selectedPlan).promoActive && (
-                        <p className="text-xs text-muted-foreground line-through">{formatPrice(getEffectivePrice(selectedPlan).listPrice)}</p>
-                      )}
-                      <p className="font-medium">{formatPrice(getEffectivePrice(selectedPlan).effectivePrice)}</p>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Payment method */}
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Método de pago</span>
-                    <span className="font-medium">
-                      {paymentMethods.find(m => m.value === selectedPaymentMethod)?.label}
-                    </span>
-                  </div>
-
-                  <Separator />
-
-                  {/* Discount code */}
-                  <div className="space-y-3">
-                    <Label className="flex items-center gap-2 text-sm">
-                      <Tag className="h-4 w-4" />
-                      Código de descuento
-                    </Label>
-
-                    {discountResult ? (
-                      <div className="flex items-center justify-between rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 p-3">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4 text-green-600" />
-                          <div>
-                            <p className="text-sm font-medium text-green-700 dark:text-green-400">
-                              {discountResult.code}
-                            </p>
-                            <p className="text-xs text-green-600 dark:text-green-500">
-                              {discountResult.discountType === 'percentage'
-                                ? `${discountResult.discountValue}% de descuento`
-                                : `${formatPrice(discountResult.discountValue)} de descuento`}
-                            </p>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-green-600 hover:text-red-500 hover:bg-red-50"
-                          onClick={handleRemoveDiscount}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="Código de descuento o referido"
-                          value={discountCode}
-                          onChange={(e) => {
-                            setDiscountCode(e.target.value.toUpperCase());
-                            setDiscountError('');
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              handleValidateDiscount();
-                            }
-                          }}
-                          className={discountError ? 'border-red-400' : ''}
-                          disabled={isValidatingDiscount}
-                        />
-                        <Button
-                          variant="outline"
-                          onClick={handleValidateDiscount}
-                          disabled={!discountCode.trim() || isValidatingDiscount}
-                          className="shrink-0"
-                        >
-                          {isValidatingDiscount ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            'Aplicar'
-                          )}
-                        </Button>
-                      </div>
-                    )}
-
-                    {discountError && (
-                      <p className="text-xs text-red-500">{discountError}</p>
-                    )}
-                  </div>
-
-                  <Separator />
-
-                  {/* Subtotal and discount breakdown */}
-                  {(discountResult || founderDiscount > 0) && (
-                    <>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Subtotal</span>
-                        <span>{formatPrice(getEffectivePrice(selectedPlan).effectivePrice)}</span>
-                      </div>
-                      {discountResult && (
-                        <div className="flex items-center justify-between text-sm text-green-600">
-                          <span className="flex items-center gap-1">
-                            <Tag className="h-3 w-3" />
-                            Descuento ({discountResult.code})
-                          </span>
-                          <span>-{formatPrice(discountResult.discountAmount)}</span>
-                        </div>
-                      )}
-                      {founderDiscount > 0 && (
-                        <div className="flex items-center justify-between text-sm text-altitud-gold">
-                          <span className="flex items-center gap-1">
-                            <Sparkles className="h-3 w-3" />
-                            Founder member -10% (uso único)
-                          </span>
-                          <span>-{formatPrice(founderDiscount)}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* Total */}
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-lg">Total</span>
-                    <span className="font-bold text-lg text-altitud-olive">
-                      {formatPrice(finalTotal)}
-                    </span>
-                  </div>
-
-                  {/* Notes */}
-                  <div className="space-y-2">
-                    <Label htmlFor="notes">Notas adicionales (opcional)</Label>
-                    <Textarea
-                      id="notes"
-                      placeholder="¿Algún comentario sobre tu compra?"
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      rows={2}
-                    />
-                  </div>
-
-                  {/* Bank transfer info preview */}
-                  {selectedPaymentMethod === 'bank_transfer' && bankInfo && (
-                    <div className="space-y-3 rounded-[1.25rem] bg-altitud-cream/45 p-4">
-                      <p className="text-sm font-medium flex items-center gap-2">
-                        <Building2 className="h-4 w-4" />
-                        Datos para transferencia
-                      </p>
-                      <div className="grid gap-2">
-                        <div className="flex items-center justify-between p-2.5 rounded-md bg-background">
-                          <div>
-                            <p className="text-xs text-muted-foreground">Banco</p>
-                            <p className="text-sm font-medium">{bankInfo.bank_name}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between p-2.5 rounded-md bg-background">
-                          <div>
-                            <p className="text-xs text-muted-foreground">Titular</p>
-                            <p className="text-sm font-medium">{bankInfo.account_holder}</p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 shrink-0"
-                            onClick={() => copyToClipboard(bankInfo.account_holder, 'holder')}
-                          >
-                            {copiedField === 'holder' ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
-                          </Button>
-                        </div>
-                        {bankInfo.account_number && (
-                          <div className="flex items-center justify-between p-2.5 rounded-md bg-background">
-                            <div>
-                              <p className="text-xs text-muted-foreground">Número de cuenta</p>
-                              <p className="text-sm font-medium font-mono">{bankInfo.account_number}</p>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 shrink-0"
-                              onClick={() => copyToClipboard(bankInfo.account_number, 'account')}
-                            >
-                              {copiedField === 'account' ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
-                            </Button>
-                          </div>
-                        )}
-                        <div className="flex items-center justify-between p-2.5 rounded-md bg-background">
-                          <div>
-                            <p className="text-xs text-muted-foreground">CLABE interbancaria</p>
-                            <p className="text-sm font-medium font-mono">{bankInfo.clabe}</p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 shrink-0"
-                            onClick={() => copyToClipboard(bankInfo.clabe, 'clabe')}
-                          >
-                            {copiedField === 'clabe' ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
-                          </Button>
-                        </div>
-                        <div className="rounded-md border border-altitud-olive/20 bg-altitud-olive/8 p-2.5">
-                          <p className="text-xs text-muted-foreground">Monto a transferir</p>
-                          <p className="font-bold text-altitud-olive">{formatPrice(finalTotal)}</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Después de confirmar, podrás subir tu comprobante de pago desde el detalle de tu orden.
-                      </p>
-                    </div>
-                  )}
-
-                  {selectedPaymentMethod === 'cash' && (
-                    <div className="rounded-lg bg-muted/50 p-4">
-                      <p className="text-sm flex items-center gap-2">
-                        <Banknote className="h-4 w-4" />
-                        <span>
-                          Tu orden quedará pendiente hasta que realices el pago en el estudio.
-                          Presenta el número de orden al pagar.
-                        </span>
-                      </p>
-                    </div>
-                  )}
-
-                  {needsStudio && (
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Elige tu estudio (paquete individual)</Label>
-                      <Select value={selectedFacilityId} onValueChange={setSelectedFacilityId}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un estudio" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {facilities.map((f) => (
-                            <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <p className="text-xs text-muted-foreground">Tu paquete individual solo podrá usarse en este estudio.</p>
-                    </div>
-                  )}
-                </CardContent>
-                <CardFooter className="flex-col gap-3">
-                  <Button
-                    onClick={handleConfirmOrder}
-                    className="w-full rounded-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90"
-                    disabled={createOrder.isPending}
-                  >
-                    {createOrder.isPending ? (
-                      'Creando orden...'
-                    ) : (
-                      <>
-                        <CheckCircle2 className="h-4 w-4 mr-2" />
-                        Confirmar orden
-                      </>
-                    )}
-                  </Button>
-                  <p className="text-xs text-center text-muted-foreground">
-                    Al confirmar, aceptas los términos y condiciones del estudio.
-                  </p>
-                </CardFooter>
-              </Card>
-            </div>
-          )}
+                ) : <p>Consulta las formas de pago disponibles con el studio por <a className="underline" href={STUDIO.whatsappHref} target="_blank" rel="noreferrer">WhatsApp</a>.</p>}
+                {methodsQuery.data && !methodsQuery.data.card && <p className="text-sm text-muted-foreground">El pago con tarjeta en línea estará disponible próximamente.</p>}
+              </CardContent>
+              <CardFooter><Button className="w-full rounded-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90" disabled={!methodAvailable} onClick={() => setStep('confirm')}>Continuar <ChevronRight className="ml-2 h-4 w-4" /></Button></CardFooter>
+            </Card>}
+            {step === 'confirm' && <Card className="rounded-2xl border-altitud-sand/60">
+              <CardHeader><CardTitle className="text-xl">Antes de confirmar</CardTitle></CardHeader>
+              <CardContent className="space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-sm"><span>Método de pago</span><strong>{methodOptions.find((method) => method.value === selectedPaymentMethod)?.label}</strong></div>
+                <Separator />
+                <p className="text-sm leading-relaxed">Cancela o reagenda con al menos 4 horas de anticipación. Las cancelaciones tardías y las inasistencias cuentan como clase utilizada y no se recuperan.</p>
+                <div className="space-y-2"><Label htmlFor="notes">Comentario para el studio (opcional)</Label><Textarea id="notes" value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="¿Algo que debamos saber sobre tu compra?" rows={2} maxLength={500} /></div>
+                {selectedPaymentMethod === 'bank_transfer' && <section className="space-y-3 rounded-xl bg-altitud-sand/20 p-4"><h3 className="flex items-center gap-2 font-semibold"><Building2 className="h-4 w-4" /> Datos de transferencia</h3>
+                  {bankQuery.isLoading ? <Skeleton className="h-36 w-full" /> : bankReady && bankInfo ? <>
+                    <dl className="divide-y divide-altitud-sand/60">{([
+                      ['Banco', bankInfo.bank_name], ['Titular', bankInfo.account_holder], ['Número de cuenta', bankInfo.account_number], ['CLABE', bankInfo.clabe],
+                    ] as const).filter(([, value]) => value).map(([label, value]) => <div key={label} className="flex items-center justify-between gap-2 py-3"><div className="min-w-0"><dt className="text-xs text-muted-foreground">{label}</dt><dd className="break-all text-sm font-medium">{value}</dd></div><Button variant="ghost" size="icon" aria-label={`Copiar ${label}`} className="shrink-0" onClick={() => void copy(value, label)}>{copiedField === label ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}</Button></div>)}</dl>
+                    <p className="text-sm">Confirma la orden, realiza la transferencia y sube tu comprobante. Tu plan se activará cuando el studio valide el pago.</p>
+                  </> : <div role="alert" className="space-y-2"><p className="text-sm">No pudimos cargar los datos bancarios. Reintenta antes de transferir.</p><Button variant="outline" onClick={() => void bankQuery.refetch()}>Cargar datos bancarios</Button></div>}
+                </section>}
+                {selectedPaymentMethod === 'cash' && <p className="rounded-xl bg-altitud-sand/20 p-4 text-sm">Tu orden queda pendiente hasta que pagues en el studio y el staff valide el pago. Presenta tu número de orden en recepción.</p>}
+                <div className="flex items-center justify-between gap-4 border-t border-altitud-sand/60 pt-4"><span>Total</span><strong className="text-2xl font-normal text-altitud-olive">{formatMxn(Number(selectedPlan.price))} MXN</strong></div>
+              </CardContent>
+              <CardFooter className="flex-col gap-3"><Button className="w-full rounded-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90" onClick={confirm} disabled={createOrder.isPending || !methodAvailable || (selectedPaymentMethod === 'bank_transfer' && !bankReady)}>{createOrder.isPending ? 'Creando orden…' : <><CheckCircle2 className="mr-2 h-4 w-4" />Confirmar orden</>}</Button><p className="text-center text-xs text-muted-foreground">Al confirmar, aceptas las <Link to="/terms" className="underline">políticas y condiciones de Altitud</Link>.</p></CardFooter>
+            </Card>}
+          </>}
         </div>
       </ClientLayout>
     </AuthGuard>

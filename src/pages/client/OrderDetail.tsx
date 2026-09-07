@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import api from '@/lib/api';
+import { STUDIO } from '@/lib/studio';
 import type { OrderWithProofs, OrderStatus, BankInfo } from '@/types/order';
 import {
   ArrowLeft,
@@ -77,8 +78,16 @@ export default function OrderDetail() {
   // Fetch order details
   const { data: order, isLoading } = useQuery<OrderWithProofs>({
     queryKey: ['order', orderId],
-    queryFn: async () => (await api.get(`/orders/${orderId}`)).data,
+    queryFn: async () => {
+      const { data } = await api.get(`/orders/${orderId}`);
+      return { ...data, payment_method: data.payment_method === 'transfer' ? 'bank_transfer' : data.payment_method };
+    },
     enabled: !!orderId,
+  });
+
+  const { data: paymentMethods } = useQuery<{ card: boolean }>({
+    queryKey: ['payment-methods'],
+    queryFn: async () => (await api.get('/settings/payment-methods')).data,
   });
 
   // Fetch bank info
@@ -119,7 +128,7 @@ export default function OrderDetail() {
       queryClient.invalidateQueries({ queryKey: ['my-orders'] });
       toast({
         title: '¡Transferencia registrada!',
-        description: 'Tu pago está en revisión. Te notificaremos cuando sea validado.',
+        description: 'Tu comprobante está en revisión. El studio debe validar el pago antes de activar tu plan.',
       });
       setTransferReference('');
       setTransferDate('');
@@ -267,7 +276,7 @@ export default function OrderDetail() {
   const statusInfo = statusConfig[order.status];
   const canUploadProof = order.status === 'pending_payment' && order.payment_method === 'bank_transfer';
   const hasProofs = order.payment_proofs && order.payment_proofs.length > 0;
-  const canPayWithCard = order.status === 'pending_payment';
+  const canPayWithCard = order.status === 'pending_payment' && paymentMethods?.card === true;
 
   return (
     <AuthGuard requiredRoles={['client']}>
@@ -340,6 +349,17 @@ export default function OrderDetail() {
               )}
             </CardContent>
           </Card>
+
+          {(order.status === 'pending_payment' || order.status === 'pending_verification') && (
+            <p className="rounded-xl bg-altitud-sand/20 p-4 text-sm leading-relaxed">
+              {order.status === 'pending_verification'
+                ? 'El studio está revisando tu comprobante. Tu plan se activará cuando el pago sea aprobado.'
+                : order.payment_method === 'cash'
+                  ? 'Presenta tu número de orden al pagar en el studio. Tu plan se activa después de validar el pago.'
+                  : 'Para activar tu plan, completa el pago y adjunta el comprobante si pagas por transferencia.'}
+              {' '}Si necesitas ayuda, <a className="underline" href={STUDIO.whatsappHref} target="_blank" rel="noreferrer">contacta al studio por WhatsApp</a>.
+            </p>
+          )}
 
           {/* Stripe card payment (backend devuelve la URL de Stripe como mp_checkout_url) */}
           {canPayWithCard && (
@@ -470,7 +490,7 @@ export default function OrderDetail() {
                   Confirmar transferencia
                 </CardTitle>
                 <CardDescription>
-                  Una vez realizada la transferencia, sube tu comprobante y llena los datos
+                  Sube tu comprobante de transferencia. El studio validará el pago antes de activar tu paquete o membresía.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

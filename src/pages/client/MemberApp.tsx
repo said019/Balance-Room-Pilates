@@ -27,9 +27,11 @@ import {
 import { ChangePasswordDialog } from "@/components/client/ChangePasswordDialog";
 import { useAuthStore } from "@/stores/authStore";
 import { getErrorMessage } from "@/lib/api";
+import { STUDIO, STUDIO_SERVICES, STUDIO_RULES } from "@/lib/studio";
 import {
   useMemberData,
   dateKey,
+  isLateCancellation,
   type PreviewProfile,
 } from "@/components/member/useMemberData";
 import type { BookingClient } from "@/types/booking";
@@ -204,7 +206,7 @@ function MembershipCard({
         <span>
           {m?.end_date
             ? `Vence ${format(new Date(m.end_date.slice(0, 10) + "T12:00:00"), "d MMM", { locale: es })}`
-            : "Planes por confirmar"}
+            : "Ver paquetes disponibles"}
         </span>
       </div>
       <Link to={base + "/profile/membership"} className="member-card-link">
@@ -378,30 +380,44 @@ function MemberHome({
           <span>ENTRENA A TU MANERA</span>
         </div>
         <div className="member-explore-grid">
-          <Link to={base + "/book?tipo=Híbrido"}>
-            <img src="/brand/hybrid-training.jpg" alt="Entrenamiento híbrido" />
-            <div>
-              <span>FUERZA + RESISTENCIA</span>
-              <h3>Híbrido</h3>
-              <p>Más allá de tu zona de confort.</p>
-            </div>
-            <ArrowTopRightIcon />
-          </Link>
-          <Link to={base + "/book?tipo=Funcional"}>
-            <img
-              src="/brand/community-training.jpg"
-              alt="Trabajo funcional con cuerdas"
-            />
-            <div>
-              <span>MOVIMIENTO + CONTROL</span>
-              <h3>Funcional</h3>
-              <p>Una base fuerte para todo lo demás.</p>
-            </div>
-            <ArrowTopRightIcon />
-          </Link>
+          {STUDIO_SERVICES.map((service, index) => (
+            <Link key={service.id} to={`${base}/book?tipo=${encodeURIComponent(service.name)}`}>
+              <img src={index === 0 ? "/brand/hybrid-training.jpg" : "/brand/community-training.jpg"} alt={index === 0 ? "Entrenamiento híbrido" : "Entrenamiento en comunidad"} />
+              <div>
+                <span>{service.label}</span>
+                <h3>{service.name}</h3>
+                <p>{service.description}</p>
+              </div>
+              <ArrowTopRightIcon />
+            </Link>
+          ))}
         </div>
       </section>
     </>
+  );
+}
+function StudioInformation() {
+  return (
+    <section className="mt-8 border-t border-altitud-sand/60 pt-6" aria-labelledby="studio-information-title">
+      <h2 id="studio-information-title" className="text-2xl">Tu studio, en claro.</h2>
+      <div className="mt-5 grid gap-7 md:grid-cols-2">
+        <div className="space-y-3 text-sm">
+          <p>{STUDIO.address}</p>
+          <p>Atención: {STUDIO.attentionHours.join(" y ")}.</p>
+          <p>Lunes a viernes: {STUDIO.weekdayTimes.join(", ")}.</p>
+          <p>Sábados y domingos: 2 clases por día según programación. Horarios tentativos: {STUDIO.weekendTimes.join(" y ")}.</p>
+          <div className="flex flex-wrap gap-x-5 gap-y-3 pt-2">
+            <a className="member-text-link" href={STUDIO.whatsappHref} target="_blank" rel="noreferrer">WhatsApp <ArrowTopRightIcon /></a>
+            <a className="member-text-link" href={STUDIO.phoneHref}>{STUDIO.phone}</a>
+            <a className="member-text-link" href={STUDIO.mapHref} target="_blank" rel="noreferrer">Cómo llegar <ArrowTopRightIcon /></a>
+          </div>
+        </div>
+        <details className="text-sm" open>
+          <summary className="cursor-pointer py-1 font-semibold">Para entrenar juntos</summary>
+          <ul className="mt-3 list-disc space-y-2 pl-5">{STUDIO_RULES.map((rule) => <li key={rule}>{rule}</li>)}</ul>
+        </details>
+      </div>
+    </section>
   );
 }
 function MemberWorkspace({ preview }: { preview: boolean }) {
@@ -409,7 +425,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
   const base = preview ? "/app/preview" : "/app";
   const path = location.pathname.slice(base.length) || "/";
   const [start, setStart] = useState(() => new Date());
-  const [day, setDay] = useState(() => (new Date().getDay() === 0 ? 1 : 0));
+  const [day, setDay] = useState(0);
   const [filter, setFilter] = useState(
     () => new URLSearchParams(location.search).get("tipo") || "Todas",
   );
@@ -445,12 +461,15 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
     setBusy(true);
     data.setActionError("");
     try {
+      const waiting = cancelled.booking_status === "waitlist";
       await data.cancel(cancelled);
       setCancelled(null);
       setMessage(
-        preview
-          ? "Reserva de muestra cancelada. Tu crédito de ejemplo vuelve a estar disponible."
-          : "Reserva cancelada. Puedes consultar tu saldo actualizado.",
+        waiting
+          ? "Saliste de la lista de espera."
+          : preview
+            ? "Reserva de muestra cancelada a tiempo. Recuperaste tu crédito de ejemplo."
+            : "Reserva cancelada a tiempo. Consulta tu saldo actualizado.",
       );
     } catch (e) {
       data.setActionError(getErrorMessage(e));
@@ -501,8 +520,9 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
         <PageHeading
           label="HAZ ESPACIO PARA TI"
           title="Vamos a entrenar."
-          description="Elige el movimiento. Nosotros ponemos el impulso."
+          description="Grupos de hasta 12 personas. Elige la sesión que va contigo."
         />
+        <p className="mb-6 text-sm text-muted-foreground">Cancela o reagenda con mínimo 4 horas de anticipación. Las cancelaciones tardías y las inasistencias cuentan como clase utilizada.{preview ? " Los horarios de fin de semana son tentativos; esta agenda es una muestra." : " Los fines de semana dependen de la programación. Reserva solo las sesiones publicadas en la agenda."}</p>
         <div className="member-calendar-toolbar">
           <div className="member-tabs" aria-label="Tipo de entrenamiento">
             {[
@@ -592,9 +612,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
                   </div>
                   <div className="member-session-name">
                     <span className="member-kicker">
-                      {c.class_type_name === "Híbrido"
-                        ? "FUERZA + RESISTENCIA"
-                        : "MOVIMIENTO + CONTROL"}
+                      {STUDIO_SERVICES.find((service) => service.name.toLowerCase() === c.class_type_name?.toLowerCase())?.label || "ENTRENAMIENTO ALTITUD"}
                     </span>
                     <h3>{c.class_type_name}</h3>
                     <p>
@@ -739,7 +757,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
                 <dt>Sesiones incluidas</dt>
                 <dd>
                   {membership?.class_limit ??
-                    (membership ? "Ilimitadas" : "Por confirmar")}
+                    (membership ? "Ilimitadas" : "Elige un paquete")}
                 </dd>
               </div>
               <div>
@@ -766,7 +784,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
             </dl>
             <p>
               {preview
-                ? "Esta membresía es un ejemplo para explorar la app. Los planes y precios oficiales están por confirmar."
+                ? "Esta membresía es un ejemplo de 12 clases para explorar la app. Consulta los paquetes disponibles para comenzar."
                 : "Consulta la vigencia y los créditos de tu membresía antes de reservar."}
             </p>
             <Link
@@ -781,6 +799,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
             </Link>
           </section>
         </div>
+        <StudioInformation />
       </>
     );
   else if (path === "/profile")
@@ -889,6 +908,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
             </button>
           </section>
         </div>
+        <StudioInformation />
       </>
     );
   else if (
@@ -1078,10 +1098,14 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           <span className="member-kicker">UN CAMBIO DE PLANES</span>
           <DialogTitle>¿Cancelar esta sesión?</DialogTitle>
           <DialogDescription>
-            {preview
-              ? "La reserva de muestra pasará al historial y recuperarás tu crédito de ejemplo."
-              : "La devolución de créditos depende de la política vigente y será confirmada por el studio."}
+            {cancelled && isLateCancellation(cancelled)
+              ? "Faltan menos de 4 horas para tu sesión. El plazo para cancelar o reagendar ya terminó. Si no asistes, la clase se considera utilizada y no se recupera."
+              : cancelled?.booking_status === "waitlist"
+                ? "Saldrás de la lista de espera de esta sesión."
+                : "Puedes cancelar o reagendar con mínimo 4 horas de anticipación. Si se descontó una clase al reservar, se devolverá al cancelar dentro de este plazo."}
+            {preview ? " Esta es una reserva de muestra." : ""}
           </DialogDescription>
+          <p className="text-sm text-muted-foreground">Si no asistes, la clase también cuenta como utilizada. Para reagendar a tiempo, cancela tu reserva y elige otra sesión disponible.</p>
           {cancelled && (
             <div className="member-dialog-summary">
               <h3>{cancelled.class_type_name}</h3>
@@ -1099,9 +1123,9 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           <button
             className="member-button"
             onClick={() => void confirmCancel()}
-            disabled={busy}
+            disabled={busy || Boolean(cancelled && isLateCancellation(cancelled))}
           >
-            {busy ? "Cancelando…" : "Sí, cancelar sesión"}
+            {busy ? "Cancelando…" : cancelled && isLateCancellation(cancelled) ? "Plazo de cancelación terminado" : "Sí, cancelar sesión"}
           </button>
           <button
             className="member-subtle-button"

@@ -1,3 +1,15 @@
 import { Link } from 'react-router-dom';
 import { SiteHeader, SiteFooter, Arrow } from '@/components/altitud/SiteShell';
-export default function AltitudMemberships() { return <div className="alt-site"><SiteHeader /><main className="alt-membership-page"><div className="alt-eyebrow">CONSTANCIA QUE SE CONVIERTE EN PROGRESO</div><h1>ENCUENTRA<br /><span>TU RITMO.</span></h1><p>Estamos preparando las membresías de 2707 Altitud.<br />Pronto encontrarás aquí los planes, precios y condiciones oficiales.</p><div className="alt-membership-preview"><span>01 / EMPIEZA</span><h2>Tu primera experiencia.</h2><p>Conoce el entrenamiento híbrido y funcional, el coaching cercano y la energía de entrenar en comunidad.</p><Link className="alt-button alt-button-olive" to="/reservar">Explorar la agenda de muestra <Arrow /></Link></div><Link to="/" className="alt-text-link">← Volver al studio</Link></main><SiteFooter /></div>; }
+import { FoundingOffer, PriceTable } from '@/components/altitud/StudioDetails';
+import { STUDIO } from '@/lib/studio';
+
+export default function AltitudMemberships() {
+  return <div className="alt-site"><SiteHeader /><main className="alt-membership-page alt-pricing-page">
+    <header className="alt-pricing-heading"><div><div className="alt-eyebrow">CONSTANCIA QUE SE CONVIERTE EN PROGRESO</div><h1>Encuentra<br /><span>tu ritmo.</span></h1></div><div><p>Tu primera clase, una rutina constante o acceso Unlimited. Elige cómo quieres entrenar.</p><Link className="alt-button alt-button-olive" to="/app/checkout">Elegir mi paquete <Arrow /></Link></div></header>
+    <PriceTable />
+    <div className="alt-payment-note"><div><h2>Tu siguiente paso</h2><p>Inicia sesión para consultar las opciones de compra disponibles. Para clase prueba, clase suelta o el paquete de primera vez, escríbenos y te ayudamos a comenzar.</p></div><a className="alt-text-link" href={STUDIO.whatsappHref} target="_blank" rel="noopener noreferrer">Hablar con el studio <Arrow diagonal /></a></div>
+    <FoundingOffer />
+    <section className="alt-pricing-conditions"><h2>Entrena con claridad.</h2><div><h3>Transferencia y pago en el studio</h3><p>La transferencia requiere un comprobante. Tu paquete o membresía se activa una vez que el studio valida el pago. También puedes pagar directamente en el studio; consulta las opciones disponibles al comprar.</p><h3>Cuida tu lugar</h3><p>Cancela o reagenda con mínimo {STUDIO.cancellationHours} horas de anticipación. Si cancelas tarde o no asistes, la clase se considera utilizada y no podrá recuperarse.</p><Link className="alt-text-link" to="/cancellation-policy">Ver política de cancelación <Arrow /></Link></div></section>
+    <Link to="/" className="alt-text-link">← Volver al studio</Link>
+  </main><SiteFooter /></div>;
+}

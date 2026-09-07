@@ -21,7 +21,7 @@ Introduce 2707 Altitud as a boutique hybrid and functional training studio in
 Zinacantepec. Help people understand the experience, find their training and
 reserve with motivation and confidence. Public booking links require sign-in and return the member to the booking
 calendar after login or registration. The explicitly labelled member preview
-remains a demonstration. Definitive prices and schedules are pending. Do not invent operating details, statistics or testimonials.
+remains a demonstration. Business prices, weekday class times, contact details and cancellation rules were confirmed by the studio on 7 September 2026. Weekend times remain tentative. Official class and package names and validity for the trial, single class and first-five offer are pending. Use descriptive names and never invent missing conditions, operating details, statistics or testimonials.
 
 ## Brand Personality
 
@@ -60,3 +60,39 @@ sand #CFBD9D, olive #5F632C and earth #7F6146. Official typography is Carrois
 Gothic Regular with Source Sans 3 Light. Local SVG logos and typefaces are
 available under public/brand. The stacked logo reads 2707 above ALTITUD and
 retains its sand mountain and clear space.
+
+
+## Confirmed service and operating information
+
+- Services: hybrid / functional training, TRAIN (strength), Running.
+- Capacity: 12 people per class.
+- Weekday starts: 6:00, 7:00, 8:00, 9:00 AM; 6:00, 7:00, 8:00 PM.
+- Saturday and Sunday: two classes per day, tentatively 8:00 and 9:00 AM,
+  subject to programming. Do not generate real sessions without the studio's
+  discipline, coach and duration assignments.
+- Attention: 6:00 to 10:00 AM and 5:00 to 9:00 PM, mainly linked to classes.
+- Cancel or reschedule at least four hours in advance. Late cancellation and
+  no-show consume the class, which cannot be recovered.
+- Confirmed prices in MXN: trial 100; single 190; first-time five-class trial
+  package 500; four classes 649; eight 1,099; twelve 1,399; Unlimited 1,599.
+  Only the four/eight/twelve and Unlimited validity is confirmed at 30 days.
+- Unused classes do not accumulate or transfer, except with Altitud approval.
+- Transfer payments require a receipt and studio verification before activation.
+  Payment at the studio is accepted. Online payment availability depends on the
+  payment provider being configured; do not promise a working card checkout.
+- Public address: Plaza Bosques, locales 4 y 5, Zinacantepec, Estado de México.
+  Contact: 720 103 5409; WhatsApp +52 720 103 5409; Instagram/Facebook Altitud2707.
+- Founding 50 is a launch offer for the first 50 purchasers: Unlimited at 1,299
+  MXN/month for six months from activation. First payment secures the place;
+  membership and consecutive payments must remain active. Personal and
+  nontransferable; interruption loses the benefit and return uses current price.
+  Includes priority booking, early access to specials/workshops/events, and a
+  kit with a choice of bottle or cap plus personalized, numbered special shirt.
+  General booking/cancellation rules apply. Do not imply a guaranteed place or
+  automatic eligibility; direct interested visitors to the studio to confirm.
+- Bank details belong only in the authenticated payment flow and secure server
+  configuration, never the public marketing bundle or this document.
+
+The shared editorial source is src/lib/studio.ts. Its plan IDs are content keys,
+not database purchase IDs. Official names will replace the descriptive labels
+when the studio provides them.

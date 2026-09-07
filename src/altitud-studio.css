@@ -1,0 +1,112 @@
+/* Confirmed studio information, in the established Altitud visual system. */
+.alt-site .alt-studio-hours,
+.alt-site .alt-studio-contact { display: grid; grid-template-columns: 1fr 1.15fr; gap: 72px; border-top: 1px solid var(--line); }
+.alt-site .alt-studio-hours h2,
+.alt-site .alt-studio-contact h2 { margin: 24px 0; }
+.alt-site .alt-studio-hours h2 span,
+.alt-site .alt-studio-contact h2 span { color: var(--olive); }
+.alt-site .alt-studio-hours > div > p { max-width: 34ch; margin-bottom: 20px; }
+.alt-site .alt-hours-list > div { padding: 24px 0; border-bottom: 1px solid var(--line); }
+.alt-site .alt-hours-list > div:first-child { padding-top: 0; }
+.alt-site .alt-hours-list h3,
+.alt-site .alt-studio-contact h3 { font-size: 25px; margin-bottom: 12px; }
+.alt-site .alt-hours-list ul { display: flex; flex-wrap: wrap; gap: 10px 22px; max-width: 420px; font-size: 20px; font-variant-numeric: tabular-nums; }
+.alt-site .alt-hours-list p { font-size: 17px; color: var(--muted); line-height: 1.7; }
+.alt-site .alt-hours-list .alt-hours-tentative { font-size: 15px; margin-top: 8px; }
+.alt-site .alt-studio-contact p { font-size: 19px; line-height: 1.6; margin: 8px 0 16px; }
+.alt-site .alt-contact-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 16px 28px; margin-top: 28px; }
+.alt-site .alt-contact-socials { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: 28px; font-size: 14px; }
+.alt-site .alt-contact-socials a,
+.alt-site .alt-footer-socials a,
+.alt-site .alt-footer-location { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; }
+.alt-site .alt-footer-socials { display: flex; gap: 24px; font-size: 14px; margin-top: 12px; }
+.alt-site .alt-footer-location { display: flex; width: fit-content; font-size: 14px; }
+.alt-site .alt-footer-socials a:hover,
+.alt-site .alt-footer-location:hover { color: var(--sand); }
+.alt-site .alt-footer-bottom > div { flex-wrap: wrap; }
+.alt-site .alt-running-feature { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: center; margin-top: 32px; padding-top: 32px; border-top: 1px solid var(--line); }
+.alt-site .alt-running-photo { height: 280px; overflow: hidden; border-radius: var(--radius); }
+.alt-site .alt-running-photo img { width: 100%; height: 100%; object-fit: cover; object-position: right center; }
+.alt-site .alt-running-feature h3 { font-size: 40px; margin: 12px 0; }
+.alt-site .alt-running-feature p { font-size: 17px; color: var(--muted); max-width: 45ch; margin-bottom: 12px; }
+.alt-site .alt-membership-options .alt-home-plan-price { display: block; font-family: 'Carrois Gothic', sans-serif; font-size: 31px; line-height: 1.3; color: var(--olive); margin-top: 16px; }
+.alt-site .alt-membership-options .alt-home-plan-price small { font: 300 15px/1.5 'Source Sans 3', sans-serif; }
+.alt-site .alt-membership-options .alt-pricing-link { margin-top: 24px; }
+.alt-site .alt-pricing-page { max-width: 1280px; padding: 72px var(--page-gutter) 100px; margin-inline: auto; }
+.alt-site .alt-pricing-heading { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 48px; padding-bottom: 48px; }
+.alt-site .alt-pricing-heading h1 { font-size: clamp(48px, 6vw, 76px); margin-bottom: 0; }
+.alt-site .alt-pricing-heading p { font-size: 20px; line-height: 1.65; color: var(--muted); margin-bottom: 24px; max-width: 36ch; }
+.alt-site .alt-price-table { width: 100%; border-collapse: collapse; text-align: left; }
+.alt-site .alt-price-table caption { text-align: left; font-size: 14px; color: var(--muted); padding-bottom: 20px; }
+.alt-site .alt-price-table thead { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.alt-site .alt-price-table thead th { font-size: 12px; font-weight: 400; letter-spacing: .8px; padding: 16px 20px; text-transform: uppercase; }
+.alt-site .alt-price-table th:first-child { padding-left: 0; }
+.alt-site .alt-price-table th:last-child { padding-right: 0; }
+.alt-site .alt-price-table tbody tr { border-bottom: 1px solid var(--line); }
+.alt-site .alt-price-table tbody th { font-family: 'Carrois Gothic', sans-serif; font-size: 24px; font-weight: 400; line-height: 1.3; padding: 24px 20px; }
+.alt-site .alt-price-table tbody th:first-child { padding-left: 0; }
+.alt-site .alt-price-table th small { display: block; font: 300 15px/1.6 'Source Sans 3', sans-serif; color: var(--muted); margin-top: 7px; max-width: 42ch; }
+.alt-site .alt-price-table td { padding: 24px 20px; vertical-align: middle; }
+.alt-site .alt-price-table td:nth-child(2) { font-family: 'Carrois Gothic', sans-serif; font-size: 27px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.alt-site .alt-price-table td:last-child { padding-right: 0; font-size: 16px; color: var(--muted); }
+.alt-site .alt-price-table .alt-plan-unlimited th,
+.alt-site .alt-price-table .alt-plan-unlimited td:nth-child(2) { color: var(--olive); }
+.alt-site .alt-price-note { max-width: 75ch; font-size: 14px; line-height: 1.75; color: var(--muted); margin-top: 20px; }
+.alt-site .alt-payment-note { display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 32px; background: var(--wash); margin: 36px 0 64px; border-radius: 12px; }
+.alt-site .alt-payment-note h2 { font-size: 23px; margin-bottom: 12px; }
+.alt-site .alt-payment-note p { max-width: 55ch; font-size: 16px; color: var(--muted); line-height: 1.7; }
+.alt-site .alt-founding { background: var(--carbon); color: var(--ivory); display: grid; grid-template-columns: 1fr 1.08fr; gap: 56px; padding: clamp(28px, 4vw, 56px); border-radius: var(--radius); }
+.alt-site .alt-founding .alt-eyebrow { color: var(--sand); }
+.alt-site .alt-founding h2 { font-size: clamp(40px, 4.5vw, 56px); margin: 18px 0 12px; line-height: 1.1; }
+.alt-site .alt-founding p { font-size: 17px; line-height: 1.75; }
+.alt-site .alt-founding .alt-founding-price { font: 400 clamp(44px, 4.5vw, 60px)/1.15 'Carrois Gothic', sans-serif; margin: 32px 0 16px; }
+.alt-site .alt-founding-price span { display: inline-block; font: 300 16px/1.6 'Source Sans 3', sans-serif; margin-left: 12px; }
+.alt-site .alt-founding .alt-button { margin: 28px 0 16px; }
+.alt-site .alt-founding-intro small { display: block; font-size: 14px; line-height: 1.7; max-width: 36ch; }
+.alt-site .alt-founding-details h3 { font-size: 25px; margin: 4px 0 20px; }
+.alt-site .alt-founding-details ul { padding-left: 19px; list-style: disc; }
+.alt-site .alt-founding-details li { padding-left: 6px; margin-bottom: 14px; font-size: 16px; line-height: 1.75; }
+.alt-site .alt-founding-details li::marker { color: var(--sand); }
+.alt-site .alt-founding details { margin-top: 28px; border-top: 1px solid color-mix(in oklch, var(--ivory) 25%, var(--carbon)); }
+.alt-site .alt-founding summary { min-height: 64px; padding-block: 20px; font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.alt-site .alt-founding details[open] summary span { transform: rotate(45deg); }
+.alt-site .alt-founding .alt-text-link { color: var(--ivory); border-color: var(--sand); }
+.alt-site .alt-founding a:focus-visible,
+.alt-site .alt-founding summary:focus-visible { outline: 2px solid var(--sand); outline-offset: 5px; }
+.alt-site .alt-pricing-conditions { display: grid; grid-template-columns: 1fr 1.08fr; gap: 56px; margin: 64px 0 48px; }
+.alt-site .alt-pricing-conditions h2 { font-size: 34px; line-height: 1.15; }
+.alt-site .alt-pricing-conditions h3 { font-size: 23px; margin-bottom: 12px; }
+.alt-site .alt-pricing-conditions p { color: var(--muted); font-size: 17px; line-height: 1.75; margin-bottom: 28px; }
+.alt-site .alt-legal h2 { font-size: 27px; line-height: 1.3; margin: 36px 0 14px; }
+.alt-site .alt-legal ul { list-style: disc; padding-left: 20px; margin-bottom: 28px; }
+.alt-site .alt-legal li { padding-left: 6px; margin: 12px 0; font-size: 18px; line-height: 1.75; color: var(--muted); }
+.alt-site .alt-legal p a { color: var(--olive); text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 900px) {
+  .alt-site .alt-studio-hours, .alt-site .alt-studio-contact { gap: 40px; }
+  .alt-site .alt-payment-note { align-items: flex-start; flex-direction: column; gap: 20px; }
+  .alt-site .alt-founding { gap: 32px; }
+  .alt-site .alt-pricing-heading { gap: 32px; }
+}
+@media (max-width: 767px) {
+  .alt-site .alt-studio-hours, .alt-site .alt-studio-contact,
+  .alt-site .alt-pricing-heading, .alt-site .alt-founding,
+  .alt-site .alt-pricing-conditions, .alt-site .alt-running-feature { grid-template-columns: 1fr; gap: 32px; }
+  .alt-site .alt-pricing-page { padding: 44px 24px 64px; }
+  .alt-site .alt-pricing-heading { padding-bottom: 32px; }
+  .alt-site .alt-pricing-heading p { font-size: 18px; }
+  .alt-site .alt-price-table thead th { font-size: 10px; letter-spacing: .25px; padding: 14px 8px; }
+  .alt-site .alt-price-table tbody th { font-size: 19px; padding: 20px 8px; }
+  .alt-site .alt-price-table th small { font-size: 13px; }
+  .alt-site .alt-price-table td { padding: 20px 8px; }
+  .alt-site .alt-price-table td:nth-child(2) { font-size: 22px; }
+  .alt-site .alt-price-table td:last-child { font-size: 13px; }
+  .alt-site .alt-payment-note { padding: 24px; margin-bottom: 40px; }
+  .alt-site .alt-founding { padding: 28px 24px; }
+  .alt-site .alt-founding-intro { padding-bottom: 28px; border-bottom: 1px solid color-mix(in oklch, var(--ivory) 25%, var(--carbon)); }
+  .alt-site .alt-founding .alt-founding-price { margin-top: 24px; }
+  .alt-site .alt-pricing-conditions { margin: 40px 0; }
+  .alt-site .alt-running-photo { height: 260px; }
+  .alt-site .alt-hours-list ul { gap: 12px 24px; font-size: 19px; }
+  .alt-site .alt-footer-bottom > div { gap: 18px; }
+  .alt-site .alt-legal h2 { font-size: 24px; }
+}

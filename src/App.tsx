@@ -101,6 +101,22 @@ function RoutePosition() {
     if (!hash) window.scrollTo(0, 0);
     const titles: Record<string, string> = { '/reservar': 'Horarios', '/login': 'Mi cuenta', '/register': 'Crear cuenta', '/pricing': 'Membresías', '/forgot-password': 'Recuperar contraseña' };
     document.title = `${pathname.startsWith('/app') ? 'Mi Altitud · App de usuario' : titles[pathname] || 'Entrenamiento híbrido y funcional'} | 2707 Altitud`;
+    if (!hash) return;
+    let id: string;
+    try { id = decodeURIComponent(hash.slice(1)); } catch { return; }
+    const scrollToAnchor = () => {
+      const target = document.getElementById(id);
+      if (!target) return false;
+      target.scrollIntoView({ block: 'start' });
+      return true;
+    };
+    if (scrollToAnchor()) return;
+    // Public pages can be lazy-loaded. Wait for the destination anchor to mount.
+    const observer = new MutationObserver(() => {
+      if (scrollToAnchor()) observer.disconnect();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
   }, [pathname, hash]);
   return null;
 }
