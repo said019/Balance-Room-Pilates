@@ -128,7 +128,7 @@ export function ClientLayout({
       <div className="member-workspace">
         <header className="member-topbar">
           <Link to={base} className="member-mobile-brand">
-            <img src="/brand/logo-horizontal.svg" alt="2707 Altitud" />
+            <img src="/brand/logo.svg" alt="2707 Altitud" width="747" height="350" />
           </Link>
           <div className="member-breadcrumb">
             MI ALTITUD <span>/</span> <strong>{current}</strong>

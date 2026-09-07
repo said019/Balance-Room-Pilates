@@ -9,7 +9,7 @@ export function SiteHeader() {
   const { pathname } = useLocation();
   const links = [['El studio', '/#studio'], ['Entrenamientos', '/#entrenamientos'], ['Horarios', '/reservar'], ['Membresías', '/#membresias']];
   return <header className="alt-header">
-    <Link to="/" aria-label="2707 Altitud — Inicio" className="alt-brand"><img src="/brand/logo-horizontal.svg" alt="2707 Altitud" width="242" height="27" /></Link>
+    <Link to="/" aria-label="2707 Altitud — Inicio" className="alt-brand"><img src="/brand/logo.svg" alt="2707 Altitud" width="747" height="350" /></Link>
     <nav aria-label="Navegación principal" className="alt-desktop-nav">{links.map(([name, href]) => <a key={name} href={href} aria-current={pathname === href ? 'page' : undefined}>{name}</a>)}</nav>
     <div className="alt-header-actions"><Link className="alt-account" to="/login">Mi cuenta</Link><Link className="alt-button alt-button-dark alt-header-cta" to="/reservar">Reservar clase <Arrow /></Link>
       <button className="alt-menu-toggle" aria-label={open ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen(!open)}>{open ? 'Cerrar −' : 'Menú +'}</button></div>
