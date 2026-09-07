@@ -19,9 +19,9 @@ explore the studio on phones and desktops before deciding to book a session.
 
 Introduce 2707 Altitud as a boutique hybrid and functional training studio in
 Zinacantepec. Help people understand the experience, find their training and
-reserve with motivation and confidence. The current public schedule and member
-preview are explicitly demonstrations, while definitive prices and schedules
-are pending. Do not invent operating details, statistics or testimonials.
+reserve with motivation and confidence. Public booking links require sign-in and return the member to the booking
+calendar after login or registration. The explicitly labelled member preview
+remains a demonstration. Definitive prices and schedules are pending. Do not invent operating details, statistics or testimonials.
 
 ## Brand Personality
 

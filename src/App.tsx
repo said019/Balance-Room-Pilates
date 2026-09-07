@@ -38,7 +38,6 @@ const ClientOrders = lazy(() => import("./pages/client/Orders"));
 const ClientOrderDetail = lazy(() => import("./pages/client/OrderDetail"));
 const ClientEvents = lazy(() => import("./pages/client/Events"));
 const Checkout = lazy(() => import("./pages/AltitudMemberships"));
-const AltitudBooking = lazy(() => import("./pages/AltitudBooking"));
 
 // Admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
@@ -122,6 +121,11 @@ function LegacyClientBookRedirect() {
   return <Navigate to={classId ? `/app/book/${classId}` : "/app/book"} replace />;
 }
 
+function BookingRedirect() {
+  const { search } = useLocation();
+  return <Navigate to={`/app/book${search}`} replace />;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -134,7 +138,7 @@ const App = () => (
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
-            <Route path="/reservar" element={<AltitudBooking />} />
+            <Route path="/reservar" element={<BookingRedirect />} />
             <Route path="/pricing" element={<Checkout />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />

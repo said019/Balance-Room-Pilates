@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { authUrl } from './auth-redirect';
 import type { ApiError } from '@/types/auth';
 
 // API base URL - change in production
@@ -75,8 +76,8 @@ api.interceptors.response.use(
             const reqUrl = (error.config?.url || '').toString();
             if (!reqUrl.startsWith('/evolution')) {
                 removeStoredToken();
-                if (window.location.pathname !== '/login') {
-                    window.location.href = '/login';
+                if (!['/login', '/register', '/forgot-password'].includes(window.location.pathname)) {
+                    window.location.href = authUrl('/login', window.location.pathname + window.location.search + window.location.hash);
                 }
             }
         }

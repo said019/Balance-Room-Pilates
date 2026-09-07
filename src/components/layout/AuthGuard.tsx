@@ -1,5 +1,6 @@
 import { ReactNode, useEffect } from 'react';
-import { useNavigate, Outlet } from 'react-router-dom';
+import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { authUrl } from '@/lib/auth-redirect';
 import { useAuthStore } from '@/stores/authStore';
 import type { UserRole } from '@/types/auth';
 import { Loader2 } from 'lucide-react';
@@ -12,6 +13,7 @@ interface AuthGuardProps {
 
 export function AuthGuard({ children, requiredRoles, redirectTo = '/login' }: AuthGuardProps) {
     const navigate = useNavigate();
+    const { pathname, search, hash } = useLocation();
     const { user, isAuthenticated, isLoading, checkAuth } = useAuthStore();
 
     // Check auth on mount
@@ -25,7 +27,7 @@ export function AuthGuard({ children, requiredRoles, redirectTo = '/login' }: Au
 
         // Not authenticated
         if (!isAuthenticated) {
-            navigate(redirectTo, { replace: true });
+            navigate(authUrl(redirectTo, pathname + search + hash), { replace: true });
             return;
         }
 
@@ -40,7 +42,7 @@ export function AuthGuard({ children, requiredRoles, redirectTo = '/login' }: Au
                 navigate('/app', { replace: true });
             }
         }
-    }, [isLoading, isAuthenticated, user, requiredRoles, navigate, redirectTo]);
+    }, [isLoading, isAuthenticated, user, requiredRoles, navigate, redirectTo, pathname, search, hash]);
 
     // Show loading while checking auth
     if (isLoading) {

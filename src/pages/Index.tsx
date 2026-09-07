@@ -11,7 +11,7 @@ const questions = [
   ['¿Qué significa entrenamiento híbrido?', 'Combinamos trabajo de fuerza y resistencia cardiovascular. Es una forma de desarrollar una condición física completa y prepararte para distintos retos deportivos.'],
   ['¿Necesito experiencia en HYROX?', 'No necesitas haber competido. El entrenamiento híbrido es para quienes quieren comenzar y para atletas que buscan complementar su preparación para retos como HYROX.'],
   ['¿Qué llevo a mi primera clase?', 'Ropa deportiva cómoda, tenis para entrenar, agua y una toalla. Ven con disposición de aprender; el resto lo construimos juntos.'],
-  ['¿Cómo reservo mi lugar?', 'Entra a Horarios, elige tu sesión y sigue los pasos de reserva. La agenda que puedes explorar ahora es una muestra del nuevo sitio; los horarios y membresías oficiales se publicarán al confirmar la operación del studio.'],
+  ['¿Cómo reservo mi lugar?', 'Selecciona Reservar clase e inicia sesión o crea tu cuenta. Después podrás elegir una sesión disponible y confirmar tu lugar desde tu app. Los horarios y membresías se mostrarán cuando estén disponibles.'],
 ];
 export default function Index() {
   const [openQuestion, setOpenQuestion] = useState<number | null>(0);
