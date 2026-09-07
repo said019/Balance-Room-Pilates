@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import "./altitud.css";
+import "./altitud-polish.css";
 
 createRoot(document.getElementById("root")!).render(<App />);
 

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { ArrowRightIcon, ArrowTopRightIcon } from '@radix-ui/react-icons';
 
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
-  return <span aria-hidden="true" className="alt-arrow">{diagonal ? '↗' : '↗'}</span>;
+  const Icon = diagonal ? ArrowTopRightIcon : ArrowRightIcon;
+  return <Icon aria-hidden="true" className="alt-arrow" />;
 }
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
