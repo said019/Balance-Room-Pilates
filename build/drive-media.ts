@@ -19,6 +19,7 @@ export function driveMediaPlugin(apiBase='/api'):Plugin {
    writeFileSync(path.join(out,'media-migration-manifest.json'),JSON.stringify(manifest,null,2));
    for(const file of walk(out)) {
     if(media.test(file)){rmSync(file);continue;}
+    if(file.endsWith(path.join('brand','icons','index.html')))writeFileSync(file,readFileSync(file,'utf8').replace(/(["'`])(assets|svg)\//g,`$1${prefix}/brand/icons/$2/`));
     if(file.endsWith('.json')&&!file.endsWith('media-migration-manifest.json'))writeFileSync(file,replace(readFileSync(file,'utf8')));
    }
   }
