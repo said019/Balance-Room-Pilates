@@ -1,3 +1,4 @@
+import {Link} from 'react-router-dom';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AuthGuard } from '@/components/layout/AuthGuard';
@@ -25,6 +26,7 @@ export default function ReceptionCheckin() {
     <main className="min-h-screen bg-background px-5 py-8 text-foreground sm:px-10">
       <div className="mx-auto max-w-3xl space-y-8">
         <header className="flex items-center justify-between gap-4 border-b border-border pb-5"><p className="font-heading text-xl">2707 ALTITUD</p><Button variant="ghost" onClick={()=>void logout()}>Cerrar sesión</Button></header>
+        <nav aria-label="Operación de recepción"><Link to="/admin/founding50" className="inline-flex min-h-11 items-center underline underline-offset-4">Pagos Founding 50</Link></nav>
         <section className="space-y-3"><p className="text-sm uppercase tracking-widest text-muted-foreground">Recepción</p><h1 className="font-heading text-3xl">Llegadas de hoy</h1><p className="text-muted-foreground">Busca a la persona y registra su asistencia en la reserva de hoy.</p></section>
         <form className="flex flex-col gap-3 sm:flex-row" onSubmit={e=>{e.preventDefault();setNotice('');setSearch(input.trim());}}>
           <label className="flex-1 space-y-2"><span className="text-sm">Nombre o teléfono</span><Input value={input} onChange={e=>setInput(e.target.value)} minLength={2} maxLength={100} placeholder="Escribe al menos dos caracteres" required /></label>

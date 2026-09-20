@@ -1,3 +1,4 @@
+import Founding50 from '@/pages/admin/memberships/Founding50';
 import { AuthGuard } from '@/components/layout/AuthGuard';
 import CoachDashboard from '@/pages/coach/CoachDashboard';
 import { useEffect, lazy, Suspense } from "react";
@@ -214,6 +215,7 @@ const App = () => (
             <Route path="/admin/memberships/pending" element={<PendingMemberships />} />
             <Route path="/admin/memberships/active" element={<MembershipsActive />} />
             <Route path="/admin/memberships/expiring" element={<MembershipsExpiring />} />
+            <Route path="/admin/founding50" element={<Founding50 />} />
             <Route path="/admin/memberships/all" element={<MembershipsAll />} />
             <Route path="/admin/memberships/paquetes" element={<PlansList />} />
             <Route path="/admin/memberships" element={<Navigate to="/admin/memberships/all" replace />} />

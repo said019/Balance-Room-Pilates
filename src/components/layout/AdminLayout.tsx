@@ -99,6 +99,7 @@ const sidebarItems: SidebarItem[] = [
         children: [
             { href: '/admin/memberships/all', label: 'Activas e historial' },
             { href: '/admin/memberships/paquetes', label: 'Planes' },
+            { href: '/admin/founding50', label: 'Founding 50' },
         ],
     },
     { href: '/admin/payments', label: 'Pagos', icon: CreditCard },

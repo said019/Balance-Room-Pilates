@@ -1,0 +1,2 @@
+import {defineConfig} from '@playwright/test';
+export default defineConfig({testDir:'./tests/e2e-founding',workers:1,fullyParallel:false,timeout:90000,retries:0,reporter:[['list'],['json',{outputFile:'../../evidence/founding/playwright-ui.json'}]],use:{baseURL:'http://127.0.0.1:3519',viewport:{width:390,height:844},locale:'es-MX',timezoneId:'America/Mexico_City',serviceWorkers:'block',trace:'retain-on-failure'},outputDir:'test-results/founding'});
