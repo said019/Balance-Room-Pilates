@@ -398,11 +398,9 @@ export default function ClientDetail() {
                                     </AlertDialogTrigger>
                                     <AlertDialogContent className="rounded-2xl">
                                         <AlertDialogHeader>
-                                            <AlertDialogTitle className="font-heading">¿Reenviar credenciales?</AlertDialogTitle>
+                                            <AlertDialogTitle className="font-heading">¿Enviar invitación de acceso?</AlertDialogTitle>
                                             <AlertDialogDescription className="font-body">
-                                                Se generará una <strong>nueva contraseña temporal</strong> para <strong>{client.display_name}</strong> y se le enviará por email
-                                                {client.phone ? ' y WhatsApp' : ''}.
-                                                La contraseña anterior dejará de funcionar.
+                                                Se pondrá en cola una invitación para <strong>{client.display_name}</strong>. Podrá elegir su contraseña desde el enlace personal cuando reciba el mensaje. Su acceso actual se conserva hasta que complete el cambio.
                                             </AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
@@ -411,7 +409,7 @@ export default function ClientDetail() {
                                                 onClick={() => resendCredentialsMutation.mutate()}
                                                 className="bg-altitud-gold text-white hover:bg-altitud-gold/90 rounded-xl font-body"
                                             >
-                                                Sí, reenviar
+                                                Poner invitación en cola
                                             </AlertDialogAction>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
