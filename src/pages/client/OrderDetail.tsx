@@ -1,3 +1,4 @@
+import { PrivateMediaImage } from '@/components/PrivateMediaImage';
 import { useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -530,7 +531,7 @@ export default function OrderDetail() {
 
                       {filePreview ? (
                         <div className="flex flex-col items-center gap-2">
-                          <img
+                          <PrivateMediaImage
                             src={filePreview}
                             alt="Preview"
                             className="max-h-48 rounded object-contain"
@@ -638,7 +639,7 @@ export default function OrderDetail() {
                       {/* Preview image */}
                       {isImage && proof.file_url && (
                         <div className="mt-3">
-                          <img
+                          <PrivateMediaImage
                             src={proof.file_url}
                             alt="Comprobante de pago"
                             className="max-h-64 w-full rounded-lg border object-contain cursor-pointer hover:opacity-90 transition-opacity"
@@ -756,7 +757,7 @@ export default function OrderDetail() {
               <DialogTitle>Vista previa del comprobante</DialogTitle>
             </DialogHeader>
             {imagePreview && (
-              <img
+              <PrivateMediaImage
                 src={imagePreview}
                 alt="Comprobante de pago"
                 className="w-full h-auto max-h-[80vh] object-contain rounded-lg"

@@ -1,4 +1,5 @@
 import { PublishedHours } from '@/components/schedule/PublishedHours';
+import { PrivateMediaImage } from '@/components/PrivateMediaImage';
 import { DisciplineIcon } from '@/components/brand/DisciplineIcon';
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -281,7 +282,7 @@ function MemberHome({
             Encuentra tu entrenamiento <ArrowTopRightIcon />
           </Link>
         </div>
-        <img
+        <PrivateMediaImage
           src="/brand/studio/hybrid-sled.webp"
           alt="Entrenamiento híbrido con trineo"
         />
@@ -384,7 +385,7 @@ function MemberHome({
         <div className="member-explore-grid">
           {STUDIO_SERVICES.map((service) => (
             <Link key={service.id} to={`${base}/book?tipo=${encodeURIComponent(service.name)}`}>
-              <img className={`member-discipline-photo member-discipline-${service.id}`} src={service.id === "hybrid" ? "/brand/studio/hybrid-carry.webp" : service.id === "running" ? "/brand/studio/run-community.webp" : "/brand/performance-disciplines.jpg"} alt={`Entrenamiento ${service.name}`} loading="lazy" />
+              <PrivateMediaImage className={`member-discipline-photo member-discipline-${service.id}`} src={service.id === "hybrid" ? "/brand/studio/hybrid-carry.webp" : service.id === "running" ? "/brand/studio/run-community.webp" : "/brand/performance-disciplines.jpg"} alt={`Entrenamiento ${service.name}`} loading="lazy" />
               <div>
                 <DisciplineIcon name={service.id} size={44} /><span>{service.label}</span>
                 <h3>{service.name}</h3>
@@ -816,7 +817,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           <section className="member-profile-card">
             <div className="member-profile-avatar">
               {!preview && auth.user?.photo_url ? (
-                <img src={auth.user.photo_url} alt="Tu foto de perfil" />
+                <PrivateMediaImage src={auth.user.photo_url} alt="Tu foto de perfil" />
               ) : (
                 data.profile.name
                   .split(" ")
@@ -935,7 +936,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           description="La energía de entrenar va más allá de una clase."
         />
         <section className="member-community-banner">
-          <img
+          <PrivateMediaImage
             src="/brand/studio/run-progress.webp"
             alt="Corredores de la comunidad Altitud"
           />

@@ -1,3 +1,4 @@
+import { PrivateMediaImage } from '@/components/PrivateMediaImage';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AdminLayout } from '@/components/layout/AdminLayout';
@@ -67,7 +68,7 @@ export default function ReportsInstructors() {
                                 <div className="bg-muted w-full md:w-48 p-6 flex flex-col items-center justify-center text-center">
                                     <div className="h-24 w-24 rounded-full bg-background flex items-center justify-center overflow-hidden mb-3 border-4 border-background shadow-sm">
                                         {inst.photo_url ? (
-                                            <img src={inst.photo_url} alt={inst.display_name} className="h-full w-full object-cover" />
+                                            <PrivateMediaImage src={inst.photo_url} alt={inst.display_name} className="h-full w-full object-cover" />
                                         ) : (
                                             <span className="text-3xl font-bold text-muted-foreground">{inst.display_name[0]}</span>
                                         )}

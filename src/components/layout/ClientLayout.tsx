@@ -1,3 +1,4 @@
+import { PrivateMediaImage } from '@/components/PrivateMediaImage';
 import { type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -86,7 +87,7 @@ export function ClientLayout({
           className="member-sidebar-logo"
           aria-label="2707 Altitud — Mi inicio"
         >
-          <img src="/brand/logo-light.svg" alt="2707 Altitud" />
+          <PrivateMediaImage src="/brand/logo-light.svg" alt="2707 Altitud" />
         </Link>
         <div className="member-sidebar-label">TU ESPACIO DE EVOLUCIÓN</div>
         <nav aria-label="Menú de usuario">
@@ -128,7 +129,7 @@ export function ClientLayout({
       <div className="member-workspace">
         <header className="member-topbar">
           <Link to={base} className="member-mobile-brand">
-            <img src="/brand/logo.svg" alt="2707 Altitud" width="747" height="350" />
+            <PrivateMediaImage src="/brand/logo.svg" alt="2707 Altitud" width="747" height="350" />
           </Link>
           <div className="member-breadcrumb">
             MI ALTITUD <span>/</span> <strong>{current}</strong>
@@ -155,7 +156,7 @@ export function ClientLayout({
             >
               <span className="member-avatar">
                 {!preview && user?.photo_url ? (
-                  <img src={user.photo_url} alt="" />
+                  <PrivateMediaImage src={user.photo_url} alt="" />
                 ) : (
                   initials
                 )}

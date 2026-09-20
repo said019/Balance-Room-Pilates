@@ -1,3 +1,4 @@
+import { PrivateMediaImage } from '@/components/PrivateMediaImage';
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -453,7 +454,7 @@ export default function InstructorsList() {
                                                     <div className="flex items-center gap-4">
                                                         <div className="relative h-16 w-16 rounded-md overflow-hidden bg-muted flex-shrink-0">
                                                             {instructor.photo_url ? (
-                                                                <img
+                                                                <PrivateMediaImage
                                                                     src={instructor.photo_url}
                                                                     alt={instructor.display_name}
                                                                     className="h-full w-full object-cover"
@@ -680,7 +681,7 @@ export default function InstructorsList() {
                                             >
                                                 <div className="relative w-32 h-40 rounded-md overflow-hidden bg-muted">
                                                     {(photoPreview || editingInstructor.photo_url) ? (
-                                                        <img
+                                                        <PrivateMediaImage
                                                             src={photoPreview || editingInstructor.photo_url || undefined}
                                                             alt={editingInstructor.display_name}
                                                             className="w-full h-full object-cover"

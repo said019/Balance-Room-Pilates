@@ -1,3 +1,5 @@
+import { downloadMedia } from '@/lib/downloadMedia';
+import { PrivateMediaImage } from '@/components/PrivateMediaImage';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format, parseISO } from 'date-fns';
@@ -503,23 +505,13 @@ function OrdersVerificationInner() {
                         {selectedOrder.payment_proofs.map((proof, index) => {
                           // Check if file_url is base64 image
                           const isBase64Image = proof.file_url?.startsWith('data:image/');
-                          const isBase64Pdf = proof.file_url?.startsWith('data:application/pdf');
+                          const isBase64Pdf = proof.file_url?.startsWith('data:application/pdf') || proof.file_type === 'application/pdf';
                           const isImage = isBase64Image || proof.file_type?.startsWith('image/');
                           
-                          const downloadProof = () => {
+                          const downloadProof = async () => {
                             if (!proof.file_url) return;
-                            const a = document.createElement('a');
-                            a.href = proof.file_url;
-                            const ext = isBase64Image
-                              ? (proof.file_url.match(/data:image\/(\w+)/)?.[1] || 'png')
-                              : isBase64Pdf
-                              ? 'pdf'
-                              : '';
-                            const fallback = `comprobante-${selectedOrder.order_number}-${index + 1}${ext ? `.${ext}` : ''}`;
-                            a.download = proof.file_name || fallback;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
+                            try {await downloadMedia(proof.file_url,proof.file_name || `comprobante-${index+1}`);}
+                            catch {toast({title:'No se pudo descargar el comprobante',description:'Intenta de nuevo.',variant:'destructive'});}
                           };
 
                           return (
@@ -550,7 +542,7 @@ function OrdersVerificationInner() {
                               {/* Preview image */}
                               {isImage && proof.file_url && (
                                 <div className="mt-3">
-                                  <img 
+                                  <PrivateMediaImage
                                     src={proof.file_url} 
                                     alt="Comprobante de pago"
                                     className="max-h-96 w-full rounded-lg border object-contain cursor-pointer hover:opacity-90 transition-opacity"
@@ -682,7 +674,7 @@ function OrdersVerificationInner() {
               <DialogTitle>Vista previa del comprobante</DialogTitle>
             </DialogHeader>
             {imagePreview && (
-              <img 
+              <PrivateMediaImage
                 src={imagePreview} 
                 alt="Comprobante de pago" 
                 className="w-full h-auto max-h-[80vh] object-contain rounded-lg"

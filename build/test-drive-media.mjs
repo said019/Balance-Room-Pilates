@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import { readdirSync,readFileSync } from 'node:fs';
+import path from 'node:path';
+const walk=root=>readdirSync(root,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(root,e.name)):[path.join(root,e.name)]);
+const files=walk('dist');
+assert.equal(files.filter(p=>/\.(png|jpe?g|webp|gif|avif|svg|mp4|webm|mov)$/i.test(p)).length,0,'No binary image/video files may ship in deployment');
+const manifest=JSON.parse(readFileSync('dist/media-migration-manifest.json','utf8'));
+assert.ok(manifest.length>0);assert.ok(manifest.every(a=>a.asset_key.startsWith('/')&&a.sha256.length===64&&a.byte_size>0));
+assert.match(readFileSync('dist/index.html','utf8'),/\/api\/media\/path\/brand\//);
+console.log(JSON.stringify({result:'PASS',binaryMediaInBuild:0,assetsRequiringDriveMigration:manifest.length}));

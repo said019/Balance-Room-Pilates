@@ -1,3 +1,4 @@
+import { PrivateMediaImage } from '@/components/PrivateMediaImage';
 import { ReactNode, useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
@@ -265,7 +266,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <aside className={cn('admin-rail fixed inset-y-0 left-0 z-40 hidden flex-col transition-[width] duration-200 lg:flex', sidebarCollapsed ? 'w-[5.25rem]' : 'w-[16rem]')}>
                 <div className="flex min-h-24 shrink-0 items-center justify-between gap-4 px-5">
                     {!sidebarCollapsed && <Link to="/admin/dashboard" aria-label="2707 Altitud, inicio de administración">
-                        <img src="/brand/logo-light.svg" alt="2707 Altitud" className="h-12 w-auto" />
+                        <PrivateMediaImage src="/brand/logo-light.svg" alt="2707 Altitud" className="h-12 w-auto" />
                     </Link>}
                     <button type="button" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                         className="admin-rail-control" aria-label={sidebarCollapsed ? 'Expandir navegación' : 'Contraer navegación'}>
@@ -280,7 +281,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <DialogPrimitive.Overlay className="admin-menu-overlay" />
                     <DialogPrimitive.Content className="admin-mobile-drawer" onCloseAutoFocus={(event) => { event.preventDefault(); menuTriggerRef.current?.focus(); }}>
                         <div className="flex min-h-24 shrink-0 items-center justify-between gap-4 px-5">
-                            <img src="/brand/logo-light.svg" alt="2707 Altitud" className="h-12 w-auto" />
+                            <PrivateMediaImage src="/brand/logo-light.svg" alt="2707 Altitud" className="h-12 w-auto" />
                             <DialogPrimitive.Title className="sr-only">Administración de 2707 Altitud</DialogPrimitive.Title>
                             <DialogPrimitive.Description className="sr-only">Secciones del administrador del studio.</DialogPrimitive.Description>
                             <DialogPrimitive.Close className="admin-rail-control" aria-label="Cerrar navegación"><X className="h-5 w-5" /></DialogPrimitive.Close>

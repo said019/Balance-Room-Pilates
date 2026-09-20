@@ -1,3 +1,4 @@
+import { PrivateMediaImage } from '@/components/PrivateMediaImage';
 import { useQuery } from '@tanstack/react-query';
 import { Mail, Phone, User } from '@/components/brand/icons';
 import StudioLayout from '@/components/layout/StudioLayout';
@@ -72,7 +73,7 @@ export default function StudioInstructors() {
                                     {/* Image */}
                                     <div className="relative aspect-[3/4] overflow-hidden rounded-sm mb-6 bg-muted">
                                         {instructor.photo_url ? (
-                                            <img
+                                            <PrivateMediaImage
                                                 src={instructor.photo_url}
                                                 alt={instructor.display_name}
                                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"

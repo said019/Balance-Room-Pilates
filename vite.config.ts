@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
-import { defineConfig, type Plugin } from "vite";
+import { defineConfig, type Plugin, loadEnv } from "vite";
+import { driveMediaPlugin } from "./build/drive-media";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
@@ -37,6 +38,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     stampServiceWorkerVersion(),
+    driveMediaPlugin(loadEnv(mode, process.cwd(), "VITE_").VITE_API_URL || "/api"),
   ].filter(Boolean),
   resolve: {
     alias: {
