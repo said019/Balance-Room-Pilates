@@ -1,3 +1,5 @@
+import { useAuthStore } from '@/stores/authStore';
+import ReceptionCheckin from './ReceptionCheckin';
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, parseISO } from 'date-fns';
@@ -58,6 +60,7 @@ export default function BookingsList({
   initialStatus = 'all',
   statusLocked = false,
 }: BookingsListProps) {
+  const isReception = useAuthStore(state => state.user?.role === 'reception');
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState(initialStatus);
   const [channel, setChannel] = useState('all');
@@ -66,6 +69,7 @@ export default function BookingsList({
 
   const { data, isLoading } = useQuery<BookingAdmin[]>({
     queryKey: ['admin-bookings', status, channel, search],
+    enabled: !isReception,
     queryFn: async () => {
       const params = new URLSearchParams();
       if (status !== 'all') params.append('status', status);
@@ -89,8 +93,9 @@ export default function BookingsList({
 
   const bookings = useMemo(() => data || [], [data]);
 
+  if (isReception) return <AuthGuard requiredRoles={['reception']}><ReceptionCheckin /></AuthGuard>;
   return (
-    <AuthGuard requiredRoles={['admin', 'instructor']}>
+    <AuthGuard requiredRoles={['admin', 'super_admin', 'reception']}>
       <AdminLayout>
         <div className="space-y-6">
           <div>

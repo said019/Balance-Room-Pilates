@@ -32,12 +32,19 @@ export const test=base.extend<{fixture:Fixture}>({
  }finally{
   if(previousBank)await pool.query("UPDATE system_settings SET value=$1::jsonb WHERE key='bank_info'",[JSON.stringify(previousBank.value)]);else await pool.query("DELETE FROM system_settings WHERE key='bank_info'");
   // IDs owned by this fixture only; no broad production cleanup.
+  await pool.query('DELETE FROM notification_admin_actions WHERE actor_id=ANY($1::uuid[]) OR notification_id IN (SELECT id FROM notification_outbox WHERE user_id=ANY($1::uuid[]))',[[ids.admin,ids.client,ids.other,ids.instructor,ids.reception]]);
+  await pool.query('DELETE FROM notification_outbox WHERE user_id=ANY($1::uuid[])',[[ids.admin,ids.client,ids.other,ids.instructor,ids.reception]]);
+  await pool.query('DELETE FROM membership_credit_adjustments WHERE membership_id IN (SELECT id FROM memberships WHERE user_id=ANY($1::uuid[]))',[[ids.client,ids.other]]);
+  await pool.query('DELETE FROM admin_actions WHERE admin_user_id=$1',[ids.admin]);
+  await pool.query('DELETE FROM financial_notification_outbox WHERE membership_id IN (SELECT id FROM memberships WHERE user_id=ANY($1::uuid[]))',[[ids.client,ids.other]]);
+  await pool.query('DELETE FROM payments WHERE user_id=ANY($1::uuid[])',[[ids.client,ids.other]]);
   await pool.query('DELETE FROM booking_credit_ledger WHERE booking_id IN (SELECT id FROM bookings WHERE user_id=ANY($1::uuid[]))',[[ids.client,ids.other]]);
   await pool.query('DELETE FROM bookings WHERE user_id=ANY($1::uuid[])',[[ids.client,ids.other]]);
   await pool.query('DELETE FROM classes WHERE class_type_id=$1',[ids.classType]);
   await pool.query('DELETE FROM orders WHERE user_id=ANY($1::uuid[])',[[ids.client,ids.other]]);
   await pool.query('DELETE FROM memberships WHERE user_id=ANY($1::uuid[])',[[ids.client,ids.other]]);
   await pool.query('DELETE FROM instructors WHERE id=ANY($1::uuid[])',[[ids.coach,ids.coachOther]]);
+  await pool.query('DELETE FROM media_assets WHERE owner_id=ANY($1::uuid[])',[[ids.client,ids.other]]);
   await pool.query('DELETE FROM users WHERE id=ANY($1::uuid[])',[[ids.admin,ids.client,ids.other,ids.instructor,ids.reception]]);
   await pool.query('DELETE FROM plans WHERE id=$1',[ids.plan]);await pool.query('DELETE FROM class_types WHERE id=$1',[ids.classType]);await pool.end();
  }

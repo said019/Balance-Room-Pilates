@@ -1,3 +1,4 @@
+import { AccessInvitationResult, type AccessInvitationStatus } from '@/components/admin/AccessInvitationResult';
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -19,7 +20,7 @@ import { useToast } from '@/components/ui/use-toast';
 import {
     Loader2, ArrowLeft, Mail, Phone, Calendar, Heart,
     MessageSquare, CreditCard, DollarSign, Trash2, Power, Pencil, Check, X,
-    Coins, Plus, Minus, KeyRound, Copy
+    Coins, Plus, Minus, KeyRound
 } from '@/components/brand/icons';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -192,29 +193,15 @@ export default function ClientDetail() {
         },
     });
 
-    // Mutation para reenviar credenciales (genera contraseña nueva)
-    const [resendResult, setResendResult] = useState<{
-        tempPassword: string;
-        emailSent: boolean;
-        whatsappSent: boolean;
-    } | null>(null);
+    // Queue a password setup invitation; never expose a temporary password.
+    const [resendResult, setResendResult] = useState<AccessInvitationStatus | null>(null);
     const resendCredentialsMutation = useMutation({
         mutationFn: async () => {
             const { data } = await api.post(`/users/${id}/resend-credentials`);
-            return data as { tempPassword: string; emailSent: boolean; whatsappSent: boolean };
+            return data as AccessInvitationStatus;
         },
         onSuccess: (data) => {
             setResendResult(data);
-            const channels = [
-                data.emailSent ? 'email' : null,
-                data.whatsappSent ? 'WhatsApp' : null,
-            ].filter(Boolean);
-            toast({
-                title: channels.length ? 'Credenciales reenviadas' : 'Contraseña actualizada',
-                description: channels.length
-                    ? `Enviadas por ${channels.join(' y ')}.`
-                    : 'No se pudo entregar por email/WhatsApp — copia la contraseña manualmente.',
-            });
         },
         onError: (error) => {
             toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(error) });
@@ -1027,58 +1014,13 @@ export default function ClientDetail() {
                     </DialogContent>
                 </Dialog>
 
-                {/* Diálogo de resultado de reenvío de credenciales */}
                 <Dialog open={!!resendResult} onOpenChange={(open) => !open && setResendResult(null)}>
                     <DialogContent className="max-w-md rounded-2xl">
                         <DialogHeader>
-                            <DialogTitle className="font-heading">Credenciales reenviadas</DialogTitle>
-                            <DialogDescription className="font-body">
-                                Se generó una nueva contraseña temporal. La anterior ya no funciona.
-                            </DialogDescription>
+                            <DialogTitle className="font-heading">Invitación de acceso</DialogTitle>
+                            <DialogDescription className="font-body">El acceso se configura mediante un enlace personal. No compartas contraseñas.</DialogDescription>
                         </DialogHeader>
-
-                        {resendResult && (
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Contraseña temporal</Label>
-                                    <div className="flex gap-2">
-                                        <div className="flex-1 p-3 bg-muted rounded-md font-mono text-base break-all">
-                                            {resendResult.tempPassword}
-                                        </div>
-                                        <Button
-                                            variant="outline"
-                                            size="icon"
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(resendResult.tempPassword);
-                                                toast({ title: 'Copiada', description: 'Contraseña en el portapapeles.' });
-                                            }}
-                                            className="shrink-0"
-                                            title="Copiar"
-                                        >
-                                            <Copy className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                <div className="rounded-md border bg-muted/30 p-3 space-y-2 text-sm">
-                                    <div className={resendResult.emailSent ? 'text-success' : 'text-destructive'}>
-                                        {resendResult.emailSent
-                                            ? '✓ Email enviado'
-                                            : (client.email
-                                                ? '✗ No se pudo enviar el email — copia la contraseña manualmente'
-                                                : '— Sin email registrado')}
-                                    </div>
-                                    <div className={resendResult.whatsappSent ? 'text-success' : 'text-destructive'}>
-                                        {resendResult.whatsappSent
-                                            ? '✓ WhatsApp enviado'
-                                            : (client.phone
-                                                ? '✗ No se pudo enviar el WhatsApp — copia la contraseña manualmente'
-                                                : '— Sin teléfono registrado')}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
+                        {resendResult && <AccessInvitationResult result={resendResult} />}
                         <DialogFooter>
                             <Button onClick={() => setResendResult(null)} className="rounded-xl">
                                 Cerrar

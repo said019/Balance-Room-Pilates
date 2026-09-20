@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import {QueryClient,QueryClientProvider} from '@tanstack/react-query';
 import {RescheduleDialog} from '@/components/member/RescheduleDialog';
 import api from '@/lib/api';
-jest.mock('@/lib/api',()=>({__esModule:true,default:{get:jest.fn()},getErrorMessage:(e:any)=>e.message}));
+jest.mock('@/lib/api',()=>({__esModule:true,default:{get:jest.fn()},getStoredToken:()=>null,getErrorMessage:(e:any)=>e.message}));
 const booking={booking_id:'source-booking',class_id:'source-class',booking_status:'confirmed',date:'2030-01-01',start_time:'10:00'} as any;
 const target={id:'target-class',class_type_name:'TRAIN destino',date:'2030-01-02',start_time:'11:00',status:'scheduled',current_bookings:0,max_capacity:12};
 afterEach(()=>{cleanup();jest.clearAllMocks();});

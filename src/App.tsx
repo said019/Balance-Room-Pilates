@@ -1,3 +1,4 @@
+import { AuthGuard } from '@/components/layout/AuthGuard';
 import CoachDashboard from '@/pages/coach/CoachDashboard';
 import { useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
@@ -187,6 +188,7 @@ const App = () => (
             <Route path="/app/events" element={<ClientEvents />} />
 
             {/* Admin Routes */}
+            <Route element={<AuthGuard requiredRoles={['admin','super_admin','reception']} />}>
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/events" element={<EventsManager />} />
@@ -250,6 +252,7 @@ const App = () => (
             <Route path="/admin/plans" element={<PlansList />} />
             <Route path="/admin/bookings/calendar" element={<Navigate to="/admin/calendar" replace />} />
 
+            </Route>
             {/* Redirects */}
             <Route path="/client/dashboard" element={<Navigate to="/app" replace />} />
             <Route path="/auth/register" element={<Navigate to="/register" replace />} />
