@@ -1,3 +1,4 @@
+import WalkinPanel from './WalkinPanel';
 import {Link} from 'react-router-dom';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -11,6 +12,7 @@ type Arrival = {id:string;class_id:string;name:string;date:string;start_time:str
 type Member = {id:string;display_name:string;phone:string;bookings:Arrival[]};
 
 export default function ReceptionCheckin() {
+  const [walkin,setWalkin]=useState<{id:string;display_name:string}|null|undefined>(undefined);
   const [input,setInput]=useState('');
   const [search,setSearch]=useState('');
   const [notice,setNotice]=useState('');
@@ -28,6 +30,8 @@ export default function ReceptionCheckin() {
         <header className="flex items-center justify-between gap-4 border-b border-border pb-5"><p className="font-heading text-xl">2707 ALTITUD</p><Button variant="ghost" onClick={()=>void logout()}>Cerrar sesión</Button></header>
         <nav aria-label="Operación de recepción"><Link to="/admin/founding50" className="inline-flex min-h-11 items-center underline underline-offset-4">Pagos Founding 50</Link></nav>
         <section className="space-y-3"><p className="text-sm uppercase tracking-widest text-muted-foreground">Recepción</p><h1 className="font-heading text-3xl">Llegadas de hoy</h1><p className="text-muted-foreground">Busca a la persona y registra su asistencia en la reserva de hoy.</p></section>
+        <Button onClick={()=>setWalkin(null)}>Registrar persona nueva sin reserva</Button>
+        {walkin!==undefined&&<><Button variant="ghost" onClick={()=>setWalkin(undefined)}>Cerrar llegada sin reserva</Button><WalkinPanel key={walkin?.id||'new'} person={walkin||undefined} onDone={()=>{setWalkin(undefined);setNotice('Reserva y asistencia registradas.');void client.invalidateQueries({queryKey:['reception-arrivals']});}}/></>}
         <form className="flex flex-col gap-3 sm:flex-row" onSubmit={e=>{e.preventDefault();setNotice('');setSearch(input.trim());}}>
           <label className="flex-1 space-y-2"><span className="text-sm">Nombre o teléfono</span><Input value={input} onChange={e=>setInput(e.target.value)} minLength={2} maxLength={100} placeholder="Escribe al menos dos caracteres" required /></label>
           <Button type="submit" className="min-h-11 sm:self-end" disabled={members.isFetching}>Buscar persona</Button>
@@ -37,7 +41,7 @@ export default function ReceptionCheckin() {
         {members.data?.length===0 && <p>No encontramos personas con esos datos.</p>}
         <div className="space-y-5">{members.data?.map(member=><article key={member.id} className="rounded-2xl border border-border p-5 space-y-4">
           <div><h2 className="font-heading text-xl">{member.display_name}</h2><p className="text-sm text-muted-foreground">{member.phone}</p></div>
-          {member.bookings.length===0 && <p className="text-muted-foreground">Sin reservas para hoy.</p>}
+          {member.bookings.length===0 && <div className="space-y-3"><p className="text-muted-foreground">Sin reservas para hoy.</p><Button variant="outline" onClick={()=>setWalkin(member)}>Registrar llegada sin reserva</Button></div>}
           {member.bookings.map(booking=><div key={booking.id} className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-4">
             <div><p>{booking.name}</p><p className="text-sm text-muted-foreground">{booking.start_time.slice(0,5)} · {booking.status==='checked_in'?'Asistencia registrada':booking.status==='waitlist'?'Lista de espera':'Reserva confirmada'}</p></div>
             {booking.status==='confirmed' && <Button disabled={checkin.isPending} onClick={()=>{setNotice('');checkin.mutate(booking);}}>Registrar asistencia</Button>}
