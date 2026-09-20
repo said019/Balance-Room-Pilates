@@ -61,7 +61,7 @@ export default function InstructorsList() {
     const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
-    const [showCredentials, setShowCredentials] = useState<{coachNumber?: string; email?: string; password: string} | null>(null);
+    const [showCredentials, setShowCredentials] = useState<{coachNumber?: string; email?: string} | null>(null);
     const [linkedUser, setLinkedUser] = useState<AuthUser | null>(null); // user found by email search
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
@@ -107,15 +107,7 @@ export default function InstructorsList() {
         },
         onSuccess: (response) => {
             queryClient.invalidateQueries({ queryKey: ['instructors'] });
-            const creds = response.data?.credentials;
-            if (creds) {
-                // New user was created — show credentials
-                setShowCredentials({
-                    email: creds.email,
-                    password: creds.password,
-                    coachNumber: creds.coachNumber,
-                });
-            }
+            setShowCredentials({email:watchedEmail,coachNumber:response.data.coach_number});
             toast({ title: 'Instructor creado', description: 'El instructor ha sido registrado.' });
             setIsDialogOpen(false);
             setLinkedUser(null);
@@ -338,11 +330,10 @@ export default function InstructorsList() {
             setShowCredentials({
                 coachNumber: response.data.coachNumber,
                 email: response.data.email,
-                password: response.data.tempPassword,
             });
             toast({
-                title: 'Acceso generado',
-                description: 'Credenciales de coach creadas exitosamente.',
+                title: 'Invitación en cola',
+                description: 'La persona recibirá un enlace para elegir su contraseña.',
             });
         },
         onError: (error) => {
@@ -359,11 +350,10 @@ export default function InstructorsList() {
             setShowCredentials({
                 coachNumber: response.data.coachNumber,
                 email: response.data.email,
-                password: response.data.tempPassword,
             });
             toast({
-                title: 'Contraseña restablecida',
-                description: 'Nueva contraseña temporal generada.',
+                title: 'Invitación en cola',
+                description: 'La contraseña actual se conserva hasta completar el enlace.',
             });
         },
         onError: (error) => {
@@ -377,30 +367,8 @@ export default function InstructorsList() {
             return await api.post(`/instructors/${id}/send-credentials`, { email });
         },
         onSuccess: (response) => {
-            if (response.data.warning) {
-                const title = response.data.needsDomainVerification
-                    ? '⚠️ Resend requiere dominio verificado'
-                    : 'Advertencia';
-
-                toast({
-                    variant: 'destructive',
-                    title,
-                    description: response.data.warning,
-                    duration: 8000, // Longer duration for important messages
-                });
-                // Show credentials if email failed
-                if (response.data.tempPassword) {
-                    setShowCredentials({
-                        email: response.data.email,
-                        password: response.data.tempPassword,
-                    });
-                }
-            } else {
-                toast({
-                    title: '✅ Email enviado',
-                    description: `Credenciales enviadas a ${response.data.email}`,
-                });
-            }
+            setShowCredentials({email:response.data.email,coachNumber:response.data.coachNumber});
+            toast({title:'Invitación en cola',description:'El estado pendiente confirma el registro de la solicitud, no su entrega.'});
         },
         onError: (error) => {
             toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(error) });
@@ -408,7 +376,7 @@ export default function InstructorsList() {
     });
 
     return (
-        <AuthGuard requiredRoles={['admin']}>
+        <AuthGuard requiredRoles={['admin','super_admin']}>
             <AdminLayout>
                 <div className="space-y-6">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -571,11 +539,11 @@ export default function InstructorsList() {
                                                                             }
                                                                         }}
                                                                     >
-                                                                        <Mail className="mr-2 h-4 w-4" /> Enviar Credenciales por Email
+                                                                        <Mail className="mr-2 h-4 w-4" /> Enviar invitación por email
                                                                     </DropdownMenuItem>
                                                                     <DropdownMenuItem
                                                                         onClick={() => {
-                                                                            if (confirm('¿Restablecer contraseña del coach?')) {
+                                                                            if (confirm('¿Enviar un enlace para que el coach elija su contraseña?')) {
                                                                                 resetPasswordMutation.mutate(instructor.id);
                                                                             }
                                                                         }}
@@ -623,6 +591,7 @@ export default function InstructorsList() {
                                         id="email"
                                         type="email"
                                         {...register('email')}
+                                        readOnly={!!editingInstructor}
                                         placeholder="coach@ejemplo.com"
                                     />
                                     {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
@@ -795,9 +764,9 @@ export default function InstructorsList() {
                     <Dialog open={!!showCredentials} onOpenChange={() => setShowCredentials(null)}>
                         <DialogContent className="max-w-md">
                             <DialogHeader>
-                                <DialogTitle>Credenciales de Coach</DialogTitle>
+                                <DialogTitle>Invitación de acceso</DialogTitle>
                                 <DialogDescription>
-                                    Guarda estas credenciales. La contraseña no se mostrará nuevamente.
+                                    La invitación está en cola. El coach elegirá su contraseña mediante un enlace de acceso seguro.
                                 </DialogDescription>
                             </DialogHeader>
 
@@ -824,33 +793,7 @@ export default function InstructorsList() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label>Contraseña Temporal</Label>
-                                    <div className="flex items-center gap-2">
-                                        <Input
-                                            value={showCredentials?.password || ''}
-                                            readOnly
-                                            className="font-mono"
-                                        />
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(showCredentials?.password || '');
-                                                toast({ title: 'Copiado', description: 'Contraseña copiada' });
-                                            }}
-                                        >
-                                            Copiar
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                <div className="bg-warning/10 border border-warning/30 rounded-md p-3">
-                                    <p className="text-sm text-warning-foreground">
-                                        ⚠️ El coach deberá cambiar esta contraseña en su primer inicio de sesión.
-                                    </p>
-                                </div>
+                                <p className="text-sm text-muted-foreground">Esta solicitud no cambia la contraseña actual. La entrega depende del servicio de correo configurado.</p>
                             </div>
 
                             <DialogFooter>
