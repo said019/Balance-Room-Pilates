@@ -672,7 +672,8 @@ export default function InstructorsList() {
                                 {/* Photo Upload Section - Only for editing */}
                                 {editingInstructor && (
                                     <div className="space-y-3">
-                                        <Label>Foto de Perfil</Label>
+                                        <Label>Foto pública del coach</Label>
+                                        <p className="text-xs text-muted-foreground">Al guardarla autorizas su publicación en la página del studio. Es independiente de la foto privada de su cuenta.</p>
                                         <div className="flex flex-col gap-4 sm:flex-row">
                                             {/* Photo Preview - Larger aspect ratio matching instructor cards */}
                                             <div
