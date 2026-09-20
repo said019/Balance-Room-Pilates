@@ -581,15 +581,6 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
     });
 
-    const bulkDeleteCancelledMutation = useMutation({
-        mutationFn: async () => api.post('/classes/delete-cancelled', { startDate: startStr, endDate: endStr }),
-        onSuccess: (res) => {
-            queryClient.invalidateQueries({ queryKey: ['classes'] });
-            toast({ title: 'Canceladas eliminadas', description: `${res.data.deleted} clase(s) eliminada(s) de la semana.` });
-        },
-        onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
-    });
-
     const toggleFreeMutation = useMutation({
         mutationFn: async ({ id, is_free, free_label, force }: { id: string; is_free: boolean; free_label?: string; force?: boolean }) =>
             api.patch(`/classes/${id}/free`, { is_free, free_label, force }),
@@ -758,23 +749,6 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         return true;
     }) || [];
 
-    const bulkDeleteMutation = useMutation({
-        mutationFn: async () => {
-            return await api.post('/classes/bulk-delete', {
-                startDate: startStr,
-                endDate: endStr
-            });
-        },
-        onSuccess: (res) => {
-            queryClient.invalidateQueries({ queryKey: ['classes'] });
-            toast({
-                title: 'Calendario limpiado',
-                description: res.data.message
-            });
-        },
-        onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
-    });
-
     const weekDays = Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
     const activeClasses = classes?.filter((c) => c.status !== 'cancelled') || [];
     const wellhubPublishedClassCount = activeClasses.filter((c) => c.wellhub_published).length;
@@ -851,20 +825,6 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 <details className="min-w-0 flex-1 rounded-xl border border-altitud-sand/70 bg-altitud-cream/70">
                                     <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-semibold text-altitud-dark">Herramientas de agenda</summary>
                                     <div className="grid gap-2 px-3 pb-3 sm:grid-cols-2">
-                                <Button
-                                    variant="outline"
-                                    className="border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                    onClick={() => {
-                                        if (confirm('¿Borrar todas las clases vacías de esta semana visible?')) {
-                                            bulkDeleteMutation.mutate();
-                                        }
-                                    }}
-                                    disabled={bulkDeleteMutation.isPending}
-                                >
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    {bulkDeleteMutation.isPending ? 'Borrando...' : 'Limpiar semana'}
-                                </Button>
-
                                 <Button variant="outline" className="border-altitud-sand/70 bg-altitud-cream/70" onClick={() => setIsGenerateOpen(true)}>
                                     <Repeat className="mr-2 h-4 w-4" /> Generar semana
                                 </Button>
@@ -886,21 +846,13 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 >
                                     {showCancelled ? 'Ocultar canceladas' : 'Ver canceladas'}
                                 </Button>
-                                {showCancelled && (
-                                    <Button
-                                        variant="outline"
-                                        className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                        onClick={() => { if (confirm('¿Eliminar todas las clases canceladas (sin reservas) de esta semana?')) bulkDeleteCancelledMutation.mutate(); }}
-                                        disabled={bulkDeleteCancelledMutation.isPending}
-                                    >
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        {bulkDeleteCancelledMutation.isPending ? 'Eliminando...' : 'Eliminar canceladas'}
-                                    </Button>
-                                )}
                                 <Button variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" onClick={() => setIsBulkFreeOpen(true)}>
                                     <Sparkles className="mr-2 h-4 w-4" /> Marcar como gratis
                                 </Button>
                                     </div>
+                                    <p className="px-4 pb-4 text-sm text-muted-foreground">
+                                        Las clases con historial se conservan. Cancela una clase desde su detalle; puedes consultar las canceladas en esta agenda.
+                                    </p>
                                 </details>
                             </div>
                         </div>
