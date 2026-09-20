@@ -2,7 +2,7 @@ import {test,expect,origin,LoginPage} from './fixtures';
 import {writeFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 const out=fileURLToPath(new URL('../../../../evidence/pwa/',import.meta.url));
-test('D3 D12 I6: credit reason, membership cancellation releases bookings and records only local refund',async({page,request,fixture:f})=>{
+test('D12 I5 I8 E6: credit reason, membership cancellation releases bookings and records only local refund',async({page,request,fixture:f})=>{
  await f.pool.query("INSERT INTO payments(user_id,membership_id,amount,payment_method,status,processed_by) VALUES($1,$2,1099,'cash','completed',$3)",[f.ids.client,f.ids.membership,f.ids.admin]);
  await new LoginPage(page).login(f.email('admin'),f.password,`/admin/members/${f.ids.client}`);
  await page.getByRole('button',{name:'Ajustar',exact:true}).click();const dialog=page.getByRole('dialog');await expect(dialog.getByRole('button',{name:'Guardar',exact:true})).toBeDisabled();await dialog.getByLabel('Motivo del ajuste').fill('QA reconciliación de saldo');await dialog.getByLabel('Nuevo balance').fill('7');await dialog.getByRole('button',{name:'Guardar',exact:true}).click();await expect(dialog).not.toBeVisible();
@@ -14,14 +14,14 @@ test('D3 D12 I6: credit reason, membership cancellation releases bookings and re
  const rows=(await f.pool.query('SELECT m.status,m.classes_remaining,b.status AS booking_status,p.status AS payment_status FROM memberships m JOIN bookings b ON b.membership_id=m.id JOIN payments p ON p.membership_id=m.id WHERE m.id=$1',[f.ids.membership])).rows;expect(rows).toHaveLength(1);expect(rows[0].status).toBe('cancelled');expect(rows[0].booking_status).toBe('cancelled');expect(rows[0].payment_status).toBe('refunded');expect((await f.pool.query('SELECT current_bookings FROM classes WHERE id=$1',[f.ids.first])).rows[0].current_bookings).toBe(0);
  writeFileSync(out+'admin-membership-invariants.json',JSON.stringify({rows,adjustments,bankMovement:false},null,2));
 });
-test('J1 J4: reception searches today and checks in with persisted zero duplicate debit',async({page,request,fixture:f})=>{
+test('F2 F3: reception searches today and checks in with persisted zero duplicate debit',async({page,request,fixture:f})=>{
  expect((await request.post(origin+'/api/bookings',{headers:{Authorization:`Bearer ${f.tokens.client}`},data:{classId:f.ids.first}})).status()).toBe(201);
  await f.pool.query("UPDATE classes SET date=((now()+interval '5 minutes') AT TIME ZONE 'America/Mexico_City')::date,start_time=((now()+interval '5 minutes') AT TIME ZONE 'America/Mexico_City')::time,end_time=((now()+interval '55 minutes') AT TIME ZONE 'America/Mexico_City')::time WHERE id=$1",[f.ids.first]);
  await new LoginPage(page).login(f.email('reception'),f.password,'/admin/bookings');await page.getByLabel('Nombre o teléfono').fill((await f.pool.query('SELECT phone FROM users WHERE id=$1',[f.ids.client])).rows[0].phone);await page.getByRole('button',{name:'Buscar persona'}).click();await page.getByRole('button',{name:'Registrar asistencia'}).click();await expect(page.getByText(/Asistencia registrada/).first()).toBeVisible();
  const b=(await f.pool.query('SELECT status,credits_debited FROM bookings WHERE class_id=$1 AND user_id=$2',[f.ids.first,f.ids.client])).rows[0];expect(b.status).toBe('checked_in');expect(b.credits_debited).toBe(1);expect((await f.pool.query('SELECT classes_remaining FROM memberships WHERE id=$1',[f.ids.membership])).rows[0].classes_remaining).toBe(7);expect(await page.getByRole('button',{name:'Registrar asistencia'}).count()).toBe(0);
  writeFileSync(out+'reception-invariants.json',JSON.stringify(b,null,2));await page.screenshot({path:out+'reception-390.png',fullPage:true});
 });
-test('D1 D2 RG71: manual cash assignment retries an uncertain response exactly once, then exports report',async({page,fixture:f})=>{
+test('D8 E2 I4 K7 RG71: manual cash assignment retries an uncertain response exactly once, then exports report',async({page,fixture:f})=>{
  await f.pool.query('DELETE FROM memberships WHERE id=$1',[f.ids.membership]);const name='QA pago '+f.ids.plan.slice(0,8);await f.pool.query('UPDATE plans SET name=$1 WHERE id=$2',[name,f.ids.plan]);
  await new LoginPage(page).login(f.email('admin'),f.password,'/admin/memberships/all');await page.getByRole('button',{name:'Asignar Membresía',exact:true}).click();const dialog=page.getByRole('dialog');
  await dialog.getByRole('combobox',{name:'Cliente',exact:true}).click();await page.getByRole('option').filter({hasText:f.email('client')}).click();await dialog.getByRole('combobox',{name:'Plan',exact:true}).click();await page.getByRole('option').filter({hasText:name}).click();await dialog.getByRole('combobox',{name:'Método de pago',exact:true}).click();await page.getByRole('option',{name:'Efectivo',exact:true}).click();
@@ -32,7 +32,7 @@ test('D1 D2 RG71: manual cash assignment retries an uncertain response exactly o
  await page.goto(origin+'/admin/reports/overview');const download=page.waitForEvent('download');await page.getByRole('button',{name:'Descargar reporte'}).click();const csv=await download;await csv.saveAs(out+'report-ui.csv');
  writeFileSync(out+'cash-idempotency.json',JSON.stringify({sameIdempotencyKey:keys[0]===keys[1],memberships,payments,csv:csv.suggestedFilename()},null,2));
 });
-test('E1 E2 E8: admin reviews owner-scoped Drive proof and approves exactly one local payment',async({page,request,fixture:f})=>{
+test('E2 D8: admin reviews owner-scoped Drive proof and approves exactly one local payment',async({page,request,fixture:f})=>{
  const orderR=await request.post(origin+'/api/orders',{headers:{Authorization:`Bearer ${f.tokens.client}`},data:{plan_id:f.ids.plan,payment_method:'bank_transfer'}});expect(orderR.status()).toBe(201);const order=await orderR.json();
  const png='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jN3sAAAAASUVORK5CYII=';
  const proofR=await request.post(origin+`/api/orders/${order.id}/upload-proof`,{headers:{Authorization:`Bearer ${f.tokens.client}`},data:{file_data:png,file_name:'QA-comprobante-sintetico.png',transfer_reference:'QA-SIN-MOVIMIENTO'}});expect(proofR.status()).toBe(201);
@@ -41,7 +41,7 @@ test('E1 E2 E8: admin reviews owner-scoped Drive proof and approves exactly one 
  await page.getByRole('button',{name:'Aprobar pago',exact:true}).click();await page.getByRole('button',{name:'Confirmar aprobación',exact:true}).click();await expect(page.getByText('Pago aprobado',{exact:true})).toBeVisible();
  const persisted=(await f.pool.query('SELECT status,membership_id FROM orders WHERE id=$1',[order.id])).rows[0];expect(persisted.status).toBe('approved');const payments=(await f.pool.query('SELECT amount,status FROM payments WHERE membership_id=$1',[persisted.membership_id])).rows;expect(payments).toEqual([{amount:'1099.00',status:'completed'}]);writeFileSync(out+'transfer-approval.json',JSON.stringify({persisted,payments,privateMedia:media.visibility,anonymousStatus:denied.status(),provider:'local HTTP double; no bank or external Drive'},null,2));
 });
-test('A2 H3: access invitation is queued without claiming delivery or replacing existing password',async({page,fixture:f})=>{
+test('A2 A7 H10: access invitation is queued without claiming delivery or replacing existing password',async({page,fixture:f})=>{
  const before=(await f.pool.query('SELECT password_hash FROM users WHERE id=$1',[f.ids.client])).rows[0].password_hash;
  await new LoginPage(page).login(f.email('admin'),f.password,`/admin/members/${f.ids.client}`);await page.getByRole('button',{name:'Credenciales',exact:true}).click();await expect(page.getByRole('alertdialog')).not.toContainText('contraseña temporal');await page.getByRole('button',{name:'Poner invitación en cola'}).click();await expect(page.getByRole('status').filter({hasText:'Invitación de acceso en cola'})).toBeVisible();
  expect((await f.pool.query('SELECT password_hash FROM users WHERE id=$1',[f.ids.client])).rows[0].password_hash).toBe(before);

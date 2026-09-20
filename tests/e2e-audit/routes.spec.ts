@@ -29,11 +29,11 @@ test('all mounted admin/member routes: real auth roles, console, network and mob
  writeFileSync(out+'route-inventory.json',JSON.stringify(results,null,2));
  // Every failure is recorded for root-cause correction; the report never equates document 200 with pass.
  expect(results.filter(r=>r.errors?.length)).toEqual([]);
- expect(results.filter(r=>r.failed?.some((x:any)=>x.status>=500))).toEqual([]);
+ expect(results.filter(r=>r.failed?.length)).toEqual([]);
  expect(results.filter(r=>r.width>r.viewport+1)).toEqual([]);
  if(order)await f.pool.query('DELETE FROM orders WHERE id=$1',[order]);
 });
-test('coach opens own assigned classes, rejects another coach and checks in without another debit',async({page,request,fixture:f})=>{
+test('J1 J3 F3 I7: coach opens own assigned classes, rejects another coach and checks in without another debit',async({page,request,fixture:f})=>{
  const bookingR=await request.post(origin+'/api/bookings',{headers:{Authorization:`Bearer ${f.tokens.client}`},data:{classId:f.ids.first}});expect(bookingR.status()).toBe(201);
  await f.pool.query("UPDATE classes SET date=((now()+interval '5 minutes') AT TIME ZONE 'America/Mexico_City')::date,start_time=((now()+interval '5 minutes') AT TIME ZONE 'America/Mexico_City')::time,end_time=((now()+interval '55 minutes') AT TIME ZONE 'America/Mexico_City')::time WHERE id=$1",[f.ids.first]);
  await new LoginPage(page).login(f.email('instructor'),f.password,'/coach');

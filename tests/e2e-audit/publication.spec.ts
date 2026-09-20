@@ -2,7 +2,7 @@ import {test,expect,origin,LoginPage} from './fixtures';
 import {writeFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 const out=fileURLToPath(new URL('../../../../evidence/pwa/',import.meta.url));
-test('I3 B1: an admin publishes and edits civil hours, landing and member DOM equal SQL',async({page,fixture:f})=>{
+test('I1 B1: an admin publishes and edits civil hours, landing and member DOM equal SQL',async({page,fixture:f})=>{
  let id:string|undefined;
  try{
  await new LoginPage(page).login(f.email('admin'),f.password,'/admin/classes/schedules');
