@@ -38,6 +38,8 @@ export function AuthGuard({ children, requiredRoles, redirectTo = '/login' }: Au
                 navigate('/admin/dashboard', { replace: true });
             } else if (user.role === 'reception') {
                 navigate('/admin/bookings', { replace: true });
+            } else if (user.role === 'instructor') {
+                navigate('/coach', { replace: true });
             } else {
                 navigate('/app', { replace: true });
             }

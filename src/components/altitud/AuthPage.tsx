@@ -18,7 +18,7 @@ export default function AuthPage({ mode }: { mode: Mode }) {
   const returnUrl = safeReturnUrl(params.get('returnUrl'));
   const bookingIntent = returnUrl?.startsWith('/app/book') || returnUrl?.startsWith('/reservar');
   const title = mode==='login'?'BIENVENIDO A TU SIGUIENTE NIVEL.':mode==='register'?'TU HISTORIA EMPIEZA AQUÍ.':'VOLVAMOS A CONECTAR.';
-  useEffect(()=>{ if(isAuthenticated&&user){ navigate(returnUrl || (user.role==='admin'?'/admin/dashboard':'/app'),{replace:true}); } },[isAuthenticated,user,navigate,returnUrl]);
+  useEffect(()=>{ if(isAuthenticated&&user){ navigate(returnUrl || (['admin','super_admin'].includes(user.role)?'/admin/dashboard':user.role==='reception'?'/admin/bookings':user.role==='instructor'?'/coach':'/app'),{replace:true}); } },[isAuthenticated,user,navigate,returnUrl]);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); setError('');
     if(!configured) { setError('El acceso de 2707 Altitud estará disponible al activar el studio. Por ahora puedes explorar la agenda de muestra.'); return; }

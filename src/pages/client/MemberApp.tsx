@@ -1,3 +1,4 @@
+import { RescheduleDialog } from '@/components/member/RescheduleDialog';
 import { PublishedHours } from '@/components/schedule/PublishedHours';
 import { PrivateMediaImage } from '@/components/PrivateMediaImage';
 import { DisciplineIcon } from '@/components/brand/DisciplineIcon';
@@ -117,16 +118,18 @@ function BookingLine({
   base,
   preview,
   onCancel,
+  onReschedule,
 }: {
   booking: BookingClient;
   base: string;
   preview: boolean;
   onCancel?: (b: BookingClient) => void;
+  onReschedule?: (b: BookingClient) => void;
 }) {
   const upcoming = isUpcoming(booking);
   const date = new Date(`${booking.date.slice(0, 10)}T12:00:00`);
   return (
-    <article className="member-booking-line">
+    <article className="member-booking-line" data-booking-id={booking.booking_id}>
       <div className="member-date-tile">
         <span>{format(date, "MMM", { locale: es })}</span>
         <strong>{format(date, "dd")}</strong>
@@ -141,8 +144,9 @@ function BookingLine({
       <span
         className={`member-pill ${booking.booking_status === "cancelled" ? "member-pill-muted" : ""}`}
       >
-        {statusName[booking.booking_status] || booking.booking_status}
+        {statusName[booking.booking_status] || booking.booking_status}{booking.booking_status === "waitlist" && booking.waitlist_position ? ` · posición ${booking.waitlist_position}` : ""}
       </span>
+      {upcoming && onReschedule && booking.booking_status === "confirmed" && <button className="member-subtle-button" onClick={() => onReschedule(booking)}>Reagendar</button>}
       {upcoming && onCancel ? (
         <button
           className="member-subtle-button"
@@ -433,6 +437,8 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
   const [tab, setTab] = useState("Próximas");
   const [chosen, setChosen] = useState<Class | null>(null);
   const [cancelled, setCancelled] = useState<BookingClient | null>(null);
+  const [moving, setMoving] = useState<BookingClient | null>(null);
+  const [joinWaiting, setJoinWaiting] = useState(false);
   const [busy, setBusy] = useState(false);
   const [success, setSuccess] = useState(false);
   const [message, setMessage] = useState("");
@@ -449,7 +455,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
     setBusy(true);
     data.setActionError("");
     try {
-      await data.book(chosen);
+      if (joinWaiting) await data.joinWaitlist(chosen); else await data.book(chosen);
       setSuccess(true);
     } catch (e) {
       data.setActionError(getErrorMessage(e));
@@ -525,7 +531,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           title="Vamos a entrenar."
           description="Grupos de hasta 12 personas. Elige la sesión que va contigo."
         />
-        <p className="mb-6 text-sm text-muted-foreground">Cancela o reagenda con mínimo 4 horas de anticipación. Las cancelaciones tardías y las inasistencias cuentan como clase utilizada.{preview ? " Los horarios de fin de semana son tentativos; esta agenda es una muestra." : " Los fines de semana dependen de la programación. Reserva solo las sesiones publicadas en la agenda."}</p>
+        <p className="mb-6 text-sm text-muted-foreground">Cancela o reagenda con mínimo 4 horas de anticipación. Las cancelaciones tardías y las inasistencias cuentan como clase utilizada.{preview ? " Las sesiones son las publicadas por el studio; las acciones de muestra no crean reservas reales." : " Los fines de semana dependen de la programación. Reserva solo las sesiones publicadas en la agenda."}</p>
         <div className="member-calendar-toolbar">
           <div className="member-tabs" aria-label="Tipo de entrenamiento">
             {[
@@ -600,7 +606,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
               const full = c.current_bookings >= c.max_capacity;
               const past = classDate(c.date, c.start_time) <= new Date();
               return (
-                <article key={c.id}>
+                <article key={c.id} data-class-id={c.id}>
                   <div className="member-session-time">
                     {c.start_time.slice(0, 5)}
                     <span>
@@ -638,9 +644,10 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
                         ? "member-button member-button-light"
                         : "member-button"
                     }
-                    disabled={booked || full || past}
+                    disabled={booked || past || (preview && full)}
                     onClick={() => {
                       setChosen(c);
+                      setJoinWaiting(full);
                       setSuccess(false);
                       data.setActionError("");
                     }}
@@ -653,7 +660,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
                     ) : past ? (
                       "Finalizada"
                     ) : full ? (
-                      "Completa"
+                      "Entrar a lista de espera"
                     ) : (
                       <>
                         Reservar <PlusIcon />
@@ -672,7 +679,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
         </div>
         <p className="member-caption">
           {preview
-            ? "Horarios, coaches, cupos y créditos ilustrativos. Las reservas no son reales."
+            ? "Agenda publicada por el studio. En esta vista de muestra las reservas y créditos no son reales."
             : "El cupo se confirma al completar la reserva."}
         </p>
       </>
@@ -713,6 +720,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
                 base={base}
                 preview={preview}
                 onCancel={tab === "Próximas" ? openCancel : undefined}
+                onReschedule={!preview && tab === "Próximas" ? setMoving : undefined}
               />
             ))
           ) : (
@@ -1042,10 +1050,10 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
             {preview ? "RESERVA DE MUESTRA" : "2707 ALTITUD"}
           </span>
           <DialogTitle>
-            {success ? "Tu lugar está listo." : "Tu próximo entrenamiento."}
+            {joinWaiting ? (success ? "Estás en la lista de espera." : "Lista de espera") : success ? "Tu lugar está listo." : "Tu próximo entrenamiento."}
           </DialogTitle>
           <DialogDescription>
-            {success
+            {joinWaiting ? "La lista de espera no confirma un lugar ni consume una clase. El studio coordina la disponibilidad; consulta tu posición en Mis sesiones." : success
               ? preview
                 ? "Guardamos la muestra en este navegador. No es una reserva real."
                 : "Tu reserva se confirmó. Nos vemos en Altitud."
@@ -1085,7 +1093,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
                 ? "Confirmando…"
                 : preview
                   ? "Confirmar muestra"
-                  : "Confirmar reserva"}
+                  : joinWaiting ? "Confirmar lista de espera" : "Confirmar reserva"}
               <CheckIcon />
             </button>
           )}
@@ -1101,14 +1109,14 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           <span className="member-kicker">UN CAMBIO DE PLANES</span>
           <DialogTitle>¿Cancelar esta sesión?</DialogTitle>
           <DialogDescription>
-            {cancelled && isLateCancellation(cancelled)
+            {cancelled && cancelled.booking_status !== "waitlist" && isLateCancellation(cancelled)
               ? "Faltan menos de 4 horas para tu sesión. El plazo para cancelar o reagendar ya terminó. Si no asistes, la clase se considera utilizada y no se recupera."
               : cancelled?.booking_status === "waitlist"
                 ? "Saldrás de la lista de espera de esta sesión."
                 : "Puedes cancelar o reagendar con mínimo 4 horas de anticipación. Si se descontó una clase al reservar, se devolverá al cancelar dentro de este plazo."}
             {preview ? " Esta es una reserva de muestra." : ""}
           </DialogDescription>
-          <p className="text-sm text-muted-foreground">Si no asistes, la clase también cuenta como utilizada. Para reagendar a tiempo, cancela tu reserva y elige otra sesión disponible.</p>
+          <p className="text-sm text-muted-foreground">Si no asistes, la clase también cuenta como utilizada. Para cambiar de sesión a tiempo, usa Reagendar en Mis sesiones.</p>
           {cancelled && (
             <div className="member-dialog-summary">
               <h3>{cancelled.class_type_name}</h3>
@@ -1126,9 +1134,9 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           <button
             className="member-button"
             onClick={() => void confirmCancel()}
-            disabled={busy || Boolean(cancelled && isLateCancellation(cancelled))}
+            disabled={busy || Boolean(cancelled && cancelled.booking_status !== "waitlist" && isLateCancellation(cancelled))}
           >
-            {busy ? "Cancelando…" : cancelled && isLateCancellation(cancelled) ? "Plazo de cancelación terminado" : "Sí, cancelar sesión"}
+            {busy ? "Cancelando…" : cancelled && cancelled.booking_status !== "waitlist" && isLateCancellation(cancelled) ? "Plazo de cancelación terminado" : "Sí, cancelar sesión"}
           </button>
           <button
             className="member-subtle-button"
@@ -1139,6 +1147,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           </button>
         </DialogContent>
       </Dialog>
+      <RescheduleDialog key={moving?.booking_id || "closed"} booking={moving} onClose={() => setMoving(null)} onChange={async (b,c) => { await data.reschedule(b,c); setMessage("Tu sesión se cambió. Consulta tu reserva actualizada."); }} />
       {!preview && (
         <ChangePasswordDialog
           open={passwordOpen}

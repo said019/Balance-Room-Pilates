@@ -1,0 +1,24 @@
+import {test,expect,origin,LoginPage,MemberPage} from './fixtures';
+import {mkdirSync,writeFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+const out=fileURLToPath(new URL('../../../../evidence/pwa/',import.meta.url));mkdirSync(out,{recursive:true});
+test('B2 C1 C4 B4 C8: member booking reschedule cancellation and waitlist with persisted invariants',async({page,fixture:f})=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ await new LoginPage(page).login(f.email('client'),f.password,'/app/book');
+ await new MemberPage(page).bookTomorrow(f.ids.first);
+ let b=(await f.pool.query('SELECT * FROM bookings WHERE user_id=$1 AND class_id=$2',[f.ids.client,f.ids.first])).rows[0];expect(b.status).toBe('confirmed');expect(b.credits_debited).toBe(1);
+ expect((await f.pool.query('SELECT classes_remaining FROM memberships WHERE id=$1',[f.ids.membership])).rows[0].classes_remaining).toBe(7);
+ await page.getByRole('link',{name:'Ver mis sesiones'}).click();await page.getByRole('button',{name:'Reagendar',exact:true}).click();
+ await page.getByLabel('Nueva sesión').selectOption(f.ids.second);await page.getByRole('button',{name:'Confirmar cambio'}).click();await expect(page.getByRole('status')).toContainText('Tu sesión se cambió');
+ const after=(await f.pool.query('SELECT id,status,class_id,credits_debited,credits_refunded FROM bookings WHERE user_id=$1 ORDER BY created_at',[f.ids.client])).rows;
+ const current=after.find(x=>x.status==='confirmed');expect(current.class_id).toBe(f.ids.second);expect((await f.pool.query('SELECT classes_remaining FROM memberships WHERE id=$1',[f.ids.membership])).rows[0].classes_remaining).toBe(7);
+ await page.getByRole('button',{name:'Cancelar',exact:true}).click();await page.getByRole('button',{name:'Sí, cancelar sesión'}).click();await expect(page.getByRole('status')).toContainText('Reserva cancelada');
+ expect((await f.pool.query('SELECT classes_remaining FROM memberships WHERE id=$1',[f.ids.membership])).rows[0].classes_remaining).toBe(8);
+ await page.goto(origin+'/app/book');await page.locator('.member-day-picker button').nth(1).click();await page.locator(`[data-class-id="${f.ids.full}"]`).getByRole('button',{name:'Entrar a lista de espera'}).click();await page.getByRole('button',{name:'Confirmar lista de espera'}).click();await expect(page.getByText('Estás en la lista de espera.',{exact:true})).toBeVisible();
+ await page.getByRole('link',{name:'Ver mis sesiones'}).click();await expect(page.getByText(/En espera · posición 1/)).toBeVisible();
+ const waiting=(await f.pool.query('SELECT status,credits_debited FROM bookings WHERE user_id=$1 AND class_id=$2',[f.ids.client,f.ids.full])).rows[0];expect(waiting.status).toBe('waitlist');expect(waiting.credits_debited).toBe(0);
+ await page.getByRole('button',{name:'Cancelar',exact:true}).click();await page.getByRole('button',{name:'Sí, cancelar sesión'}).click();await expect(page.getByRole('status')).toContainText('Saliste de la lista');
+ const credits=(await f.pool.query('SELECT classes_remaining FROM memberships WHERE id=$1',[f.ids.membership])).rows[0].classes_remaining;expect(credits).toBe(8);
+ const width=await page.evaluate(()=>({screen:innerWidth,document:document.documentElement.scrollWidth}));expect(width.document).toBeLessThanOrEqual(width.screen);expect(errors).toEqual([]);
+ writeFileSync(out+'member-invariants.json',JSON.stringify({afterReschedule:after,waitlist:waiting,finalCredits:credits,width,errors},null,2));await page.screenshot({path:out+'member-390.png',fullPage:true});
+});

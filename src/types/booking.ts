@@ -31,4 +31,5 @@ export interface BookingClient {
   instructor_name: string;
   instructor_photo?: string | null;
   booking_status: 'confirmed' | 'waitlist' | 'checked_in' | 'no_show' | 'cancelled';
+  waitlist_position?: number | null;
 }

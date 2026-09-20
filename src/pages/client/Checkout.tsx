@@ -62,7 +62,7 @@ export default function Checkout() {
   const bankQuery = useQuery<BankInfo>({
     queryKey: ['bank-info'],
     queryFn: async () => (await api.get('/settings/bank-info')).data,
-    enabled: selectedPaymentMethod === 'bank_transfer',
+    enabled: selectedPaymentMethod === 'bank_transfer' && methodsQuery.data?.bank_transfer === true,
   });
   const selectedPlan = plansQuery.data?.find((plan) => plan.id === selectedPlanId);
   const methods = methodOptions.filter((method) => methodsQuery.data?.[method.value]);

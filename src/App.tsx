@@ -1,3 +1,4 @@
+import CoachDashboard from '@/pages/coach/CoachDashboard';
 import { useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -167,6 +168,8 @@ const App = () => (
 
             {/* Client Routes */}
             <Route path="/app/preview/*" element={<MemberPreview preview />} />
+            <Route path="/coach" element={<CoachDashboard />} />
+            <Route path="/coach/dashboard" element={<CoachDashboard />} />
             <Route path="/app" element={<ClientDashboard />} />
             <Route path="/app/book" element={<BookClasses />} />
             <Route path="/app/book/:classId" element={<BookClassConfirm />} />

@@ -174,6 +174,18 @@ export function useMemberData(preview: boolean, start: Date) {
       return response.data as { requiresCreditReview?: boolean; message?: string };
     }
   }
+  async function joinWaitlist(c: Class) {
+    if (preview) throw new Error("Inicia sesión para entrar a la lista de espera real.");
+    const response = await api.post('/bookings/waitlist', { classId: c.id });
+    await refresh();
+    return response.data;
+  }
+  async function reschedule(b: BookingClient, c: Class) {
+    if (preview) throw new Error("Inicia sesión para reagendar una reserva real.");
+    const response = await api.post(`/bookings/${b.booking_id}/reschedule`, { classId: c.id });
+    await refresh();
+    return response.data;
+  }
   function saveProfile(profile: PreviewProfile) {
     save({ ...demo, profile });
   }
@@ -190,6 +202,8 @@ export function useMemberData(preview: boolean, start: Date) {
           news: user?.receive_promotions ?? false,
         },
     book,
+    joinWaitlist,
+    reschedule,
     cancel,
     saveProfile,
     actionError,
