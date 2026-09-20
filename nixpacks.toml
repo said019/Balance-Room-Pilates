@@ -12,7 +12,7 @@ NPM_CONFIG_PRODUCTION = "false"
 cmds = ["rm -rf node_modules/.vite", "npx --no-install vite build"]
 
 [phases.build.variables]
-NODE_ENV = "development"
+NODE_ENV = "production"
 NPM_CONFIG_PRODUCTION = "false"
 
 [start]
