@@ -5,25 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertCircle, CheckCircle2, XCircle, Clock } from '@/components/brand/icons';
 import api from '@/lib/api';
-import { format, subDays } from 'date-fns';
+import { reportPeriod } from '@/lib/report-period';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ReportsRetention() {
     const [period, setPeriod] = useState('30days');
 
-    const getDateRange = () => {
-        const end = new Date();
-        let start = new Date();
-        if (period === '7days') start = subDays(end, 7);
-        if (period === '30days') start = subDays(end, 30);
-        if (period === '90days') start = subDays(end, 90);
-        return {
-            startDate: format(start, 'yyyy-MM-dd'),
-            endDate: format(end, 'yyyy-MM-dd')
-        };
-    };
-
-    const { startDate, endDate } = getDateRange();
+    const { startDate, endDate } = reportPeriod(period);
 
     const { data: retentionStats, isLoading } = useQuery({
         queryKey: ['reports-retention', startDate, endDate],

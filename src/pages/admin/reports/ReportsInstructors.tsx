@@ -5,25 +5,13 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import api from '@/lib/api';
-import { format, subDays } from 'date-fns';
+import { reportPeriod } from '@/lib/report-period';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ReportsInstructors() {
     const [period, setPeriod] = useState('30days');
 
-    const getDateRange = () => {
-        const end = new Date();
-        let start = new Date();
-        if (period === '7days') start = subDays(end, 7);
-        if (period === '30days') start = subDays(end, 30);
-        if (period === '90days') start = subDays(end, 90);
-        return {
-            startDate: format(start, 'yyyy-MM-dd'),
-            endDate: format(end, 'yyyy-MM-dd')
-        };
-    };
-
-    const { startDate, endDate } = getDateRange();
+    const { startDate, endDate } = reportPeriod(period);
 
     const { data: instructorStats, isLoading } = useQuery({
         queryKey: ['reports-instructors', startDate, endDate],
@@ -47,7 +35,7 @@ export default function ReportsInstructors() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">Rendimiento de Instructores</h1>
-                        <p className="text-muted-foreground">Comparativa de asistencia y ocupación.</p>
+                        <p className="text-muted-foreground">Clases finalizadas y ocupación por coach. El conteo no calcula honorarios ni comisiones.</p>
                     </div>
                     <Select value={period} onValueChange={setPeriod}>
                         <SelectTrigger aria-label="Periodo del reporte" className="w-[180px]">
@@ -84,11 +72,11 @@ export default function ReportsInstructors() {
                                 <div className="flex-1 p-6">
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
                                         <div className="space-y-1">
-                                            <span className="text-sm font-medium text-muted-foreground">Clases</span>
-                                            <div className="text-2xl font-bold">{inst.total_classes}</div>
+                                            <span className="text-sm font-medium text-muted-foreground">Finalizadas</span>
+                                            <div className="text-2xl font-bold">{inst.completed_classes}</div>
                                         </div>
                                         <div className="space-y-1">
-                                            <span className="text-sm font-medium text-muted-foreground">Alumnos</span>
+                                            <span className="text-sm font-medium text-muted-foreground">Reservas</span>
                                             <div className="text-2xl font-bold">{inst.total_students}</div>
                                         </div>
                                         <div className="space-y-1">

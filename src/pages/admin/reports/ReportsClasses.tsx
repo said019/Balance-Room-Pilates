@@ -5,25 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import api from '@/lib/api';
-import { format, subDays } from 'date-fns';
+import { reportPeriod } from '@/lib/report-period';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ReportsClasses() {
     const [period, setPeriod] = useState('30days');
 
-    const getDateRange = () => {
-        const end = new Date();
-        let start = new Date();
-        if (period === '7days') start = subDays(end, 7);
-        if (period === '30days') start = subDays(end, 30);
-        if (period === '90days') start = subDays(end, 90);
-        return {
-            startDate: format(start, 'yyyy-MM-dd'),
-            endDate: format(end, 'yyyy-MM-dd')
-        };
-    };
-
-    const { startDate, endDate } = getDateRange();
+    const { startDate, endDate } = reportPeriod(period);
 
     const { data: classesStats, isLoading } = useQuery({
         queryKey: ['reports-classes', startDate, endDate],
@@ -49,7 +37,7 @@ export default function ReportsClasses() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">Reporte de Clases</h1>
-                        <p className="text-muted-foreground">Ocupación, horarios populares y distribución.</p>
+                        <p className="text-muted-foreground">Reservas confirmadas y registradas sobre el cupo disponible. Excluye clases canceladas, lista de espera e inasistencias.</p>
                     </div>
                     <Select value={period} onValueChange={setPeriod}>
                         <SelectTrigger aria-label="Periodo del reporte" className="w-[180px]">
@@ -68,7 +56,7 @@ export default function ReportsClasses() {
                     <Card className="md:col-span-2">
                         <CardHeader>
                             <CardTitle>Ocupación por día de la semana</CardTitle>
-                            <CardDescription>Promedio de alumnos por día</CardDescription>
+                            <CardDescription>Reservas por sesión, agrupadas por día de la semana</CardDescription>
                         </CardHeader>
                         <CardContent className="h-[300px]">
                             <ResponsiveContainer width="100%" height="100%">
@@ -81,9 +69,9 @@ export default function ReportsClasses() {
                                     <YAxis />
                                     <Tooltip
                                         labelFormatter={(val) => ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][val]}
-                                        formatter={(val: number) => [Number(val).toFixed(1), 'Asistencia promedio']}
+                                        formatter={(val: number) => [Number(val).toFixed(1), 'Reservas promedio']}
                                     />
-                                    <Bar dataKey="avg_attendance" name="Asistencia Promedio" fill="#5F632C" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="avg_attendance" name="Reservas promedio" fill="#5F632C" radius={[4, 4, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </CardContent>
@@ -112,8 +100,8 @@ export default function ReportsClasses() {
                     {/* Popular Times */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Horarios más populares</CardTitle>
-                            <CardDescription>Top 5 horarios con mayor asistencia</CardDescription>
+                            <CardTitle>Ocupación por horario</CardTitle>
+                            <CardDescription>Todos los horarios del periodo, incluidos los que no recibieron reservas</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
@@ -122,9 +110,9 @@ export default function ReportsClasses() {
                                         <div key={i} className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-mono text-lg font-medium">{item.start_time.substring(0, 5)}</span>
-                                                {i < 2 && <span className="text-xs bg-warning/10 text-warning-foreground px-2 py-0.5 rounded-full">Popular</span>}
+
                                             </div>
-                                            <div className="text-sm font-medium">{Math.round(item.avg_attendance)} asistentes en promedio</div>
+                                            <div className="text-sm font-medium">{Math.round(item.occupancy_rate || 0)}% · {Number(item.avg_attendance).toFixed(1)} reservas por sesión</div>
                                         </div>
                                     ))
                                 ) : (
