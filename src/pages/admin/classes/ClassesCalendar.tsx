@@ -1,3 +1,4 @@
+import {SeriesChangePanel} from '@/pages/admin/schedules/SeriesChangePanel';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -1775,9 +1776,9 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>Editar Clase</DialogTitle>
-                                <DialogDescription>Modifica los detalles de la clase.</DialogDescription>
+                                <DialogDescription>{selectedClass?.schedule_id ? 'Revisa el alcance antes de aplicar. La fecha de referencia se conserva; para cambiar de día crea una nueva sesión.' : 'Modifica los detalles de la clase.'}{selectedClass?.is_exception && ' Esta clase tiene una excepción individual.'}</DialogDescription>
                             </DialogHeader>
-                            <form onSubmit={editForm.handleSubmit(d => selectedClass && editMutation.mutate({ ...d, id: selectedClass.id }))} className="space-y-4">
+                            <form onSubmit={selectedClass?.schedule_id ? e=>e.preventDefault() : editForm.handleSubmit(d => selectedClass && editMutation.mutate({ ...d, id: selectedClass.id }))} className="space-y-4">
                                 <div className="space-y-2">
                                     <Label>Fecha</Label>
                                     <Popover>
@@ -1791,7 +1792,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                             <Calendar
                                                 mode="single"
                                                 selected={editForm.watch('date')}
-                                                onSelect={(d) => d && editForm.setValue('date', d)}
+                                                onSelect={(d) => !selectedClass?.schedule_id && d && editForm.setValue('date', d)}
+                                                disabled={!!selectedClass?.schedule_id}
                                             />
                                         </PopoverContent>
                                     </Popover>
@@ -1872,7 +1874,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
 
                                 <div className="space-y-2">
                                     <Label>Tema (opcional)</Label>
-                                    <Select value={editForm.watch('theme') || 'none'} onValueChange={(val) => editForm.setValue('theme', val)}>
+                                    <Select disabled={!!selectedClass?.schedule_id} value={editForm.watch('theme') || 'none'} onValueChange={(val) => editForm.setValue('theme', val)}>
                                         <SelectTrigger><SelectValue placeholder="Sin tema" /></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="none">Sin tema</SelectItem>
@@ -1881,12 +1883,13 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                     </Select>
                                 </div>
 
+                                {selectedClass?.schedule_id&&<SeriesChangePanel classId={selectedClass.id} changes={{classTypeId:editForm.watch('classTypeId'),instructorId:editForm.watch('instructorId'),startTime:editForm.watch('startTime'),endTime:editForm.watch('endTime'),maxCapacity:Number(editForm.watch('maxCapacity')),facilityId:editForm.watch('facilityId')||null}} onApplied={()=>{queryClient.invalidateQueries({queryKey:['classes']});setIsEditOpen(false);toast({title:'Serie actualizada',description:'Se aplicaron las clases revisadas. Las bloqueadas conservan su horario.'});}}/>}
                                 <DialogFooter>
                                     <Button type="button" variant="ghost" onClick={() => setIsEditOpen(false)}>Cancelar</Button>
-                                    <Button type="submit" disabled={editMutation.isPending}>
+                                    {!selectedClass?.schedule_id&&<Button type="submit" disabled={editMutation.isPending}>
                                         {editMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                         Guardar Cambios
-                                    </Button>
+                                    </Button>}
                                 </DialogFooter>
                             </form>
                         </DialogContent>

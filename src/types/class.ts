@@ -53,6 +53,7 @@ export interface Schedule {
 export interface Class {
     id: string;
     schedule_id?: string;
+    is_exception?: boolean;
     class_type_id: string;
     instructor_id: string;
     facility_id?: string;

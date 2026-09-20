@@ -1,3 +1,4 @@
+import {SeriesTemplateEditor} from './SeriesChangePanel';
 import { civilTimeLabel, type PublishedSlot } from '@/components/schedule/PublishedHours';
 import { PublishedScheduleEditor } from './PublishedScheduleEditor';
 import { useState } from 'react';
@@ -54,6 +55,7 @@ interface Facility {
 }
 
 export default function WeeklySchedule() {
+    const [seriesEdit,setSeriesEdit]=useState<any>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedDay, setSelectedDay] = useState<number | null>(null);
     const [facilityFilter, setFacilityFilter] = useState('all');
@@ -231,6 +233,8 @@ export default function WeeklySchedule() {
                                                 </div>
                                                 <div className="font-medium truncate" title={s.class_type_name}>{s.class_type_name}</div>
                                                 <div className="text-xs text-muted-foreground truncate">{s.instructor_name}</div>
+                                                <Button variant="ghost" className="min-h-11 mt-2" onClick={()=>setSeriesEdit(s)}>Editar serie</Button>
+                                                {(s as any).next_change_at&&<p className="text-xs">Cambio programado desde {(s as any).next_change_at}</p>}
                                                 <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                                                     <Users className="h-3 w-3" /> {s.max_capacity}
                                                 </div>
@@ -254,10 +258,11 @@ export default function WeeklySchedule() {
                     <div className="bg-warning/10 p-4 rounded-md border border-warning/30 text-sm text-warning-foreground flex gap-2 items-start max-w-2xl">
                         <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                         <div>
-                            <strong>Para próximas semanas.</strong> Los cambios de esta plantilla se aplican al generar nuevas clases. Las clases ya publicadas conservan sus horarios.
+                            <strong>Revisa el impacto.</strong> Edita una serie para actualizar sus clases futuras sin reservas. Las excepciones, clases pasadas y clases con historial se conservan.
                         </div>
                     </div>
 
+                    <Dialog open={!!seriesEdit} onOpenChange={open=>{if(!open)setSeriesEdit(null);}}><DialogContent><DialogHeader><DialogTitle>Editar serie futura</DialogTitle><DialogDescription>Revisa las clases aplicables y las que conservan su horario antes de guardar.</DialogDescription></DialogHeader>{seriesEdit&&<SeriesTemplateEditor key={seriesEdit.id} schedule={seriesEdit} onApplied={()=>{queryClient.invalidateQueries({queryKey:['schedules']});setSeriesEdit(null);}}/>}</DialogContent></Dialog>
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogContent>
                             <DialogHeader>
