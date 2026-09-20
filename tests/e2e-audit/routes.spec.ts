@@ -2,36 +2,41 @@ import {test,expect,origin,evidenceArea,LoginPage} from './fixtures';
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 const out=fileURLToPath(new URL(`../../../../evidence/${evidenceArea}/`,import.meta.url));mkdirSync(out,{recursive:true});
-test('all mounted admin/member routes: real auth roles, console, network and mobile width inventory',async({browser,request,fixture:f})=>{
+const routeSource=readFileSync(new URL('../../src/App.tsx',import.meta.url),'utf8');
+const mountedRoutes=[...new Set([...routeSource.matchAll(/<Route path="([^"]+)"/g)].map(m=>m[1]))].filter(p=>!p.includes('*'));
+const routeGroups=['admin','client','instructor'].flatMap(role=>{
+ const routes=mountedRoutes.filter(p=>role==='admin'?p.startsWith('/admin'):role==='instructor'?p.startsWith('/coach'):p.startsWith('/app'));
+ return Array.from({length:Math.ceil(routes.length/12)},(_,index)=>({role,index,routes:routes.slice(index*12,(index+1)*12)}));
+});
+// Keep bounded chunks and checkpoint each visited route: total inventory cost is not a page-level SLO.
+for(const group of routeGroups)test(`all mounted admin/member routes: ${group.role} block ${group.index+1}`,async({browser,request,fixture:f})=>{
  test.setTimeout(180000);
  const booked=await request.post(origin+'/api/bookings',{headers:{Authorization:`Bearer ${f.tokens.client}`},data:{classId:f.ids.first}});expect(booked.status()).toBe(201);
  const booking=(await f.pool.query('SELECT id FROM bookings WHERE class_id=$1 AND user_id=$2',[f.ids.first,f.ids.client])).rows[0].id;
- const orderR=await request.post(origin+'/api/orders',{headers:{Authorization:`Bearer ${f.tokens.client}`},data:{plan_id:f.ids.plan,payment_method:'cash'}});
- const order=orderR.ok()?(await orderR.json()).id:null;
- const source=readFileSync(new URL('../../src/App.tsx',import.meta.url),'utf8');
- const routes=[...new Set([...source.matchAll(/<Route path="([^"]+)"/g)].map(m=>m[1]))].filter(p=>p.startsWith('/admin')||p.startsWith('/app')||p.startsWith('/coach')).filter(p=>!p.includes('*'));
- const results:any[]=[];
- for(const role of ['admin','client','instructor']){
-  const context=await browser.newContext({viewport:{width:390,height:844},locale:'es-MX',timezoneId:'America/Mexico_City',serviceWorkers:'block'});
+ const orderR=await request.post(origin+'/api/orders',{headers:{Authorization:`Bearer ${f.tokens.client}`},data:{plan_id:f.ids.plan,payment_method:'cash'}});expect(orderR.status()).toBe(201);
+ const order=(await orderR.json()).id;
+ const results:any[]=[];const partial=out+`route-inventory-${group.role}-${group.index+1}.json`;
+ const context=await browser.newContext({viewport:{width:390,height:844},locale:'es-MX',timezoneId:'America/Mexico_City',serviceWorkers:'block'});
+ try {
   await context.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort('blockedbyclient'));
-  await context.addInitScript(token=>localStorage.setItem('altitud2707_token',token),f.tokens[role]);
+  await context.addInitScript(token=>localStorage.setItem('altitud2707_token',token),f.tokens[group.role]);
   const page=await context.newPage();let errors:string[]=[],failed:any[]=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)failed.push({path:new URL(r.url()).pathname,status:r.status()});});
-  for(const route of routes.filter(p=>role==='admin'?p.startsWith('/admin'):role==='instructor'?p.startsWith('/coach'):p.startsWith('/app'))){
-   if(route.includes(':orderId')&&!order){results.push({role,route,skipped:'No order fixture: HTTP '+orderR.status()});continue;}
-   const path=route.replace(':userId',f.ids.client).replace(':bookingId',booking).replace(':classId',f.ids.first).replace(':orderId',order||'').replace(':id',route.includes('instructors')?f.ids.coach:f.ids.client);
-   errors=[];failed=[];await page.goto(origin+path);await page.waitForLoadState('networkidle');
+  for(const route of group.routes){
+   const path=route.replace(':userId',f.ids.client).replace(':bookingId',booking).replace(':classId',f.ids.first).replace(':orderId',order).replace(':id',route.includes('instructors')?f.ids.coach:f.ids.client);
+   errors=[];failed=[];const started=Date.now();await page.goto(origin+path);await page.waitForLoadState('networkidle');
    const state=await page.evaluate(()=>({url:location.pathname,title:document.querySelector('h1')?.textContent||document.querySelector('h2')?.textContent,text:document.body.innerText.slice(0,250),width:document.documentElement.scrollWidth,viewport:innerWidth,inputs:[...document.querySelectorAll('input,select,textarea')].map(el=>getComputedStyle(el).fontSize)}));
-   results.push({role,route,path,...state,errors:[...errors],failed:[...failed]});
-   if(errors.length||failed.length||state.width>state.viewport+1)await page.screenshot({path:out+'route-'+role+'-'+path.replaceAll('/','_')+'.png',fullPage:true});
+   results.push({role:group.role,route,path,...state,observedLoadMs:Date.now()-started,errors:[...errors],failed:[...failed]});
+   writeFileSync(partial,JSON.stringify({expectedRoutes:group.routes,results},null,2));
+   if(errors.length||failed.length||state.width>state.viewport+1)await page.screenshot({path:out+'route-'+group.role+'-'+path.replaceAll('/','_')+'.png',fullPage:true});
   }
-  await context.close();
+  expect(results).toHaveLength(group.routes.length);
+  expect(results.filter(r=>r.errors?.length)).toEqual([]);
+  expect(results.filter(r=>r.failed?.length)).toEqual([]);
+  expect(results.filter(r=>r.width>r.viewport+1)).toEqual([]);
+ }finally{
+  writeFileSync(partial,JSON.stringify({expectedRoutes:group.routes,results},null,2));
+  await context.close();await f.pool.query('DELETE FROM orders WHERE id=$1',[order]);
  }
- writeFileSync(out+'route-inventory.json',JSON.stringify(results,null,2));
- // Every failure is recorded for root-cause correction; the report never equates document 200 with pass.
- expect(results.filter(r=>r.errors?.length)).toEqual([]);
- expect(results.filter(r=>r.failed?.length)).toEqual([]);
- expect(results.filter(r=>r.width>r.viewport+1)).toEqual([]);
- if(order)await f.pool.query('DELETE FROM orders WHERE id=$1',[order]);
 });
 test('J1 J3 F3 I7: coach opens own assigned classes, rejects another coach and checks in without another debit',async({page,request,fixture:f})=>{
  const bookingR=await request.post(origin+'/api/bookings',{headers:{Authorization:`Bearer ${f.tokens.client}`},data:{classId:f.ids.first}});expect(bookingR.status()).toBe(201);
