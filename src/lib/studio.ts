@@ -71,7 +71,7 @@ export const FOUNDING_50 = {
 
 export const STUDIO_RULES = [
   'Llega con anticipación y respeta el horario de inicio.',
-  'Cancela o reagenda con mínimo 4 horas de anticipación.',
+  'Cancela o reagenda dentro del plazo vigente que aparece en tu reserva.',
   'Las inasistencias y cancelaciones tardías cuentan como clase utilizada y no se recuperan.',
   'Los paquetes tienen vigencia. Las clases no utilizadas no son acumulables ni transferibles, salvo excepción autorizada por Altitud.',
   'Sigue las indicaciones del coach durante las sesiones.',

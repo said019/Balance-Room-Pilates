@@ -15,8 +15,8 @@ export default function CancellationPolicy() {
         <p className="mt-2 text-sm text-muted-foreground">Las mismas reglas para tu equipo y tu comunidad.</p></div>
       {policy.isError ? <Card><CardContent className="space-y-3 pt-6"><p>No pudimos consultar la política vigente.</p><Button onClick={() => policy.refetch()}>Volver a intentar</Button></CardContent></Card> :
       policy.isLoading ? <p role="status">Consultando la política…</p> : <>
-        <Card><CardHeader><CardTitle className="flex items-center gap-3"><Clock className="h-5 w-5 text-altitud-olive" />Con 4 horas de anticipación</CardTitle></CardHeader>
-          <CardContent><p>Puedes cancelar o reagendar hasta 4 horas antes de la clase. El crédito vuelve al paquete de origen y conserva su vigencia.</p></CardContent></Card>
+        <Card><CardHeader><CardTitle className="flex items-center gap-3"><Clock className="h-5 w-5 text-altitud-olive" />Con {policy.data.min_hours} horas de anticipación</CardTitle></CardHeader>
+          <CardContent><p>Puedes cancelar o reagendar hasta {policy.data.min_hours} horas antes de la clase. El crédito vuelve al paquete de origen y conserva su vigencia.</p></CardContent></Card>
         <Card><CardHeader><CardTitle className="flex items-center gap-3"><RotateCcw className="h-5 w-5 text-altitud-olive" />Cuida cada reserva</CardTitle></CardHeader>
           <CardContent><p>Las cancelaciones tardías y las inasistencias consumen la clase. No hay un límite adicional de cancelaciones realizadas a tiempo por paquete.</p></CardContent></Card>
         <Card><CardHeader><CardTitle className="flex items-center gap-3"><CalendarCheck className="h-5 w-5 text-altitud-olive" />Vigencia de los paquetes</CardTitle></CardHeader>

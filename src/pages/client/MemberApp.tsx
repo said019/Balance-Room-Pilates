@@ -1,3 +1,4 @@
+import { useCancellationPolicy, CancellationTerms } from '@/hooks/use-cancellation-policy';
 import { RescheduleDialog } from '@/components/member/RescheduleDialog';
 import { PublishedHours } from '@/components/schedule/PublishedHours';
 import { PrivateMediaImage } from '@/components/PrivateMediaImage';
@@ -447,6 +448,14 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
     setFilter(new URLSearchParams(location.search).get("tipo") || "Todas");
   }, [location.search]);
   const data = useMemberData(preview, start);
+  const cancellationPolicy = useCancellationPolicy(!preview);
+  const cancellationHours = preview ? STUDIO.cancellationHours : cancellationPolicy.hours;
+  const needsCancellationPolicy = !!cancelled && cancelled.booking_status !== "waitlist";
+  const cancellationPolicyUnknown = needsCancellationPolicy && (cancellationHours === null || (!preview && cancellationPolicy.isFetching));
+  const cancellationLate = needsCancellationPolicy && isLateCancellation(cancelled!, Date.now(), cancellationHours);
+  useEffect(() => {
+    if (cancelled && !preview) void cancellationPolicy.refetch();
+  }, [cancelled?.booking_id, preview]);
   const auth = useAuthStore();
   const days = Array.from({ length: 7 }, (_, i) => addDays(start, i));
   const selectedDate = days[day];
@@ -531,7 +540,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           title="Vamos a entrenar."
           description="Grupos de hasta 12 personas. Elige la sesión que va contigo."
         />
-        <p className="mb-6 text-sm text-muted-foreground">Cancela o reagenda con mínimo 4 horas de anticipación. Las cancelaciones tardías y las inasistencias cuentan como clase utilizada.{preview ? " Las sesiones son las publicadas por el studio; las acciones de muestra no crean reservas reales." : " Los fines de semana dependen de la programación. Reserva solo las sesiones publicadas en la agenda."}</p>
+        <p className="mb-6 text-sm text-muted-foreground">{preview ? `En esta demostración, cancela o reagenda con mínimo ${STUDIO.cancellationHours} horas de anticipación.` : <CancellationTerms />} Las cancelaciones tardías y las inasistencias cuentan como clase utilizada.{preview ? " Las sesiones son las publicadas por el studio; las acciones de muestra no crean reservas reales." : " Los fines de semana dependen de la programación. Reserva solo las sesiones publicadas en la agenda."}</p>
         <div className="member-calendar-toolbar">
           <div className="member-tabs" aria-label="Tipo de entrenamiento">
             {[
@@ -1109,13 +1118,16 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           <span className="member-kicker">UN CAMBIO DE PLANES</span>
           <DialogTitle>¿Cancelar esta sesión?</DialogTitle>
           <DialogDescription>
-            {cancelled && cancelled.booking_status !== "waitlist" && isLateCancellation(cancelled)
-              ? "Faltan menos de 4 horas para tu sesión. El plazo para cancelar o reagendar ya terminó. Si no asistes, la clase se considera utilizada y no se recupera."
+            {cancellationPolicyUnknown
+              ? cancellationPolicy.isError ? "No pudimos consultar el plazo vigente. Vuelve a consultar antes de cancelar." : "Consultando el plazo de cancelación…"
+              : cancellationLate
+              ? `Faltan menos de ${cancellationHours} horas para tu sesión. El plazo para cancelar o reagendar ya terminó. Si no asistes, la clase se considera utilizada y no se recupera.`
               : cancelled?.booking_status === "waitlist"
                 ? "Saldrás de la lista de espera de esta sesión."
-                : "Puedes cancelar o reagendar con mínimo 4 horas de anticipación. Si se descontó una clase al reservar, se devolverá al cancelar dentro de este plazo."}
+                : `Puedes cancelar o reagendar con mínimo ${cancellationHours} horas de anticipación. Si se descontó una clase al reservar, se devolverá al cancelar dentro de este plazo.`}
             {preview ? " Esta es una reserva de muestra." : ""}
           </DialogDescription>
+          {cancellationPolicyUnknown && cancellationPolicy.isError && <button type="button" className="member-text-link" onClick={() => void cancellationPolicy.refetch()}>Volver a consultar el plazo</button>}
           <p className="text-sm text-muted-foreground">Si no asistes, la clase también cuenta como utilizada. Para cambiar de sesión a tiempo, usa Reagendar en Mis sesiones.</p>
           {cancelled && (
             <div className="member-dialog-summary">
@@ -1134,9 +1146,9 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           <button
             className="member-button"
             onClick={() => void confirmCancel()}
-            disabled={busy || Boolean(cancelled && cancelled.booking_status !== "waitlist" && isLateCancellation(cancelled))}
+            disabled={busy || Boolean(cancellationLate) || cancellationPolicyUnknown}
           >
-            {busy ? "Cancelando…" : cancelled && cancelled.booking_status !== "waitlist" && isLateCancellation(cancelled) ? "Plazo de cancelación terminado" : "Sí, cancelar sesión"}
+            {busy ? "Cancelando…" : cancellationLate ? "Plazo de cancelación terminado" : "Sí, cancelar sesión"}
           </button>
           <button
             className="member-subtle-button"

@@ -69,6 +69,7 @@ const PaymentsHub = lazy(() => import("./pages/admin/payments/PaymentsHub"));
 const GeneralSettings = lazy(() => import("./pages/admin/settings/GeneralSettings"));
 const StudioSettings = lazy(() => import("./pages/admin/settings/StudioSettings"));
 const PoliciesSettings = lazy(() => import("./pages/admin/settings/PoliciesSettings"));
+const OperationalSettings = lazy(() => import("./pages/admin/settings/OperationalSettings"));
 const AdminCancellationPolicy = lazy(() => import("./pages/admin/settings/CancellationPolicy"));
 const NotificationSettings = lazy(() => import("./pages/admin/settings/NotificationSettings"));
 
@@ -236,6 +237,7 @@ const App = () => (
             <Route path="/admin/settings/general" element={<GeneralSettings />} />
             <Route path="/admin/settings/studio" element={<StudioSettings />} />
             <Route path="/admin/settings/policies" element={<PoliciesSettings />} />
+            <Route path="/admin/settings/operations" element={<OperationalSettings />} />
             <Route path="/admin/settings/cancellations" element={<AdminCancellationPolicy />} />
             <Route path="/admin/settings/notifications" element={<NotificationSettings />} />
             <Route path="/admin/settings/whatsapp" element={<IntegrationNotice type="whatsapp" />} />

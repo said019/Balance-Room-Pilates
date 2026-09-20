@@ -120,7 +120,7 @@ const sidebarItems: SidebarItem[] = [
         children: [
             { href: '/admin/settings/general', label: 'General' },
             { href: '/admin/settings/studio', label: 'Studio' },
-            { href: '/admin/settings/policies', label: 'Políticas' },
+            { href: '/admin/settings/operations', label: 'Operación y pendientes' },
             { href: '/admin/settings/cancellations', label: 'Cancelaciones' },
             { href: '/admin/settings/notifications', label: 'Notificaciones' },
             { href: '/admin/settings/whatsapp', label: 'WhatsApp' },

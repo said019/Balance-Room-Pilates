@@ -85,7 +85,7 @@ export default function ReportsRetention() {
                                         <Clock className="h-5 w-5 text-orange-600" />
                                         <div>
                                             <p className="font-medium text-orange-900">Cancelación Tardía</p>
-                                            <p className="text-xs text-orange-700">Menos de 4h de anticipación</p>
+                                            <p className="text-xs text-orange-700">Fuera del plazo vigente al cancelar</p>
                                         </div>
                                     </div>
                                     <span className="text-2xl font-bold text-orange-700">{retentionStats?.summary.lateCancellations}</span>

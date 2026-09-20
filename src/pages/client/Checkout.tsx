@@ -1,3 +1,4 @@
+import { CancellationTerms } from '@/hooks/use-cancellation-policy';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -178,7 +179,7 @@ export default function Checkout() {
               <CardContent className="space-y-5">
                 <div className="flex flex-wrap items-center justify-between gap-2 text-sm"><span>Método de pago</span><strong>{methodOptions.find((method) => method.value === selectedPaymentMethod)?.label}</strong></div>
                 <Separator />
-                <p className="text-sm leading-relaxed">Cancela o reagenda con al menos 4 horas de anticipación. Las cancelaciones tardías y las inasistencias cuentan como clase utilizada y no se recuperan.</p>
+                <p className="text-sm leading-relaxed"><CancellationTerms /> Las cancelaciones tardías y las inasistencias cuentan como clase utilizada y no se recuperan.</p>
                 <div className="space-y-2"><Label htmlFor="notes">Comentario para el studio (opcional)</Label><Textarea id="notes" value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="¿Algo que debamos saber sobre tu compra?" rows={2} maxLength={500} /></div>
                 {selectedPaymentMethod === 'bank_transfer' && <section className="space-y-3 rounded-xl bg-altitud-sand/20 p-4"><h3 className="flex items-center gap-2 font-semibold"><Building2 className="h-4 w-4" /> Datos de transferencia</h3>
                   {bankQuery.isLoading ? <Skeleton className="h-36 w-full" /> : bankReady && bankInfo ? <>

@@ -1,0 +1,31 @@
+import React from 'react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import api from '@/lib/api';
+import { FoundingPolicySettings } from '@/pages/admin/settings/FoundingPolicySettings';
+jest.mock('@/lib/api', () => ({ __esModule: true, default: { get: jest.fn(), put: jest.fn() }, getErrorMessage: (e: any) => e.message }));
+beforeEach(() => { jest.clearAllMocks(); (api.get as jest.Mock).mockResolvedValue({ data: { version: 2, mode: null, pending: true, appliesTo: 'unassigned_enrollments' } }); });
+afterEach(cleanup);
+it('starts pending and requires explicit scope confirmation before saving a chosen rule', async () => {
+    (api.put as jest.Mock).mockResolvedValue({ data: { version: 3, mode: 'six_calendar_months', pending: false, appliesTo: 'unassigned_enrollments' } });
+    render(<FoundingPolicySettings />);
+    const select = await screen.findByLabelText('Duración del beneficio Founding');
+    expect(select).toHaveValue('');
+    await userEvent.selectOptions(select, 'six_calendar_months');
+    expect(screen.getByText(/puede incluir un séptimo pago/)).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Guardar regla Founding' })).toBeDisabled();
+    await userEvent.click(screen.getByLabelText(/Confirmo que esta regla se asignará/));
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar regla Founding' }));
+    await waitFor(() => expect(api.put).toHaveBeenCalledWith('/founding50/policy', { expectedVersion: 2, mode: 'six_calendar_months' }));
+    expect(await screen.findByText('Regla Founding guardada.')).toBeVisible();
+});
+it('keeps the chosen rule after a version conflict and prevents a blind retry', async () => {
+    (api.put as jest.Mock).mockRejectedValue({ response: { status: 409 } });
+    render(<FoundingPolicySettings />);
+    await userEvent.selectOptions(await screen.findByLabelText('Duración del beneficio Founding'), 'six_payments');
+    await userEvent.click(screen.getByLabelText(/Confirmo que esta regla se asignará/));
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar regla Founding' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Otra persona actualizó la regla Founding');
+    expect(screen.getByLabelText('Duración del beneficio Founding')).toHaveValue('six_payments');
+    expect(screen.getByRole('button', { name: 'Guardar regla Founding' })).toBeDisabled();
+});

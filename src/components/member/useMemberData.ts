@@ -19,9 +19,10 @@ export type PreviewProfile = {
 };
 type PreviewState = { bookings: BookingClient[]; profile: PreviewProfile };
 
-export function isLateCancellation(booking: BookingClient, now = Date.now()) {
+export function isLateCancellation(booking: BookingClient, now: number, hours: number | null) {
+  if (hours === null) return null;
   const begins = new Date(`${booking.date.slice(0, 10)}T${booking.start_time.slice(0, 5)}:00-06:00`).getTime();
-  return begins - now < STUDIO.cancellationHours * 60 * 60 * 1000;
+  return begins - now < hours * 60 * 60 * 1000;
 }
 function initialState(): PreviewState {
   return { profile: { name: "Atleta Altitud", goal: 3, reminders: true, news: false }, bookings: [] };
@@ -134,7 +135,7 @@ export function useMemberData(preview: boolean, start: Date) {
         throw new Error("Esta sesión está completa. Elige otro horario.");
       if ((membership?.classes_remaining ?? 0) <= 0)
         throw new Error(
-          "Ya utilizaste tus créditos de muestra. Una cancelación con al menos 4 horas de anticipación devuelve el crédito.",
+          `Ya utilizaste tus créditos de muestra. En esta demostración, una cancelación con al menos ${STUDIO.cancellationHours} horas de anticipación devuelve el crédito.`,
         );
       save({
         ...demo,
@@ -159,7 +160,7 @@ export function useMemberData(preview: boolean, start: Date) {
   }
   async function cancel(b: BookingClient) {
     if (preview) {
-      if (isLateCancellation(b)) throw new Error("Cancela con al menos 4 horas de anticipación. Este plazo ya terminó; la clase se considera utilizada si no asistes.");
+      if (isLateCancellation(b, Date.now(), STUDIO.cancellationHours)) throw new Error(`En esta demostración, cancela con al menos ${STUDIO.cancellationHours} horas de anticipación. Este plazo ya terminó; la clase se considera utilizada si no asistes.`);
       save({
         ...demo,
         bookings: demo.bookings.map((x) =>

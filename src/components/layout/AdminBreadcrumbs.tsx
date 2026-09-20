@@ -45,6 +45,7 @@ const labelMap: Record<string, string> = {
   general: 'General',
   studio: 'Studio',
   policies: 'Políticas',
+  operations: 'Operación y pendientes',
   notifications: 'Notificaciones',
   events: 'Eventos',
   marketing: 'Comunicación',
