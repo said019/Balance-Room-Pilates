@@ -15,7 +15,17 @@ export default function ReportsClasses() {
 
     const { data: classesStats, isLoading } = useQuery({
         queryKey: ['reports-classes', startDate, endDate],
-        queryFn: async () => (await api.get(`/reports/classes?startDate=${startDate}&endDate=${endDate}`)).data
+        queryFn: async () => {
+            const { data } = await api.get(`/reports/classes?startDate=${startDate}&endDate=${endDate}`);
+            return {
+                ...data,
+                // PostgreSQL SUM returns numeric strings; Recharts Pie requires numbers.
+                byType: (data.byType || []).map((entry: { total_bookings: string | number }) => ({
+                    ...entry,
+                    total_bookings: Number(entry.total_bookings),
+                })),
+            };
+        }
     });
 
     const COLORS = ['#5F632C', '#7F6146', '#CFBD9D', '#1C1C19', '#5F632C'];
