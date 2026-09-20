@@ -1,7 +1,7 @@
-import {test,expect,origin,LoginPage} from './fixtures';
+import {test,expect,origin,evidenceArea,LoginPage} from './fixtures';
 import {writeFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
-const out=fileURLToPath(new URL('../../../../evidence/pwa/',import.meta.url));
+const out=fileURLToPath(new URL(`../../../../evidence/${evidenceArea}/`,import.meta.url));
 test('D12 I5 I8 E6: credit reason, membership cancellation releases bookings and records only local refund',async({page,request,fixture:f})=>{
  await f.pool.query("INSERT INTO payments(user_id,membership_id,amount,payment_method,status,processed_by) VALUES($1,$2,1099,'cash','completed',$3)",[f.ids.client,f.ids.membership,f.ids.admin]);
  await new LoginPage(page).login(f.email('admin'),f.password,`/admin/members/${f.ids.client}`);

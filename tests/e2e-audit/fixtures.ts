@@ -4,9 +4,10 @@ import {randomUUID} from 'node:crypto';
 import {createRequire} from 'node:module';
 const requireBackend=createRequire(new URL('../../../backend/package.json',import.meta.url));
 const bcrypt=requireBackend('bcryptjs');
-export const origin='http://127.0.0.1:3520';
 const u=new URL(process.env.DATABASE_URL||'');
-if(u.hostname!=='127.0.0.1'||u.port!=='54350'||u.pathname!=='/altitud_2707'||u.username!=='altitud_2707_app')throw new Error('Disposable PWA database only');
+if(u.hostname!=='127.0.0.1'||!['54350','54360'].includes(u.port)||u.pathname!=='/altitud_2707'||u.username!=='altitud_2707_app')throw new Error('Disposable PWA/configuration database only');
+export const origin=u.port==='54360'?'http://127.0.0.1:3531':'http://127.0.0.1:3520';
+export const evidenceArea=u.port==='54360'?'configuration/pwa':'pwa';
 export type Fixture={pool:pg.Pool;ids:Record<string,string>;email:(role:string)=>string;password:string;date:string;today:string;tokens:Record<string,string>};
 export class LoginPage {constructor(readonly page:Page){} async login(email:string,password:string,destination:string){await this.page.goto(`${origin}/login?returnUrl=${encodeURIComponent(destination)}`);await this.page.getByLabel('Correo electrónico').fill(email);await this.page.getByLabel('Contraseña',{exact:true}).fill(password);await this.page.getByRole('button',{name:'Entrar a mi cuenta'}).click();await expect(this.page).toHaveURL(origin+destination);}}
 export class MemberPage {constructor(readonly page:Page){}async bookTomorrow(classId:string){await this.page.goto(origin+'/app/book');await this.page.locator('.member-day-picker button').nth(1).click();await this.page.locator(`[data-class-id="${classId}"]`).getByRole('button',{name:'Reservar',exact:true}).click();await this.page.getByRole('button',{name:'Confirmar reserva',exact:true}).click();await expect(this.page.getByText('Tu lugar está listo.',{exact:true})).toBeVisible();}}

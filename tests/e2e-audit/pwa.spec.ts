@@ -1,7 +1,7 @@
-import {test,expect,origin,LoginPage} from './fixtures';
+import {test,expect,origin,evidenceArea,LoginPage} from './fixtures';
 import {readFileSync,readdirSync,writeFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
-const out=fileURLToPath(new URL('../../../../evidence/pwa/',import.meta.url));
+const out=fileURLToPath(new URL(`../../../../evidence/${evidenceArea}/`,import.meta.url));
 test('RG09: real build media proxy, manifest, missing assets and network-only API service worker',async({browser,request,fixture:f})=>{
  const manifestResponse=await request.get(origin+'/manifest.json');expect(manifestResponse.ok()).toBeTruthy();const manifest=await manifestResponse.json();expect(manifest.display).toBe('standalone');
  for(const icon of manifest.icons){expect(icon.src).toMatch(/^\/api\/media\/path\//);const iconResponse=await request.get(origin+icon.src);expect(iconResponse.status()).toBe(200);expect(iconResponse.headers()['content-type']).toContain('image/');}

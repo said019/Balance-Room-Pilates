@@ -1,7 +1,7 @@
-import {test,expect,origin,LoginPage} from './fixtures';
+import {test,expect,origin,evidenceArea,LoginPage} from './fixtures';
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
-const out=fileURLToPath(new URL('../../../../evidence/pwa/',import.meta.url));mkdirSync(out,{recursive:true});
+const out=fileURLToPath(new URL(`../../../../evidence/${evidenceArea}/`,import.meta.url));mkdirSync(out,{recursive:true});
 test('all mounted admin/member routes: real auth roles, console, network and mobile width inventory',async({browser,request,fixture:f})=>{
  test.setTimeout(180000);
  const booked=await request.post(origin+'/api/bookings',{headers:{Authorization:`Bearer ${f.tokens.client}`},data:{classId:f.ids.first}});expect(booked.status()).toBe(201);

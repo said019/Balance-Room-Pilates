@@ -1,7 +1,7 @@
-import {test,expect,origin,LoginPage} from './fixtures';
+import {test,expect,origin,evidenceArea,LoginPage} from './fixtures';
 import {writeFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
-const out=fileURLToPath(new URL('../../../../evidence/pwa/',import.meta.url));
+const out=fileURLToPath(new URL(`../../../../evidence/${evidenceArea}/`,import.meta.url));
 test('I1 B1: an admin publishes and edits civil hours, landing and member DOM equal SQL',async({page,fixture:f})=>{
  let id:string|undefined;
  try{

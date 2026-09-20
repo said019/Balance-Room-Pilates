@@ -1,7 +1,7 @@
-import {test,expect,origin,LoginPage,MemberPage} from './fixtures';
+import {test,expect,origin,evidenceArea,LoginPage,MemberPage} from './fixtures';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
-const out=fileURLToPath(new URL('../../../../evidence/pwa/',import.meta.url));mkdirSync(out,{recursive:true});
+const out=fileURLToPath(new URL(`../../../../evidence/${evidenceArea}/`,import.meta.url));mkdirSync(out,{recursive:true});
 test('B2 C1 C4 B4 C8: member booking reschedule cancellation and waitlist with persisted invariants',async({page,fixture:f})=>{
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  await new LoginPage(page).login(f.email('client'),f.password,'/app/book');

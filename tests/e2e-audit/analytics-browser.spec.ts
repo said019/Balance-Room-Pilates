@@ -1,8 +1,8 @@
-import { test, expect, origin } from './fixtures';
+import { test, expect, origin, evidenceArea } from './fixtures';
 import { randomUUID } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-const out=fileURLToPath(new URL('../../../../evidence/pwa/analytics-browser/',import.meta.url));
+const out=fileURLToPath(new URL(`../../../../evidence/${evidenceArea}/analytics-browser/`,import.meta.url));
 mkdirSync(out,{recursive:true});
 
 // Real build, authenticated HTTP and SQL. The shared fixture guards the disposable 54350 database.
