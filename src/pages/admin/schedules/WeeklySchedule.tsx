@@ -1,3 +1,5 @@
+import { civilTimeLabel, type PublishedSlot } from '@/components/schedule/PublishedHours';
+import { PublishedScheduleEditor } from './PublishedScheduleEditor';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -58,6 +60,8 @@ export default function WeeklySchedule() {
     const [visibleDay, setVisibleDay] = useState(new Date().getDay());
     const { toast } = useToast();
     const queryClient = useQueryClient();
+
+    const baseSlots = useQuery<PublishedSlot[]>({queryKey: ['schedule-slots-admin'], queryFn: async () => (await api.get('/schedules/slots')).data});
 
     // Fetch Schedules
     const { data: schedules, isLoading } = useQuery<Schedule[]>({
@@ -139,6 +143,7 @@ export default function WeeklySchedule() {
     const handleAddClass = (day: number) => {
         setSelectedDay(day);
         setValue('dayOfWeek', day);
+        setValue('startTime', '');
         setIsDialogOpen(true);
     };
 
@@ -154,7 +159,7 @@ export default function WeeklySchedule() {
                 <div className="space-y-6">
                     <div className="flex justify-between items-center">
                         <div>
-                            <h1 className="text-2xl font-heading font-bold">Plantilla semanal</h1>
+                            <h1 className="text-2xl font-heading font-bold">Horarios del studio</h1>
                             <p className="text-muted-foreground">Organiza la semana base de tu studio.</p>
                         </div>
                         {/* <Button variant="outline">
@@ -162,6 +167,9 @@ export default function WeeklySchedule() {
             </Button> */}
                     </div>
 
+                    <PublishedScheduleEditor />
+                    <h2 className="text-xl font-heading">Asignaciones semanales</h2>
+                    <p className="text-sm text-muted-foreground">Asigna clase, coach y duración a un horario base existente. Cambiar el horario base actualiza estas plantillas; las sesiones ya programadas conservan su fecha y hora.</p>
                     <div className="flex gap-2 flex-wrap">
                         {[
                             { id: 'all', label: 'Todas' },
@@ -314,12 +322,10 @@ export default function WeeklySchedule() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label>Inicio</Label>
-                                        <TimePicker
-                                            value={watch('startTime')}
-                                            onChange={(val) => setValue('startTime', val)}
-                                            placeholder="Hora inicio"
-                                            minuteStep={5}
-                                        />
+                                        <select aria-label="Inicio" className="h-11 w-full rounded-md border bg-background px-3" value={watch('startTime') || ''} onChange={event => setValue('startTime', event.target.value)}>
+                                            <option value="">Selecciona un horario base</option>
+                                            {baseSlots.data?.filter(slot => slot.day_of_week === watch('dayOfWeek')).map(slot => <option key={slot.id} value={slot.start_time}>{civilTimeLabel(slot.start_time)}</option>)}
+                                        </select>
                                         {errors.startTime && <p className="text-xs text-destructive">{errors.startTime.message}</p>}
                                     </div>
                                     <div className="space-y-2">

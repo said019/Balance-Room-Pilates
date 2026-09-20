@@ -1,3 +1,4 @@
+import { PublishedHours } from '@/components/schedule/PublishedHours';
 import { DisciplineIcon } from '@/components/brand/DisciplineIcon';
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -404,9 +405,7 @@ function StudioInformation() {
       <div className="mt-5 grid gap-7 md:grid-cols-2">
         <div className="space-y-3 text-sm">
           <p>{STUDIO.address}</p>
-          <p>Atención: {STUDIO.attentionHours.join(" y ")}.</p>
-          <p>Lunes a viernes: {STUDIO.weekdayTimes.join(", ")}.</p>
-          <p>Sábados y domingos: 2 clases por día según programación. Horarios tentativos: {STUDIO.weekendTimes.join(" y ")}.</p>
+          <PublishedHours />
           <div className="flex flex-wrap gap-x-5 gap-y-3 pt-2">
             <a className="member-text-link" href={STUDIO.whatsappHref} target="_blank" rel="noreferrer">WhatsApp <ArrowTopRightIcon /></a>
             <a className="member-text-link" href={STUDIO.phoneHref}>{STUDIO.phone}</a>

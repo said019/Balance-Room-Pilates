@@ -12,9 +12,6 @@ export const STUDIO = {
   instagramHref: 'https://www.instagram.com/altitud2707/',
   facebookHref: 'https://www.facebook.com/Altitud2707',
   socialHandle: '@Altitud2707',
-  weekdayTimes: ['6:00 AM', '7:00 AM', '8:00 AM', '9:00 AM', '6:00 PM', '7:00 PM', '8:00 PM'],
-  weekendTimes: ['8:00 AM', '9:00 AM'],
-  attentionHours: ['6:00 a 10:00 AM', '5:00 a 9:00 PM'],
 } as const;
 
 export const STUDIO_SERVICES = [

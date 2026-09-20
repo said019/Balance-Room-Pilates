@@ -1,3 +1,4 @@
+import { PublishedHours } from '@/components/schedule/PublishedHours';
 import { Link } from 'react-router-dom';
 import { Arrow } from './SiteShell';
 import { FOUNDING_50, STUDIO, STUDIO_PLANS, formatMxn } from '@/lib/studio';
@@ -6,9 +7,8 @@ export function StudioHours() {
   return <section className="alt-section alt-studio-hours" id="horarios">
     <div><div className="alt-eyebrow">TU ENTRENAMIENTO, EN TU DÍA</div><h2>Hazle espacio<br /><span>a tu progreso.</span></h2><p>Sesiones de hasta {STUDIO.capacity} personas para cuidar tu técnica y acompañar tu proceso.</p><Link to="/reservar" className="alt-text-link">Consultar disponibilidad <Arrow /></Link></div>
     <div className="alt-hours-list">
-      <div><h3>Lunes a viernes</h3><ul>{STUDIO.weekdayTimes.map(time => <li key={time}>{time}</li>)}</ul></div>
-      <div><h3>Sábados y domingos</h3><p>Dos clases por día, según la programación.</p><p className="alt-hours-tentative">Tentativo: {STUDIO.weekendTimes.join(' y ')}. Confirma los horarios en la agenda.</p></div>
-      <div><h3>Atención en el studio</h3><p>{STUDIO.attentionHours.join(' · ')}<br />La atención está ligada principalmente al horario de clases.</p></div>
+      <PublishedHours />
+      <div><h3>Atención en el studio</h3><p>La atención está ligada al horario de clases publicado.</p></div>
     </div>
   </section>;
 }

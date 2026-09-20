@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import api from "@/lib/api";
-import { STUDIO, STUDIO_SERVICES } from "@/lib/studio";
+import { STUDIO } from "@/lib/studio";
 import { fetchMyMembership } from "@/lib/memberships";
 import { useAuthStore } from "@/stores/authStore";
 import type { BookingClient } from "@/types/booking";
@@ -10,7 +10,7 @@ import type { Class } from "@/types/class";
 import type { ClientMembership } from "@/types/membership";
 
 export const dateKey = (d: Date) => format(d, "yyyy-MM-dd");
-const key = "altitud2707-member-preview-v2";
+const key = "altitud2707-member-preview-v3";
 export type PreviewProfile = {
   name: string;
   goal: number;
@@ -24,35 +24,9 @@ export function isLateCancellation(booking: BookingClient, now = Date.now()) {
   return begins - now < STUDIO.cancellationHours * 60 * 60 * 1000;
 }
 function initialState(): PreviewState {
-  const tomorrow = dateKey(addDays(new Date(), 1));
-  const previous = dateKey(addDays(new Date(), -1));
-  const nextTime = [0, 6].includes(addDays(new Date(), 1).getDay()) ? "08:00" : "07:00";
-  return {
-    profile: { name: "Atleta Altitud", goal: 3, reminders: true, news: false },
-    bookings: [
-      {
-        booking_id: "preview-next",
-        class_id: `${tomorrow}-${nextTime.replace(":", "")}`,
-        date: tomorrow,
-        start_time: nextTime,
-        end_time: `${nextTime.slice(0, 2)}:50`,
-        class_type_name: [0, 6].includes(addDays(new Date(), 1).getDay()) ? STUDIO_SERVICES[0].name : STUDIO_SERVICES[1].name,
-        instructor_name: "Coach Altitud",
-        booking_status: "confirmed",
-      },
-      {
-        booking_id: "preview-history",
-        class_id: `${previous}-0800`,
-        date: previous,
-        start_time: "08:00",
-        end_time: "08:50",
-        class_type_name: "TRAIN",
-        instructor_name: "Coach Altitud",
-        booking_status: "checked_in",
-      },
-    ],
-  };
+  return { profile: { name: "Atleta Altitud", goal: 3, reminders: true, news: false }, bookings: [] };
 }
+
 function readPreview(): PreviewState {
   try {
     const raw: unknown = JSON.parse(localStorage.getItem(key) || "null");
@@ -84,32 +58,6 @@ function readPreview(): PreviewState {
   }
   return initialState();
 }
-export function demoClasses(start: Date): Class[] {
-  const trainingTypes = STUDIO_SERVICES.map((service) => service.name);
-  return Array.from({ length: 7 }, (_, i) => addDays(start, i)).flatMap((date) => {
-    const weekend = [0, 6].includes(date.getDay());
-    const times = weekend ? STUDIO.weekendTimes : STUDIO.weekdayTimes;
-    return times.map((label, index) => {
-      const [clock, period] = label.split(" ");
-      const [hour, minute] = clock.split(":");
-      const time = `${String(Number(hour) % 12 + (period === "PM" ? 12 : 0)).padStart(2, "0")}:${minute}`;
-      return {
-        id: `${dateKey(date)}-${time.replace(":", "")}`,
-      class_type_id: trainingTypes[index % trainingTypes.length],
-      instructor_id: "preview",
-      date: dateKey(date),
-      start_time: time,
-      end_time: `${time.slice(0, 2)}:50`,
-      max_capacity: STUDIO.capacity,
-      current_bookings: [5, 3, 12, 8, 6, 4, 9][index],
-      status: "scheduled" as const,
-      class_type_name: trainingTypes[index % trainingTypes.length],
-      instructor_name: "Coach Altitud",
-      facility_name: "2707 Altitud",
-      };
-    });
-  });
-}
 export function useMemberData(preview: boolean, start: Date) {
   const [demo, setDemo] = useState(readPreview);
   const [actionError, setActionError] = useState("");
@@ -134,7 +82,7 @@ export function useMemberData(preview: boolean, start: Date) {
           `/classes?start=${dateKey(start)}&end=${dateKey(addDays(start, 6))}`,
         )
       ).data,
-    enabled,
+    enabled: preview || enabled,
     staleTime: 0,
   });
   function save(next: PreviewState) {
@@ -173,20 +121,7 @@ export function useMemberData(preview: boolean, start: Date) {
         class_limit: 12,
       }
     : membershipQuery.data || null;
-  const classes = preview
-    ? demoClasses(start).map((c) => ({
-        ...c,
-        current_bookings: Math.min(
-          c.max_capacity,
-          c.current_bookings +
-            Number(
-              bookings.some(
-                (b) => b.class_id === c.id && b.booking_status !== "cancelled",
-              ),
-            ),
-        ),
-      }))
-    : classesQuery.data || [];
+  const classes = classesQuery.data || [];
   async function book(c: Class) {
     if (preview) {
       if (
@@ -259,16 +194,8 @@ export function useMemberData(preview: boolean, start: Date) {
     saveProfile,
     actionError,
     setActionError,
-    isLoading:
-      !preview &&
-      (membershipQuery.isLoading ||
-        bookingsQuery.isLoading ||
-        classesQuery.isLoading),
-    isError:
-      !preview &&
-      (membershipQuery.isError ||
-        bookingsQuery.isError ||
-        classesQuery.isError),
+    isLoading: classesQuery.isLoading || (!preview && (membershipQuery.isLoading || bookingsQuery.isLoading)),
+    isError: classesQuery.isError || (!preview && (membershipQuery.isError || bookingsQuery.isError)),
     retry: refresh,
   };
 }
