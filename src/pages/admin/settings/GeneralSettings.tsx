@@ -107,10 +107,6 @@ export default function GeneralSettings() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="America/Mexico_City">Ciudad de México (GMT-6)</SelectItem>
-                                    <SelectItem value="America/Monterrey">Monterrey (GMT-6)</SelectItem>
-                                    <SelectItem value="America/Tijuana">Tijuana (GMT-8)</SelectItem>
-                                    <SelectItem value="America/Cancun">Cancún (GMT-5)</SelectItem>
-                                    <SelectItem value="America/Hermosillo">Hermosillo (GMT-7)</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -126,7 +122,6 @@ export default function GeneralSettings() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="es">Español</SelectItem>
-                                    <SelectItem value="en">English</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -144,7 +139,6 @@ export default function GeneralSettings() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="MXN">Peso Mexicano (MXN)</SelectItem>
-                                    <SelectItem value="USD">Dólar Americano (USD)</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -160,7 +154,6 @@ export default function GeneralSettings() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="DD/MM/YYYY">DD/MM/YYYY (31/12/2024)</SelectItem>
-                                    <SelectItem value="MM/DD/YYYY">MM/DD/YYYY (12/31/2024)</SelectItem>
                                     <SelectItem value="YYYY-MM-DD">YYYY-MM-DD (2024-12-31)</SelectItem>
                                 </SelectContent>
                             </Select>
