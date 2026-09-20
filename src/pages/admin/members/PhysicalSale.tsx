@@ -23,7 +23,7 @@ export default function PhysicalSale() {
     queryKey: ['user', userId],
     queryFn: async () => {
       const response = await api.get(`/users/${userId}`);
-      return response.data;
+      return response.data.user ?? response.data;
     },
     enabled: !!userId,
   });
@@ -74,7 +74,7 @@ export default function PhysicalSale() {
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
-              size="icon"
+              size="icon" aria-label="Volver a comunidad"
               onClick={() => navigate(`/admin/members/${userId}`)}
             >
               <ArrowLeft className="h-5 w-5" />
@@ -82,7 +82,7 @@ export default function PhysicalSale() {
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Venta en Físico</h1>
               <p className="text-muted-foreground">
-                Registrar venta de paquete para {user.name}
+                Registrar venta de paquete para {user.display_name || user.email}
               </p>
             </div>
           </div>
@@ -90,7 +90,7 @@ export default function PhysicalSale() {
           {/* Formulario */}
           <PhysicalSaleForm
             userId={userId!}
-            userName={user.name}
+            userName={user.display_name || user.email}
             onSuccess={handleSuccess}
             onCancel={handleCancel}
           />

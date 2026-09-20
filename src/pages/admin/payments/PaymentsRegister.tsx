@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import api, { getErrorMessage } from '@/lib/api';
+import { postFinancialOperation } from '@/lib/financial-intent';
 import type { User, Membership } from '@/types/auth';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
@@ -78,7 +79,7 @@ export default function PaymentsRegister() {
 
   const registerMutation = useMutation({
     mutationFn: async (payload: PaymentForm) => {
-      const response = await api.post('/payments/register', payload);
+      const response = await postFinancialOperation('/payments/register', { ...payload, incomeDate: 'incomeDate' in payload ? payload.incomeDate || undefined : undefined });
       return response.data;
     },
     onSuccess: () => {

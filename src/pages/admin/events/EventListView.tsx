@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, CalendarDays, MapPin, User, DollarSign, Clock, Users } from 'lucide-react';
+import { Plus, CalendarDays, MapPin, User, DollarSign, Clock, Users } from '@/components/brand/icons';
 import { cn } from '@/lib/utils';
 import type { StudioEvent, EventType } from './types';
 import { EVENT_TYPES, getEventTypeInfo } from './types';
@@ -142,7 +142,7 @@ export default function EventListView({ events, isLoading, onSelect, onCreateNew
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-lg font-bold" style={{ color: typeInfo.color }}>
+                    <p className="text-lg font-bold text-altitud-dark">
                       {formatCurrency(event.price)}
                     </p>
                     {event.earlyBirdPrice && (
@@ -168,7 +168,7 @@ export default function EventListView({ events, isLoading, onSelect, onCreateNew
                       Ocupación
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <Progress
+                      <Progress aria-label="Ocupación del evento"
                         value={occupancy}
                         className={cn(
                           'h-2 flex-1',

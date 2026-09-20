@@ -234,8 +234,9 @@ export function useMemberData(preview: boolean, start: Date) {
         ),
       });
     } else {
-      await api.post(`/bookings/${b.booking_id}/cancel`);
+      const response = await api.post(`/bookings/${b.booking_id}/cancel`);
       await refresh();
+      return response.data as { requiresCreditReview?: boolean; message?: string };
     }
   }
   function saveProfile(profile: PreviewProfile) {

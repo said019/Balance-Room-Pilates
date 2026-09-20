@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertCircle, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { AlertCircle, CheckCircle2, XCircle, Clock } from '@/components/brand/icons';
 import api from '@/lib/api';
 import { format, subDays } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -50,7 +50,7 @@ export default function ReportsRetention() {
                         <p className="text-muted-foreground">Análisis de compromiso y pérdidas.</p>
                     </div>
                     <Select value={period} onValueChange={setPeriod}>
-                        <SelectTrigger className="w-[180px]">
+                        <SelectTrigger aria-label="Periodo del reporte" className="w-[180px]">
                             <SelectValue placeholder="Periodo" />
                         </SelectTrigger>
                         <SelectContent>
@@ -61,7 +61,7 @@ export default function ReportsRetention() {
                     </Select>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {/* Booking Flow Stats */}
                     <Card>
                         <CardHeader>
@@ -97,7 +97,7 @@ export default function ReportsRetention() {
                                         <Clock className="h-5 w-5 text-orange-600" />
                                         <div>
                                             <p className="font-medium text-orange-900">Cancelación Tardía</p>
-                                            <p className="text-xs text-orange-700">Menos de 5h de anticipación</p>
+                                            <p className="text-xs text-orange-700">Menos de 4h de anticipación</p>
                                         </div>
                                     </div>
                                     <span className="text-2xl font-bold text-orange-700">{retentionStats?.summary.lateCancellations}</span>
@@ -107,7 +107,7 @@ export default function ReportsRetention() {
                                     <div className="flex items-center gap-3">
                                         <div className="h-5 w-5 rounded-full border-2 border-border" />
                                         <div>
-                                            <p className="font-medium text-foreground">Reposiciones</p>
+                                            <p className="font-medium text-foreground">Cancelaciones a tiempo</p>
                                             <p className="text-xs text-foreground">Canceladas con tiempo</p>
                                         </div>
                                     </div>
@@ -136,16 +136,16 @@ export default function ReportsRetention() {
                                         />
                                     </div>
                                     <p className="text-sm text-muted-foreground mt-2">
-                                        De {retentionStats?.retentionMetrics.expiredLast90Days} membresías vencidas, {retentionStats?.retentionMetrics.renewedLast90Days} fueron renovadas.
+                                        De {retentionStats?.retentionMetrics.expiredLast90Days} personas con paquete vencido, {retentionStats?.retentionMetrics.renewedLast90Days} compraron un nuevo paquete.
                                     </p>
                                 </div>
 
                                 <div className="pt-4 border-t">
-                                    <h4 className="font-medium mb-3">Reposiciones Totales</h4>
+                                    <h4 className="font-medium mb-3">Cancelaciones a tiempo en el periodo</h4>
                                     <div className="flex items-center gap-4">
                                         <div className="text-center">
-                                            <div className="text-3xl font-bold">{retentionStats?.repositions.created}</div>
-                                            <div className="text-xs text-muted-foreground uppercase tracking-wider">Generadas</div>
+                                            <div className="text-3xl font-bold">{retentionStats?.summary.earlyCancellations}</div>
+                                            <div className="text-xs text-muted-foreground uppercase tracking-wider">Reservas canceladas</div>
                                         </div>
                                     </div>
                                 </div>
@@ -154,41 +154,41 @@ export default function ReportsRetention() {
                     </Card>
 
                     {/* Risky Users */}
-                    <Card className="col-span-2">
+                    <Card className="md:col-span-2">
                         <CardHeader>
                             <CardTitle className="text-red-600 flex items-center gap-2">
                                 <AlertCircle className="h-5 w-5" />
-                                Usuarios en Riesgo de Churn
+                                Personas por contactar
                             </CardTitle>
                             <CardDescription>Top 10 usuarios con mayor número de inasistencias o cancelaciones tardías en el periodo.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="rounded-md border">
-                                <table className="w-full text-sm">
-                                    <thead className="bg-muted/50">
-                                        <tr className="text-left">
-                                            <th className="p-3 font-medium">Usuario</th>
-                                            <th className="p-3 font-medium text-center">No Shows</th>
-                                            <th className="p-3 font-medium text-center">Canc. Tardías</th>
-                                            <th className="p-3 font-medium text-center">Total Incidencias</th>
-                                            <th className="p-3 font-medium text-right">Acción</th>
+                                <table className="admin-record-table w-full text-sm" role="table">
+                                    <thead role="rowgroup" className="bg-muted/50">
+                                        <tr role="row" className="text-left">
+                                            <th role="columnheader" className="p-3 font-medium">Usuario</th>
+                                            <th role="columnheader" className="p-3 font-medium text-center">No Shows</th>
+                                            <th role="columnheader" className="p-3 font-medium text-center">Canc. Tardías</th>
+                                            <th role="columnheader" className="p-3 font-medium text-center">Total Incidencias</th>
+                                            <th role="columnheader" className="p-3 font-medium text-right">Acción</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody role="rowgroup">
                                         {retentionStats?.riskyUsers.length > 0 ? (
                                             retentionStats.riskyUsers.map((user: any) => (
-                                                <tr key={user.id} className="border-t hover:bg-muted/50">
-                                                    <td className="p-3">
+                                                <tr role="row" key={user.id} className="border-t hover:bg-muted/50">
+                                                    <td role="cell" data-label="Persona" data-primary className="p-3"><div className="admin-record-value">
                                                         <p className="font-medium">{user.display_name}</p>
-                                                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                                                        <p className="text-xs text-muted-foreground">{user.email}</p></div>
                                                     </td>
-                                                    <td className="p-3 text-center font-bold text-red-600 bg-red-50/50">{user.no_shows}</td>
-                                                    <td className="p-3 text-center text-orange-600 bg-orange-50/50">{user.late_cancels}</td>
-                                                    <td className="p-3 text-center font-bold">{parseInt(user.no_shows) + parseInt(user.late_cancels)}</td>
-                                                    <td className="p-3 text-right">
-                                                        <button className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90">
-                                                            Contactar
-                                                        </button>
+                                                    <td role="cell" data-label="Inasistencias" className="p-3 text-center font-bold text-red-600"><div className="admin-record-value">{user.no_shows}</div></td>
+                                                    <td role="cell" data-label="Cancelaciones tardías" className="p-3 text-center text-orange-600"><div className="admin-record-value">{user.late_cancels}</div></td>
+                                                    <td role="cell" data-label="Total" className="p-3 text-center font-bold"><div className="admin-record-value">{parseInt(user.no_shows) + parseInt(user.late_cancels)}</div></td>
+                                                    <td role="cell" data-actions className="p-3 text-right"><div className="admin-record-value">
+                                                        <a href={user.email ? `mailto:${encodeURIComponent(user.email)}` : undefined} className="inline-flex min-h-11 items-center rounded bg-primary px-3 text-sm text-primary-foreground hover:bg-primary/90">
+                                                            Abrir correo
+                                                        </a></div>
                                                     </td>
                                                 </tr>
                                             ))

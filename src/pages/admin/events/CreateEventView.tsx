@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Plus, X, ClipboardList, Bell, Check, Save, Rocket, Bird, Crown } from 'lucide-react';
+import { ArrowLeft, Plus, X, ClipboardList, Bell, Check, Save, Rocket, Bird, Crown } from '@/components/brand/icons';
 import { cn } from '@/lib/utils';
 import { EVENT_TYPES } from './types';
 import { EventTypeIcon } from './EventTypeIcon';

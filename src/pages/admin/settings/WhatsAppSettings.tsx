@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, CheckCircle, XCircle, RefreshCw, Send, QrCode, PowerOff, Smartphone } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, RefreshCw, Send, QrCode, PowerOff, Smartphone } from '@/components/brand/icons';
 import { useToast } from '@/hooks/use-toast';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import api from '@/lib/api';

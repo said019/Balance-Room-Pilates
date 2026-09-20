@@ -1,3 +1,4 @@
+import { postFinancialOperation } from '@/lib/financial-intent';
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm, Controller } from 'react-hook-form';
@@ -15,7 +16,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -64,7 +64,7 @@ import {
   Wallet,
   Users,
   PartyPopper
-} from 'lucide-react';
+} from '@/components/brand/icons';
 
 // ============================================================================
 // SCHEMAS
@@ -140,21 +140,21 @@ const paymentMethodConfig = {
   cash: {
     label: 'Efectivo',
     icon: Banknote,
-    color: 'text-success',
+    color: 'text-altitud-olive',
     bg: 'bg-success/10',
     description: 'Pago recibido en efectivo',
   },
   transfer: {
     label: 'Transferencia',
     icon: ArrowRightLeft,
-    color: 'text-info',
+    color: 'text-altitud-olive',
     bg: 'bg-info/10',
     description: 'Pago por transferencia bancaria',
   },
   card: {
     label: 'Tarjeta',
     icon: CreditCard,
-    color: 'text-purple-600',
+    color: 'text-altitud-olive',
     bg: 'bg-purple-100',
     description: 'Pago con tarjeta (terminal física)',
   },
@@ -301,7 +301,7 @@ function CashAssignmentInner() {
   // Member assignment mutation
   const assignMutation = useMutation({
     mutationFn: async (data: CashAssignmentForm) => {
-      const response = await api.post<AssignmentResponse>('/memberships/assign-cash', {
+      const response = await postFinancialOperation<AssignmentResponse>('/memberships/assign-cash', {
         ...data,
         startDate: format(data.startDate, 'yyyy-MM-dd'),
       });
@@ -429,11 +429,11 @@ function CashAssignmentInner() {
 
   return (
     <>
-        <div className="space-y-6 p-6">
+        <div className="space-y-6">
           {/* Header */}
           <motion.div {...fadeInUp}>
             <h1 className="text-2xl font-heading font-bold flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-success to-secondary flex items-center justify-center shadow-lg">
+              <div className="h-10 w-10 shrink-0 rounded-xl bg-altitud-olive flex items-center justify-center">
                 <Banknote className="h-5 w-5 text-white" />
               </div>
               Registro de Pagos
@@ -447,17 +447,17 @@ function CashAssignmentInner() {
           <motion.div
             {...fadeInUp}
             transition={{ delay: 0.1 }}
-            className="grid gap-4 md:grid-cols-4"
+            className="grid grid-cols-2 gap-3 xl:grid-cols-4"
           >
-            <Card className="border-none shadow-md bg-gradient-to-br from-success/10 to-white">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-xl bg-success/100/10 flex items-center justify-center">
-                    <DollarSign className="h-6 w-6 text-success" />
+            <Card className="border-altitud-sand/60 bg-altitud-cream">
+              <CardContent className="p-4">
+                <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+                  <div className="h-9 w-9 shrink-0 rounded-xl bg-altitud-olive/10 flex items-center justify-center">
+                    <DollarSign className="h-6 w-6 text-altitud-olive" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Pagos hoy</p>
-                    <p className="text-2xl font-bold text-success">
+                    <p className="text-xl font-semibold text-altitud-olive">
                       {formatCurrency(stats?.amountToday || 0)}
                     </p>
                   </div>
@@ -465,43 +465,43 @@ function CashAssignmentInner() {
               </CardContent>
             </Card>
 
-            <Card className="border-none shadow-md bg-gradient-to-br from-info/10 to-white">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-xl bg-info/10 flex items-center justify-center">
-                    <Receipt className="h-6 w-6 text-info" />
+            <Card className="border-altitud-sand/60 bg-altitud-cream">
+              <CardContent className="p-4">
+                <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+                  <div className="h-9 w-9 shrink-0 rounded-xl bg-altitud-olive/10 flex items-center justify-center">
+                    <Receipt className="h-6 w-6 text-altitud-olive" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Transacciones</p>
-                    <p className="text-2xl font-bold text-info">{stats?.paymentsToday || 0}</p>
+                    <p className="text-xl font-semibold text-altitud-olive">{stats?.paymentsToday || 0}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-none shadow-md bg-gradient-to-br from-purple-50 to-white">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                    <Package className="h-6 w-6 text-purple-600" />
+            <Card className="border-altitud-sand/60 bg-altitud-cream">
+              <CardContent className="p-4">
+                <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+                  <div className="h-9 w-9 shrink-0 rounded-xl bg-altitud-olive/10 flex items-center justify-center">
+                    <Package className="h-6 w-6 text-altitud-olive" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Membresías</p>
-                    <p className="text-2xl font-bold text-purple-700">{stats?.membershipsActivated || 0}</p>
+                    <p className="text-xl font-semibold text-altitud-olive">{stats?.membershipsActivated || 0}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-none shadow-md bg-gradient-to-br from-warning/10 to-white">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-xl bg-warning/10 flex items-center justify-center">
-                    <Users className="h-6 w-6 text-warning" />
+            <Card className="border-altitud-sand/60 bg-altitud-cream">
+              <CardContent className="p-4">
+                <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+                  <div className="h-9 w-9 shrink-0 rounded-xl bg-altitud-olive/10 flex items-center justify-center">
+                    <Users className="h-6 w-6 text-altitud-earth" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Invitados hoy</p>
-                    <p className="text-2xl font-bold text-warning">{stats?.guestsToday || 0}</p>
+                    <p className="text-xl font-semibold text-altitud-earth">{stats?.guestsToday || 0}</p>
                   </div>
                 </div>
               </CardContent>
@@ -514,20 +514,16 @@ function CashAssignmentInner() {
               {...fadeInUp}
               transition={{ delay: 0.2 }}
             >
-              <Card className="shadow-lg">
+              <Card className="border-altitud-sand/60 shadow-none">
                 <CardHeader className="pb-4">
-                  <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'member' | 'guest')}>
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="member" className="gap-2">
-                        <Package className="h-4 w-4" />
-                        Asignar Membresía
-                      </TabsTrigger>
-                      <TabsTrigger value="guest" className="gap-2">
-                        <UserIcon className="h-4 w-4" />
-                        Clase Invitado
-                      </TabsTrigger>
-                    </TabsList>
-                  </Tabs>
+                  <div role="group" aria-label="Tipo de registro" className="grid grid-cols-2 gap-2">
+                    <Button type="button" variant={activeTab === 'member' ? 'default' : 'outline'} aria-pressed={activeTab === 'member'} onClick={() => setActiveTab('member')} className="min-h-11 gap-2 whitespace-normal px-2">
+                      <Package className="h-4 w-4" /> Membresía
+                    </Button>
+                    <Button type="button" variant={activeTab === 'guest' ? 'default' : 'outline'} aria-pressed={activeTab === 'guest'} onClick={() => setActiveTab('guest')} className="min-h-11 gap-2 whitespace-normal px-2">
+                      <UserIcon className="h-4 w-4" /> Invitado
+                    </Button>
+                  </div>
                 </CardHeader>
 
                 <CardContent>
@@ -566,6 +562,7 @@ function CashAssignmentInner() {
                                 type="button"
                                 variant="ghost"
                                 size="icon"
+                                aria-label="Cambiar cliente"
                                 onClick={clearSelectedUser}
                                 className="shrink-0"
                               >
@@ -576,6 +573,7 @@ function CashAssignmentInner() {
                             <div className="relative">
                               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                               <Input
+                                aria-label="Buscar cliente"
                                 placeholder="Buscar por nombre, email o teléfono..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -641,7 +639,7 @@ function CashAssignmentInner() {
                             </div>
                           )}
                           {errors.userId && (
-                            <p className="text-sm text-destructive">{errors.userId.message}</p>
+                            <p className="text-sm text-red-700">{errors.userId.message}</p>
                           )}
                         </div>
 
@@ -657,7 +655,7 @@ function CashAssignmentInner() {
                             control={control}
                             render={({ field }) => (
                               <Select onValueChange={handleSelectPlan} value={field.value}>
-                                <SelectTrigger className="h-12">
+                                <SelectTrigger aria-label="Plan o paquete" className="h-auto min-h-12 text-left whitespace-normal [&>span]:min-w-0 [&>span]:truncate">
                                   <SelectValue placeholder="Selecciona un plan" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -668,7 +666,7 @@ function CashAssignmentInner() {
                                   ) : (
                                     plans?.map((plan) => (
                                       <SelectItem key={plan.id} value={plan.id}>
-                                        <div className="flex items-center justify-between gap-4">
+                                        <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
                                           <span>{plan.name}</span>
                                           <Badge variant="secondary">
                                             {formatCurrency(plan.price)}
@@ -686,7 +684,7 @@ function CashAssignmentInner() {
                             <div
                               className="rounded-lg bg-muted/50 p-3 text-sm"
                             >
-                              <div className="flex items-center gap-2 text-muted-foreground">
+                              <div className="flex flex-wrap items-center gap-2 text-muted-foreground">
                                 <Sparkles className="h-4 w-4" />
                                 <span>
                                   {selectedPlan.class_limit === null || (selectedPlan.classes_included && selectedPlan.classes_included === -1)
@@ -700,7 +698,7 @@ function CashAssignmentInner() {
                           )}
 
                           {errors.planId && (
-                            <p className="text-sm text-destructive">{errors.planId.message}</p>
+                            <p className="text-sm text-red-700">{errors.planId.message}</p>
                           )}
                         </div>
 
@@ -715,7 +713,7 @@ function CashAssignmentInner() {
                             name="paymentMethod"
                             control={control}
                             render={({ field }) => (
-                              <div className="grid grid-cols-3 gap-3">
+                              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                                 {Object.entries(paymentMethodConfig).map(([key, config]) => {
                                   const Icon = config.icon;
                                   const isSelected = field.value === key;
@@ -723,9 +721,10 @@ function CashAssignmentInner() {
                                     <button
                                       key={key}
                                       type="button"
+                                      aria-pressed={isSelected}
                                       onClick={() => field.onChange(key)}
                                       className={cn(
-                                        'flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all',
+                                        'flex items-center gap-3 p-3 rounded-xl border-2 transition-all sm:flex-col sm:gap-2',
                                         isSelected
                                           ? 'border-primary bg-primary/5 shadow-md'
                                           : 'border-muted hover:border-primary/30 hover:bg-muted/50'
@@ -752,7 +751,7 @@ function CashAssignmentInner() {
                         </div>
 
                         {/* Amount & Date Row */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                           <div className="space-y-3">
                             <Label className="flex items-center gap-2 text-base font-semibold">
                               <DollarSign className="h-4 w-4 text-primary" />
@@ -763,12 +762,13 @@ function CashAssignmentInner() {
                               <Input
                                 type="number"
                                 step="0.01"
+                                aria-label="Monto pagado"
                                 {...register('amountPaid')}
                                 className="pl-8 h-12 text-lg font-semibold"
                               />
                             </div>
                             {errors.amountPaid && (
-                              <p className="text-sm text-destructive">{errors.amountPaid.message}</p>
+                              <p className="text-sm text-red-700">{errors.amountPaid.message}</p>
                             )}
                           </div>
 
@@ -785,7 +785,9 @@ function CashAssignmentInner() {
                                   <PopoverTrigger asChild>
                                     <Button
                                       variant="outline"
-                                      className="w-full h-12 justify-start font-normal"
+                                      aria-label="Fecha de inicio"
+                                      type="button"
+                                      className="w-full h-auto min-h-12 whitespace-normal justify-start font-normal"
                                     >
                                       <CalendarIcon className="mr-2 h-4 w-4" />
                                       {field.value && !isNaN(new Date(field.value).getTime())
@@ -814,7 +816,7 @@ function CashAssignmentInner() {
                         </div>
 
                         {/* Reference & Notes */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                           <div className="space-y-2">
                             <Label className="text-sm text-muted-foreground">Referencia (opcional)</Label>
                             <Input
@@ -843,15 +845,15 @@ function CashAssignmentInner() {
                               Resumen de la Asignación
                             </h4>
                             <div className="space-y-2 text-sm">
-                              <div className="flex justify-between">
+                              <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-3">
                                 <span className="text-muted-foreground">Cliente:</span>
                                 <span className="font-medium">{selectedUser.display_name || selectedUser.full_name}</span>
                               </div>
-                              <div className="flex justify-between">
+                              <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-3">
                                 <span className="text-muted-foreground">Plan:</span>
                                 <span className="font-medium">{selectedPlan.name}</span>
                               </div>
-                              <div className="flex justify-between">
+                              <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-3">
                                 <span className="text-muted-foreground">Método:</span>
                                 <span className="font-medium">{paymentMethodConfig[paymentMethod].label}</span>
                               </div>
@@ -868,7 +870,7 @@ function CashAssignmentInner() {
                         <Button
                           type="submit"
                           size="lg"
-                          className="w-full h-14 text-base font-semibold gap-2"
+                          className="w-full h-auto min-h-14 whitespace-normal py-3 text-base font-semibold gap-2"
                           disabled={assignMutation.isPending || !selectedUser || !selectedPlan}
                         >
                           {assignMutation.isPending ? (
@@ -905,12 +907,12 @@ function CashAssignmentInner() {
                               className="h-12"
                             />
                             {guestForm.formState.errors.guestName && (
-                              <p className="text-sm text-destructive -mt-2">
+                              <p className="text-sm text-red-700 -mt-2">
                                 {guestForm.formState.errors.guestName.message}
                               </p>
                             )}
 
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                               <div className="relative">
                                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
@@ -943,7 +945,7 @@ function CashAssignmentInner() {
                             control={guestForm.control}
                             render={({ field }) => (
                               <Select onValueChange={handleSelectClass} value={field.value}>
-                                <SelectTrigger className="h-12">
+                                <SelectTrigger aria-label="Clase a reservar" className="h-auto min-h-12 text-left whitespace-normal [&>span]:min-w-0 [&>span]:truncate">
                                   <SelectValue placeholder="Selecciona una clase" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -969,7 +971,7 @@ function CashAssignmentInner() {
                                         </div>
                                         {classes.map((cls) => (
                                           <SelectItem key={cls.id} value={cls.id}>
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex flex-wrap items-center gap-2">
                                               <Clock className="h-3 w-3 text-muted-foreground" />
                                               <span>{(cls.start_time || '').slice(0, 5)}</span>
                                               <span className="font-medium">{cls.name}</span>
@@ -1005,7 +1007,7 @@ function CashAssignmentInner() {
                         </div>
 
                         {/* Payment */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                           <div className="space-y-3">
                             <Label className="text-sm font-medium">Método de Pago</Label>
                             <Controller
@@ -1013,7 +1015,7 @@ function CashAssignmentInner() {
                               control={guestForm.control}
                               render={({ field }) => (
                                 <Select onValueChange={field.onChange} value={field.value}>
-                                  <SelectTrigger className="h-12">
+                                  <SelectTrigger aria-label="Método de pago del invitado" className="h-12">
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -1041,6 +1043,7 @@ function CashAssignmentInner() {
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
                               <Input
                                 type="number"
+                                aria-label="Monto del invitado"
                                 {...guestForm.register('amountPaid')}
                                 className="pl-8 h-12 text-lg font-semibold"
                               />
@@ -1062,7 +1065,7 @@ function CashAssignmentInner() {
                         <Button
                           type="submit"
                           size="lg"
-                          className="w-full h-14 text-base font-semibold gap-2"
+                          className="w-full h-auto min-h-14 whitespace-normal py-3 text-base font-semibold gap-2"
                           disabled={guestMutation.isPending || !guestForm.formState.isValid}
                         >
                           {guestMutation.isPending ? (
@@ -1091,7 +1094,7 @@ function CashAssignmentInner() {
               <DialogHeader>
                 <div className="flex items-center justify-center mb-4">
                   <div className="h-16 w-16 rounded-full bg-success/10 flex items-center justify-center">
-                    <PartyPopper className="h-8 w-8 text-success" />
+                    <PartyPopper className="h-8 w-8 text-altitud-olive" />
                   </div>
                 </div>
                 <DialogTitle className="text-center text-2xl">¡Membresía Activada!</DialogTitle>
@@ -1102,15 +1105,15 @@ function CashAssignmentInner() {
               {lastAssignment && (
                 <div className="space-y-3 py-4">
                   <div className="rounded-lg bg-muted p-3 space-y-2 text-sm">
-                    <div className="flex justify-between">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-3">
                       <span className="text-muted-foreground">Cliente:</span>
                       <span className="font-medium">{lastAssignment.membership.user_name}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-3">
                       <span className="text-muted-foreground">Plan:</span>
                       <span className="font-medium">{lastAssignment.membership.plan_name}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-3">
                       <span className="text-muted-foreground">Monto:</span>
                       <span className="font-medium">{formatCurrency(lastAssignment.transaction.amount)}</span>
                     </div>

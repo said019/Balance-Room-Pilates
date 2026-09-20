@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
-import { Calendar, Clock, User, Sparkles, MapPin } from 'lucide-react';
+import { Calendar, Clock, User, Sparkles, MapPin } from '@/components/brand/icons';
 
 interface BookingDetail {
   booking_id: string;
@@ -71,9 +71,12 @@ export default function ClassBookingDetail() {
     mutationFn: async () => {
       return await api.post(`/bookings/${bookingId}/cancel`);
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
-      toast({ title: 'Reserva cancelada', description: 'Tu crédito ha sido devuelto (si aplica).' });
+      queryClient.invalidateQueries({ queryKey: ['my-membership'] });
+      toast({ title: 'Reserva cancelada', description: response.data.requiresCreditReview
+        ? 'El studio revisará el crédito de esta reserva anterior. Aún no se ha sumado al saldo.'
+        : 'Consulta tu saldo actualizado; la devolución conserva la vigencia del paquete.' });
       navigate('/app/classes');
     },
     onError: (err) => {

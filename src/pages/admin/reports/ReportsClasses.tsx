@@ -30,7 +30,7 @@ export default function ReportsClasses() {
         queryFn: async () => (await api.get(`/reports/classes?startDate=${startDate}&endDate=${endDate}`)).data
     });
 
-    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+    const COLORS = ['#5F632C', '#7F6146', '#CFBD9D', '#1C1C19', '#5F632C'];
 
     if (isLoading) {
         return (
@@ -52,7 +52,7 @@ export default function ReportsClasses() {
                         <p className="text-muted-foreground">Ocupación, horarios populares y distribución.</p>
                     </div>
                     <Select value={period} onValueChange={setPeriod}>
-                        <SelectTrigger className="w-[180px]">
+                        <SelectTrigger aria-label="Periodo del reporte" className="w-[180px]">
                             <SelectValue placeholder="Periodo" />
                         </SelectTrigger>
                         <SelectContent>
@@ -63,9 +63,9 @@ export default function ReportsClasses() {
                     </Select>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {/* Day of Week Chart */}
-                    <Card className="col-span-2">
+                    <Card className="md:col-span-2">
                         <CardHeader>
                             <CardTitle>Ocupación por día de la semana</CardTitle>
                             <CardDescription>Promedio de alumnos por día</CardDescription>
@@ -81,9 +81,9 @@ export default function ReportsClasses() {
                                     <YAxis />
                                     <Tooltip
                                         labelFormatter={(val) => ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][val]}
-                                        formatter={(val: number) => [Number(val).toFixed(1), 'Asistentes Avg']}
+                                        formatter={(val: number) => [Number(val).toFixed(1), 'Asistencia promedio']}
                                     />
-                                    <Bar dataKey="avg_attendance" name="Asistencia Promedio" fill="#8884d8" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="avg_attendance" name="Asistencia Promedio" fill="#5F632C" radius={[4, 4, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </CardContent>
@@ -91,7 +91,7 @@ export default function ReportsClasses() {
 
                     {/* Classes by Studio */}
                     {classesStats?.classesByStudio && classesStats.classesByStudio.length > 0 && (
-                        <Card className="col-span-2">
+                        <Card className="md:col-span-2">
                             <CardHeader>
                                 <CardTitle>Clases por estudio</CardTitle>
                                 <CardDescription>Desglose del período seleccionado</CardDescription>
@@ -122,9 +122,9 @@ export default function ReportsClasses() {
                                         <div key={i} className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-mono text-lg font-medium">{item.start_time.substring(0, 5)}</span>
-                                                {i < 2 && <span className="text-xs bg-warning/10 text-warning-foreground px-2 py-0.5 rounded-full">🔥 Hot</span>}
+                                                {i < 2 && <span className="text-xs bg-warning/10 text-warning-foreground px-2 py-0.5 rounded-full">Popular</span>}
                                             </div>
-                                            <div className="text-sm font-medium">{Math.round(item.avg_attendance)} asistentes avg</div>
+                                            <div className="text-sm font-medium">{Math.round(item.avg_attendance)} asistentes en promedio</div>
                                         </div>
                                     ))
                                 ) : (

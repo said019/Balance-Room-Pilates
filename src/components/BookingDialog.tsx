@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, CreditCard, AlertCircle, CheckCircle } from 'lucide-react';
+import { Loader2, CreditCard, AlertCircle, CheckCircle } from '@/components/brand/icons';
 import api from '@/lib/api';
 
 interface ClassItem {

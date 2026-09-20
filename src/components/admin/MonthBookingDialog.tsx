@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Calendar as CalendarIcon, Check } from 'lucide-react';
+import { Loader2, Calendar as CalendarIcon, Check } from '@/components/brand/icons';
 import { cn } from '@/lib/utils';
 
 interface MonthBookingDialogProps {

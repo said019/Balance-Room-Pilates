@@ -2095,3 +2095,19 @@
   .member-welcome h2 { font-size: 28px; line-height: 1.16; margin: 10px 0; }
   .member-welcome > div > a { margin-top: 14px; }
 }
+
+/* Brand discipline symbols are distinct from interface controls. */
+.member-explore-grid .alt-official-discipline {
+  position: static; inset: auto; display: block;
+  width: var(--discipline-size); height: var(--discipline-size);
+  object-fit: contain; opacity: 1; transform: none;
+  padding: 5px; background: #F6F4EE; margin-bottom: 12px;
+}
+.member-explore-grid > a:hover .alt-official-discipline { transform: none; }
+.member-explore-grid .member-discipline-photo { object-position: center 45%; }
+.member-explore-grid > a { min-height: 240px; }
+.member-explore-grid p { font-size: 14px; line-height: 1.5; max-width: 50ch; }
+.member-explore-grid div > span { font-size: 10px; }
+
+.member-explore-grid .member-discipline-running { object-position: center 25%; }
+.member-community-banner > img { object-position: center 25%; }

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, Calendar, TrendingUp, ArrowUpRight, Download, Filter, CreditCard } from 'lucide-react';
+import { Users, Calendar, TrendingUp, ArrowUpRight, Download, Filter, CreditCard } from '@/components/brand/icons';
 import api from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -112,12 +112,12 @@ export default function ReportsOverview() {
             <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Dashboard General</h1>
-                        <p className="text-muted-foreground">Visión general del rendimiento del estudio.</p>
+                        <h1 className="text-3xl font-heading tracking-tight">Reporte general</h1>
+                        <p className="text-muted-foreground">Ingresos, comunidad y asistencia en un solo lugar.</p>
                     </div>
                     {overview && (
-                        <Button variant="outline" size="sm" className="gap-2" onClick={() => exportToExcel(overview, startDate, endDate)}>
-                            <Download className="h-4 w-4" /> Descargar Excel
+                        <Button variant="outline" size="sm" className="min-h-11 w-full gap-2 sm:w-auto" onClick={() => exportToExcel(overview, startDate, endDate)}>
+                            <Download className="h-4 w-4" /> Descargar reporte
                         </Button>
                     )}
                 </div>
@@ -125,27 +125,27 @@ export default function ReportsOverview() {
                 {/* Date Filters */}
                 <Card>
                     <CardContent className="pt-4 pb-3">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
+                        <div className="flex flex-col items-stretch gap-4 xl:flex-row xl:items-end">
                             <div className="flex items-center gap-2">
                                 <Filter className="h-4 w-4 text-muted-foreground" />
                                 <span className="text-sm font-medium">Período:</span>
                             </div>
                             <div className="flex flex-wrap gap-1.5">
-                                <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => setPreset(7)}>7 días</Button>
-                                <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => setPreset(15)}>15 días</Button>
-                                <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => setPreset(30)}>30 días</Button>
-                                <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => setPreset('month')}>Este mes</Button>
-                                <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => setPreset(90)}>3 meses</Button>
-                                <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => setPreset('year')}>Este año</Button>
+                                <Button variant="outline" size="sm" className="min-h-11 px-3 text-xs" onClick={() => setPreset(7)}>7 días</Button>
+                                <Button variant="outline" size="sm" className="min-h-11 px-3 text-xs" onClick={() => setPreset(15)}>15 días</Button>
+                                <Button variant="outline" size="sm" className="min-h-11 px-3 text-xs" onClick={() => setPreset(30)}>30 días</Button>
+                                <Button variant="outline" size="sm" className="min-h-11 px-3 text-xs" onClick={() => setPreset('month')}>Este mes</Button>
+                                <Button variant="outline" size="sm" className="min-h-11 px-3 text-xs" onClick={() => setPreset(90)}>3 meses</Button>
+                                <Button variant="outline" size="sm" className="min-h-11 px-3 text-xs" onClick={() => setPreset('year')}>Este año</Button>
                             </div>
-                            <div className="flex items-center gap-2 ml-auto">
+                            <div className="grid min-w-0 grid-cols-2 gap-3 xl:ml-auto xl:w-80 xl:shrink-0">
                                 <div className="space-y-1">
                                     <Label className="text-xs">Desde</Label>
-                                    <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-8 text-xs w-36" />
+                                    <Input aria-label="Fecha inicial" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="min-h-11 min-w-0 w-full text-sm" />
                                 </div>
                                 <div className="space-y-1">
                                     <Label className="text-xs">Hasta</Label>
-                                    <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-8 text-xs w-36" />
+                                    <Input aria-label="Fecha final" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="min-h-11 min-w-0 w-full text-sm" />
                                 </div>
                             </div>
                         </div>
@@ -181,7 +181,7 @@ export default function ReportsOverview() {
                 </div>
 
                 {/* Operational Stats */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Miembros Activos</CardTitle>

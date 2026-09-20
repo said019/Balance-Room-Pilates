@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
-import { Megaphone, Send, Loader2, MessageCircle, Mail, ShieldCheck, Pause, Play, History, Users } from 'lucide-react';
+import { Megaphone, Send, Loader2, MessageCircle, Mail, ShieldCheck, Pause, Play, History, Users } from '@/components/brand/icons';
 
 interface WaBroadcast {
     id: string;
@@ -155,7 +155,7 @@ export default function Communication() {
 
                     {/* Correo masivo */}
                     <section className="rounded-xl border bg-card p-6">
-                        <div className="flex items-center justify-between gap-2 mb-4">
+                        <div className="mb-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center gap-2">
                                 <Megaphone className="h-5 w-5 text-altitud-olive" />
                                 <h2 className="text-lg font-semibold">Correo masivo (promociones)</h2>
@@ -206,7 +206,7 @@ export default function Communication() {
                             <div className="space-y-1.5">
                                 <Label className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground" /> Enviar a</Label>
                                 <Select value={audience} onValueChange={(v) => setAudience(v as 'all' | 'active' | 'inactive')}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectTrigger aria-label="Destinatarios"><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">Todos los clientes</SelectItem>
                                         <SelectItem value="active">Con membresía activa</SelectItem>

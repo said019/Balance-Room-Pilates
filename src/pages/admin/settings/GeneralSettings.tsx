@@ -101,7 +101,7 @@ export default function GeneralSettings() {
                                 value={settings.timezone}
                                 onValueChange={(value) => setSettings({ ...settings, timezone: value })}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Zona horaria">
                                     <SelectValue placeholder="Seleccionar zona horaria" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -120,7 +120,7 @@ export default function GeneralSettings() {
                                 value={settings.language}
                                 onValueChange={(value) => setSettings({ ...settings, language: value })}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Idioma">
                                     <SelectValue placeholder="Seleccionar idioma" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -138,7 +138,7 @@ export default function GeneralSettings() {
                                 value={settings.currency}
                                 onValueChange={(value) => setSettings({ ...settings, currency: value })}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Moneda">
                                     <SelectValue placeholder="Seleccionar moneda" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -154,7 +154,7 @@ export default function GeneralSettings() {
                                 value={settings.date_format}
                                 onValueChange={(value) => setSettings({ ...settings, date_format: value })}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Formato de fecha">
                                     <SelectValue placeholder="Seleccionar formato" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -183,7 +183,7 @@ export default function GeneralSettings() {
                                 Cuando está activo, solo administradores pueden acceder al sistema
                             </p>
                         </div>
-                        <Switch
+                        <Switch aria-label="Modo de mantenimiento"
                             checked={settings.maintenance_mode}
                             onCheckedChange={(checked) => setSettings({
                                 ...settings,

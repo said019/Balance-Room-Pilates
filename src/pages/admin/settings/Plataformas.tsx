@@ -221,7 +221,7 @@ export default function Plataformas() {
             {/* ── Wellhub ─────────────────────────────────────────────── */}
             <Card>
                 <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <CardTitle className="flex items-center gap-2">
                                 <Link2 className="w-5 h-5" />
@@ -239,7 +239,7 @@ export default function Plataformas() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-3">
-                        <Switch
+                        <Switch aria-label="Activar Wellhub"
                             checked={wellhub.is_enabled}
                             onCheckedChange={(checked) => setWellhub((w) => ({ ...w, is_enabled: checked }))}
                         />
@@ -253,7 +253,7 @@ export default function Plataformas() {
                                 value={wellhub.environment}
                                 onValueChange={(v: 'sandbox' | 'production') => setWellhub((w) => ({ ...w, environment: v }))}
                             >
-                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectTrigger aria-label="Modo de Wellhub"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="sandbox">Sandbox</SelectItem>
                                     <SelectItem value="production">Producción</SelectItem>
@@ -310,7 +310,7 @@ export default function Plataformas() {
             {/* ── TotalPass ───────────────────────────────────────────── */}
             <Card>
                 <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <CardTitle className="flex items-center gap-2">
                                 <Link2 className="w-5 h-5" />
@@ -329,7 +329,7 @@ export default function Plataformas() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-3">
-                        <Switch
+                        <Switch aria-label="Activar TotalPass"
                             checked={totalpass.is_enabled}
                             onCheckedChange={(checked) => setTotalpass((t) => ({ ...t, is_enabled: checked }))}
                         />
@@ -343,7 +343,7 @@ export default function Plataformas() {
                                 value={totalpass.environment}
                                 onValueChange={(v: 'sandbox' | 'production') => setTotalpass((t) => ({ ...t, environment: v }))}
                             >
-                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectTrigger aria-label="Modo de TotalPass"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="sandbox">Sandbox</SelectItem>
                                     <SelectItem value="production">Producción</SelectItem>

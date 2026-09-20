@@ -20,7 +20,7 @@ import {
     Loader2, ArrowLeft, Mail, Phone, Calendar, Heart,
     MessageSquare, CreditCard, DollarSign, Trash2, Power, Pencil, Check, X,
     Coins, Plus, Minus, KeyRound, Copy
-} from 'lucide-react';
+} from '@/components/brand/icons';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -83,11 +83,15 @@ export default function ClientDetail() {
 
     const [creditsDialogOpen, setCreditsDialogOpen] = useState(false);
     const [creditsMembership, setCreditsMembership] = useState<any | null>(null);
+    const [creditsReason, setCreditsReason] = useState('');
     const [creditsValue, setCreditsValue] = useState(0);
 
     const creditsMutation = useMutation({
         mutationFn: async ({ membershipId, classes_remaining }: { membershipId: string; classes_remaining: number }) => {
-            const { data } = await api.patch(`/memberships/${membershipId}/credits`, { classes_remaining });
+            const { data } = await api.patch(`/memberships/${membershipId}/credits`, {
+                classes_remaining, reason: creditsReason,
+                expected_classes_remaining: creditsMembership?.credits_remaining ?? creditsMembership?.classes_remaining ?? null,
+            });
             return data;
         },
         onSuccess: () => {
@@ -104,6 +108,7 @@ export default function ClientDetail() {
     const openCreditsDialog = (m: any) => {
         setCreditsMembership(m);
         setCreditsValue(m.credits_remaining ?? m.classes_remaining ?? 0);
+        setCreditsReason('');
         setCreditsDialogOpen(true);
     };
 
@@ -169,15 +174,6 @@ export default function ClientDetail() {
             queryClient.invalidateQueries({ queryKey: ['founder', id] });
             queryClient.invalidateQueries({ queryKey: ['client', id] });
             toast({ title: on ? 'Marcado como Founder' : 'Founder removido' });
-        },
-        onError: (e) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(e) }),
-    });
-
-    const resetFounderMutation = useMutation({
-        mutationFn: async () => api.post(`/users/${id}/founder/reset`, {}),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['founder', id] });
-            toast({ title: 'Beneficios reseteados', description: 'El cliente puede volver a usar el descuento.' });
         },
         onError: (e) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(e) }),
     });
@@ -360,17 +356,17 @@ export default function ClientDetail() {
             <AdminLayout>
                 <div className="space-y-6">
                     {/* Header */}
-                    <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="icon" onClick={() => navigate('/admin/members')} className="rounded-xl hover:bg-muted/50">
+                    <div className="grid grid-cols-[44px_minmax(0,1fr)] items-start gap-3 xl:flex xl:items-center xl:gap-4">
+                        <Button aria-label="Volver a miembros" variant="ghost" size="icon" onClick={() => navigate('/admin/members')} className="rounded-xl hover:bg-muted/50">
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
-                        <div className="flex-1">
+                        <div className="min-w-0 flex-1">
                             <h1 className="text-2xl font-heading font-bold">{client.display_name}</h1>
                             <p className="text-muted-foreground font-body flex items-center gap-2 text-sm">
                                 Miembro desde {new Date(client.created_at).toLocaleDateString()}
                             </p>
                         </div>
-                        <div className="flex flex-col gap-2 items-end">
+                        <div className="col-span-2 flex w-full flex-col gap-2 xl:w-auto xl:items-end">
                             {/* Acción primaria */}
                             <Button
                                 className="rounded-xl font-body bg-altitud-gold hover:bg-altitud-gold/90 text-white shadow-sm"
@@ -381,7 +377,7 @@ export default function ClientDetail() {
                             </Button>
 
                             {/* Acciones secundarias */}
-                            <div className="flex gap-2 flex-wrap justify-end">
+                            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap xl:justify-end">
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -451,7 +447,7 @@ export default function ClientDetail() {
 
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button variant="outline" size="sm" className="rounded-xl font-body border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300">
+                                        <Button variant="outline" size="sm" className="rounded-xl font-body border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300">
                                             <Trash2 className="mr-2 h-4 w-4" />
                                             Eliminar
                                         </Button>
@@ -478,16 +474,16 @@ export default function ClientDetail() {
                         </div>
                     </div>
 
-                    <div className="grid md:grid-cols-12 gap-6">
+                    <div className="grid gap-6 xl:grid-cols-12">
                         {/* Sidebar / Profile Card */}
-                        <div className="md:col-span-4 lg:col-span-3 space-y-6">
+                        <div className="min-w-0 space-y-6 xl:col-span-4 2xl:col-span-3">
                             <Card className="rounded-2xl border-border/40 overflow-hidden">
                                 <CardContent className="pt-6 flex flex-col items-center text-center">
                                     <Avatar className="h-24 w-24 mb-4 ring-2 ring-altitud-gold/20 ring-offset-2">
                                         <AvatarImage src={client.photo_url} />
                                         <AvatarFallback className="text-lg bg-altitud-gold/10 text-altitud-gold font-heading">{getInitials(client.display_name)}</AvatarFallback>
                                     </Avatar>
-                                    <h2 className="text-xl font-heading font-bold">{client.display_name}</h2>
+                                    <h2 className="max-w-full break-words text-xl font-heading font-bold">{client.display_name}</h2>
 
                                     {/* Account Status Badge */}
                                     {client.is_active === false && (
@@ -541,7 +537,7 @@ export default function ClientDetail() {
                                     <div className="w-full mt-6 space-y-4 text-left">
                                         <div className="flex items-center gap-3 text-sm text-muted-foreground font-body">
                                             <Mail className="h-4 w-4 text-altitud-gold/70" />
-                                            <span className="truncate">{client.email}</span>
+                                            <span className="min-w-0 break-all">{client.email}</span>
                                         </div>
                                         <div className="flex items-center gap-3 text-sm text-muted-foreground font-body">
                                             <Phone className="h-4 w-4 text-altitud-gold/70" />
@@ -550,17 +546,19 @@ export default function ClientDetail() {
                                         <div className="flex items-center gap-3 text-sm text-muted-foreground font-body">
                                             <Calendar className="h-4 w-4 text-altitud-gold/70" />
                                             {editingBirthday ? (
-                                                <div className="flex items-center gap-1 flex-1">
+                                                <div className="grid min-w-0 flex-1 grid-cols-2 gap-2">
                                                     <Input
                                                         type="date"
                                                         value={birthdayValue}
                                                         onChange={(e) => setBirthdayValue(e.target.value)}
-                                                        className="h-7 text-xs"
+                                                        aria-label="Fecha de nacimiento"
+                                                        className="col-span-2 min-w-0"
                                                     />
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-7 w-7 shrink-0"
+                                                        className="h-11 w-full shrink-0"
+                                                        aria-label="Guardar fecha de nacimiento"
                                                         onClick={() => updateBirthdayMutation.mutate(birthdayValue)}
                                                         disabled={updateBirthdayMutation.isPending}
                                                     >
@@ -569,23 +567,26 @@ export default function ClientDetail() {
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-7 w-7 shrink-0"
+                                                        className="h-11 w-full shrink-0"
+                                                        aria-label="Cancelar cambio de fecha"
                                                         onClick={() => setEditingBirthday(false)}
                                                     >
                                                         <X className="h-3 w-3" />
                                                     </Button>
                                                 </div>
                                             ) : (
-                                                <span
-                                                    className="cursor-pointer hover:text-foreground flex items-center gap-1 group"
+                                                <button
+                                                    type="button"
+                                                    aria-label="Editar fecha de nacimiento"
+                                                    className="flex min-h-11 items-center gap-2 text-left hover:text-foreground"
                                                     onClick={() => {
                                                         setBirthdayValue(client.date_of_birth ? client.date_of_birth.split('T')[0] : '');
                                                         setEditingBirthday(true);
                                                     }}
                                                 >
                                                     {client.date_of_birth ? new Date(client.date_of_birth.slice(0, 10) + 'T12:00:00').toLocaleDateString() : 'Sin fecha nac.'}
-                                                    <Pencil className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                </span>
+                                                    <Pencil className="h-3 w-3 shrink-0" />
+                                                </button>
                                             )}
                                         </div>
                                     </div>
@@ -616,12 +617,12 @@ export default function ClientDetail() {
                         </div>
 
                         {/* Main Content Area */}
-                        <div className="md:col-span-8 lg:col-span-9 space-y-6">
+                        <div className="min-w-0 space-y-6 xl:col-span-8 2xl:col-span-9">
                             {/* Founder Member */}
                             {founderData && (
                                 <Card className="rounded-2xl border-altitud-gold/40 bg-gradient-to-br from-altitud-gold/5 to-transparent">
                                     <CardContent className="pt-5 pb-5 space-y-4">
-                                        <div className="flex items-center justify-between gap-4">
+                                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                             <div className="flex items-center gap-3">
                                                 <div className={`flex h-10 w-10 items-center justify-center rounded-full ${founderData.user.is_founder ? 'bg-altitud-gold/20 text-altitud-gold' : 'bg-muted text-muted-foreground'}`}>
                                                     <Heart className="h-5 w-5" fill={founderData.user.is_founder ? 'currentColor' : 'none'} />
@@ -631,7 +632,7 @@ export default function ClientDetail() {
                                                     <p className="text-xs text-muted-foreground">
                                                         {founderData.user.is_founder
                                                             ? `Activo desde ${founderData.user.founder_assigned_at ? new Date(founderData.user.founder_assigned_at).toLocaleDateString('es-MX') : '—'}`
-                                                            : 'Activa para otorgar 10% de descuento en su primera compra.'}
+                                                            : 'Identifica al miembro; valida los requisitos de Founding 50 de forma manual.'}
                                                     </p>
                                                 </div>
                                             </div>
@@ -649,54 +650,18 @@ export default function ClientDetail() {
                                             </div>
                                         </div>
 
-                                        {founderData.user.is_founder && (
-                                            <div className="grid gap-3">
-                                                <div className="rounded-xl border border-altitud-gold/20 bg-white/50 p-3">
-                                                    <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Descuento 10% primer paquete</p>
-                                                    <p className="mt-1 font-semibold">
-                                                        {founderData.user.founder_first_package_used
-                                                            ? <span className="text-muted-foreground">Usado el {founderData.user.founder_first_used_at ? new Date(founderData.user.founder_first_used_at).toLocaleDateString('es-MX') : '—'}</span>
-                                                            : <span className="text-altitud-olive">Disponible</span>}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {founderData.user.is_founder && founderData.user.founder_first_package_used && (
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button size="sm" variant="ghost" className="text-xs text-muted-foreground hover:text-altitud-dark">
-                                                        Resetear beneficios
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent className="rounded-2xl">
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>¿Resetear beneficios founder?</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            El cliente podrá usar el 10% de descuento otra vez en su próxima compra. Solo úsalo en casos excepcionales.
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                        <AlertDialogAction
-                                                            onClick={() => resetFounderMutation.mutate()}
-                                                            className="bg-altitud-gold text-white hover:bg-altitud-gold/90"
-                                                        >
-                                                            Sí, resetear
-                                                        </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        )}
+                                        <p className="text-sm text-muted-foreground">
+                                            Founding 50: $1,299 al mes durante seis meses. La validación de los primeros 50 lugares, los pagos consecutivos y los beneficios se lleva de forma manual. Esta marca no aplica descuentos automáticos.
+                                        </p>
                                     </CardContent>
                                 </Card>
                             )}
 
                             <Tabs defaultValue="memberships">
-                                <TabsList className="rounded-xl bg-muted/50">
-                                    <TabsTrigger value="memberships" className="rounded-lg font-body data-[state=active]:bg-altitud-gold data-[state=active]:text-white">Membresias</TabsTrigger>
-                                    <TabsTrigger value="history" className="rounded-lg font-body data-[state=active]:bg-altitud-gold data-[state=active]:text-white">Historial Clases</TabsTrigger>
-                                    <TabsTrigger value="notes" className="rounded-lg font-body data-[state=active]:bg-altitud-gold data-[state=active]:text-white">Notas Internas</TabsTrigger>
+                                <TabsList className="grid h-auto w-full grid-cols-3 rounded-xl bg-muted/50">
+                                    <TabsTrigger value="memberships" className="min-w-0 whitespace-normal rounded-lg px-2 font-body data-[state=active]:bg-altitud-olive data-[state=active]:text-altitud-cream">Membresías</TabsTrigger>
+                                    <TabsTrigger value="history" className="min-w-0 whitespace-normal rounded-lg px-2 font-body data-[state=active]:bg-altitud-olive data-[state=active]:text-altitud-cream">Clases</TabsTrigger>
+                                    <TabsTrigger value="notes" className="min-w-0 whitespace-normal rounded-lg px-2 font-body data-[state=active]:bg-altitud-olive data-[state=active]:text-altitud-cream">Notas internas</TabsTrigger>
                                 </TabsList>
 
                                 {/* Memberships Tab */}
@@ -711,7 +676,7 @@ export default function ClientDetail() {
                                                 <Card key={m.id} className="rounded-xl border-border/40 hover:border-border/60 transition-colors">
                                                     <CardContent className="p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                                                         <div>
-                                                            <div className="font-semibold font-heading flex items-center gap-2">
+                                                            <div className="flex flex-wrap items-center gap-2 font-heading font-semibold">
                                                                 {m.plan_name}
                                                                 <Badge className={`rounded-lg text-xs font-body ${statusColors[m.status] || 'bg-muted'}`}>
                                                                     {statusLabels[m.status] || m.status}
@@ -728,7 +693,7 @@ export default function ClientDetail() {
                                                                 )}
                                                             </div>
                                                         </div>
-                                                        <div className="text-right font-body flex flex-col items-end gap-2">
+                                                        <div className="flex flex-col gap-2 font-body sm:items-end sm:text-right">
                                                             <div className="text-sm font-medium">
                                                                 {m.class_limit === null || m.class_limit === undefined
                                                                     ? 'Ilimitado'
@@ -792,8 +757,8 @@ export default function ClientDetail() {
                                                         <div className="h-8 w-8 rounded-lg bg-altitud-olive/10 flex items-center justify-center shrink-0">
                                                             <MessageSquare className="h-4 w-4 text-altitud-olive" />
                                                         </div>
-                                                        <div className="flex-1 space-y-1">
-                                                            <div className="flex justify-between items-start">
+                                                        <div className="min-w-0 flex-1 space-y-1">
+                                                            <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                                                                 <div className="text-sm font-medium text-muted-foreground font-body">
                                                                     {note.author_name || 'Admin'} {note.created_by === user?.id ? '(Tu)' : ''}
                                                                 </div>
@@ -801,7 +766,7 @@ export default function ClientDetail() {
                                                                     {new Date(note.created_at).toLocaleDateString()}
                                                                 </div>
                                                             </div>
-                                                            <p className="text-sm font-body">{note.note || note.content}</p>
+                                                            <p className="break-words text-sm font-body">{note.note || note.content}</p>
                                                         </div>
                                                     </div>
                                                 ))
@@ -822,7 +787,7 @@ export default function ClientDetail() {
                                             {client.recentBookings?.length > 0 ? (
                                                 <div className="space-y-3">
                                                     {client.recentBookings.map((b: any) => (
-                                                        <div key={b.id} className="flex items-center justify-between p-3.5 bg-muted/20 rounded-xl border border-border/30 hover:border-border/50 transition-colors">
+                                                        <div key={b.id} className="flex flex-col gap-3 rounded-xl border border-border/30 bg-muted/20 p-3.5 transition-colors hover:border-border/50 sm:flex-row sm:items-center sm:justify-between">
                                                             <div className="flex items-center gap-3">
                                                                 <div className="h-8 w-8 rounded-lg bg-altitud-gold/10 flex items-center justify-center">
                                                                     <Calendar className="h-4 w-4 text-altitud-gold" />
@@ -845,7 +810,7 @@ export default function ClientDetail() {
                                                                 {(b.status === 'confirmed' || b.status === 'waitlist') && (
                                                                     <AlertDialog>
                                                                         <AlertDialogTrigger asChild>
-                                                                            <Button variant="ghost" size="sm" className="h-7 text-destructive hover:text-destructive hover:bg-destructive/10">
+                                                                            <Button aria-label={`Cancelar reserva de ${b.class_name}`} variant="ghost" size="sm" className="h-11 w-11 text-destructive hover:text-destructive hover:bg-destructive/10">
                                                                                 <X className="h-3.5 w-3.5" />
                                                                             </Button>
                                                                         </AlertDialogTrigger>
@@ -929,7 +894,7 @@ export default function ClientDetail() {
                                     className="rounded-xl font-body"
                                 />
                             </div>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="edit-ec-name" className="font-body">Contacto emergencia</Label>
                                     <Input
@@ -1001,12 +966,17 @@ export default function ClientDetail() {
                             </div>
 
                             <div className="space-y-2">
+                                <Label htmlFor="credits-reason">Motivo del ajuste *</Label>
+                                <Input id="credits-reason" value={creditsReason} onChange={e => setCreditsReason(e.target.value)} maxLength={500} placeholder="Describe por qué cambia el saldo" />
+                            </div>
+                            <div className="space-y-2">
                                 <Label htmlFor="creditsValueDetail">Nuevo balance</Label>
                                 <div className="flex items-center gap-2">
                                     <Button
                                         type="button"
                                         variant="outline"
                                         size="icon"
+                                        aria-label="Quitar un crédito"
                                         onClick={() => setCreditsValue((v) => Math.max(0, v - 1))}
                                         disabled={creditsValue <= 0}
                                     >
@@ -1025,6 +995,7 @@ export default function ClientDetail() {
                                         type="button"
                                         variant="outline"
                                         size="icon"
+                                        aria-label="Añadir un crédito"
                                         onClick={() => {
                                             const max = creditsMembership?.class_limit;
                                             setCreditsValue((v) => (max ? Math.min(max, v + 1) : v + 1));
@@ -1047,7 +1018,7 @@ export default function ClientDetail() {
                                     membershipId: creditsMembership.id,
                                     classes_remaining: creditsValue,
                                 })}
-                                disabled={creditsMutation.isPending || creditsValue === (creditsMembership?.credits_remaining ?? creditsMembership?.classes_remaining ?? 0)}
+                                disabled={creditsMutation.isPending || !creditsReason.trim() || creditsValue === (creditsMembership?.credits_remaining ?? creditsMembership?.classes_remaining ?? 0)}
                             >
                                 {creditsMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Guardar

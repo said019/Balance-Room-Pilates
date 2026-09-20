@@ -1,6 +1,7 @@
-import { ReactNode, useState, useEffect, Fragment } from 'react';
+import { ReactNode, useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import '@/admin.css';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,8 +27,8 @@ import {
     Menu,
     Bell,
     Search,
-    ClipboardList,
-    BadgeCheck,
+    CalendarPlus as ClipboardList,
+    IdCard as BadgeCheck,
     TrendingUp,
     DollarSign,
     CalendarCheck,
@@ -36,9 +37,8 @@ import {
     Megaphone,
     Tag,
     X,
-    Command,
     PanelLeftClose,
-} from 'lucide-react';
+} from '@/components/brand/icons';
 import { cn } from '@/lib/utils';
 import { AdminBreadcrumbs } from '@/components/layout/AdminBreadcrumbs';
 import api from '@/lib/api';
@@ -88,7 +88,7 @@ const sidebarItems: SidebarItem[] = [
         label: 'Comunidad',
         icon: Users,
         children: [
-            { href: '/admin/members', label: 'Clientas' },
+            { href: '/admin/members', label: 'Personas' },
             { href: '/admin/instructors', label: 'Coaches' },
         ],
     },
@@ -146,6 +146,7 @@ const pageNames: Record<string, string> = {
 };
 
 export function AdminLayout({ children }: AdminLayoutProps) {
+    const menuTriggerRef = useRef<HTMLButtonElement>(null);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [expandedItems, setExpandedItems] = useState<string[]>([]);
@@ -167,42 +168,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     }, [location.pathname]);
 
     useEffect(() => {
-        if (!mobileMenuOpen) return;
-        if (window.matchMedia('(min-width: 768px)').matches) return;
-
-        const body = document.body;
-        const html = document.documentElement;
-        const scrollY = window.scrollY;
-
-        const prev = {
-            bodyOverflow: body.style.overflow,
-            bodyPosition: body.style.position,
-            bodyTop: body.style.top,
-            bodyLeft: body.style.left,
-            bodyRight: body.style.right,
-            bodyWidth: body.style.width,
-            htmlOverflow: html.style.overflow,
-        };
-
-        html.style.overflow = 'hidden';
-        body.style.overflow = 'hidden';
-        body.style.position = 'fixed';
-        body.style.top = `-${scrollY}px`;
-        body.style.left = '0';
-        body.style.right = '0';
-        body.style.width = '100%';
-
-        return () => {
-            html.style.overflow = prev.htmlOverflow;
-            body.style.overflow = prev.bodyOverflow;
-            body.style.position = prev.bodyPosition;
-            body.style.top = prev.bodyTop;
-            body.style.left = prev.bodyLeft;
-            body.style.right = prev.bodyRight;
-            body.style.width = prev.bodyWidth;
-            window.scrollTo(0, scrollY);
-        };
-    }, [mobileMenuOpen]);
+        document.body.classList.add('altitud-admin');
+        return () => document.body.classList.remove('altitud-admin');
+    }, []);
 
     useEffect(() => {
         const fetchNotifications = async () => {
@@ -224,11 +192,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         navigate('/login');
     };
 
-    const toggleExpand = (label: string, btn?: HTMLElement) => {
+    const toggleExpand = (label: string) => {
+        if (sidebarCollapsed) setSidebarCollapsed(false);
         setExpandedItems((prev) =>
             prev.includes(label) ? prev.filter((i) => i !== label) : [...prev, label]
         );
-        btn?.blur();
     };
 
     const getInitials = (name: string) => {
@@ -258,197 +226,83 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     const sectionName = location.pathname.split('/').filter(Boolean)[1] || 'dashboard';
     const pageTitle = pageNames[sectionName] || 'Admin';
 
-    const SidebarContent = ({ mobile = false }: { mobile?: boolean }) => (
-        <div className="h-full overflow-y-auto overflow-x-hidden px-3 py-4">
-            <nav className="space-y-1.5" aria-label="Navegación de administración">
+    const renderSidebar = ({ mobile = false }: { mobile?: boolean } = {}) => (
+        <div className="admin-navigation-scroll">
+            <nav className="space-y-1" aria-label="Navegación de administración">
                 {sidebarItems.map((item) => {
                     const Icon = item.icon;
-
-                    if (item.children) {
-                        const isExpanded = expandedItems.includes(item.label);
-                        const hasActiveChild = isParentActive(item.children);
-
-                        return (
-                            <div key={item.label}>
-                                <button
-                                    onClick={(e) => toggleExpand(item.label, e.currentTarget)}
-                                    className={cn(
-                                        'group flex w-full items-center justify-between rounded-[1rem] px-3 py-2.5 text-sm font-semibold transition-[background,color,transform] duration-200 ease-admin-flow active:scale-[0.99]',
-                                        hasActiveChild
-                                            ? 'bg-altitud-olive text-altitud-cream shadow-[0_14px_34px_-24px_rgba(126,133,121,0.65)]'
-                                            : 'text-altitud-dark/62 hover:bg-altitud-cream/80 hover:text-altitud-dark'
-                                    )}
-                                >
-                                    <span className="flex min-w-0 items-center gap-3">
-                                        <span className={cn(
-                                            'flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.85rem] transition-colors',
-                                            hasActiveChild ? 'bg-altitud-cream/16 text-altitud-cream' : 'bg-altitud-olive/10 text-altitud-olive group-hover:bg-altitud-olive/16'
-                                        )}>
-                                            <Icon className="h-[18px] w-[18px]" />
-                                        </span>
-                                        {(!sidebarCollapsed || mobile) && <span className="truncate">{item.label}</span>}
-                                    </span>
-                                    {(!sidebarCollapsed || mobile) && (
-                                        <ChevronRight
-                                            className={cn('h-4 w-4 shrink-0 transition-transform duration-200', isExpanded && 'rotate-90')}
-                                        />
-                                    )}
-                                </button>
-                                <AnimatePresence initial={false}>
-                                    {isExpanded && (!sidebarCollapsed || mobile) && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: -6 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -4 }}
-                                            transition={{ duration: 0.16 }}
-                                            className="ml-5 mt-1 space-y-1 border-l border-altitud-sand/60 pl-4"
-                                        >
-                                            {item.children.map((child) => (
-                                                <Link
-                                                    key={child.href}
-                                                    to={child.href}
-                                                    onClick={() => setMobileMenuOpen(false)}
-                                                    className={cn(
-                                                        'block rounded-[0.85rem] px-3 py-2 text-sm transition-[background,color,transform] duration-200 active:scale-[0.99]',
-                                                        isActive(child.href)
-                                                            ? 'bg-altitud-olive/14 text-altitud-dark font-semibold'
-                                                            : 'text-altitud-dark/56 hover:bg-altitud-cream/75 hover:text-altitud-dark'
-                                                    )}
-                                                >
-                                                    {child.label}
-                                                </Link>
-                                            ))}
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        );
-                    }
-
-                    return (
-                        <div key={item.href}>
-                            <Link
-                                to={item.href!}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={cn(
-                                    'group flex items-center gap-3 rounded-[1rem] px-3 py-2.5 text-sm font-semibold transition-[background,color,transform] duration-200 ease-admin-flow active:scale-[0.99]',
-                                    isActive(item.href!)
-                                        ? 'bg-altitud-olive text-altitud-cream shadow-[0_14px_34px_-24px_rgba(126,133,121,0.65)]'
-                                        : 'text-altitud-dark/62 hover:bg-altitud-cream/80 hover:text-altitud-dark'
-                                )}
-                            >
-                                <span className={cn(
-                                    'flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.85rem] transition-colors',
-                                    isActive(item.href!) ? 'bg-altitud-cream/16 text-altitud-cream' : 'bg-altitud-olive/10 text-altitud-olive group-hover:bg-altitud-olive/16'
-                                )}>
-                                    <Icon className="h-[18px] w-[18px]" />
-                                </span>
-                                {(!sidebarCollapsed || mobile) && <span className="truncate">{item.label}</span>}
-                            </Link>
-                        </div>
-                    );
+                    const expanded = expandedItems.includes(item.label);
+                    const active = item.children ? isParentActive(item.children) : isActive(item.href!);
+                    const labelVisible = !sidebarCollapsed || mobile;
+                    const content = <><Icon aria-hidden="true" className="h-5 w-5 shrink-0" />{labelVisible && <span className="min-w-0 flex-1 text-left">{item.label}</span>}</>;
+                    return <div key={item.label}>
+                        {item.children ? <>
+                            <button type="button" className={cn('admin-nav-link', active && 'is-active')}
+                                aria-label={item.label} aria-expanded={expanded && labelVisible}
+                                onClick={() => toggleExpand(item.label)}>
+                                {content}
+                                {labelVisible && <ChevronRight aria-hidden="true" className={cn('h-4 w-4 transition-transform', expanded && 'rotate-90')} />}
+                            </button>
+                            {expanded && labelVisible && <div className="admin-nav-children">
+                                {item.children.map((child) => <Link key={child.href} to={child.href}
+                                    className={cn('admin-nav-child', isActive(child.href) && 'is-active')}
+                                    aria-current={isActive(child.href) ? 'page' : undefined}
+                                    onClick={() => setMobileMenuOpen(false)}>{child.label}</Link>)}
+                            </div>}
+                        </> : <Link to={item.href!} className={cn('admin-nav-link', active && 'is-active')}
+                            aria-label={item.label} aria-current={active ? 'page' : undefined}
+                            onClick={() => setMobileMenuOpen(false)}>{content}</Link>}
+                    </div>;
                 })}
             </nav>
+            <p className="admin-nav-caption">2707 Altitud · Studio</p>
         </div>
     );
 
     return (
-        <div className="admin-shell min-h-screen bg-[hsl(var(--admin-bg))] text-altitud-dark">
-            <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_14%_6%,rgba(126,133,121,0.26),transparent_34%),radial-gradient(circle_at_82%_12%,rgba(126,133,121,0.16),transparent_28%),radial-gradient(circle_at_72%_88%,rgba(207,200,184,0.42),transparent_32%)]" />
-
-            <aside
-                className={cn(
-                    'fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-altitud-sand/55 bg-[hsl(var(--admin-panel))]/95 shadow-[18px_0_55px_-46px_rgba(51,42,34,0.7)] transition-[width] duration-300 ease-admin-flow md:flex',
-                    sidebarCollapsed ? 'w-[5.25rem]' : 'w-[18rem]'
-                )}
-            >
-                <div className="flex h-[5.25rem] items-center justify-between px-4">
-                    {!sidebarCollapsed && (
-                        <Link to="/admin/dashboard" className="flex min-w-0 items-center gap-3">
-                            <img
-                                src="/brand/logo.svg"
-                                alt="2707 Altitud"
-                                className="h-11 w-auto object-contain"
-                            />
-                            <div className="min-w-0">
-                                <span className="block truncate text-[0.95rem] font-semibold tracking-[-0.02em] text-altitud-dark">2707 Altitud</span>
-                                <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-altitud-olive">Studio admin</span>
-                            </div>
-                        </Link>
-                    )}
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                        className={cn(
-                            'h-10 w-10 rounded-full border border-altitud-olive/25 bg-altitud-olive/10 text-altitud-olive transition-all duration-200 hover:bg-altitud-olive hover:text-altitud-cream active:scale-[0.96]',
-                            sidebarCollapsed && 'mx-auto'
-                        )}
-                        aria-label={sidebarCollapsed ? 'Expandir navegación' : 'Contraer navegación'}
-                    >
-                        {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-                    </Button>
+        <div className="admin-shell min-h-screen text-altitud-dark">
+            <a className="admin-skip-link" href="#admin-main">Ir al contenido</a>
+            <aside className={cn('admin-rail fixed inset-y-0 left-0 z-40 hidden flex-col transition-[width] duration-200 lg:flex', sidebarCollapsed ? 'w-[5.25rem]' : 'w-[16rem]')}>
+                <div className="flex min-h-24 shrink-0 items-center justify-between gap-4 px-5">
+                    {!sidebarCollapsed && <Link to="/admin/dashboard" aria-label="2707 Altitud, inicio de administración">
+                        <img src="/brand/logo-light.svg" alt="2707 Altitud" className="h-12 w-auto" />
+                    </Link>}
+                    <button type="button" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                        className="admin-rail-control" aria-label={sidebarCollapsed ? 'Expandir navegación' : 'Contraer navegación'}>
+                        {sidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+                    </button>
                 </div>
-                <SidebarContent />
+                {renderSidebar()}
             </aside>
 
-            <AnimatePresence>
-                {mobileMenuOpen && (
-                    <Fragment>
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-40 bg-altitud-dark/35 backdrop-blur-sm md:hidden"
-                            onClick={() => setMobileMenuOpen(false)}
-                        />
-                        <motion.aside
-                            initial={{ x: '-100%' }}
-                            animate={{ x: 0 }}
-                            exit={{ x: '-100%' }}
-                            transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
-                            className="fixed inset-y-0 left-0 z-50 flex w-[19rem] max-w-[88vw] flex-col border-r border-altitud-sand/60 bg-[hsl(var(--admin-panel))] shadow-2xl md:hidden"
-                        >
-                            <div className="flex h-[5.25rem] items-center justify-between px-4">
-                                <Link to="/admin/dashboard" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3">
-                                    <img
-                                        src="/brand/logo.svg"
-                                        alt="2707 Altitud"
-                                        className="h-10 w-auto object-contain"
-                                    />
-                                    <div>
-                                        <span className="block text-sm font-semibold text-altitud-dark">2707 Altitud</span>
-                                        <span className="block text-[10px] uppercase tracking-[0.22em] text-altitud-olive">Admin</span>
-                                    </div>
-                                </Link>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-10 w-10 rounded-full bg-altitud-cream/80"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    aria-label="Cerrar navegación"
-                                >
-                                    <X className="h-5 w-5" />
-                                </Button>
-                            </div>
-                            <SidebarContent mobile />
-                        </motion.aside>
-                    </Fragment>
-                )}
-            </AnimatePresence>
+            <DialogPrimitive.Root open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <DialogPrimitive.Portal>
+                    <DialogPrimitive.Overlay className="admin-menu-overlay" />
+                    <DialogPrimitive.Content className="admin-mobile-drawer" onCloseAutoFocus={(event) => { event.preventDefault(); menuTriggerRef.current?.focus(); }}>
+                        <div className="flex min-h-24 shrink-0 items-center justify-between gap-4 px-5">
+                            <img src="/brand/logo-light.svg" alt="2707 Altitud" className="h-12 w-auto" />
+                            <DialogPrimitive.Title className="sr-only">Administración de 2707 Altitud</DialogPrimitive.Title>
+                            <DialogPrimitive.Description className="sr-only">Secciones del administrador del studio.</DialogPrimitive.Description>
+                            <DialogPrimitive.Close className="admin-rail-control" aria-label="Cerrar navegación"><X className="h-5 w-5" /></DialogPrimitive.Close>
+                        </div>
+                        {renderSidebar({ mobile: true })}
+                    </DialogPrimitive.Content>
+                </DialogPrimitive.Portal>
+            </DialogPrimitive.Root>
 
             <div
                 className={cn(
                     'relative flex min-h-screen flex-1 flex-col transition-[padding] duration-300 ease-admin-flow',
-                    sidebarCollapsed ? 'md:pl-[5.25rem]' : 'md:pl-[18rem]'
+                    sidebarCollapsed ? 'lg:pl-[5.25rem]' : 'lg:pl-[16rem]'
                 )}
             >
-                <header className="sticky top-0 z-30 border-b border-altitud-sand/45 bg-[hsl(var(--admin-bg))]/82 px-4 py-3 backdrop-blur-xl md:px-6">
+                <header className="admin-topbar sticky top-0 z-30 px-4 py-3 md:px-6">
                     <div className="mx-auto flex max-w-[1480px] items-center gap-3">
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="h-10 w-10 rounded-full border border-altitud-sand/65 bg-altitud-cream/70 md:hidden"
+                            ref={menuTriggerRef}
+                            className="admin-header-control lg:hidden"
                             onClick={() => setMobileMenuOpen(true)}
                             aria-label="Abrir navegación"
                         >
@@ -457,24 +311,16 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-altitud-olive">
-                                <Command className="h-3.5 w-3.5" />
-                                Operación
+                                2707 Altitud
                             </div>
-                            <h1 className="truncate text-lg font-semibold tracking-[-0.02em] text-altitud-dark md:text-xl">
+                            <p className="truncate text-base font-semibold text-altitud-dark md:text-lg">
                                 {pageTitle}
-                            </h1>
+                            </p>
                         </div>
 
-                        <div className="hidden min-w-[280px] max-w-md flex-1 lg:block">
-                            <div className="relative">
-                                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-altitud-dark/42" />
-                                <input
-                                    type="search"
-                                    placeholder="Buscar clientas, clases o pagos"
-                                    className="h-11 w-full rounded-full border border-altitud-sand/65 bg-altitud-cream/65 pl-11 pr-4 text-sm text-altitud-dark outline-none transition-all duration-200 placeholder:text-altitud-dark/38 focus:border-altitud-olive/55 focus:bg-altitud-cream focus:ring-4 focus:ring-altitud-olive/10"
-                                />
-                            </div>
-                        </div>
+                        <Link to="/admin/members" className="admin-community-search hidden items-center gap-3 xl:flex">
+                            <Search className="h-4 w-4" aria-hidden="true" /> Buscar en comunidad
+                        </Link>
 
                         <div className="flex items-center gap-2">
                             <Popover open={notifOpen} onOpenChange={setNotifOpen}>
@@ -482,7 +328,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="relative h-10 w-10 rounded-full border border-altitud-sand/65 bg-altitud-cream/70 transition-all hover:bg-altitud-dark hover:text-altitud-cream active:scale-[0.96]"
+                                        className="admin-header-control relative"
                                         aria-label="Notificaciones"
                                     >
                                         <Bell className="h-[18px] w-[18px]" />
@@ -561,7 +407,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 transition-transform active:scale-[0.96]">
+                                    <Button variant="ghost" className="admin-header-control relative rounded-full p-0" aria-label="Cuenta de administración">
                                         <Avatar className="h-10 w-10 border border-altitud-sand/70 bg-altitud-cream">
                                             <AvatarImage src={user?.photo_url || undefined} alt={user?.display_name} />
                                             <AvatarFallback className="bg-altitud-dark text-sm font-semibold text-altitud-cream">
@@ -629,14 +475,29 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     </div>
                 </header>
 
-                <main className="flex-1 px-4 py-5 md:px-6 md:py-7">
-                    <div className="mx-auto max-w-[1480px]">
+                <main id="admin-main" className="admin-content min-w-0 flex-1 px-4 py-5 md:px-6 md:py-7" tabIndex={-1}>
+                    <div className="mx-auto min-w-0 max-w-[1480px]">
                         <div className="mb-5">
                             <AdminBreadcrumbs />
                         </div>
                         {children}
                     </div>
                 </main>
+                <nav className="admin-bottom-nav lg:hidden" aria-label="Accesos principales">
+                    {[
+                        { href: '/admin/dashboard', label: 'Pulso', icon: LayoutDashboard },
+                        { href: '/admin/calendar', label: 'Agenda', icon: Calendar },
+                        { href: '/admin/members', label: 'Comunidad', icon: Users },
+                        { href: '/admin/payments', label: 'Pagos', icon: CreditCard },
+                    ].map(({ href, label, icon: Icon }) => <Link key={href} to={href}
+                        className={cn('admin-bottom-link', isActive(href) && 'is-active')}
+                        aria-current={isActive(href) ? 'page' : undefined}>
+                        <Icon className="h-5 w-5" aria-hidden="true" /><span>{label}</span>
+                    </Link>)}
+                    <button type="button" className="admin-bottom-link" onClick={() => setMobileMenuOpen(true)} aria-label="Más secciones" aria-expanded={mobileMenuOpen}>
+                        <Menu className="h-5 w-5" aria-hidden="true" /><span>Más</span>
+                    </button>
+                </nav>
             </div>
         </div>
     );

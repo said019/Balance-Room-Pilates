@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Breadcrumb,
@@ -10,8 +11,8 @@ import {
 
 const labelMap: Record<string, string> = {
   admin: 'Admin',
-  dashboard: 'Dashboard',
-  calendar: 'Calendario',
+  dashboard: 'Pulso',
+  calendar: 'Agenda',
   bookings: 'Reservas',
   totalpass: 'TotalPass',
   checkins: 'Check-ins',
@@ -21,7 +22,7 @@ const labelMap: Record<string, string> = {
   schedules: 'Horarios',
   types: 'Tipos de clase',
   generate: 'Generar clases',
-  members: 'Miembros',
+  members: 'Comunidad',
   new: 'Nuevo',
   memberships: 'Membresías',
   paquetes: 'Paquetes',
@@ -29,7 +30,7 @@ const labelMap: Record<string, string> = {
   active: 'Activas',
   expiring: 'Por vencer',
   all: 'Todas',
-  instructors: 'Instructores',
+  instructors: 'Coaches',
   payments: 'Pagos',
   transactions: 'Transacciones',
   register: 'Registrar pago',
@@ -37,15 +38,24 @@ const labelMap: Record<string, string> = {
   config: 'Configuración',
   redemptions: 'Canjes',
   adjust: 'Ajustes',
-  overview: 'Overview',
+  overview: 'Vista general',
   revenue: 'Ingresos',
   retention: 'Retención',
   settings: 'Configuración',
   general: 'General',
-  studio: 'Estudio',
+  studio: 'Studio',
   policies: 'Políticas',
   notifications: 'Notificaciones',
+  events: 'Eventos',
+  marketing: 'Comunicación',
+  'discount-codes': 'Descuentos',
+  facilities: 'Salas',
+  prices: 'Precios y paquetes',
+  cancellations: 'Cancelaciones',
+  whatsapp: 'WhatsApp',
 };
+
+const parentRoutes: Record<string, string> = { '/admin': '/admin/dashboard', '/admin/classes': '/admin/classes/schedules', '/admin/memberships': '/admin/memberships/all', '/admin/reports': '/admin/reports/overview', '/admin/settings': '/admin/settings/general', '/admin/totalpass': '/admin/totalpass/checkins' };
 
 const isUuid = (value: string) =>
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
@@ -75,16 +85,18 @@ export function AdminBreadcrumbs() {
     <Breadcrumb>
       <BreadcrumbList>
         {crumbs.map((crumb, index) => (
-          <BreadcrumbItem key={crumb.href}>
+          <Fragment key={crumb.href}>
+          <BreadcrumbItem>
             {crumb.isLast ? (
               <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
             ) : (
               <BreadcrumbLink asChild>
-                <Link to={crumb.href}>{crumb.label}</Link>
+                <Link to={parentRoutes[crumb.href] || crumb.href}>{crumb.label}</Link>
               </BreadcrumbLink>
             )}
-            {index < crumbs.length - 1 && <BreadcrumbSeparator />}
           </BreadcrumbItem>
+          {index < crumbs.length - 1 && <BreadcrumbSeparator />}
+          </Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { addDays, format, isSameDay, parseISO, startOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Calendar, ChevronLeft, ChevronRight, User } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, User } from '@/components/brand/icons';
 import StudioLayout from '@/components/layout/StudioLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

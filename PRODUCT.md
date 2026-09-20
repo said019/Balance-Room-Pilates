@@ -11,7 +11,7 @@ and uses the product register for its own workflows.
 ## Users
 
 Spanish-speaking people seeking structured training, including beginners,
-runners and athletes interested in hybrid training and HYROX. They value coaching,
+runners and athletes interested in hybrid training and hybrid competitions. They value coaching,
 small groups, the quality of training and belonging to a community. Visitors
 explore the studio on phones and desktops before deciding to book a session.
 
@@ -96,3 +96,7 @@ retains its sand mountain and clear space.
 The shared editorial source is src/lib/studio.ts. Its plan IDs are content keys,
 not database purchase IDs. Official names will replace the descriptive labels
 when the studio provides them.
+
+## Studio visual and editorial update, 10 September 2026
+
+TRAIN is music-guided hypertrophy: intentional movement, rhythm, control, technique and time under tension. Use the supplied complete description on the public training section. Refer to hybrid training and hybrid competitions in editorial copy. Use the original discipline pictograms from the provided identity sheet, without redrawing. The three outdoor running photographs are for Running; carry, ski and sled photographs are for hybrid training. Preserve supplied photography.

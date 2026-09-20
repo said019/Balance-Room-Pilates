@@ -1,6 +1,6 @@
 import { type CSSProperties, ReactNode, useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, useLocation, useParams } from 'react-router-dom';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User } from '@/components/brand/icons';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { getStudioBySlug } from '@/data/studios';

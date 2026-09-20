@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { getMembershipStats } from '@/services/migrationServiceAPI';
 import type { MembershipStats } from '@/types/migration.types';
-import { Users, TrendingUp, ShoppingCart, Gift, RefreshCcw } from 'lucide-react';
+import { Users, TrendingUp, ShoppingCart, Gift, RefreshCcw } from '@/components/brand/icons';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const calculatePercentage = (value: number, total: number): number =>

@@ -19,13 +19,13 @@ import {
 } from '@/components/ui/select';
 
 const activationSchema = z.object({
-  paymentMethod: z.enum(['cash', 'transfer', 'card', 'online'], {
+  paymentMethod: z.enum(['cash', 'transfer', 'card'], {
     required_error: 'Selecciona un método de pago',
   }),
   paymentReference: z.string().max(255).optional(),
   startDate: z.string().min(1, 'Selecciona la fecha de inicio'),
   notes: z.string().max(500).optional(),
-  notifyMember: z.boolean().default(true),
+  notifyMember: z.boolean().default(false),
   generateWalletPass: z.boolean().default(false),
 });
 
@@ -43,7 +43,6 @@ const paymentLabels: Record<ActivationForm['paymentMethod'], string> = {
   cash: 'Efectivo',
   transfer: 'Transferencia',
   card: 'Tarjeta',
-  online: 'Pago en línea',
 };
 
 const formatCurrency = (amount?: number | null, currency = 'MXN') => {
@@ -68,7 +67,7 @@ export function MembershipActivationDialog({
     defaultValues: {
       paymentMethod: 'transfer',
       startDate: today,
-      notifyMember: true,
+      notifyMember: false,
       generateWalletPass: false,
     },
   });
@@ -90,7 +89,7 @@ export function MembershipActivationDialog({
       paymentReference: membership.payment_reference || '',
       startDate: today,
       notes: '',
-      notifyMember: true,
+      notifyMember: false,
       generateWalletPass: false,
     });
   }, [membership, reset, today]);
@@ -127,12 +126,12 @@ export function MembershipActivationDialog({
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label>Método de pago recibido *</Label>
+            <Label htmlFor="activation-payment">Método de pago recibido *</Label>
             <Select
               value={paymentMethod}
               onValueChange={(value) => setValue('paymentMethod', value as ActivationForm['paymentMethod'])}
             >
-              <SelectTrigger>
+              <SelectTrigger id="activation-payment">
                 <SelectValue placeholder="Seleccionar método" />
               </SelectTrigger>
               <SelectContent>
@@ -149,21 +148,22 @@ export function MembershipActivationDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>Referencia (opcional)</Label>
-            <Input placeholder="Folio o referencia" {...register('paymentReference')} />
+            <Label htmlFor="activation-reference">{paymentMethod === 'cash' ? 'Referencia (opcional)' : 'Folio del pago recibido *'}</Label>
+            <Input id="activation-reference" required={paymentMethod !== 'cash'} placeholder="Folio o referencia" {...register('paymentReference')} />
           </div>
 
           <div className="space-y-2">
-            <Label>Fecha de inicio *</Label>
-            <Input type="date" {...register('startDate')} />
+            <Label htmlFor="activation-start">Fecha de inicio *</Label>
+            <Input id="activation-start" type="date" {...register('startDate')} />
             {errors.startDate && (
               <p className="text-xs text-destructive">{errors.startDate.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label>Notas (opcional)</Label>
+            <Label htmlFor="activation-notes">Notas (opcional)</Label>
             <Textarea
+              id="activation-notes"
               placeholder="Notas internas sobre el pago"
               rows={3}
               {...register('notes')}
@@ -173,12 +173,13 @@ export function MembershipActivationDialog({
           <div className="space-y-3">
             <div className="flex items-start gap-3">
               <Checkbox
-                checked={notifyMember}
+                checked={false}
+                disabled
                 onCheckedChange={(checked) => setValue('notifyMember', checked === true)}
                 id="notify-member"
               />
               <Label htmlFor="notify-member" className="text-sm leading-5">
-                Enviar notificación al cliente
+                Avisos automáticos no disponibles. La activación queda registrada en la app.
               </Label>
             </div>
           </div>

@@ -99,7 +99,7 @@
 .alt-home .alt-discipline-info { padding: 24px 0; border-color: var(--line); gap: 20px; }
 .alt-home .alt-discipline-info p { font-size: 17px; color: var(--muted); }
 .alt-home .alt-discipline-info div > span { font-size: 11px; letter-spacing: 1px; color: var(--earth); }
-.alt-home .alt-hyrox { background: var(--wash); border-radius: 12px; padding: 28px 32px; margin-top: 48px; }
+.alt-home .alt-hybrid-challenge { background: var(--wash); border-radius: 12px; padding: 28px 32px; margin-top: 48px; }
 .alt-home .alt-community {
   max-width: 1440px;
   margin: 0 auto;
@@ -183,8 +183,8 @@
   .alt-home .alt-discipline:nth-child(2) { padding: 0; }
   .alt-home .alt-discipline-image { height: 300px; }
   .alt-home .alt-discipline h3 { font-size: 38px; }
-  .alt-home .alt-hyrox { display: grid; gap: 16px; margin-top: 32px; padding: 24px; }
-  .alt-home .alt-hyrox .alt-text-link { justify-self: start; }
+  .alt-home .alt-hybrid-challenge { display: grid; gap: 16px; margin-top: 32px; padding: 24px; }
+  .alt-home .alt-hybrid-challenge .alt-text-link { justify-self: start; }
   .alt-home .alt-community { grid-template-columns: 1fr; }
   .alt-home .alt-community-image { min-height: 340px; }
   .alt-home .alt-community-copy { padding: 40px 24px 48px; }

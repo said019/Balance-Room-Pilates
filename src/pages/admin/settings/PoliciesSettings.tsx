@@ -126,7 +126,7 @@ export default function PoliciesSettings() {
                                     Descontar clase si el cliente no se presenta
                                 </p>
                             </div>
-                            <Switch
+                            <Switch aria-label="Penalización por no presentarse"
                                 checked={policies.no_show_penalty}
                                 onCheckedChange={(checked) => setPolicies({
                                     ...policies,
@@ -222,7 +222,7 @@ export default function PoliciesSettings() {
                                     Los clientes pueden anotarse si la clase está llena
                                 </p>
                             </div>
-                            <Switch
+                            <Switch aria-label="Permitir lista de espera"
                                 checked={policies.allow_waitlist}
                                 onCheckedChange={(checked) => setPolicies({
                                     ...policies,
@@ -238,7 +238,7 @@ export default function PoliciesSettings() {
                                     Promover automáticamente cuando se libere un lugar
                                 </p>
                             </div>
-                            <Switch
+                            <Switch aria-label="Promoción automática"
                                 checked={policies.auto_promote_waitlist}
                                 onCheckedChange={(checked) => setPolicies({
                                     ...policies,

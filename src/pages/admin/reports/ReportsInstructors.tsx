@@ -49,7 +49,7 @@ export default function ReportsInstructors() {
                         <p className="text-muted-foreground">Comparativa de asistencia y ocupación.</p>
                     </div>
                     <Select value={period} onValueChange={setPeriod}>
-                        <SelectTrigger className="w-[180px]">
+                        <SelectTrigger aria-label="Periodo del reporte" className="w-[180px]">
                             <SelectValue placeholder="Periodo" />
                         </SelectTrigger>
                         <SelectContent>

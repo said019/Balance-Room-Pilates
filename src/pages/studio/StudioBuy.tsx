@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { CheckCircle2, CreditCard, Landmark, MessageCircle } from 'lucide-react';
+import { CheckCircle2, CreditCard, Landmark, MessageCircle } from '@/components/brand/icons';
 import StudioLayout from '@/components/layout/StudioLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

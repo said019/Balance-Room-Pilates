@@ -51,7 +51,7 @@ import { useToast } from '@/components/ui/use-toast';
 import {
     Loader2, ChevronLeft, ChevronRight, Calendar as CalendarIcon,
     Plus, Repeat, Users, Trash2, Check, Edit, Phone, Clock, MapPin, Sparkles, Copy
-} from 'lucide-react';
+} from '@/components/brand/icons';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -332,6 +332,7 @@ interface ClassesCalendarProps {
 
 export default function ClassesCalendar({ initialGenerateOpen = false }: ClassesCalendarProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [mobileDayIndex, setMobileDayIndex] = useState(new Date().getDay());
     const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 0 }));
     const [isGenerateOpen, setIsGenerateOpen] = useState(initialGenerateOpen);
     const [isBulkFreeOpen, setIsBulkFreeOpen] = useState(false);
@@ -351,6 +352,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     const [studioFilter, setStudioFilter] = useState<string>('all');
     const [showCancelled, setShowCancelled] = useState(false);
     const [userSearch, setUserSearch] = useState('');
+    const [isCourtesy, setIsCourtesy] = useState(false);
+    const [courtesyReason, setCourtesyReason] = useState('');
     const [searchActive, setSearchActive] = useState(false);
     const [isCopyOpen, setIsCopyOpen] = useState(false);
     const [copyScope, setCopyScope] = useState<string>('all');
@@ -398,11 +401,13 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
 
     const adminBookMutation = useMutation({
         mutationFn: async ({ classId, userId }: { classId: string; userId: string }) =>
-            api.post('/bookings/admin-book', { classId, userId }),
+            api.post('/bookings/admin-book', { classId, userId, ...(isCourtesy ? { courtesyReason: courtesyReason.trim() } : {}) }),
         onSuccess: () => {
             refetchAttendees();
             queryClient.invalidateQueries({ queryKey: ['classes'] });
-            toast({ title: 'Usuario agregado a la clase' });
+            toast({ title: 'Reserva confirmada', description: isCourtesy ? 'Cortesía registrada con su motivo.' : 'Se utilizó el derecho disponible del paquete.' });
+            setIsCourtesy(false);
+            setCourtesyReason('');
             setUserSearch('');
             setSearchActive(false);
         },
@@ -556,7 +561,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
             const data = response.data;
             toast({
                 title: 'Clase cancelada',
-                description: `${data.cancelledBookings || 0} reservas canceladas, ${data.refundedCredits || 0} creditos reembolsados.`
+                description: `${data.cancelledBookings || 0} reservas canceladas, ${data.refundedCredits || 0} créditos devueltos.${data.creditReviews ? ` ${data.creditReviews} reservas anteriores requieren revisar su saldo con el studio.` : ''}`
             });
             setIsAttendeesOpen(false);
             setSelectedClass(null);
@@ -670,7 +675,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
 
     const classForm = useForm<ClassForm>({
         resolver: zodResolver(classSchema),
-        defaultValues: { maxCapacity: 6 }
+        defaultValues: { maxCapacity: 12 }
     });
 
     const editForm = useForm<EditClassForm>({
@@ -679,10 +684,10 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
 
     const handlePrevWeek = () => setCurrentDate(addDays(currentDate, -7));
     const handleNextWeek = () => setCurrentDate(addDays(currentDate, 7));
-    const handleToday = () => setCurrentDate(new Date());
+    const handleToday = () => { setCurrentDate(new Date()); setMobileDayIndex(new Date().getDay()); };
 
     const handleDayClick = (day: Date) => {
-        classForm.reset({ date: day, maxCapacity: 6, startTime: '09:00', endTime: '10:00', theme: 'none' });
+        classForm.reset({ date: day, maxCapacity: 12, startTime: '09:00', endTime: '10:00', theme: 'none' });
         setIsClassOpen(true);
     };
 
@@ -804,10 +809,6 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                     <section className="overflow-hidden rounded-[2rem] border border-altitud-olive/25 bg-altitud-olive/10 shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)]">
                         <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-end lg:justify-between">
                             <div className="min-w-0">
-                                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-altitud-olive/25 bg-altitud-cream/55 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-altitud-olive">
-                                    <Sparkles className="h-3.5 w-3.5" />
-                                    Semana activa
-                                </div>
                                 <h1 className="text-3xl font-semibold capitalize tracking-[-0.04em] text-altitud-dark">
                                     {format(currentDate, 'MMMM yyyy', { locale: es })}
                                 </h1>
@@ -815,61 +816,25 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                             </div>
 
                             <div className="space-y-3 lg:min-w-[29rem]">
-                                <div className="grid gap-3 sm:grid-cols-3">
+                                <div className="grid grid-cols-3 gap-2 sm:gap-3">
                                     <CalendarStat label="Clases" value={activeClasses.length} />
                                     <CalendarStat label="Reservas" value={totalBookings} />
                                     <CalendarStat label="Cupos libres" value={openSpots} />
                                 </div>
-                                <div className="rounded-[1.15rem] border border-altitud-olive/16 bg-altitud-cream/45 px-4 py-3">
-                                    <div className="mb-2 flex items-center justify-between gap-2">
-                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-altitud-dark/48">
-                                            Clases por estudio
-                                        </p>
-                                        {studioFilter !== 'all' && (
-                                            <button
-                                                type="button"
-                                                onClick={() => setStudioFilter('all')}
-                                                className="text-[11px] font-semibold text-altitud-olive underline-offset-2 hover:underline"
-                                            >
-                                                Ver todos
-                                            </button>
-                                        )}
-                                    </div>
-                                    <div className="grid gap-2 sm:grid-cols-3">
-                                        {studioBreakdown.map((s) => {
-                                            const isActive = studioFilter === s.name;
-                                            return (
-                                                <button
-                                                    type="button"
-                                                    key={s.name}
-                                                    onClick={() => setStudioFilter(isActive ? 'all' : s.name)}
-                                                    aria-pressed={isActive}
-                                                    className={`flex items-center justify-between gap-2 rounded-[0.9rem] border px-3 py-2 text-left transition-colors ${
-                                                        isActive
-                                                            ? 'border-altitud-olive/60 bg-altitud-olive/15'
-                                                            : 'border-altitud-olive/14 bg-altitud-cream/60 hover:border-altitud-olive/30 hover:bg-altitud-cream/80'
-                                                    }`}
-                                                >
-                                                    <span className="truncate text-xs font-semibold text-altitud-dark/65">{s.name}</span>
-                                                    <span className="text-base font-semibold tabular-nums tracking-[-0.03em] text-altitud-dark">{s.count}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
+
                             </div>
                         </div>
 
                         <div className="flex flex-col gap-3 border-t border-altitud-olive/18 bg-altitud-cream/36 p-4 xl:flex-row xl:items-center xl:justify-between">
                             <div className="flex flex-wrap items-center gap-2">
                                 <div className="flex items-center overflow-hidden rounded-full border border-altitud-sand/65 bg-altitud-cream/75">
-                                    <Button variant="ghost" size="icon" className="rounded-full" onClick={handlePrevWeek}>
+                                    <Button variant="ghost" size="icon" className="rounded-full" aria-label="Semana anterior" onClick={handlePrevWeek}>
                                         <ChevronLeft className="h-4 w-4" />
                                     </Button>
                                     <Button variant="ghost" className="rounded-full px-4 font-semibold" onClick={handleToday}>
                                         Hoy
                                     </Button>
-                                    <Button variant="ghost" size="icon" className="rounded-full" onClick={handleNextWeek}>
+                                    <Button variant="ghost" size="icon" className="rounded-full" aria-label="Semana siguiente" onClick={handleNextWeek}>
                                         <ChevronRight className="h-4 w-4" />
                                     </Button>
                                 </div>
@@ -878,7 +843,13 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 </Badge>
                             </div>
 
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start">
+                                <Button className="min-h-11 bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90" onClick={() => handleDayClick(weekDays[mobileDayIndex])}>
+                                    <Plus className="mr-2 h-4 w-4" /> Nueva clase
+                                </Button>
+                                <details className="min-w-0 flex-1 rounded-xl border border-altitud-sand/70 bg-altitud-cream/70">
+                                    <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-semibold text-altitud-dark">Herramientas de agenda</summary>
+                                    <div className="grid gap-2 px-3 pb-3 sm:grid-cols-2">
                                 <Button
                                     variant="outline"
                                     className="border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive"
@@ -928,13 +899,52 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 <Button variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" onClick={() => setIsBulkFreeOpen(true)}>
                                     <Sparkles className="mr-2 h-4 w-4" /> Marcar como gratis
                                 </Button>
-                                <Button className="bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90" onClick={() => handleDayClick(new Date())}>
-                                    <Plus className="mr-2 h-4 w-4" /> Nueva clase
-                                </Button>
+                                    </div>
+                                </details>
                             </div>
                         </div>
                     </section>
 
+                    <details className="rounded-2xl border border-altitud-sand/60 bg-altitud-cream/40 p-4">
+                        <summary className="cursor-pointer text-sm font-semibold text-altitud-dark">Filtros de agenda <span className="ml-2 font-normal text-muted-foreground">Tipo de clase y plataformas</span></summary>
+                        <div className="mt-4 space-y-4">
+                                <div className="rounded-[1.15rem] border border-altitud-olive/16 bg-altitud-cream/45 px-4 py-3">
+                                    <div className="mb-2 flex items-center justify-between gap-2">
+                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-altitud-dark/65">
+                                            Clases por studio
+                                        </p>
+                                        {studioFilter !== 'all' && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setStudioFilter('all')}
+                                                className="text-[11px] font-semibold text-altitud-olive underline-offset-2 hover:underline"
+                                            >
+                                                Ver todos
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="grid gap-2 sm:grid-cols-3">
+                                        {studioBreakdown.map((s) => {
+                                            const isActive = studioFilter === s.name;
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    key={s.name}
+                                                    onClick={() => setStudioFilter(isActive ? 'all' : s.name)}
+                                                    aria-pressed={isActive}
+                                                    className={`flex items-center justify-between gap-2 rounded-[0.9rem] border px-3 py-2 text-left transition-colors ${
+                                                        isActive
+                                                            ? 'border-altitud-olive/60 bg-altitud-olive/15'
+                                                            : 'border-altitud-olive/14 bg-altitud-cream/60 hover:border-altitud-olive/30 hover:bg-altitud-cream/80'
+                                                    }`}
+                                                >
+                                                    <span className="truncate text-xs font-semibold text-altitud-dark/65">{s.name}</span>
+                                                    <span className="text-base font-semibold tabular-nums tracking-[-0.03em] text-altitud-dark">{s.count}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
                     {classTypes && classTypes.length > 0 && (
                         <div className="flex flex-wrap items-center gap-2 px-1">
                             <button
@@ -1077,9 +1087,12 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                         </div>
                     </div>
 
+                        </div>
+                    </details>
+
                     <div className="overflow-hidden rounded-[1.75rem] border border-altitud-sand/65 bg-[hsl(var(--admin-panel))] shadow-[0_22px_72px_-58px_rgba(51,42,34,0.75)]">
                         <div className="overflow-x-auto">
-                            <div className="min-w-[980px]">
+                            <div className="min-w-0 lg:min-w-[980px]">
                                 <div className="grid grid-cols-7 border-b border-altitud-sand/60 bg-altitud-cream/55">
                                     {weekDays.map((day, i) => {
                                         const isToday = isSameDay(day, new Date());
@@ -1089,29 +1102,35 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                             <button
                                                 key={format(day, 'yyyy-MM-dd')}
                                                 type="button"
-                                                onClick={() => handleDayClick(day)}
+                                                onClick={() => {
+                                                    setMobileDayIndex(i);
+                                                    if (window.matchMedia('(min-width: 1024px)').matches) handleDayClick(day);
+                                                }}
+                                                aria-label={format(day, "EEEE d 'de' MMMM", { locale: es })}
+                                                aria-pressed={mobileDayIndex === i}
                                                 className={cn(
-                                                    'min-h-[6.75rem] border-r border-altitud-sand/55 p-4 text-left transition-colors last:border-r-0 hover:bg-altitud-olive/8',
+                                                    'min-h-[5rem] min-w-0 border-r border-altitud-sand/55 px-0.5 py-3 text-center transition-colors last:border-r-0 hover:bg-altitud-olive/8 lg:min-h-[6.75rem] lg:p-4 lg:text-left',
+                                                    mobileDayIndex === i && 'bg-altitud-olive/15',
                                                     isToday && 'bg-altitud-olive/12',
                                                     isClosed && 'bg-destructive/5'
                                                 )}
                                             >
-                                                <div className="flex items-start justify-between gap-2">
+                                                <div className="flex items-start justify-center gap-2 lg:justify-between">
                                                     <div>
-                                                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-altitud-dark/50">{DAYS[i]}</p>
-                                                        <div className="mt-2 flex items-center gap-2">
+                                                        <p className="text-[10px] font-semibold uppercase tracking-wide text-altitud-dark/65 lg:text-xs lg:tracking-[0.18em]">{DAYS[i]}</p>
+                                                        <div className="mt-1 flex items-center justify-center gap-2 lg:mt-2">
                                                             <span className={cn(
-                                                                'flex h-10 w-10 items-center justify-center rounded-full text-xl font-semibold tabular-nums text-altitud-dark',
-                                                                isToday && 'bg-altitud-olive text-altitud-cream'
+                                                                'flex h-9 w-9 items-center justify-center rounded-full text-lg font-semibold tabular-nums text-altitud-dark lg:h-10 lg:w-10 lg:text-xl',
+                                                                mobileDayIndex === i && 'bg-altitud-olive text-altitud-cream'
                                                             )}>
                                                                 {format(day, 'd')}
                                                             </span>
                                                             {isClosed && (
-                                                                <Badge variant="destructive" className="rounded-full text-[10px]">Cerrado</Badge>
+                                                                <Badge variant="destructive" className="hidden rounded-full text-[10px] lg:inline-flex">Cerrado</Badge>
                                                             )}
                                                         </div>
                                                     </div>
-                                                    <span className="rounded-full bg-altitud-cream px-2.5 py-1 text-[11px] font-semibold text-altitud-dark/58">
+                                                    <span className="hidden rounded-full bg-altitud-cream px-2.5 py-1 text-[11px] font-semibold text-altitud-dark/58 lg:inline-flex">
                                                         {dayClasses.length} clase{dayClasses.length === 1 ? '' : 's'}
                                                     </span>
                                                 </div>
@@ -1120,8 +1139,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                     })}
                                 </div>
 
-                                <div className="grid grid-cols-7">
-                                    {weekDays.map((day) => {
+                                <div className="grid lg:grid-cols-7">
+                                    {weekDays.map((day, dayIndex) => {
                                         const dayClasses = getClassesForDay(day);
                                         const dayEvents = getEventsForDay(day);
                                         const isClosed = closedDaySet.has(format(day, 'yyyy-MM-dd'));
@@ -1130,10 +1149,15 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                             <div
                                                 key={format(day, 'yyyy-MM-dd')}
                                                 className={cn(
-                                                    'min-h-[34rem] border-r border-altitud-sand/55 bg-altitud-cream/18 p-3 last:border-r-0',
+                                                    'min-h-[12rem] min-w-0 border-altitud-sand/55 bg-altitud-cream/18 p-4 last:border-r-0 lg:min-h-[34rem] lg:border-r lg:p-3',
+                                                    dayIndex !== mobileDayIndex && 'hidden lg:block',
                                                     isClosed && 'bg-destructive/5'
                                                 )}
                                             >
+                                                <div className="mb-4 flex flex-wrap items-center justify-between gap-2 lg:hidden">
+                                                    <h2 className="font-heading text-lg capitalize text-altitud-dark">{format(day, 'EEEE d', { locale: es })}</h2>
+                                                    <span className="text-xs text-muted-foreground">{dayClasses.length} clases · {dayClasses.reduce((sum, item) => sum + Number(item.current_bookings || 0), 0)} reservas</span>
+                                                </div>
                                                 {isClosed && (
                                                     <div className="mb-3 rounded-[1rem] border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
                                                         {closedReason || 'Studio cerrado'}
@@ -1328,6 +1352,12 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 {selectedClass?.status !== 'cancelled' && (
                                     <div className="rounded-xl border border-altitud-sand/55 bg-altitud-cream/45 p-3 space-y-2">
                                         <p className="text-sm font-semibold">Agregar usuario a la clase</p>
+                                        <p className="text-xs text-muted-foreground">La reserva utiliza una clase de su paquete vigente.</p>
+                                        <label className="flex min-h-11 items-center gap-3 text-sm">
+                                            <input type="checkbox" checked={isCourtesy} onChange={event => setIsCourtesy(event.target.checked)} className="h-5 w-5 accent-altitud-olive" />
+                                            Autorizar una cortesía sin consumir crédito
+                                        </label>
+                                        {isCourtesy && <Input aria-label="Motivo de la cortesía" value={courtesyReason} onChange={event => setCourtesyReason(event.target.value)} minLength={5} maxLength={500} placeholder="Motivo de la cortesía (obligatorio)" /> }
                                         <div className="relative">
                                             <Input
                                                 placeholder="Buscar por nombre o email..."
@@ -1353,7 +1383,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                     <button
                                                         key={u.id}
                                                         type="button"
-                                                        disabled={adminBookMutation.isPending}
+                                                        disabled={adminBookMutation.isPending || (isCourtesy && courtesyReason.trim().length < 5)}
                                                         onClick={() => {
                                                             if (!selectedClass) return;
                                                             adminBookMutation.mutate({ classId: selectedClass.id, userId: u.id });
@@ -1410,7 +1440,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                             <div
                                                 key={attendee.booking_id}
                                                 className={cn(
-                                                    "flex items-center justify-between p-3 border rounded-lg",
+                                                    "flex flex-col items-stretch gap-3 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between",
                                                     attendee.status === 'checked_in' && "bg-success/10 border-success/30"
                                                 )}
                                             >
@@ -1422,7 +1452,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                         </Avatar>
                                                     </Link>
                                                     <div>
-                                                        <p className="font-medium">{attendee.display_name}</p>
+                                                        <p className="break-words font-medium">{attendee.display_name}</p>
                                                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                                             {attendee.channel === 'wellhub' ? (
                                                                 <WellhubBadge />
@@ -1441,7 +1471,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-2 flex-wrap justify-end">
+                                                <div className="flex flex-wrap items-center justify-start gap-2 border-t border-altitud-sand/40 pt-3 sm:justify-end sm:border-t-0 sm:pt-0">
                                                     {attendee.status === 'checked_in' ? (
                                                         <>
                                                             <Badge className="bg-success">
@@ -1980,8 +2010,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
 
 function CalendarStat({ label, value }: { label: string; value: number }) {
     return (
-        <div className="rounded-[1.15rem] border border-altitud-olive/16 bg-altitud-cream/55 px-4 py-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-altitud-dark/48">{label}</p>
+        <div className="min-w-0 rounded-[1.15rem] border border-altitud-olive/16 bg-altitud-cream/55 px-3 py-3 sm:px-4">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-altitud-dark/65 sm:text-[11px] sm:tracking-[0.18em]">{label}</p>
             <p className="mt-1 text-2xl font-semibold tabular-nums tracking-[-0.04em] text-altitud-dark">{value}</p>
         </div>
     );

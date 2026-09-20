@@ -9,7 +9,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import api from '@/lib/api';
 import { format, subDays } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Users, CreditCard, Calendar, TrendingUp, AlertCircle, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Users, CreditCard, Calendar, TrendingUp, AlertCircle, ArrowUpRight, ArrowDownRight } from '@/components/brand/icons';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Reports() {

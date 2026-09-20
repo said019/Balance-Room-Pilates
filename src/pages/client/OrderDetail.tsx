@@ -50,7 +50,7 @@ import {
   FileText,
   X,
   CreditCard,
-} from 'lucide-react';
+} from '@/components/brand/icons';
 
 const statusConfig: Record<OrderStatus, { label: string; icon: typeof Clock; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
   pending_payment: { label: 'Esperando pago', icon: Clock, variant: 'secondary' },

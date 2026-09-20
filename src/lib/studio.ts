@@ -19,8 +19,13 @@ export const STUDIO = {
 
 export const STUDIO_SERVICES = [
   { id: 'hybrid', name: 'Híbrido / funcional', label: 'FUERZA + RESISTENCIA', description: 'Fuerza, capacidad cardiovascular y movimientos funcionales para construir una condición física completa.' },
-  { id: 'train', name: 'TRAIN', label: 'ENTRENAMIENTO DE FUERZA', description: 'Entrenamiento de fuerza con atención a la técnica y acompañamiento cercano en cada sesión.' },
+  { id: 'train', name: 'TRAIN', label: 'HIPERTROFIA AL RITMO DE LA MÚSICA', description: 'TRAIN es nuestra clase de hipertrofia guiada por la música, donde cada movimiento tiene intención y cada repetición sigue el ritmo.' },
   { id: 'running', name: 'Running', label: 'SESIONES DE CARRERA', description: 'Sesiones enfocadas en carrera para acompañar tu entrenamiento y ayudarte a avanzar hacia tu siguiente reto.' },
+] as const;
+
+export const TRAIN_DETAILS = [
+  'A través de secuencias estructuradas de fuerza, trabajamos control, técnica y tiempo bajo tensión para estimular el músculo de forma eficiente.',
+  'Aquí no se trata de moverte más rápido, sino de moverte mejor: cargar, controlar y progresar.',
 ] as const;
 
 export type StudioPlan = {

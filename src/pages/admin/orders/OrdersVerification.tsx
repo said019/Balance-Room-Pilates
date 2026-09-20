@@ -45,7 +45,7 @@ import {
   CreditCard,
   Download,
   Trash2,
-} from 'lucide-react';
+} from '@/components/brand/icons';
 
 const statusConfig: Record<OrderStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
   pending_payment: { label: 'Esperando pago', variant: 'secondary' },
@@ -177,16 +177,55 @@ function OrdersVerificationInner() {
   const pendingVerification = orders?.filter(o => o.status === 'pending_verification') || [];
   const pendingPayment = orders?.filter(o => o.status === 'pending_payment') || [];
 
+
+  const mobileOrders = (items: OrderWithProofs[]) => (
+    <div className="space-y-3 md:hidden">
+      {items.map(order => (
+        <article key={order.id} className="min-w-0 rounded-2xl border border-altitud-sand/60 bg-altitud-cream/45 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="break-words font-semibold text-altitud-dark">{order.user_name}</p>
+              <p className="mt-1 break-all text-xs text-muted-foreground">{order.user_email}</p>
+            </div>
+            <p className="shrink-0 text-lg font-semibold tabular-nums text-altitud-dark">{formatPrice(order.total)}</p>
+          </div>
+          <p className="mt-3 text-sm text-altitud-dark">{order.plan_name}</p>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+            <span className="break-all font-mono">{order.order_number}</span>
+            <span>{format(parseISO(order.created_at), 'd MMM · HH:mm', { locale: es })}</span>
+          </div>
+          <div className="mt-3 border-t border-altitud-sand/50 pt-3">
+            {order.status === 'pending_verification' ? (
+              <Button variant="outline" className="min-h-11 w-full" onClick={() => setSelectedOrder(order)}>
+                <Eye className="mr-2 h-4 w-4" /> Revisar comprobante
+              </Button>
+            ) : order.payment_method === 'card' ? (
+              <p className="flex items-center gap-2 text-sm text-muted-foreground"><CreditCard className="h-4 w-4 shrink-0" /> Esperando pago con tarjeta</p>
+            ) : (
+              <>
+                <p className="mb-3 text-xs text-muted-foreground">{order.payment_method === 'bank_transfer' ? 'Transferencia bancaria' : order.payment_method === 'cash' ? 'Efectivo' : order.payment_method === 'online' ? 'En línea' : order.payment_method || 'Método por confirmar'}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button className="min-h-11 px-2" onClick={() => { setSelectedOrder(order); setActionType('approve'); }}><CheckCircle2 className="mr-1.5 h-4 w-4" /> Aprobar</Button>
+                  <Button variant="outline" className="min-h-11 px-2" onClick={() => { setSelectedOrder(order); setActionType('reject'); }}><XCircle className="mr-1.5 h-4 w-4" /> Rechazar</Button>
+                </div>
+              </>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+
   return (
     <>
         <div className="space-y-6">
           {/* Stats */}
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-3">
             <Card>
               <CardContent className="py-4">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-orange-100 flex items-center justify-center">
-                    <AlertCircle className="h-6 w-6 text-orange-600" />
+                <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+                  <div className="h-10 w-10 shrink-0 rounded-xl bg-altitud-sand/50 flex items-center justify-center">
+                    <AlertCircle className="h-5 w-5 text-altitud-earth" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{pendingVerification.length}</p>
@@ -197,8 +236,8 @@ function OrdersVerificationInner() {
             </Card>
             <Card>
               <CardContent className="py-4">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+                  <div className="h-10 w-10 shrink-0 rounded-xl bg-muted flex items-center justify-center">
                     <Clock className="h-6 w-6 text-muted-foreground" />
                   </div>
                   <div>
@@ -214,7 +253,7 @@ function OrdersVerificationInner() {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-orange-500" />
+                <AlertCircle className="h-5 w-5 shrink-0 text-altitud-earth" />
                 Comprobantes por verificar
               </CardTitle>
               <CardDescription>
@@ -229,6 +268,9 @@ function OrdersVerificationInner() {
                   <Skeleton className="h-12 w-full" />
                 </div>
               ) : pendingVerification.length > 0 ? (
+                <>
+                {mobileOrders(pendingVerification)}
+                <div className="hidden md:block">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -271,6 +313,8 @@ function OrdersVerificationInner() {
                     ))}
                   </TableBody>
                 </Table>
+                </div>
+                </>
               ) : (
                 <div className="text-center py-8">
                   <CheckCircle2 className="h-12 w-12 mx-auto text-success mb-3" />
@@ -293,6 +337,8 @@ function OrdersVerificationInner() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {mobileOrders(pendingPayment)}
+                <div className="hidden md:block">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -368,6 +414,7 @@ function OrdersVerificationInner() {
                     ))}
                   </TableBody>
                 </Table>
+                </div>
               </CardContent>
             </Card>
           )}
@@ -390,11 +437,11 @@ function OrdersVerificationInner() {
                 
                 <div className="space-y-4">
                   {/* Customer Info */}
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                  <div className="flex min-w-0 items-start gap-3 rounded-xl bg-muted/50 p-3 [&>div]:min-w-0 [&>svg]:shrink-0">
                     <User className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium">{selectedOrder.user_name}</p>
-                      <p className="text-sm text-muted-foreground">{selectedOrder.user_email}</p>
+                      <p className="break-all text-sm text-muted-foreground">{selectedOrder.user_email}</p>
                       {selectedOrder.user_phone && (
                         <p className="text-sm text-muted-foreground">{selectedOrder.user_phone}</p>
                       )}

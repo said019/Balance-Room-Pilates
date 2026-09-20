@@ -1,0 +1,15 @@
+{
+  "icons": 32,
+  "variants": 3,
+  "svg": 96,
+  "png": 96,
+  "checks": [
+    "32 geometrías dentro de retícula",
+    "Búsqueda sin acentos",
+    "Selección y descarga por color",
+    "Estado vacío",
+    "Móvil390px sin desbordamiento",
+    "Sin errores JavaScript"
+  ],
+  "passed": true
+}

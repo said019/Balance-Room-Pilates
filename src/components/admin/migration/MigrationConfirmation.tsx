@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, Mail, MessageSquare, Copy, ArrowRight, UserPlus } from 'lucide-react';
+import { CheckCircle2, Mail, MessageSquare, Copy, ArrowRight, UserPlus } from '@/components/brand/icons';
 import { useState } from 'react';
 import { format, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';

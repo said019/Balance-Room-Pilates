@@ -64,7 +64,8 @@ export default function MembershipsExpiring() {
             <div className="relative w-full md:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar cliente..."
+                aria-label="Buscar membresías por vencer"
+                placeholder="Buscar miembro"
                 className="pl-10"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -72,50 +73,62 @@ export default function MembershipsExpiring() {
             </div>
           </div>
 
-          <div className="rounded-md border bg-card">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Plan</TableHead>
-                  <TableHead>Vence</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead className="text-right">Acciones</TableHead>
+          <div className="overflow-hidden rounded-xl border bg-card">
+            <Table className="admin-record-table" role="table">
+              <TableHeader role="rowgroup">
+                <TableRow role="row">
+                  <TableHead role="columnheader">Cliente</TableHead>
+                  <TableHead role="columnheader">Plan</TableHead>
+                  <TableHead role="columnheader">Vence</TableHead>
+                  <TableHead role="columnheader">Estado</TableHead>
+                  <TableHead role="columnheader" className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody role="rowgroup">
                 {isLoading ? (
-                  <TableRow>
+                  <TableRow role="row">
                     <TableCell colSpan={5} className="text-center py-8">
                       <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
                     </TableCell>
                   </TableRow>
                 ) : filtered.length === 0 ? (
-                  <TableRow>
+                  <TableRow role="row">
                     <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                       No hay membresías por vencer.
                     </TableCell>
                   </TableRow>
                 ) : (
                   filtered.map((membership) => (
-                    <TableRow key={membership.id}>
-                      <TableCell>
-                        <div className="font-medium">{membership.user_name}</div>
-                        <div className="text-xs text-muted-foreground">{membership.user_email}</div>
+                    <TableRow role="row" key={membership.id}>
+                      <TableCell role="cell" data-label="Miembro" data-primary>
+                          <div className="admin-record-value">
+                            <div className="font-medium">{membership.user_name}</div>
+                            <div className="text-xs text-muted-foreground">{membership.user_email}</div>
+                          </div>
                       </TableCell>
-                      <TableCell>{membership.plan_name}</TableCell>
-                      <TableCell className="text-sm">
-                        {membership.end_date ? new Date(membership.end_date).toLocaleDateString() : '—'}
+                      <TableCell role="cell" data-label="Plan">
+                          <div className="admin-record-value">
+                              {membership.plan_name}
+                          </div>
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-warning border-warning/30 bg-warning/10">
-                          Por vencer
-                        </Badge>
+                      <TableCell className="text-sm" role="cell" data-label="Vence">
+                          <div className="admin-record-value">
+                            {membership.end_date ? new Date(membership.end_date).toLocaleDateString() : '—'}
+                          </div>
                       </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="outline" size="sm" onClick={() => toast({ title: 'Notificación enviada' })}>
-                          Recordar
-                        </Button>
+                      <TableCell role="cell" data-label="Estado">
+                          <div className="admin-record-value">
+                            <Badge variant="outline" className="text-warning border-warning/30 bg-warning/10">
+                              Por vencer
+                            </Badge>
+                          </div>
+                      </TableCell>
+                      <TableCell className="text-right" role="cell" data-label="Acciones" data-actions>
+                          <div className="admin-record-value">
+                            <Button variant="outline" size="sm" asChild disabled={!membership.user_email}>
+                              <a href={membership.user_email ? `mailto:${encodeURIComponent(membership.user_email)}?subject=${encodeURIComponent('Tu paquete en 2707 Altitud')}` : undefined}>Abrir correo</a>
+                            </Button>
+                          </div>
                       </TableCell>
                     </TableRow>
                   ))

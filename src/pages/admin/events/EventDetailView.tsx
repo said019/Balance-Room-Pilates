@@ -21,7 +21,7 @@ import {
   MessageCircle, Mail, Bell, CalendarDays, MapPin,
   User, ClipboardList, Gift, BarChart3, Settings2, Loader2,
   Camera,
-} from 'lucide-react';
+} from '@/components/brand/icons';
 import { cn } from '@/lib/utils';
 import type { StudioEvent, EventRegistration } from './types';
 import { getEventTypeInfo } from './types';

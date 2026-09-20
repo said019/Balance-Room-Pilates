@@ -42,15 +42,17 @@ export function setStoredToken(token: string): void {
 }
 
 // Remove token
-export function removeStoredToken(): void {
+export function removeStoredToken(expectedToken?: string): boolean {
+    if (expectedToken !== undefined && getStoredToken() !== expectedToken) return false;
     localStorage.removeItem(TOKEN_KEY);
+    return true;
 }
 
 // Request interceptor - add auth token
 api.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
         const token = getStoredToken();
-        if (token && config.headers) {
+        if (token && config.headers && !config.headers.Authorization) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         // Attach admin token for /evolution/* endpoints (altitud2707-api)
@@ -74,8 +76,14 @@ api.interceptors.response.use(
             // Skip session bust for admin-token endpoints (Evolution): a 401 there
             // means "wrong/missing admin token", not "expired user session".
             const reqUrl = (error.config?.url || '').toString();
-            if (!reqUrl.startsWith('/evolution')) {
-                removeStoredToken();
+            const authorization = error.config?.headers?.Authorization;
+            const requestToken = typeof authorization === 'string' && authorization.startsWith('Bearer ')
+                ? authorization.slice(7) : null;
+            const credentialRequest = /^\/auth\/(login|register|forgot-password|reset-password|change-password|coach\/login|coach\/change-password|instructor\/verify-magic-link)\/?$/.test(reqUrl);
+            const sessionRejected = (error.response.data as ApiError & { code?: string })?.code === 'AUTH_SESSION_INVALID';
+            if (!reqUrl.startsWith('/evolution') && (!credentialRequest || sessionRejected) &&
+                requestToken && removeStoredToken(requestToken)) {
+                window.dispatchEvent(new CustomEvent('altitud:session-expired', { detail: { token: requestToken } }));
                 if (!['/login', '/register', '/forgot-password'].includes(window.location.pathname)) {
                     window.location.href = authUrl('/login', window.location.pathname + window.location.search + window.location.hash);
                 }

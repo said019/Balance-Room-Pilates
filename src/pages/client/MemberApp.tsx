@@ -1,3 +1,4 @@
+import { DisciplineIcon } from '@/components/brand/DisciplineIcon';
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { addDays, format, startOfWeek, isSameDay } from "date-fns";
@@ -15,7 +16,7 @@ import {
   GearIcon,
   ExitIcon,
   DownloadIcon,
-} from "@radix-ui/react-icons";
+} from "@/components/brand/radix-icons";
 import { ClientLayout } from "@/components/layout/ClientLayout";
 import { AuthGuard } from "@/components/layout/AuthGuard";
 import {
@@ -280,7 +281,7 @@ function MemberHome({
           </Link>
         </div>
         <img
-          src="/brand/hybrid-training.jpg"
+          src="/brand/studio/hybrid-sled.webp"
           alt="Entrenamiento híbrido con trineo"
         />
         <span className="member-welcome-note">
@@ -380,11 +381,11 @@ function MemberHome({
           <span>ENTRENA A TU MANERA</span>
         </div>
         <div className="member-explore-grid">
-          {STUDIO_SERVICES.map((service, index) => (
+          {STUDIO_SERVICES.map((service) => (
             <Link key={service.id} to={`${base}/book?tipo=${encodeURIComponent(service.name)}`}>
-              <img src={index === 0 ? "/brand/hybrid-training.jpg" : "/brand/community-training.jpg"} alt={index === 0 ? "Entrenamiento híbrido" : "Entrenamiento en comunidad"} />
+              <img className={`member-discipline-photo member-discipline-${service.id}`} src={service.id === "hybrid" ? "/brand/studio/hybrid-carry.webp" : service.id === "running" ? "/brand/studio/run-community.webp" : "/brand/performance-disciplines.jpg"} alt={`Entrenamiento ${service.name}`} loading="lazy" />
               <div>
-                <span>{service.label}</span>
+                <DisciplineIcon name={service.id} size={44} /><span>{service.label}</span>
                 <h3>{service.name}</h3>
                 <p>{service.description}</p>
               </div>
@@ -462,14 +463,16 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
     data.setActionError("");
     try {
       const waiting = cancelled.booking_status === "waitlist";
-      await data.cancel(cancelled);
+      const cancellation = await data.cancel(cancelled);
       setCancelled(null);
       setMessage(
         waiting
           ? "Saliste de la lista de espera."
           : preview
             ? "Reserva de muestra cancelada a tiempo. Recuperaste tu crédito de ejemplo."
-            : "Reserva cancelada a tiempo. Consulta tu saldo actualizado.",
+            : cancellation?.requiresCreditReview
+              ? "Reserva cancelada. El studio revisará el crédito de esta reserva anterior; aún no se ha sumado a tu saldo."
+              : "Reserva cancelada a tiempo. Consulta tu saldo actualizado.",
       );
     } catch (e) {
       data.setActionError(getErrorMessage(e));
@@ -934,8 +937,8 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
         />
         <section className="member-community-banner">
           <img
-            src="/brand/community-training.jpg"
-            alt="Entrenamiento funcional"
+            src="/brand/studio/run-progress.webp"
+            alt="Corredores de la comunidad Altitud"
           />
           <div>
             <span className="member-kicker">PERFORMANCE MEETS LIFESTYLE</span>

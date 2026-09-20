@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api, { getErrorMessage } from '@/lib/api';
+import { postFinancialOperation } from '@/lib/financial-intent';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,7 +52,7 @@ export default function ManualIncome() {
 
   const mutation = useMutation({
     mutationFn: async (payload: Form) => {
-      const { data } = await api.post('/payments/manual-income', payload);
+      const { data } = await postFinancialOperation('/payments/manual-income', { ...payload, incomeDate: 'incomeDate' in payload ? payload.incomeDate || undefined : undefined });
       return data;
     },
     onSuccess: () => {
@@ -72,36 +73,36 @@ export default function ManualIncome() {
         className="grid gap-4 sm:grid-cols-2"
       >
         <div className="space-y-2">
-          <label className="text-sm font-medium">Monto</label>
-          <Input type="number" step="0.01" {...register('amount')} />
+          <label htmlFor="manual-amount" className="text-sm font-medium">Monto</label>
+          <Input type="number" step="0.01" id="manual-amount" {...register('amount')} />
           {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium">Concepto</label>
-          <Input {...register('concept')} placeholder="Ej. Venta de producto" />
+          <label htmlFor="manual-concept" className="text-sm font-medium">Concepto</label>
+          <Input id="manual-concept" {...register('concept')} placeholder="Ej. Venta de producto" />
           {errors.concept && <p className="text-xs text-destructive">{errors.concept.message}</p>}
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium">Método</label>
+          <label htmlFor="manual-paymentMethod" className="text-sm font-medium">Método</label>
           <Select
             defaultValue="cash"
             onValueChange={(v) => setValue('paymentMethod', v as Form['paymentMethod'])}
           >
-            <SelectTrigger>
+            <SelectTrigger id="manual-paymentMethod" aria-label="Método de pago">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="cash">Efectivo</SelectItem>
               <SelectItem value="transfer">Transferencia</SelectItem>
               <SelectItem value="card">Tarjeta</SelectItem>
-              <SelectItem value="online">En línea</SelectItem>
+
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium">Estudio (opcional)</label>
+          <label htmlFor="manual-facilityId" className="text-sm font-medium">Estudio (opcional)</label>
           <Select onValueChange={(v) => setValue('facilityId', v)}>
-            <SelectTrigger>
+            <SelectTrigger id="manual-facilityId" aria-label="Estudio del ingreso">
               <SelectValue placeholder="General" />
             </SelectTrigger>
             <SelectContent>
@@ -114,12 +115,12 @@ export default function ManualIncome() {
           </Select>
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium">Fecha (opcional)</label>
-          <Input type="date" {...register('incomeDate')} />
+          <label htmlFor="manual-incomeDate" className="text-sm font-medium">Fecha (opcional)</label>
+          <Input type="date" id="manual-incomeDate" {...register('incomeDate')} />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium">Notas</label>
-          <Input {...register('notes')} />
+          <label htmlFor="manual-notes" className="text-sm font-medium">Notas</label>
+          <Input id="manual-notes" {...register('notes')} />
         </div>
         <div className="sm:col-span-2">
           <Button type="submit" disabled={mutation.isPending}>
@@ -129,24 +130,24 @@ export default function ManualIncome() {
       </form>
 
       <div className="rounded-xl border">
-        <table className="w-full text-sm">
+        <table className="admin-record-table w-full text-sm">
           <thead>
             <tr className="border-b text-left text-muted-foreground">
-              <th className="p-3">Fecha</th>
-              <th className="p-3">Concepto</th>
-              <th className="p-3">Estudio</th>
-              <th className="p-3">Método</th>
-              <th className="p-3 text-right">Monto</th>
+              <th scope="col" className="p-3">Fecha</th>
+              <th scope="col" className="p-3">Concepto</th>
+              <th scope="col" className="p-3">Estudio</th>
+              <th scope="col" className="p-3">Método</th>
+              <th scope="col" className="p-3 text-right">Monto</th>
             </tr>
           </thead>
           <tbody>
             {list.map((r) => (
               <tr key={r.id} className="border-b last:border-0">
-                <td className="p-3">{String(r.income_date).slice(0, 10)}</td>
-                <td className="p-3">{r.concept}</td>
-                <td className="p-3">{r.facility_name || 'General'}</td>
-                <td className="p-3">{r.payment_method}</td>
-                <td className="p-3 text-right tabular-nums">${Number(r.amount).toFixed(2)}</td>
+                <td data-label="Fecha" className="p-3"><span className="admin-record-value">{String(r.income_date).slice(0, 10)}</span></td>
+                <td data-label="Concepto" className="p-3"><span className="admin-record-value">{r.concept}</span></td>
+                <td data-label="Estudio" className="p-3"><span className="admin-record-value">{r.facility_name || 'General'}</span></td>
+                <td data-label="Método" className="p-3"><span className="admin-record-value">{r.payment_method}</span></td>
+                <td data-label="Monto" className="p-3 text-right tabular-nums"><span className="admin-record-value">${Number(r.amount).toFixed(2)}</span></td>
               </tr>
             ))}
             {list.length === 0 && (

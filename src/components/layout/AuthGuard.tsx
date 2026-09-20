@@ -14,7 +14,7 @@ interface AuthGuardProps {
 export function AuthGuard({ children, requiredRoles, redirectTo = '/login' }: AuthGuardProps) {
     const navigate = useNavigate();
     const { pathname, search, hash } = useLocation();
-    const { user, isAuthenticated, isLoading, checkAuth } = useAuthStore();
+    const { user, isAuthenticated, isLoading, authCheckError, checkAuth } = useAuthStore();
 
     // Check auth on mount
     useEffect(() => {
@@ -23,7 +23,7 @@ export function AuthGuard({ children, requiredRoles, redirectTo = '/login' }: Au
 
     // Handle redirects
     useEffect(() => {
-        if (isLoading) return;
+        if (isLoading || authCheckError) return;
 
         // Not authenticated
         if (!isAuthenticated) {
@@ -42,7 +42,21 @@ export function AuthGuard({ children, requiredRoles, redirectTo = '/login' }: Au
                 navigate('/app', { replace: true });
             }
         }
-    }, [isLoading, isAuthenticated, user, requiredRoles, navigate, redirectTo, pathname, search, hash]);
+    }, [isLoading, authCheckError, isAuthenticated, user, requiredRoles, navigate, redirectTo, pathname, search, hash]);
+
+    if (authCheckError && !isLoading) {
+        return (
+            <main className="min-h-screen flex items-center justify-center bg-background px-6">
+                <div className="max-w-sm text-center space-y-5" role="alert">
+                    <h1 className="text-2xl font-heading">Volvemos en un momento</h1>
+                    <p className="text-muted-foreground">{authCheckError}</p>
+                    <button type="button" onClick={() => void checkAuth()} className="min-h-12 rounded-full bg-primary px-8 py-3 text-primary-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
+                        Intentar de nuevo
+                    </button>
+                </div>
+            </main>
+        );
+    }
 
     // Show loading while checking auth
     if (isLoading) {

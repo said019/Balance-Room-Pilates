@@ -44,7 +44,7 @@ import {
   DollarSign,
   Copy,
   CheckCircle2,
-} from 'lucide-react';
+} from '@/components/brand/icons';
 
 interface DiscountCode {
   id: string;
@@ -175,6 +175,7 @@ export default function DiscountCodes() {
     <AuthGuard requiredRoles={['admin']}>
       <AdminLayout>
         <div className="space-y-6">
+        <p className="rounded-xl border border-altitud-sand/60 bg-altitud-cream p-4 text-sm text-altitud-dark/75">Los códigos se conservan para campañas futuras. Las compras de paquetes de 2707 Altitud aún no aplican estos descuentos; Founding 50 se valida por separado con el studio.</p>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h1 className="text-2xl font-heading font-bold text-foreground">Códigos de Descuento</h1>
@@ -226,7 +227,7 @@ export default function DiscountCodes() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-7 w-7"
+                                className="h-7 w-7" aria-label="Copiar código"
                                 onClick={() => copyCode(code.code)}
                               >
                                 {copiedCode === code.code ? (
@@ -273,7 +274,7 @@ export default function DiscountCodes() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Switch
+                            <Switch aria-label="Código activo"
                               checked={code.isActive}
                               onCheckedChange={(checked) =>
                                 toggleMutation.mutate({ id: code.id, isActive: checked })
@@ -282,13 +283,13 @@ export default function DiscountCodes() {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex gap-1 justify-end">
-                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(code)}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Editar código" onClick={() => openEdit(code)}>
                                 <Pencil className="h-3.5 w-3.5" />
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 text-red-500 hover:text-red-700"
+                                className="h-8 w-8 text-red-500 hover:text-red-700" aria-label="Eliminar código"
                                 onClick={() => deleteMutation.mutate(code.id)}
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
@@ -343,7 +344,7 @@ export default function DiscountCodes() {
                     value={form.discount_type}
                     onValueChange={(v) => setForm({ ...form, discount_type: v as any })}
                   >
-                    <SelectTrigger className="mt-1.5">
+                    <SelectTrigger aria-label="Tipo de descuento" className="mt-1.5">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -455,7 +456,7 @@ export default function DiscountCodes() {
               </div>
 
               <div className="flex items-center gap-3 pt-2">
-                <Switch
+                <Switch aria-label="Código activo"
                   checked={form.is_active}
                   onCheckedChange={(checked) => setForm({ ...form, is_active: checked })}
                 />

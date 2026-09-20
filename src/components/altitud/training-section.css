@@ -1,0 +1,71 @@
+/* An athletic program selector anchored in the studio's own identity. */
+.alt-site .alt-programs { padding: clamp(56px, 7vw, 108px) var(--page-gutter, 6%); scroll-margin-top: 110px; }
+.alt-site .alt-programs-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 48px; margin-bottom: 48px; }
+.alt-site .alt-programs-heading h2 { font-size: clamp(36px, 4.6vw, 70px); line-height: 1.06; letter-spacing: -1.8px; margin: 22px 0 0; }
+.alt-site .alt-programs-heading h2 span { color: var(--olive); }
+.alt-site .alt-programs-heading > p { max-width: 32ch; color: var(--muted); font-size: 18px; line-height: 1.65; padding-bottom: 3px; }
+.alt-site .alt-program-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 32px; }
+.alt-site .alt-program-tabs button { min-width: 0; min-height: 106px; display: flex; align-items: center; gap: clamp(12px, 1.8vw, 28px); padding: 18px 24px; color: var(--muted); text-align: left; transition: background-color .2s, color .2s; }
+.alt-site .alt-program-tabs button + button { border-left: 1px solid var(--line); }
+.alt-site .alt-program-tabs button[aria-selected=true] { background: var(--olive); color: var(--ivory); }
+.alt-site .alt-program-tabs button:hover:not([aria-selected=true]) { background: var(--wash); color: var(--carbon); }
+.alt-site .alt-program-tabs .alt-official-discipline { width: 48px; height: 48px; margin: 0; background: var(--ivory); padding: 5px; }
+.alt-site .alt-program-number { font-size: 11px; align-self: flex-start; margin-top: 9px; font-variant-numeric: tabular-nums; }
+.alt-site .alt-program-name { font-family: 'Carrois Gothic', sans-serif; font-size: clamp(22px, 2.5vw, 36px); }
+.alt-site .alt-program-indicator { margin-left: auto; font-size: 25px; }
+.alt-site .alt-program-story { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(36px, 5vw, 80px); }
+.alt-site .alt-program-visual { min-width: 0; }
+.alt-site .alt-program-photo { height: clamp(430px, 46vw, 680px); background: var(--carbon); overflow: hidden; }
+.alt-site .alt-program-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 45%; display: block; }
+.alt-site .alt-program-hybrid .alt-program-photo img { object-position: center; }
+.alt-site .alt-program-photo-bar { background: var(--carbon); color: var(--ivory); display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 62px; padding: 8px 20px; }
+.alt-site .alt-program-photo-bar > span { font-size: 10px; letter-spacing: 1px; }
+.alt-site .alt-program-photo-location { color: var(--sand); margin-left: 8px; }
+.alt-site .alt-program-photo-controls { display: flex; gap: 12px; align-items: center; }
+.alt-site .alt-program-photo-controls button { width: 44px; height: 44px; font-size: 24px; }
+.alt-site .alt-program-photo-controls > span { white-space: nowrap; font-size: 13px; font-variant-numeric: tabular-nums; }
+.alt-site .alt-program-photo-controls > span > span { color: var(--sand); }
+.alt-site .alt-program-copy { display: flex; flex-direction: column; align-items: flex-start; padding-top: 28px; }
+.alt-site .alt-program-focus { font-size: 10px; letter-spacing: 1.5px; line-height: 1.7; color: var(--earth); }
+.alt-site .alt-program-copy h3 { font-size: clamp(60px, 7.5vw, 110px); letter-spacing: -3px; line-height: 1; margin: 24px 0 14px; text-transform: uppercase; }
+.alt-site .alt-program-subtitle { font-size: clamp(24px, 2.4vw, 34px); color: var(--olive); line-height: 1.25; margin-bottom: 32px; }
+.alt-site .alt-program-description { max-width: 46ch; font-size: 18px; line-height: 1.65; color: var(--muted); }
+.alt-site .alt-program-description p + p { margin-top: 16px; }
+.alt-site .alt-program-book { display: inline-flex; align-items: center; justify-content: space-between; gap: 30px; border-bottom: 1px solid var(--olive); color: var(--carbon); padding: 18px 0; min-height: 52px; font-size: 18px; margin-top: 26px; }
+.alt-site .alt-program-book svg { width: 24px; height: 24px; }
+.alt-site .alt-program-footnote { width: 100%; display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: auto; padding-top: 48px; padding-bottom: 18px; font-size: 9px; letter-spacing: 1.2px; color: var(--earth); }
+.alt-site .alt-program-challenge { display: flex; align-items: center; gap: 24px; border-bottom: 1px solid var(--line); padding: 30px 0; margin-top: 20px; }
+.alt-site .alt-program-challenge .alt-official-discipline { margin: 0; }
+.alt-site .alt-program-challenge p { font-size: 18px; }
+.alt-site .alt-program-challenge a { display: flex; align-items: center; gap: 20px; font-size: 16px; margin-left: auto; min-height: 44px; color: var(--olive); }
+.alt-site .alt-programs button:focus-visible, .alt-site .alt-programs a:focus-visible, .alt-site .alt-programs [role=tabpanel]:focus-visible { outline: 2px solid var(--earth); outline-offset: 4px; }
+.alt-site .alt-program-photo-controls button:focus-visible { outline-color: var(--sand); outline-offset: 0; }
+@media (max-width: 1000px) {
+  .alt-site .alt-program-number, .alt-site .alt-program-indicator, .alt-site .alt-program-photo-location { display: none; }
+  .alt-site .alt-program-tabs button { justify-content: center; padding-inline: 12px; }
+}
+@media (max-width: 767px) {
+  .alt-site .alt-programs { padding: 52px 6%; scroll-margin-top: 80px; }
+  .alt-site .alt-programs-heading { display: block; margin-bottom: 30px; }
+  .alt-site .alt-programs-heading h2 { font-size: clamp(34px, 9vw, 48px); letter-spacing: -1px; }
+  .alt-site .alt-programs-heading > p { font-size: 16px; margin-top: 22px; }
+  .alt-site .alt-program-tabs { margin-bottom: 24px; }
+  .alt-site .alt-program-tabs button { min-height: 96px; flex-direction: column; gap: 8px; padding: 12px 6px; }
+  .alt-site .alt-program-tabs .alt-official-discipline { width: 36px; height: 36px; padding: 4px; }
+  .alt-site .alt-program-name { font-size: 20px; }
+  .alt-site .alt-program-story { grid-template-columns: 1fr; gap: 28px; }
+  .alt-site .alt-program-photo { height: auto; aspect-ratio: 4 / 5; }
+  .alt-site .alt-program-photo-bar { padding-inline: 14px; }
+  .alt-site .alt-program-photo-controls { gap: 4px; }
+  .alt-site .alt-program-copy { padding-top: 0; }
+  .alt-site .alt-program-copy h3 { font-size: clamp(50px, 14vw, 82px); letter-spacing: -2px; margin-top: 14px; }
+  .alt-site .alt-program-subtitle { font-size: 26px; margin-bottom: 22px; }
+  .alt-site .alt-program-description { font-size: 17px; }
+  .alt-site .alt-program-book { width: 100%; font-size: 17px; margin-top: 18px; }
+  .alt-site .alt-program-footnote { padding-top: 28px; font-size: 8px; }
+  .alt-site .alt-program-challenge { display: grid; grid-template-columns: 40px 1fr; gap: 12px 20px; margin-top: 16px; padding: 24px 0; }
+  .alt-site .alt-program-challenge .alt-official-discipline { width: 40px; height: 40px; }
+  .alt-site .alt-program-challenge p { font-size: 16px; }
+  .alt-site .alt-program-challenge a { grid-column: 2; margin-left: 0; font-size: 15px; }
+}
+@media (prefers-reduced-motion: reduce) { .alt-site .alt-program-tabs button { transition: none; } }

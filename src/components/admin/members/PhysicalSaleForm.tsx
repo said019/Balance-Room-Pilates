@@ -1,3 +1,4 @@
+import { postFinancialOperation } from '@/lib/financial-intent';
 /**
  * 💰 FORMULARIO: Venta en Físico
  * 
@@ -19,7 +20,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, CheckCircle2, AlertCircle, DollarSign, CreditCard } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle, DollarSign, CreditCard } from '@/components/brand/icons';
 import api from '@/lib/api';
 
 interface Plan {
@@ -41,7 +42,6 @@ const PAYMENT_METHODS = [
   { value: 'cash', label: 'Efectivo' },
   { value: 'transfer', label: 'Transferencia' },
   { value: 'card', label: 'Tarjeta' },
-  { value: 'other', label: 'Otro' },
 ];
 
 export const PhysicalSaleForm = ({ 
@@ -58,7 +58,7 @@ export const PhysicalSaleForm = ({
   
   const [formData, setFormData] = useState({
     planId: '',
-    paymentDate: new Date().toISOString().split('T')[0],
+    paymentDate: new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' }),
     amount: 0,
     paymentMethod: 'cash',
     reference: '',
@@ -99,7 +99,7 @@ export const PhysicalSaleForm = ({
     setError(null);
 
     try {
-      const response = await api.post('/admin/physical-sale', {
+      const response = await postFinancialOperation('/admin/physical-sale', {
         userId,
         planId: formData.planId,
         paymentDate: formData.paymentDate,
@@ -183,7 +183,7 @@ export const PhysicalSaleForm = ({
               Plan <span className="text-red-500">*</span>
             </Label>
             <Select value={formData.planId} onValueChange={handlePlanChange} required>
-              <SelectTrigger>
+              <SelectTrigger id="plan">
                 <SelectValue placeholder="Selecciona un paquete" />
               </SelectTrigger>
               <SelectContent>
@@ -217,7 +217,7 @@ export const PhysicalSaleForm = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="paymentDate">
-                Fecha de Pago <span className="text-red-500">*</span>
+                Fecha de inicio <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="paymentDate"
@@ -236,6 +236,7 @@ export const PhysicalSaleForm = ({
                 id="amount"
                 type="number"
                 step="0.01"
+                min="0.01"
                 value={formData.amount}
                 onChange={(e) => setFormData(prev => ({ ...prev, amount: parseFloat(e.target.value) }))}
                 required
@@ -252,7 +253,7 @@ export const PhysicalSaleForm = ({
                 value={formData.paymentMethod} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, paymentMethod: value }))}
               >
-                <SelectTrigger>
+                <SelectTrigger id="paymentMethod">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -271,7 +272,8 @@ export const PhysicalSaleForm = ({
                 id="reference"
                 value={formData.reference}
                 onChange={(e) => setFormData(prev => ({ ...prev, reference: e.target.value }))}
-                placeholder="Opcional"
+                placeholder={formData.paymentMethod === 'cash' ? 'Opcional' : 'Folio del pago recibido'}
+                required={formData.paymentMethod !== 'cash'}
               />
             </div>
           </div>
@@ -282,7 +284,8 @@ export const PhysicalSaleForm = ({
               id="notes"
               value={formData.notes}
               onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-              placeholder="Notas adicionales (opcional)"
+              placeholder={selectedPlan && Number(formData.amount) !== Number(selectedPlan.price) ? 'Motivo del importe diferente al precio del plan' : 'Notas adicionales (opcional)'}
+              required={!!selectedPlan && Number(formData.amount) !== Number(selectedPlan.price)}
               rows={3}
             />
           </div>

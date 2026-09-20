@@ -1,3 +1,4 @@
+import { postFinancialOperation } from '@/lib/financial-intent';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -34,12 +35,11 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Search, CheckCircle2, XCircle, Plus } from 'lucide-react';
+import { Loader2, Search, CheckCircle2, XCircle, Plus } from '@/components/brand/icons';
 import { MembershipActivationDialog, ActivationForm } from '@/components/memberships/MembershipActivationDialog';
 
 // Schema for assigning membership
@@ -48,6 +48,7 @@ const assignSchema = z.object({
     planId: z.string().uuid('Selecciona un plan'),
     status: z.enum(['active', 'pending_payment', 'pending_activation']),
     paymentMethod: z.string().optional(),
+    paymentReference: z.string().max(255).optional(),
 });
 
 type AssignForm = z.infer<typeof assignSchema>;
@@ -71,7 +72,7 @@ export default function MembershipsList({
     const [activationMembership, setActivationMembership] = useState<Membership | null>(null);
     const [cancellationMembership, setCancellationMembership] = useState<Membership | null>(null);
     const [cancelReason, setCancelReason] = useState('');
-    const [cancelRefund, setCancelRefund] = useState(true);
+    const [cancelRefund, setCancelRefund] = useState(false);
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
@@ -151,12 +152,12 @@ export default function MembershipsList({
             queryClient.invalidateQueries({ queryKey: ['memberships'] });
             const refundInfo = data?.refund;
             const description = refundInfo?.applied
-                ? `Reembolsados ${refundInfo.payments_refunded.length} pago(s).`
+                ? `Reembolso registrado en ${refundInfo.payments_refunded.length} pago(s).`
                 : 'La membresía ha sido cancelada.';
             toast({ title: 'Membresía cancelada', description });
             setCancellationMembership(null);
             setCancelReason('');
-            setCancelRefund(true);
+            setCancelRefund(false);
         },
         onError: (error) => {
             toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(error) });
@@ -165,7 +166,7 @@ export default function MembershipsList({
 
     const assignMutation = useMutation({
         mutationFn: async (data: AssignForm) => {
-            return await api.post('/memberships/assign', data);
+            return await postFinancialOperation('/memberships/assign', { ...data, paymentMethod: data.status === 'active' ? data.paymentMethod : undefined });
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['memberships'] });
@@ -195,32 +196,43 @@ export default function MembershipsList({
         <AuthGuard requiredRoles={['admin']}>
             <AdminLayout>
                 <div className="space-y-6">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h1 className="text-2xl font-heading font-bold">{title}</h1>
                             <p className="text-muted-foreground">{description}</p>
                         </div>
-                        <Button onClick={() => setIsAssignDialogOpen(true)}>
+                        <Button className="w-full sm:w-auto sm:shrink-0" onClick={() => setIsAssignDialogOpen(true)}>
                             <Plus className="mr-2 h-4 w-4" /> Asignar Membresía
                         </Button>
                     </div>
 
-                    <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                         {!hideTabs && (
-                            <Tabs value={filter} className="w-full md:w-auto" onValueChange={(val) => setFilter(val as typeof filter)}>
-                                <TabsList>
-                                    <TabsTrigger value="all">Todas</TabsTrigger>
-                                    <TabsTrigger value="active">Activas</TabsTrigger>
-                                    <TabsTrigger value="pending_payment">Pend. Pago</TabsTrigger>
-                                    <TabsTrigger value="pending_activation">Por Activar</TabsTrigger>
-                                </TabsList>
-                            </Tabs>
+                            <div role="group" aria-label="Filtrar membresías por estado" className="grid w-full min-w-0 grid-cols-2 gap-1 rounded-xl bg-muted p-1 sm:flex sm:w-auto">
+                                {([
+                                    ['all', 'Todas'],
+                                    ['active', 'Activas'],
+                                    ['pending_payment', 'Pago pendiente'],
+                                    ['pending_activation', 'Por activar'],
+                                ] as const).map(([value, label]) => (
+                                    <Button
+                                        key={value}
+                                        variant="ghost"
+                                        aria-pressed={filter === value}
+                                        className={filter === value ? 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground' : 'text-muted-foreground'}
+                                        onClick={() => setFilter(value)}
+                                    >
+                                        {label}
+                                    </Button>
+                                ))}
+                            </div>
                         )}
 
-                        <div className="relative w-full md:w-64">
+                        <div className="relative w-full xl:w-64 xl:shrink-0">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="Buscar cliente..."
+                                aria-label="Buscar membresías por miembro o correo"
+                                placeholder="Buscar miembro"
                                 className="pl-10"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
@@ -228,93 +240,108 @@ export default function MembershipsList({
                         </div>
                     </div>
 
-                    <div className="rounded-md border bg-card">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Cliente</TableHead>
-                                    <TableHead>Plan</TableHead>
-                                    <TableHead>Estado</TableHead>
-                                    <TableHead>Vigencia</TableHead>
-                                    <TableHead>Créditos</TableHead>
-                                    <TableHead className="text-right">Acciones</TableHead>
+                    <div className="overflow-hidden rounded-xl border bg-card">
+                        <Table className="admin-record-table" role="table">
+                            <TableHeader role="rowgroup">
+                                <TableRow role="row">
+                                    <TableHead role="columnheader">Cliente</TableHead>
+                                    <TableHead role="columnheader">Plan</TableHead>
+                                    <TableHead role="columnheader">Estado</TableHead>
+                                    <TableHead role="columnheader">Vigencia</TableHead>
+                                    <TableHead role="columnheader">Créditos</TableHead>
+                                    <TableHead role="columnheader" className="text-right">Acciones</TableHead>
                                 </TableRow>
                             </TableHeader>
-                            <TableBody>
+                            <TableBody role="rowgroup">
                                 {isLoading ? (
-                                    <TableRow>
+                                    <TableRow role="row">
                                         <TableCell colSpan={6} className="text-center py-8">
                                             <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
                                         </TableCell>
                                     </TableRow>
                                 ) : filteredMemberships?.length === 0 ? (
-                                    <TableRow>
+                                    <TableRow role="row">
                                         <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                                             No se encontraron membresías.
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     filteredMemberships?.map((m) => (
-                                        <TableRow key={m.id}>
-                                            <TableCell>
-                                                <div className="font-medium">{m.user_name}</div>
-                                                <div className="text-xs text-muted-foreground">{m.user_email}</div>
+                                        <TableRow role="row" key={m.id}>
+                                            <TableCell role="cell" data-label="Miembro" data-primary>
+                                                <div className="admin-record-value">
+                                                    <div className="font-medium">{m.user_name}</div>
+                                                    <div className="text-xs text-muted-foreground">{m.user_email}</div>
+                                                </div>
                                             </TableCell>
-                                            <TableCell>{m.plan_name}</TableCell>
-                                            <TableCell>
-                                                <Badge variant={
-                                                    m.status === 'active' ? 'default' :
-                                                        m.status.includes('pending') ? 'outline' : 'secondary'
-                                                } className={
-                                                    m.status === 'active' ? 'bg-success/10 text-success hover:bg-success/10 border-success/30' :
-                                                        m.status === 'pending_payment' ? 'text-warning border-warning/30 bg-warning/10' :
-                                                            ''
-                                                }>
-                                                    {m.status === 'active' ? 'Activa' :
-                                                        m.status === 'pending_payment' ? 'Pendiente Pago' :
-                                                            m.status === 'pending_activation' ? 'Por Activar' :
-                                                                m.status === 'cancelled' ? 'Cancelada' :
-                                                                    m.status === 'expired' ? 'Vencida' :
-                                                                        m.status === 'paused' ? 'Pausada' : m.status}
-                                                </Badge>
+                                            <TableCell role="cell" data-label="Plan">
+                                                <div className="admin-record-value">
+                                                    {m.plan_name}
+                                                </div>
                                             </TableCell>
-                                            <TableCell className="text-sm">
-                                                {m.start_date ? (
-                                                    <>
-                                                        <div className="text-muted-foreground">Inicio: {new Date(m.start_date).toLocaleDateString()}</div>
-                                                        <div>Fin: {new Date(m.end_date!).toLocaleDateString()}</div>
-                                                    </>
-                                                ) : '-'}
+                                            <TableCell role="cell" data-label="Estado">
+                                                <div className="admin-record-value">
+                                                    <Badge variant={
+                                                        m.status === 'active' ? 'default' :
+                                                            m.status.includes('pending') ? 'outline' : 'secondary'
+                                                    } className={
+                                                        m.status === 'active' ? 'bg-success/10 text-success hover:bg-success/10 border-success/30' :
+                                                            m.status === 'pending_payment' ? 'text-warning border-warning/30 bg-warning/10' :
+                                                                ''
+                                                    }>
+                                                        {m.status === 'active' ? 'Activa' :
+                                                            m.status === 'pending_payment' ? 'Pendiente Pago' :
+                                                                m.status === 'pending_activation' ? 'Por Activar' :
+                                                                    m.status === 'cancelled' ? 'Cancelada' :
+                                                                        m.status === 'expired' ? 'Vencida' :
+                                                                            m.status === 'paused' ? 'Pausada' : m.status}
+                                                    </Badge>
+                                                </div>
                                             </TableCell>
-                                            <TableCell>
-                                                {m.credits_total ? `${m.credits_remaining} / ${m.credits_total}` : 'Ilimitado'}
+                                            <TableCell className="text-sm" role="cell" data-label="Vigencia">
+                                                <div className="admin-record-value">
+                                                    {m.start_date ? (
+                                                        <>
+                                                            <div className="text-muted-foreground">Inicio: {new Date(m.start_date).toLocaleDateString()}</div>
+                                                            <div>Fin: {new Date(m.end_date!).toLocaleDateString()}</div>
+                                                        </>
+                                                    ) : '-'}
+                                                </div>
                                             </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    {(m.status === 'pending_activation' || m.status === 'pending_payment') && (
-                                                        <Button
-                                                            size="sm"
-                                                            variant="ghost"
-                                                            className="text-success hover:text-success hover:bg-success/10"
-                                                            onClick={() => setActivationMembership(m)}
-                                                        >
-                                                            <CheckCircle2 className="h-4 w-4 mr-1" /> Activar
-                                                        </Button>
-                                                    )}
-                                                    {m.status === 'active' && (
-                                                        <Button
-                                                            size="sm"
-                                                            variant="ghost"
-                                                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                                            onClick={() => {
-                                                                setCancelReason('');
-                                                                setCancelRefund(true);
-                                                                setCancellationMembership(m);
-                                                            }}
-                                                        >
-                                                            <XCircle className="h-4 w-4" />
-                                                        </Button>
-                                                    )}
+                                            <TableCell role="cell" data-label="Créditos">
+                                                <div className="admin-record-value">
+                                                    {m.credits_total ? `${m.credits_remaining} / ${m.credits_total}` : 'Ilimitado'}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-right" role="cell" data-label="Acciones" data-actions>
+                                                <div className="admin-record-value">
+                                                    <div className="flex flex-wrap justify-end gap-2">
+                                                        {(m.status === 'pending_activation' || m.status === 'pending_payment') && (
+                                                            <Button
+                                                                size="sm"
+                                                                variant="ghost"
+                                                                className="text-success hover:text-success hover:bg-success/10"
+                                                                onClick={() => setActivationMembership(m)}
+                                                            >
+                                                                <CheckCircle2 className="h-4 w-4 mr-1" /> Activar
+                                                            </Button>
+                                                        )}
+                                                        {m.status === 'active' && (
+                                                            <Button
+                                                                size="sm"
+                                                                variant="ghost"
+                                                                aria-label={`Cancelar membresía de ${m.user_name}`}
+                                                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                                onClick={() => {
+                                                                    setCancelReason('');
+                                                                    setCancelRefund(false);
+                                                                    setCancellationMembership(m);
+                                                                }}
+                                                            >
+                                                                <XCircle className="mr-1 h-4 w-4" /> Cancelar
+                                                            </Button>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
@@ -336,7 +363,7 @@ export default function MembershipsList({
                                 <div className="space-y-2">
                                     <Label>Cliente</Label>
                                     <Select onValueChange={(val) => setValue('userId', val)}>
-                                        <SelectTrigger>
+                                        <SelectTrigger aria-label="Cliente">
                                             <SelectValue placeholder="Seleccionar cliente" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -353,7 +380,7 @@ export default function MembershipsList({
                                 <div className="space-y-2">
                                     <Label>Plan</Label>
                                     <Select onValueChange={(val) => setValue('planId', val)}>
-                                        <SelectTrigger>
+                                        <SelectTrigger aria-label="Plan">
                                             <SelectValue placeholder="Seleccionar plan" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -370,7 +397,7 @@ export default function MembershipsList({
                                 <div className="space-y-2">
                                     <Label>Estado Inicial</Label>
                                     <Select onValueChange={(val: any) => setValue('status', val)} defaultValue="active">
-                                        <SelectTrigger>
+                                        <SelectTrigger aria-label="Estado inicial">
                                             <SelectValue placeholder="Seleccionar estado" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -382,9 +409,9 @@ export default function MembershipsList({
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label>Método de Pago (Opcional)</Label>
+                                    <Label>Método de pago recibido (para activar)</Label>
                                     <Select onValueChange={(val) => setValue('paymentMethod', val)}>
-                                        <SelectTrigger>
+                                        <SelectTrigger aria-label="Método de pago">
                                             <SelectValue placeholder="Seleccionar método" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -395,22 +422,10 @@ export default function MembershipsList({
                                     </Select>
                                 </div>
 
-                                {selectedFounder?.user?.is_founder && !selectedFounder.user.founder_first_package_used && watchedPaymentMethod && (() => {
-                                    const plan = plans?.find(p => p.id === watchedPlanId);
-                                    const price = Number(plan?.price || 0);
-                                    const discount = Math.round(price * 0.1 * 100) / 100;
-                                    const final = Math.round((price - discount) * 100) / 100;
-                                    return (
-                                        <div className="rounded-md border border-altitud-gold/40 bg-altitud-gold/10 p-3 text-sm">
-                                            <p className="font-medium text-altitud-gold">Descuento founder 10%</p>
-                                            <p className="text-muted-foreground">
-                                                Este cliente es <strong>founder</strong> y aún no ha usado su descuento.
-                                                Al asignar, el sistema cobrará <strong>${final.toFixed(2)}</strong>
-                                                {' '}(en lugar de ${price.toFixed(2)}, ahorro ${discount.toFixed(2)}) y marcará el beneficio como utilizado.
-                                            </p>
-                                        </div>
-                                    );
-                                })()}
+                                {watchedPaymentMethod && watchedPaymentMethod !== 'cash' && <div className="space-y-2">
+                                    <Label htmlFor="assign-payment-reference">Folio del pago recibido *</Label>
+                                    <Input id="assign-payment-reference" {...register('paymentReference')} required />
+                                </div>}
 
                                 <DialogFooter>
                                     <Button type="button" variant="ghost" onClick={() => setIsAssignDialogOpen(false)}>
@@ -452,7 +467,7 @@ export default function MembershipsList({
                             </DialogHeader>
                             <div className="space-y-4 py-2">
                                 <div className="space-y-2">
-                                    <Label htmlFor="cancel-reason">Razón (opcional)</Label>
+                                    <Label htmlFor="cancel-reason">Motivo (obligatorio para registrar reembolso)</Label>
                                     <Textarea
                                         id="cancel-reason"
                                         placeholder="Ej. Cliente solicitó cambio de paquete"
@@ -470,11 +485,10 @@ export default function MembershipsList({
                                     />
                                     <div className="space-y-1">
                                         <Label htmlFor="cancel-refund" className="cursor-pointer">
-                                            Devolver el dinero al cliente
+                                            Registrar un reembolso ya realizado
                                         </Label>
                                         <p className="text-xs text-muted-foreground">
-                                            Marca los pagos asociados como reembolsados.
-                                            Deja sin marcar si el dinero se queda en el estudio.
+                                            Actualiza el registro de los pagos. La devolución del dinero se realiza por separado; esta acción no envía dinero al cliente.
                                         </p>
                                     </div>
                                 </div>
@@ -497,7 +511,7 @@ export default function MembershipsList({
                                             refund: cancelRefund,
                                         });
                                     }}
-                                    disabled={cancelMutation.isPending}
+                                    disabled={cancelMutation.isPending || (cancelRefund && !cancelReason.trim())}
                                 >
                                     {cancelMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     Cancelar membresía

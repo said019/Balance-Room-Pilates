@@ -27,7 +27,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Plus, Users, X, AlertTriangle } from 'lucide-react';
+import { Loader2, Plus, Users, X, AlertTriangle } from '@/components/brand/icons';
 
 const scheduleSchema = z.object({
     dayOfWeek: z.coerce.number().int().min(0).max(6),
@@ -55,6 +55,7 @@ export default function WeeklySchedule() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedDay, setSelectedDay] = useState<number | null>(null);
     const [facilityFilter, setFacilityFilter] = useState('all');
+    const [visibleDay, setVisibleDay] = useState(new Date().getDay());
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
@@ -97,7 +98,7 @@ export default function WeeklySchedule() {
     const { register, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm<ScheduleForm>({
         resolver: zodResolver(scheduleSchema),
         defaultValues: {
-            maxCapacity: 6,
+            maxCapacity: 12,
             isActive: true
         }
     });
@@ -153,8 +154,8 @@ export default function WeeklySchedule() {
                 <div className="space-y-6">
                     <div className="flex justify-between items-center">
                         <div>
-                            <h1 className="text-2xl font-heading font-bold">Plantilla Semanal</h1>
-                            <p className="text-muted-foreground">Define los horarios recurrentes de las clases.</p>
+                            <h1 className="text-2xl font-heading font-bold">Plantilla semanal</h1>
+                            <p className="text-muted-foreground">Organiza la semana base de tu studio.</p>
                         </div>
                         {/* <Button variant="outline">
                  Generar ClasesPróximas
@@ -171,7 +172,8 @@ export default function WeeklySchedule() {
                             <button
                                 key={f.id}
                                 onClick={() => setFacilityFilter(f.id)}
-                                className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all border ${
+                                aria-pressed={facilityFilter === f.id}
+                                className={`min-h-11 rounded-full px-4 py-1.5 text-xs font-semibold transition-all border ${
                                     facilityFilter === f.id
                                         ? 'bg-primary text-primary-foreground border-primary'
                                         : 'bg-muted text-muted-foreground border-border hover:text-foreground'
@@ -182,29 +184,41 @@ export default function WeeklySchedule() {
                         ))}
                     </div>
 
+                    <div className="grid grid-cols-7 gap-1 rounded-2xl border border-altitud-sand/60 bg-altitud-cream p-1 lg:hidden" role="group" aria-label="Día de la plantilla">
+                        {DAYS_OF_WEEK.map((day, index) => (
+                            <button key={day} type="button" aria-label={day} aria-pressed={visibleDay === index} onClick={() => setVisibleDay(index)}
+                                className={`min-h-14 min-w-0 rounded-xl py-2 text-xs font-semibold ${visibleDay === index ? 'bg-altitud-olive text-altitud-cream' : 'text-altitud-dark/65'}`}>
+                                <span className="block">{day.slice(0, 3)}</span>
+                                <span className="mt-1 block tabular-nums">{schedulesByDay[index].length}</span>
+                            </button>
+                        ))}
+                    </div>
+                    {isLoading && <div className="flex min-h-40 items-center justify-center" role="status" aria-label="Cargando horarios"><Loader2 className="h-6 w-6 animate-spin text-altitud-olive" /></div>}
                     {!isLoading && schedulesByDay && (
-                        <div className="grid md:grid-cols-7 gap-4">
+                        <div className="max-w-full overflow-x-auto pb-2">
+                        <div className="grid min-w-0 gap-4 lg:min-w-[1260px] lg:grid-cols-7">
                             {DAYS_OF_WEEK.map((dayName, index) => (
-                                <div key={index} className="flex flex-col gap-3 min-w-[140px]">
-                                    <div className="font-bold text-center p-2 rounded-t-md bg-muted/50 border-b-2 border-primary/20 sticky top-0">
+                                <div key={index} className={`${visibleDay === index ? 'flex' : 'hidden'} min-w-0 flex-col gap-3 lg:flex`}>
+                                    <div className="flex items-center justify-between rounded-xl border border-altitud-sand/60 bg-altitud-cream px-3 py-3 font-heading text-lg lg:justify-center lg:text-sm">
                                         {dayName}
                                     </div>
-                                    <div className="space-y-2 flex-1 min-h-[200px] border rounded-md p-2 bg-muted/10">
+                                    <div className="space-y-3 flex-1 rounded-2xl border border-altitud-sand/60 p-3 bg-altitud-cream/40">
                                         {schedulesByDay[index].map((s) => (
                                             <div
                                                 key={s.id}
-                                                className="relative group p-2 rounded-md border text-sm shadow-sm bg-card hover:shadow-md transition-shadow"
+                                                className="relative group rounded-xl border bg-card p-3 text-sm"
                                                 style={{ borderLeftColor: s.class_type_color || '#ccc', borderLeftWidth: '4px' }}
                                             >
-                                                <div className="font-semibold flex justify-between">
+                                                <div className="flex items-center justify-between gap-1 font-semibold">
                                                     <span>{s.start_time?.slice(0,5)} - {s.end_time?.slice(0,5)}</span>
                                                     <button
                                                         onClick={() => {
                                                             if (confirm('¿Eliminar este horario?')) deleteMutation.mutate(s.id);
                                                         }}
-                                                        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
+                                                        aria-label={`Eliminar horario de ${s.class_type_name} a las ${s.start_time?.slice(0,5)}`}
+                                                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                                                     >
-                                                        <X className="h-3 w-3" />
+                                                        <X className="h-4 w-4" />
                                                     </button>
                                                 </div>
                                                 <div className="font-medium truncate" title={s.class_type_name}>{s.class_type_name}</div>
@@ -214,9 +228,10 @@ export default function WeeklySchedule() {
                                                 </div>
                                             </div>
                                         ))}
+                                        {schedulesByDay[index].length === 0 && <p className="px-2 py-5 text-center text-sm text-muted-foreground">Aún no hay horarios para este día.</p>}
                                         <Button
                                             variant="ghost"
-                                            className="w-full text-xs border-dashed border h-8 hover:bg-primary/5 hover:text-primary"
+                                            className="min-h-11 w-full rounded-xl border border-dashed text-sm hover:bg-primary/5 hover:text-primary"
                                             onClick={() => handleAddClass(index)}
                                         >
                                             <Plus className="h-3 w-3 mr-1" /> Agregar
@@ -225,12 +240,13 @@ export default function WeeklySchedule() {
                                 </div>
                             ))}
                         </div>
+                        </div>
                     )}
 
                     <div className="bg-warning/10 p-4 rounded-md border border-warning/30 text-sm text-warning-foreground flex gap-2 items-start max-w-2xl">
                         <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                         <div>
-                            <strong>Nota Importante:</strong> Esta es solo la plantilla. Los cambios aquí afectarán a la generación futura de clases, pero NO modifican las clases que ya han sido generadas y agendadas con fechas específicas en el calendario.
+                            <strong>Para próximas semanas.</strong> Los cambios de esta plantilla se aplican al generar nuevas clases. Las clases ya publicadas conservan sus horarios.
                         </div>
                     </div>
 

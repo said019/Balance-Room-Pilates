@@ -1,4 +1,4 @@
-import { Star, Wrench, Leaf, Flame, Home, Sparkles } from 'lucide-react';
+import { Star, Wrench, Leaf, Flame, Home, Sparkles } from '@/components/brand/icons';
 import type { EventTypeInfo } from './types';
 
 const iconMap = {

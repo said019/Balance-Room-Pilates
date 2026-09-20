@@ -19,7 +19,7 @@ import {
 import { useToast } from '@/components/ui/use-toast';
 import api, { getErrorMessage } from '@/lib/api';
 import type { Membership } from '@/types/auth';
-import { CheckCircle2, FileText, Mail, Search } from 'lucide-react';
+import { CheckCircle2, FileText, Mail, Search } from '@/components/brand/icons';
 
 const statusLabels: Record<string, string> = {
   pending_payment: 'Pendiente de Pago',
@@ -128,7 +128,8 @@ export default function PendingMemberships() {
             <div className="relative w-full md:max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar por cliente o plan..."
+                aria-label="Buscar membresías pendientes"
+                placeholder="Buscar miembro o plan"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 className="pl-10"
@@ -136,7 +137,7 @@ export default function PendingMemberships() {
             </div>
 
             <Select value={filter} onValueChange={setFilter}>
-              <SelectTrigger className="w-full md:w-56">
+              <SelectTrigger aria-label="Estado de la solicitud" className="w-full md:w-56">
                 <SelectValue placeholder="Filtrar" />
               </SelectTrigger>
               <SelectContent>
@@ -172,28 +173,28 @@ export default function PendingMemberships() {
                   <Card key={membership.id} className="border-muted/60">
                     <CardContent className="p-4 space-y-4">
                       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
+                        <div className="min-w-0 space-y-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <h3 className="text-lg font-semibold">{membership.user_name || 'Cliente'}</h3>
                             <Badge variant="outline" className={statusStyle}>
                               {statusLabel}
                             </Badge>
                           </div>
-                          <div className="text-sm text-muted-foreground">
+                          <div className="break-words text-sm text-muted-foreground">
                             Plan: {membership.plan_name || '—'} · {formatCurrency(amount, currency)}
                           </div>
-                          <div className="text-sm text-muted-foreground">
+                          <div className="break-words text-sm text-muted-foreground">
                             Solicitado {formatRequestedAt(membership.created_at)} · Método indicado:{' '}
                             {getPaymentLabel(membership.payment_method)}
                           </div>
                           {membership.user_email && (
-                            <div className="text-sm text-muted-foreground">
+                            <div className="break-words text-sm text-muted-foreground">
                               {membership.user_email}
                             </div>
                           )}
                         </div>
 
-                        <div className="flex flex-wrap gap-2">
+                        <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap lg:shrink-0">
                           <Button variant="outline" size="sm" disabled>
                             <FileText className="mr-2 h-4 w-4" />
                             Ver comprobante

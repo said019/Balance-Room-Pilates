@@ -13,7 +13,7 @@ import {
     Zap,
     HelpCircle,
     X,
-} from 'lucide-react';
+} from '@/components/brand/icons';
 
 // ── Types ──────────────────────────────────────────────
 type Actor = 'admin' | 'client' | 'system' | 'option-a' | 'option-b';

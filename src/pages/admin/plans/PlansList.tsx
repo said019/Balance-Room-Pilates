@@ -261,40 +261,39 @@ export default function PlansList() {
         <AuthGuard requiredRoles={['admin']}>
             <AdminLayout>
                 <div className="space-y-6">
-                    <div className="flex flex-col gap-4 rounded-[1.6rem] border border-altitud-olive/25 bg-altitud-olive/10 p-5 shadow-[0_18px_58px_-50px_rgba(51,42,34,0.45)] sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-altitud-olive">Visible en venta</p>
-                            <h1 className="mt-1 text-2xl font-bold tracking-tight text-altitud-dark">Precios y paquetes</h1>
+                            <h1 className="text-2xl font-heading font-bold">Precios y paquetes</h1>
                             <p className="max-w-2xl text-sm text-altitud-dark/65">
-                                Edita clase suelta, paquetes, vigencia y créditos. Estos precios se reflejan en la landing, checkout y /app.
+                                Administra los paquetes, su precio, vigencia y clases incluidas.
                             </p>
                         </div>
-                        <Button onClick={handleCreate} className="bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90">
+                        <Button onClick={handleCreate} className="w-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90 sm:w-auto sm:shrink-0">
                             <Plus className="mr-2 h-4 w-4" /> Nuevo paquete
                         </Button>
                     </div>
 
-                    <div className="overflow-hidden rounded-[1.35rem] border border-altitud-sand/65 bg-[hsl(var(--admin-panel))] shadow-[0_18px_58px_-50px_rgba(51,42,34,0.45)]">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Nombre</TableHead>
-                                    <TableHead>Precio</TableHead>
-                                    <TableHead>Vigencia</TableHead>
-                                    <TableHead>Clases</TableHead>
-                                    <TableHead>Estado</TableHead>
-                                    <TableHead className="text-right">Acciones</TableHead>
+                    <div className="overflow-hidden rounded-xl border bg-card">
+                        <Table className="admin-record-table" role="table">
+                            <TableHeader role="rowgroup">
+                                <TableRow role="row">
+                                    <TableHead role="columnheader">Nombre</TableHead>
+                                    <TableHead role="columnheader">Precio</TableHead>
+                                    <TableHead role="columnheader">Vigencia</TableHead>
+                                    <TableHead role="columnheader">Clases</TableHead>
+                                    <TableHead role="columnheader">Estado</TableHead>
+                                    <TableHead role="columnheader" className="text-right">Acciones</TableHead>
                                 </TableRow>
                             </TableHeader>
-                            <TableBody>
+                            <TableBody role="rowgroup">
                                 {isLoading ? (
-                                    <TableRow>
+                                    <TableRow role="row">
                                         <TableCell colSpan={6} className="text-center py-8">
                                             <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
                                         </TableCell>
                                     </TableRow>
                                 ) : !plans || plans.length === 0 ? (
-                                    <TableRow>
+                                    <TableRow role="row">
                                         <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                                             No hay paquetes configurados
                                         </TableCell>
@@ -303,77 +302,91 @@ export default function PlansList() {
                                     plans.map((plan) => {
                                         const price = toNumber(plan.price);
                                         return (
-                                            <TableRow key={plan.id}>
-                                                <TableCell className="font-medium">
-                                                    <div className="flex items-center gap-2">
-                                                        <span>{plan.name}</span>
-                                                        {isPromoActive(plan) && (
-                                                            <Badge className="bg-altitud-gold text-altitud-cream hover:bg-altitud-gold">
-                                                                PROMO
-                                                            </Badge>
-                                                        )}
+                                            <TableRow role="row" key={plan.id}>
+                                                <TableCell className="font-medium" role="cell" data-label="Paquete" data-primary>
+                                                    <div className="admin-record-value">
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <span>{plan.name}</span>
+                                                            {isPromoActive(plan) && (
+                                                                <Badge className="bg-altitud-gold text-altitud-cream hover:bg-altitud-gold">
+                                                                    PROMO
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                        <div className="mt-1 max-w-prose text-sm text-muted-foreground">
+                                                            {plan.description}
+                                                        </div>
                                                     </div>
-                                                    <div className="text-xs text-muted-foreground truncate max-w-[240px]">
-                                                        {plan.description}
+                                                </TableCell>
+                                                <TableCell role="cell" data-label="Precio">
+                                                    <div className="admin-record-value">
+                                                        ${price.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {plan.currency || 'MXN'}
                                                     </div>
                                                 </TableCell>
-                                                <TableCell>
-                                                    ${price.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {plan.currency || 'MXN'}
+                                                <TableCell role="cell" data-label="Vigencia">
+                                                    <div className="admin-record-value">
+                                                        {plan.duration_days} días
+                                                    </div>
                                                 </TableCell>
-                                                <TableCell>{plan.duration_days} días</TableCell>
-                                                <TableCell>
-                                                    {plan.class_limit === null || plan.class_limit === undefined
-                                                        ? 'Ilimitadas'
-                                                        : plan.class_limit}
+                                                <TableCell role="cell" data-label="Clases">
+                                                    <div className="admin-record-value">
+                                                        {plan.class_limit === null || plan.class_limit === undefined
+                                                            ? 'Ilimitadas'
+                                                            : plan.class_limit}
+                                                    </div>
                                                 </TableCell>
-                                                <TableCell>
-                                                    <Badge
-                                                        variant={plan.is_active ? 'default' : 'secondary'}
-                                                        className={plan.is_active ? 'bg-altitud-olive text-altitud-cream hover:bg-altitud-olive' : ''}
-                                                    >
-                                                        {plan.is_active ? 'Activo' : 'Inactivo'}
-                                                    </Badge>
+                                                <TableCell role="cell" data-label="Estado">
+                                                    <div className="admin-record-value">
+                                                        <Badge
+                                                            variant={plan.is_active ? 'default' : 'secondary'}
+                                                            className={plan.is_active ? 'bg-altitud-olive text-altitud-cream hover:bg-altitud-olive' : ''}
+                                                        >
+                                                            {plan.is_active ? 'Activo' : 'Inactivo'}
+                                                        </Badge>
+                                                    </div>
                                                 </TableCell>
-                                                <TableCell className="text-right">
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                                                <span className="sr-only">Abrir menú</span>
-                                                                <MoreHorizontal className="h-4 w-4" />
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                            <DropdownMenuItem onSelect={() => handleEdit(plan)}>
-                                                                <Pencil className="mr-2 h-4 w-4" /> Editar
-                                                            </DropdownMenuItem>
-                                                            {plan.is_active ? (
+                                                <TableCell className="text-right" role="cell" data-label="Acciones" data-actions>
+                                                    <div className="admin-record-value">
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" className="h-11 w-11 p-0">
+                                                                    <span className="sr-only">Acciones de {plan.name}</span>
+                                                                    <MoreHorizontal className="h-4 w-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                                                                <DropdownMenuItem onSelect={() => handleEdit(plan)}>
+                                                                    <Pencil className="mr-2 h-4 w-4" /> Editar
+                                                                </DropdownMenuItem>
+                                                                {plan.is_active ? (
+                                                                    <DropdownMenuItem
+                                                                        onSelect={() => {
+                                                                            if (confirm(`¿Desactivar "${plan.name}"? Dejará de mostrarse en landing, checkout y /app. Las membresías existentes no se afectan.`)) {
+                                                                                deactivatePlanMutation.mutate(plan.id);
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <EyeOff className="mr-2 h-4 w-4" /> Desactivar
+                                                                    </DropdownMenuItem>
+                                                                ) : (
+                                                                    <DropdownMenuItem onSelect={() => reactivatePlanMutation.mutate(plan.id)}>
+                                                                        <Eye className="mr-2 h-4 w-4" /> Reactivar
+                                                                    </DropdownMenuItem>
+                                                                )}
                                                                 <DropdownMenuItem
+                                                                    className="text-destructive focus:text-destructive"
                                                                     onSelect={() => {
-                                                                        if (confirm(`¿Desactivar "${plan.name}"? Dejará de mostrarse en landing, checkout y /app. Las membresías existentes no se afectan.`)) {
-                                                                            deactivatePlanMutation.mutate(plan.id);
+                                                                        if (confirm(`¿Eliminar "${plan.name}" permanentemente?\n\nSolo funciona si no tiene membresías asociadas. Si tiene, usa "Desactivar".`)) {
+                                                                            hardDeletePlanMutation.mutate(plan.id);
                                                                         }
                                                                     }}
                                                                 >
-                                                                    <EyeOff className="mr-2 h-4 w-4" /> Desactivar
+                                                                    <Trash2 className="mr-2 h-4 w-4" /> Eliminar
                                                                 </DropdownMenuItem>
-                                                            ) : (
-                                                                <DropdownMenuItem onSelect={() => reactivatePlanMutation.mutate(plan.id)}>
-                                                                    <Eye className="mr-2 h-4 w-4" /> Reactivar
-                                                                </DropdownMenuItem>
-                                                            )}
-                                                            <DropdownMenuItem
-                                                                className="text-destructive focus:text-destructive"
-                                                                onSelect={() => {
-                                                                    if (confirm(`¿Eliminar "${plan.name}" permanentemente?\n\nSolo funciona si no tiene membresías asociadas. Si tiene, usa "Desactivar".`)) {
-                                                                        hardDeletePlanMutation.mutate(plan.id);
-                                                                    }
-                                                                }}
-                                                            >
-                                                                <Trash2 className="mr-2 h-4 w-4" /> Eliminar
-                                                            </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         );
@@ -393,7 +406,7 @@ export default function PlansList() {
                             </DialogHeader>
 
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="name">Nombre</Label>
                                         <Input id="name" {...register('name')} placeholder="Ej. Paquete 8 clases" />
@@ -411,7 +424,7 @@ export default function PlansList() {
                                     <Input id="description" {...register('description')} placeholder="Breve descripción para el cliente" />
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="durationDays">Vigencia (días)</Label>
                                         <Input id="durationDays" type="number" {...register('durationDays')} placeholder="30" />
@@ -464,7 +477,7 @@ export default function PlansList() {
                                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-altitud-olive">
                                         Promoción (opcional)
                                     </p>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <div className="space-y-2">
                                             <Label htmlFor="promoPrice">Precio promocional (opcional)</Label>
                                             <Input id="promoPrice" type="number" step="0.01" {...register('promoPrice')} placeholder="Sin promo" />
@@ -488,7 +501,7 @@ export default function PlansList() {
                                     <Button type="button" variant="outline" onClick={() => handleDialogChange(false)}>
                                         Cancelar
                                     </Button>
-                                    <Button type="submit" disabled={isSubmitting || savePlanMutation.isPending} className="bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90">
+                                    <Button type="submit" disabled={isSubmitting || savePlanMutation.isPending} className="w-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90 sm:w-auto sm:shrink-0">
                                         {(isSubmitting || savePlanMutation.isPending) && (
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         )}

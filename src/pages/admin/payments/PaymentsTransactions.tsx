@@ -104,6 +104,7 @@ export default function PaymentsTransactions({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
+              aria-label="Buscar pagos por cliente"
               placeholder="Buscar por cliente..."
               className="pl-10"
               value={search}
@@ -112,7 +113,7 @@ export default function PaymentsTransactions({
           </div>
 
           <Select value={status} onValueChange={setStatus} disabled={statusLocked}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Estado del pago">
               <SelectValue placeholder="Estado" />
             </SelectTrigger>
             <SelectContent>
@@ -125,7 +126,7 @@ export default function PaymentsTransactions({
           </Select>
 
           <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Método de pago">
               <SelectValue placeholder="Método de pago" />
             </SelectTrigger>
             <SelectContent>
@@ -165,8 +166,30 @@ export default function PaymentsTransactions({
         )}
       </div>
 
-      <div className="rounded-md border bg-card">
-        <Table>
+      <div className="space-y-3 md:hidden">
+        {isLoading ? (
+          <div className="flex min-h-40 items-center justify-center rounded-2xl border bg-card" role="status" aria-label="Cargando pagos"><Loader2 className="h-6 w-6 animate-spin text-altitud-olive" /></div>
+        ) : payments.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-altitud-sand p-8 text-center text-sm text-muted-foreground">{hasActiveFilters ? 'No hay pagos que coincidan con estos filtros.' : 'Aún no hay pagos registrados.'}</div>
+        ) : payments.map(payment => (
+          <article key={payment.id} className="min-w-0 rounded-2xl border border-altitud-sand/60 bg-card p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="break-words font-semibold">{payment.user_name}</p>
+                <p className="mt-1 break-all text-xs text-muted-foreground">{payment.user_email}</p>
+              </div>
+              <p className="shrink-0 font-semibold tabular-nums">{formatCurrency(payment.amount, payment.currency)}</p>
+            </div>
+            <p className="mt-3 text-sm">{payment.plan_name || 'Sin membresía asociada'}</p>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-altitud-sand/50 pt-3">
+              <Badge variant="outline" className={statusStyles[payment.status]}>{statusLabels[payment.status] || payment.status}</Badge>
+              <span className="text-xs text-muted-foreground">{{ cash: 'Efectivo', transfer: 'Transferencia', bank_transfer: 'Transferencia', card: 'Tarjeta', online: 'En línea' }[payment.payment_method] || payment.payment_method} · {new Date(payment.created_at).toLocaleDateString('es-MX')}</span>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="hidden rounded-2xl border bg-card md:block">
+        <Table tabIndex={0} aria-label="Movimientos de pagos; desliza para ver todas las columnas">
           <TableHeader>
             <TableRow>
               <TableHead>Cliente</TableHead>

@@ -19,7 +19,7 @@ import {
   XCircle,
   Clock,
   ShieldAlert,
-} from 'lucide-react';
+} from '@/components/brand/icons';
 
 interface CancelPreview {
   willRefund: boolean;

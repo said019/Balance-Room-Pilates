@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import api, { getErrorMessage } from '@/lib/api';
 import { STUDIO, STUDIO_PLANS, FOUNDING_50, formatMxn } from '@/lib/studio';
 import type { OrderPaymentMethod, CreateOrderRequest, Order, BankInfo } from '@/types/order';
-import { CreditCard, Building2, Banknote, ChevronRight, ArrowRight, CheckCircle2, ArrowLeft, Copy, Check } from 'lucide-react';
+import { CreditCard, Building2, Banknote, ChevronRight, ArrowRight, CheckCircle2, ArrowLeft, Copy, Check } from '@/components/brand/icons';
 
 interface Plan {
   id: string;

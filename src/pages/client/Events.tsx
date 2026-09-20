@@ -47,7 +47,7 @@ import {
   X,
   Landmark,
   CreditCard,
-} from 'lucide-react';
+} from '@/components/brand/icons';
 import { cn } from '@/lib/utils';
 
 interface ClientEvent {
@@ -63,6 +63,7 @@ interface ClientEvent {
   location: string;
   capacity: number;
   registered: number;
+  creditsEnabled?: boolean;
   price: number;
   earlyBirdPrice: number | null;
   earlyBirdDeadline: string | null;
@@ -174,7 +175,7 @@ export default function ClientEvents() {
   // null classes_remaining = unlimited plan. Can pay an event with 1 class credit
   // when the member has an active membership with credits left (or unlimited).
   const membershipCredits = membership?.classes_remaining ?? null;
-  const canPayWithCredits = hasActiveMembership && (membershipCredits === null || membershipCredits > 0);
+  const canPayWithCredits = selectedEvent?.creditsEnabled === true && hasActiveMembership && (membershipCredits === null || membershipCredits > 0);
 
   // Fetch bank info when user has a pending registration
   const isPendingPayment = selectedEvent?.myRegistration?.status === 'pending';

@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
-import { Calendar, Clock, Users } from 'lucide-react';
+import { Calendar, Clock, Users } from '@/components/brand/icons';
 
 interface ClassDetail {
   id: string;

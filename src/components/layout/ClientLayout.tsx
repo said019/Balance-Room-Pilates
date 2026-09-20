@@ -2,7 +2,6 @@ import { type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   HomeIcon,
-  CalendarIcon,
   ReaderIcon,
   PersonIcon,
   BellIcon,
@@ -10,7 +9,8 @@ import {
   ArrowTopRightIcon,
   CardStackIcon,
   RocketIcon,
-} from "@radix-ui/react-icons";
+} from "@/components/brand/radix-icons";
+import { CalendarPlus as CalendarIcon } from "@/components/brand/icons";
 import { useAuthStore } from "@/stores/authStore";
 import "@/components/member/member.css";
 

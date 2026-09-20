@@ -3,7 +3,7 @@ import { ClientLayout } from '@/components/layout/ClientLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Bell } from 'lucide-react';
+import { Bell } from '@/components/brand/icons';
 import { Link } from 'react-router-dom';
 
 const notifications: Array<{id: string; title: string; body: string; time: string; unread: boolean}> = [];

@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AssignMembershipForm } from '@/components/admin/members/AssignMembershipForm';
-import { ArrowLeft, CheckCircle2, UserCheck } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, UserCheck } from '@/components/brand/icons';
 import api from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -90,7 +90,7 @@ export default function AssignMembership() {
         <AdminLayout>
           <div className="container mx-auto py-6 space-y-6">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" asChild>
+              <Button variant="ghost" size="icon" aria-label="Volver a comunidad" asChild>
                 <Link to="/admin/members">
                   <ArrowLeft className="h-5 w-5" />
                 </Link>
@@ -135,7 +135,7 @@ export default function AssignMembership() {
                   </AlertDescription>
                 </Alert>
 
-                <div className="flex gap-2 pt-4">
+                <div className="flex flex-col gap-2 pt-4 sm:flex-row sm:flex-wrap">
                   <Button onClick={() => navigate(`/admin/members/${userId}`)}>
                     Ver perfil del cliente
                   </Button>
@@ -165,7 +165,7 @@ export default function AssignMembership() {
       <AdminLayout>
         <div className="container mx-auto py-6 space-y-6">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" asChild>
+            <Button variant="ghost" size="icon" aria-label="Volver a comunidad" asChild>
               <Link to={`/admin/members/${userId}`}>
                 <ArrowLeft className="h-5 w-5" />
               </Link>

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Mail, Phone, User } from 'lucide-react';
+import { Mail, Phone, User } from '@/components/brand/icons';
 import StudioLayout from '@/components/layout/StudioLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';

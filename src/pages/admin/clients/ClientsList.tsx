@@ -1,3 +1,4 @@
+import { postFinancialOperation } from '@/lib/financial-intent';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -100,8 +101,10 @@ export default function ClientsList() {
     const [selectedUser, setSelectedUser] = useState<UserWithMembership | null>(null);
     const [selectedPlanId, setSelectedPlanId] = useState('');
     const [paymentMethod, setPaymentMethod] = useState<string>('cash');
+    const [paymentReference, setPaymentReference] = useState('');
     const [creditsDialogOpen, setCreditsDialogOpen] = useState(false);
     const [creditsUser, setCreditsUser] = useState<UserWithMembership | null>(null);
+    const [creditsReason, setCreditsReason] = useState('');
     const [creditsValue, setCreditsValue] = useState<number>(0);
 
     const debouncedSearch = useDebounce(search, 500);
@@ -142,11 +145,12 @@ export default function ClientsList() {
             planId: string;
             paymentMethod: string;
         }) => {
-            return await api.post('/memberships/assign', {
+            return await postFinancialOperation('/memberships/assign', {
                 userId,
                 planId,
                 status: 'active',
                 paymentMethod,
+                paymentReference,
             });
         },
         onSuccess: () => {
@@ -170,6 +174,7 @@ export default function ClientsList() {
         setSelectedUser(user);
         setSelectedPlanId('');
         setPaymentMethod('cash');
+        setPaymentReference('');
         setAssignDialogOpen(true);
     };
 
@@ -190,7 +195,10 @@ export default function ClientsList() {
 
     const creditsMutation = useMutation({
         mutationFn: async ({ membershipId, classes_remaining }: { membershipId: string; classes_remaining: number }) => {
-            const { data } = await api.patch(`/memberships/${membershipId}/credits`, { classes_remaining });
+            const { data } = await api.patch(`/memberships/${membershipId}/credits`, {
+                classes_remaining, reason: creditsReason,
+                expected_classes_remaining: creditsUser?.classes_remaining ?? null,
+            });
             return data;
         },
         onSuccess: () => {
@@ -207,6 +215,7 @@ export default function ClientsList() {
     const openCreditsDialog = (user: UserWithMembership) => {
         setCreditsUser(user);
         setCreditsValue(user.classes_remaining ?? 0);
+        setCreditsReason('');
         setCreditsDialogOpen(true);
     };
 
@@ -245,12 +254,12 @@ export default function ClientsList() {
         <AuthGuard requiredRoles={['admin', 'instructor']}>
             <AdminLayout>
                 <div className="space-y-6">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h1 className="text-2xl font-heading font-bold">Miembros</h1>
                             <p className="text-muted-foreground">Gestiona miembros y asigna planes.</p>
                         </div>
-                        <Button asChild>
+                        <Button asChild className="w-full sm:w-auto sm:shrink-0">
                             <Link to="/admin/members/new">
                                 <UserPlus className="mr-2 h-4 w-4" />
                                 Agregar miembro
@@ -259,10 +268,11 @@ export default function ClientsList() {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                        <div className="relative flex-1 max-w-sm">
+                        <div className="relative min-w-0 flex-1 sm:max-w-md">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="Buscar por nombre, email o telefono..."
+                                aria-label="Buscar miembros por nombre, correo o teléfono"
+                                placeholder="Nombre, correo o teléfono"
                                 value={search}
                                 onChange={(e) => {
                                     setSearch(e.target.value);
@@ -273,135 +283,147 @@ export default function ClientsList() {
                         </div>
                     </div>
 
-                    <div className="rounded-md border bg-card">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Cliente</TableHead>
-                                    <TableHead>Contacto</TableHead>
-                                    <TableHead>Plan Actual</TableHead>
-                                    <TableHead>Estado</TableHead>
-                                    <TableHead>Creditos</TableHead>
-                                    <TableHead className="text-right">Acciones</TableHead>
+                    <div className="overflow-hidden rounded-xl border bg-card">
+                        <Table className="admin-record-table" role="table">
+                            <TableHeader role="rowgroup">
+                                <TableRow role="row">
+                                    <TableHead role="columnheader">Cliente</TableHead>
+                                    <TableHead role="columnheader">Contacto</TableHead>
+                                    <TableHead role="columnheader">Plan Actual</TableHead>
+                                    <TableHead role="columnheader">Estado</TableHead>
+                                    <TableHead role="columnheader">Creditos</TableHead>
+                                    <TableHead role="columnheader" className="text-right">Acciones</TableHead>
                                 </TableRow>
                             </TableHeader>
-                            <TableBody>
+                            <TableBody role="rowgroup">
                                 {isLoading ? (
-                                    <TableRow>
+                                    <TableRow role="row">
                                         <TableCell colSpan={6} className="text-center py-8">
                                             <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
                                         </TableCell>
                                     </TableRow>
                                 ) : data?.users.length === 0 ? (
-                                    <TableRow>
+                                    <TableRow role="row">
                                         <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                                             No se encontraron clientes.
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     data?.users.map((user) => (
-                                        <TableRow key={user.id} className={user.is_active === false ? 'opacity-50 bg-muted/50' : ''}>
-                                            <TableCell>
-                                                <div className="flex items-center gap-3">
-                                                    <Link to={`/admin/members/${user.id}`}>
-                                                        <Avatar className="cursor-pointer hover:ring-2 hover:ring-primary transition-shadow">
-                                                            <AvatarImage src={user.photo_url || undefined} />
-                                                            <AvatarFallback>{getInitials(user.display_name)}</AvatarFallback>
-                                                        </Avatar>
-                                                    </Link>
-                                                    <div>
-                                                        <div className="font-medium flex items-center gap-1.5 flex-wrap">
-                                                            {user.display_name}
-                                                            {user.is_founder && (
-                                                                <Badge className="text-[10px] bg-altitud-gold/15 text-altitud-gold border border-altitud-gold/30 hover:bg-altitud-gold/20 px-1.5 py-0">
-                                                                    ★ Founder
-                                                                </Badge>
-                                                            )}
-                                                            {user.is_active === false && <Badge variant="outline" className="text-xs">Inactivo</Badge>}
-                                                        </div>
-                                                        <div className="text-xs text-muted-foreground">
-                                                            Registrado: {new Date(user.created_at).toLocaleDateString()}
+                                        <TableRow role="row" key={user.id} className={user.is_active === false ? 'opacity-50 bg-muted/50' : ''}>
+                                            <TableCell role="cell" data-label="Miembro" data-primary>
+                                                <div className="admin-record-value">
+                                                    <div className="flex items-center gap-3">
+                                                        <Link to={`/admin/members/${user.id}`} aria-label={`Ver perfil de ${user.display_name}`}>
+                                                            <Avatar className="h-11 w-11 shrink-0 cursor-pointer hover:ring-2 hover:ring-primary transition-shadow">
+                                                                <AvatarImage src={user.photo_url || undefined} />
+                                                                <AvatarFallback>{getInitials(user.display_name)}</AvatarFallback>
+                                                            </Avatar>
+                                                        </Link>
+                                                        <div>
+                                                            <div className="font-medium flex items-center gap-1.5 flex-wrap">
+                                                                {user.display_name}
+                                                                {user.is_founder && (
+                                                                    <Badge className="text-[10px] bg-altitud-gold/15 text-altitud-gold border border-altitud-gold/30 hover:bg-altitud-gold/20 px-1.5 py-0">
+                                                                        ★ Founder
+                                                                    </Badge>
+                                                                )}
+                                                                {user.is_active === false && <Badge variant="outline" className="text-xs">Inactivo</Badge>}
+                                                            </div>
+                                                            <div className="text-xs text-muted-foreground">
+                                                                Registrado: {new Date(user.created_at).toLocaleDateString()}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col text-sm">
-                                                    <span>{user.email}</span>
-                                                    <span className="text-muted-foreground">{user.phone}</span>
+                                            <TableCell role="cell" data-label="Contacto">
+                                                <div className="admin-record-value">
+                                                    <div className="flex flex-col text-sm">
+                                                        <span>{user.email}</span>
+                                                        <span className="text-muted-foreground">{user.phone}</span>
+                                                    </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>
-                                                {user.plan_name ? (
-                                                    <span className="font-medium">{user.plan_name}</span>
-                                                ) : (
-                                                    <span className="text-muted-foreground text-sm">Sin plan</span>
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
-                                                {user.membership_status ? (
-                                                    <Badge
-                                                        variant="outline"
-                                                        className={statusColors[user.membership_status] || ''}
-                                                    >
-                                                        {statusLabels[user.membership_status] || user.membership_status}
-                                                    </Badge>
-                                                ) : (
-                                                    <Badge variant="outline" className="text-gray-500">
-                                                        Sin membresia
-                                                    </Badge>
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
-                                                {user.membership_status === 'active' ? (
-                                                    user.class_limit === null || user.class_limit === undefined ? (
-                                                        <span className="text-sm text-muted-foreground">Ilimitado</span>
-                                                    ) : user.class_limit > 0 ? (
-                                                        <span className="text-sm">
-                                                            {user.classes_remaining ?? 0} / {user.class_limit}
-                                                        </span>
+                                            <TableCell role="cell" data-label="Plan actual">
+                                                <div className="admin-record-value">
+                                                    {user.plan_name ? (
+                                                        <span className="font-medium">{user.plan_name}</span>
                                                     ) : (
-                                                        <span className="text-sm text-muted-foreground">Solo inscripción</span>
-                                                    )
-                                                ) : (
-                                                    <span className="text-sm text-muted-foreground">-</span>
-                                                )}
+                                                        <span className="text-muted-foreground text-sm">Sin plan</span>
+                                                    )}
+                                                </div>
                                             </TableCell>
-                                            <TableCell className="text-right">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" className="h-8 w-8 p-0">
-                                                            <span className="sr-only">Abrir menu</span>
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                        <DropdownMenuItem asChild>
-                                                            <Link to={`/admin/members/${user.id}`}>
-                                                                <Eye className="mr-2 h-4 w-4" /> Ver Perfil
-                                                            </Link>
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => openAssignDialog(user)}>
-                                                            <ShoppingCart className="mr-2 h-4 w-4" /> Asignar Plan
-                                                        </DropdownMenuItem>
-                                                        {user.membership_status === 'active' && user.membership_id && (user.class_limit ?? 0) > 0 && (
-                                                            <DropdownMenuItem onClick={() => openCreditsDialog(user)}>
-                                                                <Coins className="mr-2 h-4 w-4" /> Ajustar Créditos
-                                                            </DropdownMenuItem>
-                                                        )}
-                                                        <DropdownMenuItem
-                                                            className="text-destructive focus:text-destructive"
-                                                            onClick={() => {
-                                                                if (confirm('¿Eliminar usuario? Si tiene historial será desactivado, si no, se borrará permanentemente.')) {
-                                                                    deleteMutation.mutate(user.id);
-                                                                }
-                                                            }}
+                                            <TableCell role="cell" data-label="Estado">
+                                                <div className="admin-record-value">
+                                                    {user.membership_status ? (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className={statusColors[user.membership_status] || ''}
                                                         >
-                                                            <Trash2 className="mr-2 h-4 w-4" /> Eliminar
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
+                                                            {statusLabels[user.membership_status] || user.membership_status}
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge variant="outline" className="text-gray-500">
+                                                            Sin membresia
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell role="cell" data-label="Créditos">
+                                                <div className="admin-record-value">
+                                                    {user.membership_status === 'active' ? (
+                                                        user.class_limit === null || user.class_limit === undefined ? (
+                                                            <span className="text-sm text-muted-foreground">Ilimitado</span>
+                                                        ) : user.class_limit > 0 ? (
+                                                            <span className="text-sm">
+                                                                {user.classes_remaining ?? 0} / {user.class_limit}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-sm text-muted-foreground">Solo inscripción</span>
+                                                        )
+                                                    ) : (
+                                                        <span className="text-sm text-muted-foreground">-</span>
+                                                    )}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-right" role="cell" data-label="Acciones" data-actions>
+                                                <div className="admin-record-value">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" className="h-11 w-11 p-0">
+                                                                <span className="sr-only">Acciones de {user.display_name}</span>
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                                                            <DropdownMenuItem asChild>
+                                                                <Link to={`/admin/members/${user.id}`}>
+                                                                    <Eye className="mr-2 h-4 w-4" /> Ver Perfil
+                                                                </Link>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => openAssignDialog(user)}>
+                                                                <ShoppingCart className="mr-2 h-4 w-4" /> Asignar Plan
+                                                            </DropdownMenuItem>
+                                                            {user.membership_status === 'active' && user.membership_id && (user.class_limit ?? 0) > 0 && (
+                                                                <DropdownMenuItem onClick={() => openCreditsDialog(user)}>
+                                                                    <Coins className="mr-2 h-4 w-4" /> Ajustar Créditos
+                                                                </DropdownMenuItem>
+                                                            )}
+                                                            <DropdownMenuItem
+                                                                className="text-destructive focus:text-destructive"
+                                                                onClick={() => {
+                                                                    if (confirm('¿Eliminar usuario? Si tiene historial será desactivado, si no, se borrará permanentemente.')) {
+                                                                        deleteMutation.mutate(user.id);
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <Trash2 className="mr-2 h-4 w-4" /> Eliminar
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     ))
@@ -450,12 +472,17 @@ export default function ClientsList() {
                             </div>
 
                             <div className="space-y-2">
+                                <Label htmlFor="credits-reason">Motivo del ajuste *</Label>
+                                <Input id="credits-reason" value={creditsReason} onChange={e => setCreditsReason(e.target.value)} maxLength={500} placeholder="Describe por qué cambia el saldo" />
+                            </div>
+                            <div className="space-y-2">
                                 <Label htmlFor="creditsValue">Nuevo balance</Label>
                                 <div className="flex items-center gap-2">
                                     <Button
                                         type="button"
                                         variant="outline"
                                         size="icon"
+                                        aria-label="Quitar un crédito"
                                         onClick={() => setCreditsValue((v) => Math.max(0, v - 1))}
                                         disabled={creditsValue <= 0}
                                     >
@@ -474,6 +501,7 @@ export default function ClientsList() {
                                         type="button"
                                         variant="outline"
                                         size="icon"
+                                        aria-label="Añadir un crédito"
                                         onClick={() => setCreditsValue((v) => (creditsUser?.class_limit ? Math.min(creditsUser.class_limit, v + 1) : v + 1))}
                                         disabled={!!creditsUser?.class_limit && creditsValue >= creditsUser.class_limit}
                                     >
@@ -493,7 +521,7 @@ export default function ClientsList() {
                                     membershipId: creditsUser.membership_id,
                                     classes_remaining: creditsValue,
                                 })}
-                                disabled={creditsMutation.isPending || creditsValue === (creditsUser?.classes_remaining ?? 0)}
+                                disabled={creditsMutation.isPending || !creditsReason.trim() || creditsValue === (creditsUser?.classes_remaining ?? 0)}
                             >
                                 {creditsMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Guardar
@@ -516,7 +544,7 @@ export default function ClientsList() {
                             <div className="space-y-2">
                                 <Label htmlFor="plan">Plan</Label>
                                 <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
-                                    <SelectTrigger>
+                                    <SelectTrigger id="plan">
                                         <SelectValue placeholder="Selecciona un plan" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -532,18 +560,21 @@ export default function ClientsList() {
                             <div className="space-y-2">
                                 <Label htmlFor="paymentMethod">Metodo de pago</Label>
                                 <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                                    <SelectTrigger>
+                                    <SelectTrigger id="paymentMethod">
                                         <SelectValue placeholder="Selecciona metodo de pago" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="cash">Efectivo</SelectItem>
                                         <SelectItem value="transfer">Transferencia</SelectItem>
                                         <SelectItem value="card">Tarjeta</SelectItem>
-                                        <SelectItem value="online">Pago en linea</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
 
+                            {paymentMethod !== 'cash' && <div className="space-y-2">
+                                <Label htmlFor="assign-reference">Folio del pago recibido *</Label>
+                                <Input id="assign-reference" value={paymentReference} onChange={e => setPaymentReference(e.target.value)} required />
+                            </div>}
                             {selectedPlanId && plans && (
                                 <div className="p-3 bg-muted rounded-md text-sm">
                                     <p className="font-medium">Resumen:</p>

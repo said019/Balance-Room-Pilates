@@ -1,0 +1,97 @@
+/* 2707 Altitud administration. Scoped to preserve the public and member apps. */
+body.altitud-admin {
+  --admin-bg: 45 31% 95%;
+  --admin-panel: 45 31% 97%;
+  --primary: 64 38% 28%;
+  --ring: 64 38% 28%;
+  --muted-foreground: 60 7% 36%;
+  --destructive: 0 72% 42%;
+  background: #f6f4ee;
+}
+
+.admin-shell { background: #f6f4ee; font-family: var(--font-body); }
+.admin-shell::after { content: none; }
+.admin-shell h1 { font-family: var(--font-heading); font-weight: 400; letter-spacing: -.025em; line-height: 1.15; }
+.admin-shell :is(h2, h3, h4) { letter-spacing: -.015em; line-height: 1.3; }
+.admin-shell :is(button, a, input, select, textarea):focus-visible,
+.admin-mobile-drawer :is(button, a):focus-visible { outline: 2px solid #7f6146; outline-offset: 3px; }
+.admin-shell :is(button, input, select, textarea, [role="combobox"]) { border-radius: 10px; }
+.admin-shell :is(input, select, textarea, [role="combobox"]) { min-width: 0; font-size: 16px; }
+.admin-content > div, .admin-content .grid > *, .admin-content .flex > * { min-width: 0; }
+.admin-content .container { width: 100%; padding-inline: 0; }
+.admin-content [class~="bg-card"] { border-radius: 16px; border-color: #cfbd9d80; box-shadow: none; }
+.admin-topbar { border-bottom: 1px solid #cfbd9d70; background: #f6f4ee; }
+.admin-header-control { width: 44px; height: 44px; min-width: 44px; padding: 0; border: 1px solid #cfbd9d90; border-radius: 12px; color: #1c1c19; }
+.admin-header-control:hover { background: #ebe7db; }
+.admin-community-search { padding: 10px 16px; border: 1px solid #cfbd9d90; border-radius: 10px; color: #656353; font-size: 14px; }
+.admin-community-search:hover { border-color: #5f632c; color: #1c1c19; }
+.admin-rail, .admin-mobile-drawer { background: #1c1c19; color: #f6f4ee; }
+.admin-rail-control { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 44px; height: 44px; color: #f6f4ee; border: 1px solid #f6f4ee30; border-radius: 12px; }
+.admin-rail-control:hover { background: #f6f4ee15; }
+.admin-navigation-scroll { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 8px 12px max(24px, env(safe-area-inset-bottom)); }
+.admin-nav-link { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 12px; color: #e0ddd3; font-size: 15px; border-radius: 10px; transition: background .15s; }
+.admin-nav-link:hover, .admin-nav-child:hover { background: #f6f4ee12; color: #fff; }
+.admin-nav-link.is-active { background: #5f632c; color: #fff; }
+.admin-nav-children { margin: 4px 0 8px 22px; padding-left: 12px; border-left: 1px solid #cfbd9d45; }
+.admin-nav-child { display: flex; align-items: center; min-height: 44px; padding: 8px 12px; color: #d1cec2; font-size: 14px; border-radius: 8px; }
+.admin-nav-child.is-active { color: #fff; background: #f6f4ee12; box-shadow: inset 3px 0 #cfbd9d; }
+.admin-nav-caption { padding: 28px 12px 4px; color: #b9b7aa; font-size: 12px; }
+.admin-menu-overlay { position: fixed; inset: 0; z-index: 60; background: #1c1c1980; }
+.admin-mobile-drawer { position: fixed; inset: 0 auto 0 0; z-index: 61; display: flex; flex-direction: column; width: min(340px, 90vw); height: 100dvh; padding-top: env(safe-area-inset-top); outline: none; }
+.admin-bottom-nav { position: fixed; inset: auto 0 0; z-index: 35; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; padding: 7px 8px max(7px, env(safe-area-inset-bottom)); background: #f6f4ee; border-top: 1px solid #cfbd9d90; }
+.admin-bottom-link { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 52px; color: #656353; font-size: 11px; font-weight: 600; border-radius: 10px; }
+.admin-bottom-link.is-active { color: #505322; background: #5f632c12; }
+.admin-bottom-link:hover { background: #5f632c0d; }
+.admin-skip-link { position: fixed; z-index: 100; top: 8px; left: 8px; transform: translateY(-150%); padding: 12px 20px; border-radius: 8px; background: #1c1c19; color: #fff; }
+.admin-skip-link:focus { transform: translateY(0); }
+.admin-record-value { min-width: 0; overflow-wrap: anywhere; }
+.admin-content code { overflow-wrap: anywhere; }
+.admin-content :is([class~="text-altitud-dark/45"], [class~="text-altitud-dark/50"], [class~="text-altitud-dark/55"]) { color: #656353; }
+.admin-content :is(.text-warning, .text-info) { color: #765018; }
+.admin-content .text-emerald-600 { color: #047147; }
+.admin-content .text-orange-600 { color: #9b481a; }
+.admin-content .text-red-500 { color: #b5362c; }
+.admin-content .text-altitud-olive { color: #505322; }
+
+/* Portaled controls inherit the admin theme without changing the other apps. */
+body.altitud-admin [role="dialog"]:not(.admin-mobile-drawer),
+body.altitud-admin [role="alertdialog"] { max-width: calc(100vw - 32px); max-height: calc(100dvh - 48px); overflow-y: auto; overscroll-behavior: contain; border-radius: 16px; }
+body.altitud-admin :is([role="dialog"], [role="alertdialog"]) :is(input, textarea, select, [role="combobox"]) { font-size: 16px; }
+body.altitud-admin [data-radix-popper-content-wrapper] { max-width: calc(100vw - 24px); z-index: 65 !important; }
+body.altitud-admin :is([role="menuitem"], [role="option"]) { min-height: 44px; }
+
+@media (max-width: 1023px) {
+  .admin-bottom-nav { display: grid; }
+  /* Keep the last form action above the fixed navigation despite spacing utilities. */
+  .admin-shell .admin-content { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+  .admin-shell :is(button, [role="combobox"], input:not([type="checkbox"]):not([type="radio"])),
+  .admin-shell a.inline-flex,
+  body.altitud-admin :is([role="dialog"], [role="alertdialog"]) :is(button, input:not([type="checkbox"]):not([type="radio"]), [role="combobox"]) { min-height: 44px; }
+  .admin-shell :is(button[role="checkbox"], button[role="switch"]) { min-height: unset; }
+  .admin-shell button:has(> svg:only-child), body.altitud-admin [role="dialog"] button:has(> svg:only-child) { min-width: 44px; }
+  .admin-shell :is(h1, h2, h3, p) { overflow-wrap: break-word; }
+}
+
+@media (max-width: 767px) {
+  .admin-content { padding-left: 16px; padding-right: 16px; }
+  .admin-content h1 { font-size: clamp(26px, 7vw, 32px); }
+  .admin-record-table, .admin-record-table tbody { display: block; width: 100%; }
+  .admin-record-table thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  .admin-record-table tbody tr { display: block; padding: 12px 16px; border-bottom: 1px solid #cfbd9d70; }
+  .admin-record-table tbody tr:last-child { border-bottom: 0; }
+  .admin-record-table tbody td { display: block; width: 100%; padding: 6px 0; text-align: left; white-space: normal; }
+  .admin-record-table tbody td[data-label] { display: grid; grid-template-columns: minmax(72px, .7fr) minmax(0, 1.3fr); align-items: baseline; gap: 12px; }
+  .admin-record-table tbody td[data-label]::before { content: attr(data-label); color: #656353; font-size: 12px; line-height: 1.4; }
+  .admin-record-table tbody td[data-primary] { display: block; padding: 6px 0 14px; font-size: 16px; }
+  .admin-record-table tbody td[data-primary]::before, .admin-record-table tbody td[data-actions]::before { content: none; }
+  .admin-record-table tbody td[data-actions] { display: block; margin-top: 8px; padding-top: 12px; border-top: 1px solid #cfbd9d40; }
+  .admin-record-table td[data-actions] .admin-record-value { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+  .admin-record-table td[data-actions] .admin-record-value > div { flex-wrap: wrap; }
+  .admin-record-table [data-primary] .truncate { white-space: normal; overflow: visible; }
+  .admin-content [role="tablist"] { max-width: 100%; }
+  body.altitud-admin [role="dialog"]:not(.admin-mobile-drawer), body.altitud-admin [role="alertdialog"] { padding: 24px 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-shell *, .admin-mobile-drawer * { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

@@ -46,7 +46,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Plus, MoreHorizontal, Pencil, Trash2, Building2, Users, MapPin } from 'lucide-react';
+import { Loader2, Plus, MoreHorizontal, Pencil, Trash2, Building2, Users, MapPin } from '@/components/brand/icons';
 import { Link } from 'react-router-dom';
 
 // Type for Facility
@@ -304,7 +304,7 @@ export default function FacilitiesList() {
                                             <TableCell className="text-right">
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon">
+                                                        <Button aria-label="Acciones de la sala" variant="ghost" size="icon">
                                                             <MoreHorizontal className="h-4 w-4" />
                                                         </Button>
                                                     </DropdownMenuTrigger>
@@ -420,7 +420,7 @@ export default function FacilitiesList() {
                                             Las salas inactivas no se mostrarán
                                         </p>
                                     </div>
-                                    <Switch
+                                    <Switch aria-label="Sala activa"
                                         checked={watch('isActive')}
                                         onCheckedChange={(checked) => setValue('isActive', checked)}
                                     />

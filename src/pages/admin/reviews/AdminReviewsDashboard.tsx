@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Star, TrendingUp, TrendingDown, Minus, MessageSquare, ThumbsUp, AlertTriangle, Settings, User, Calendar, Clock } from 'lucide-react';
+import { Star, TrendingUp, TrendingDown, Minus, MessageSquare, ThumbsUp, AlertTriangle, Settings, User, Calendar, Clock } from '@/components/brand/icons';
 import api from '@/lib/api';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';

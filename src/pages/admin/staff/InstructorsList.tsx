@@ -38,7 +38,7 @@ import {
 // Avatar not used - using custom img for better quality display
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Plus, MoreHorizontal, Pencil, Trash2, User, Camera, Upload, Mail } from 'lucide-react';
+import { Loader2, Plus, MoreHorizontal, Pencil, Trash2, User, Camera, Upload, Mail } from '@/components/brand/icons';
 import type { User as AuthUser } from '@/types/auth'; // Import User type
 
 // Schema for form — userId is optional (not needed when creating from email)
@@ -410,178 +410,190 @@ export default function InstructorsList() {
         <AuthGuard requiredRoles={['admin']}>
             <AdminLayout>
                 <div className="space-y-6">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h1 className="text-2xl font-heading font-bold">Instructores</h1>
                             <p className="text-muted-foreground">Gestión del staff y perfiles.</p>
                         </div>
-                        <Button onClick={handleCreate}>
+                        <Button className="w-full sm:w-auto sm:shrink-0" onClick={handleCreate}>
                             <Plus className="mr-2 h-4 w-4" /> Nuevo Instructor
                         </Button>
                     </div>
 
-                    <div className="rounded-md border bg-card">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Instructor</TableHead>
-                                    <TableHead>Contacto</TableHead>
-                                    <TableHead>Especialidades</TableHead>
-                                    <TableHead>Portal Coach</TableHead>
-                                    <TableHead>Estado</TableHead>
-                                    <TableHead className="text-right">Acciones</TableHead>
+                    <div className="overflow-hidden rounded-xl border bg-card">
+                        <Table className="admin-record-table" role="table">
+                            <TableHeader role="rowgroup">
+                                <TableRow role="row">
+                                    <TableHead role="columnheader">Instructor</TableHead>
+                                    <TableHead role="columnheader">Contacto</TableHead>
+                                    <TableHead role="columnheader">Especialidades</TableHead>
+                                    <TableHead role="columnheader">Portal Coach</TableHead>
+                                    <TableHead role="columnheader">Estado</TableHead>
+                                    <TableHead role="columnheader" className="text-right">Acciones</TableHead>
                                 </TableRow>
                             </TableHeader>
-                            <TableBody>
+                            <TableBody role="rowgroup">
                                 {isLoading ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="text-center py-8">
+                                    <TableRow role="row">
+                                        <TableCell colSpan={6} className="text-center py-8">
                                             <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
                                         </TableCell>
                                     </TableRow>
                                 ) : instructors?.length === 0 ? (
-                                    <TableRow>
+                                    <TableRow role="row">
                                         <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                                             No hay instructores registrados.
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     instructors?.map((instructor) => (
-                                        <TableRow key={instructor.id}>
-                                            <TableCell>
-                                                <div className="flex items-center gap-4">
-                                                    <div className="relative h-16 w-16 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                                                        {instructor.photo_url ? (
-                                                            <img
-                                                                src={instructor.photo_url}
-                                                                alt={instructor.display_name}
-                                                                className="h-full w-full object-cover"
-                                                            />
+                                        <TableRow role="row" key={instructor.id}>
+                                            <TableCell role="cell" data-label="Instructor" data-primary>
+                                                <div className="admin-record-value">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="relative h-16 w-16 rounded-md overflow-hidden bg-muted flex-shrink-0">
+                                                            {instructor.photo_url ? (
+                                                                <img
+                                                                    src={instructor.photo_url}
+                                                                    alt={instructor.display_name}
+                                                                    className="h-full w-full object-cover"
+                                                                />
+                                                            ) : (
+                                                                <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                                                                    <User className="h-8 w-8 text-muted-foreground/40" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-medium text-base">{instructor.display_name}</div>
+                                                            {instructor.bio && (
+                                                                <div className="mt-1 max-w-prose text-sm text-muted-foreground">
+                                                                    {instructor.bio}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell role="cell" data-label="Contacto">
+                                                <div className="admin-record-value">
+                                                    <div className="flex flex-col text-sm">
+                                                        <span>{instructor.email}</span>
+                                                        <span className="text-muted-foreground">
+                                                            {instructor.instructor_phone || instructor.user_phone}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell role="cell" data-label="Especialidades">
+                                                <div className="admin-record-value">
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {instructor.specialties?.slice(0, 2).map((s, i) => (
+                                                            <Badge key={i} variant="secondary" className="text-xs">{s}</Badge>
+                                                        ))}
+                                                        {(instructor.specialties?.length || 0) > 2 && (
+                                                            <Badge variant="outline" className="text-xs">+{instructor.specialties!.length - 2}</Badge>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell role="cell" data-label="Portal coach">
+                                                <div className="admin-record-value">
+                                                    <div className="flex flex-col gap-1">
+                                                        {instructor.coach_number ? (
+                                                            <>
+                                                                <div className="flex items-center gap-1">
+                                                                    <Badge variant="default" className="text-xs">
+                                                                        {instructor.coach_number}
+                                                                    </Badge>
+                                                                </div>
+                                                                {instructor.temp_password && (
+                                                                    <Badge variant="destructive" className="text-xs">
+                                                                        Cambio de contraseña pendiente
+                                                                    </Badge>
+                                                                )}
+                                                                {instructor.last_login && (
+                                                                    <span className="text-xs text-muted-foreground">
+                                                                        Último acceso: {new Date(instructor.last_login).toLocaleDateString()}
+                                                                    </span>
+                                                                )}
+                                                            </>
                                                         ) : (
-                                                            <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                                                                <User className="h-8 w-8 text-muted-foreground/40" />
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-medium text-base">{instructor.display_name}</div>
-                                                        {instructor.bio && (
-                                                            <div className="text-xs text-muted-foreground line-clamp-1 max-w-[200px]">
-                                                                {instructor.bio}
-                                                            </div>
+                                                            <Badge variant="outline" className="text-xs">Sin acceso</Badge>
                                                         )}
                                                     </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col text-sm">
-                                                    <span>{instructor.email}</span>
-                                                    <span className="text-muted-foreground">
-                                                        {instructor.instructor_phone || instructor.user_phone}
-                                                    </span>
+                                            <TableCell role="cell" data-label="Estado">
+                                                <div className="admin-record-value">
+                                                    <div className="flex flex-col gap-1">
+                                                        <Badge variant={instructor.is_active ? 'default' : 'secondary'}>
+                                                            {instructor.is_active ? 'Activo' : 'Inactivo'}
+                                                        </Badge>
+                                                        {instructor.visible_public && instructor.is_active && (
+                                                            <Badge variant="outline" className="text-xs">Visible público</Badge>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-wrap gap-1">
-                                                    {instructor.specialties?.slice(0, 2).map((s, i) => (
-                                                        <Badge key={i} variant="secondary" className="text-xs">{s}</Badge>
-                                                    ))}
-                                                    {(instructor.specialties?.length || 0) > 2 && (
-                                                        <Badge variant="outline" className="text-xs">+{instructor.specialties!.length - 2}</Badge>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col gap-1">
-                                                    {instructor.coach_number ? (
-                                                        <>
-                                                            <div className="flex items-center gap-1">
-                                                                <Badge variant="default" className="text-xs">
-                                                                    {instructor.coach_number}
-                                                                </Badge>
-                                                            </div>
-                                                            {instructor.temp_password && (
-                                                                <Badge variant="destructive" className="text-xs">
-                                                                    Cambio de contraseña pendiente
-                                                                </Badge>
+                                            <TableCell className="text-right" role="cell" data-label="Acciones" data-actions>
+                                                <div className="admin-record-value">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" className="h-11 w-11 p-0">
+                                                                <span className="sr-only">Acciones de {instructor.display_name}</span>
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                                                            <DropdownMenuItem onClick={() => handleEdit(instructor)}>
+                                                                <Pencil className="mr-2 h-4 w-4" /> Editar Perfil
+                                                            </DropdownMenuItem>
+                                                            {!instructor.coach_number ? (
+                                                                <DropdownMenuItem
+                                                                    onClick={() => {
+                                                                        if (confirm('¿Generar acceso al portal de coach?')) {
+                                                                            generateAccessMutation.mutate(instructor.id);
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    <User className="mr-2 h-4 w-4" /> Generar Acceso Coach
+                                                                </DropdownMenuItem>
+                                                            ) : (
+                                                                <>
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => {
+                                                                            const email = instructor.email || prompt('Ingresa el email del instructor:');
+                                                                            if (email) {
+                                                                                sendCredentialsMutation.mutate({ id: instructor.id, email });
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <Mail className="mr-2 h-4 w-4" /> Enviar Credenciales por Email
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => {
+                                                                            if (confirm('¿Restablecer contraseña del coach?')) {
+                                                                                resetPasswordMutation.mutate(instructor.id);
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <User className="mr-2 h-4 w-4" /> Resetear Contraseña
+                                                                    </DropdownMenuItem>
+                                                                </>
                                                             )}
-                                                            {instructor.last_login && (
-                                                                <span className="text-xs text-muted-foreground">
-                                                                    Último acceso: {new Date(instructor.last_login).toLocaleDateString()}
-                                                                </span>
-                                                            )}
-                                                        </>
-                                                    ) : (
-                                                        <Badge variant="outline" className="text-xs">Sin acceso</Badge>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col gap-1">
-                                                    <Badge variant={instructor.is_active ? 'default' : 'secondary'}>
-                                                        {instructor.is_active ? 'Activo' : 'Inactivo'}
-                                                    </Badge>
-                                                    {instructor.visible_public && instructor.is_active && (
-                                                        <Badge variant="outline" className="text-xs">Visible público</Badge>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" className="h-8 w-8 p-0">
-                                                            <span className="sr-only">Abrir menú</span>
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                        <DropdownMenuItem onClick={() => handleEdit(instructor)}>
-                                                            <Pencil className="mr-2 h-4 w-4" /> Editar Perfil
-                                                        </DropdownMenuItem>
-                                                        {!instructor.coach_number ? (
                                                             <DropdownMenuItem
+                                                                className="text-destructive"
                                                                 onClick={() => {
-                                                                    if (confirm('¿Generar acceso al portal de coach?')) {
-                                                                        generateAccessMutation.mutate(instructor.id);
-                                                                    }
+                                                                    if (confirm('¿Desactivar instructor?')) deleteMutation.mutate(instructor.id);
                                                                 }}
                                                             >
-                                                                <User className="mr-2 h-4 w-4" /> Generar Acceso Coach
+                                                                <Trash2 className="mr-2 h-4 w-4" /> Desactivar
                                                             </DropdownMenuItem>
-                                                        ) : (
-                                                            <>
-                                                                <DropdownMenuItem
-                                                                    onClick={() => {
-                                                                        const email = instructor.email || prompt('Ingresa el email del instructor:');
-                                                                        if (email) {
-                                                                            sendCredentialsMutation.mutate({ id: instructor.id, email });
-                                                                        }
-                                                                    }}
-                                                                >
-                                                                    <Mail className="mr-2 h-4 w-4" /> Enviar Credenciales por Email
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuItem
-                                                                    onClick={() => {
-                                                                        if (confirm('¿Restablecer contraseña del coach?')) {
-                                                                            resetPasswordMutation.mutate(instructor.id);
-                                                                        }
-                                                                    }}
-                                                                >
-                                                                    <User className="mr-2 h-4 w-4" /> Resetear Contraseña
-                                                                </DropdownMenuItem>
-                                                            </>
-                                                        )}
-                                                        <DropdownMenuItem
-                                                            className="text-destructive"
-                                                            onClick={() => {
-                                                                if (confirm('¿Desactivar instructor?')) deleteMutation.mutate(instructor.id);
-                                                            }}
-                                                        >
-                                                            <Trash2 className="mr-2 h-4 w-4" /> Desactivar
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     ))
@@ -660,7 +672,7 @@ export default function InstructorsList() {
                                 {editingInstructor && (
                                     <div className="space-y-3">
                                         <Label>Foto de Perfil</Label>
-                                        <div className="flex gap-4">
+                                        <div className="flex flex-col gap-4 sm:flex-row">
                                             {/* Photo Preview - Larger aspect ratio matching instructor cards */}
                                             <div
                                                 className="relative group cursor-pointer flex-shrink-0"
@@ -684,7 +696,7 @@ export default function InstructorsList() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="flex-1 space-y-3 pt-2">
+                                            <div className="min-w-0 flex-1 space-y-3 pt-2">
                                                 <input
                                                     ref={fileInputRef}
                                                     type="file"

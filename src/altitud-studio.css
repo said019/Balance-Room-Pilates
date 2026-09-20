@@ -110,3 +110,28 @@
   .alt-site .alt-footer-bottom > div { gap: 18px; }
   .alt-site .alt-legal h2 { font-size: 24px; }
 }
+
+/* Discipline icons from the approved 2707 Altitud set. */
+.alt-discipline-symbol { display: block; color: #5F632C; margin-bottom: 12px; }
+
+/* Original studio pictograms use their own proportions and clear space. */
+.alt-site .alt-official-discipline {
+  display: block; width: var(--discipline-size); height: var(--discipline-size);
+  object-fit: contain; flex: 0 0 auto; margin-bottom: 18px;
+}
+.alt-site .alt-training-detail { margin-top: 14px; max-width: 62ch; }
+.alt-site .alt-running-photo { height: auto; aspect-ratio: 4 / 5; max-height: 620px; }
+.alt-site .alt-running-photo img { object-position: center 48%; }
+.alt-site .alt-hybrid-challenge .alt-official-discipline { margin-bottom: 0; }
+.alt-site .alt-community-image img { object-position: center 45%; }
+@media(max-width: 767px) {
+  .alt-site .alt-hybrid-challenge .alt-official-discipline { margin-bottom: 18px; }
+  .alt-site .alt-community-image { min-height: 0; aspect-ratio: 3 / 4; }
+}
+
+.alt-site .alt-running-gallery { min-width: 0; }
+.alt-site .alt-running-thumbnails { display: flex; gap: 12px; margin-top: 14px; }
+.alt-site .alt-running-thumbnails button { width: 64px; height: 82px; padding: 3px; border: 1px solid transparent; border-radius: 5px; }
+.alt-site .alt-running-thumbnails button[aria-pressed="true"] { border-color: var(--olive); }
+.alt-site .alt-running-thumbnails button:focus-visible { outline: 2px solid var(--olive); outline-offset: 3px; }
+.alt-site .alt-running-thumbnails img { width: 100%; height: 100%; object-fit: cover; border-radius: 2px; }

@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star, TrendingUp, TrendingDown, Calendar, Users, Percent, Award, ArrowLeft } from 'lucide-react';
+import { Star, TrendingUp, TrendingDown, Calendar, Users, Percent, Award, ArrowLeft } from '@/components/brand/icons';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '@/lib/api';
 import { format } from 'date-fns';
@@ -85,7 +85,7 @@ export default function InstructorDetail() {
         <AdminLayout>
             <div className="space-y-6">
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => navigate('/admin/reports/instructors')}>
+                    <Button aria-label="Volver a coaches" variant="ghost" size="icon" onClick={() => navigate('/admin/reports/instructors')}>
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <div>
@@ -177,7 +177,7 @@ export default function InstructorDetail() {
                                                     <XAxis type="number" hide />
                                                     <YAxis dataKey="name" type="category" width={30} tickLine={false} axisLine={false} />
                                                     <Tooltip cursor={{ fill: 'transparent' }} />
-                                                    <Bar dataKey="value" fill="#fbbf24" radius={[0, 4, 4, 0]} barSize={20} />
+                                                    <Bar dataKey="value" fill="#7F6146" radius={[0, 4, 4, 0]} barSize={20} />
                                                 </BarChart>
                                             </ResponsiveContainer>
                                         </CardContent>

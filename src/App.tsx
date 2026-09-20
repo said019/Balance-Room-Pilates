@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
+import { IntegrationNotice } from "@/components/admin/IntegrationNotice";
 
 // Public pages
 import Index from "./pages/Index";
@@ -18,6 +19,7 @@ const MapsExport = lazy(() => import("./pages/MapsExport"));
 const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
 const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
 
 const MemberPreview = lazy(() => import("./pages/client/MemberApp"));
 
@@ -55,7 +57,6 @@ const ClassesCalendar = lazy(() => import("./pages/admin/classes/ClassesCalendar
 const GenerateClasses = lazy(() => import("./pages/admin/classes/GenerateClasses"));
 const BookingsList = lazy(() => import("./pages/admin/bookings/BookingsList"));
 const Waitlist = lazy(() => import("./pages/admin/bookings/Waitlist"));
-const TotalPassToday = lazy(() => import("./pages/admin/bookings/TotalPassToday"));
 const MemberNew = lazy(() => import("./pages/admin/members/MemberNew"));
 const AssignMembership = lazy(() => import("./pages/admin/members/AssignMembership"));
 const PhysicalSale = lazy(() => import("./pages/admin/members/PhysicalSale"));
@@ -67,8 +68,6 @@ const StudioSettings = lazy(() => import("./pages/admin/settings/StudioSettings"
 const PoliciesSettings = lazy(() => import("./pages/admin/settings/PoliciesSettings"));
 const AdminCancellationPolicy = lazy(() => import("./pages/admin/settings/CancellationPolicy"));
 const NotificationSettings = lazy(() => import("./pages/admin/settings/NotificationSettings"));
-const WhatsAppSettings = lazy(() => import("./pages/admin/settings/WhatsAppSettings"));
-const Plataformas = lazy(() => import("./pages/admin/settings/Plataformas"));
 
 // Reports pages
 const ReportsOverview = lazy(() => import("./pages/admin/reports/ReportsOverview"));
@@ -82,7 +81,6 @@ const InstructorDetail = lazy(() => import("./pages/admin/reports/InstructorDeta
 
 
 const EventsManager = lazy(() => import("./pages/admin/events/EventsManager"));
-const Communication = lazy(() => import("./pages/admin/marketing/Communication"));
 const DiscountCodes = lazy(() => import("./pages/admin/discount-codes/DiscountCodes"));
 const FacilitiesList = lazy(() => import("./pages/admin/facilities/FacilitiesList"));
 
@@ -165,6 +163,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Client Routes */}
             <Route path="/app/preview/*" element={<MemberPreview preview />} />
@@ -188,13 +187,13 @@ const App = () => (
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/events" element={<EventsManager />} />
-            <Route path="/admin/marketing" element={<Communication />} />
+            <Route path="/admin/marketing" element={<IntegrationNotice type="communication" />} />
             <Route path="/admin/discount-codes" element={<DiscountCodes />} />
             <Route path="/admin/calendar" element={<ClassesCalendar />} />
 
             <Route path="/admin/bookings" element={<BookingsList />} />
             <Route path="/admin/bookings/waitlist" element={<Waitlist />} />
-            <Route path="/admin/totalpass/checkins" element={<TotalPassToday />} />
+            <Route path="/admin/totalpass/checkins" element={<IntegrationNotice type="platforms" />} />
 
             <Route path="/admin/classes/schedules" element={<WeeklySchedule />} />
             <Route path="/admin/classes/types" element={<ClassTypesList />} />
@@ -232,8 +231,8 @@ const App = () => (
             <Route path="/admin/settings/policies" element={<PoliciesSettings />} />
             <Route path="/admin/settings/cancellations" element={<AdminCancellationPolicy />} />
             <Route path="/admin/settings/notifications" element={<NotificationSettings />} />
-            <Route path="/admin/settings/whatsapp" element={<WhatsAppSettings />} />
-            <Route path="/admin/settings/platforms" element={<Plataformas />} />
+            <Route path="/admin/settings/whatsapp" element={<IntegrationNotice type="whatsapp" />} />
+            <Route path="/admin/settings/platforms" element={<IntegrationNotice type="platforms" />} />
             <Route path="/admin/settings" element={<Navigate to="/admin/settings/general" replace />} />
 
             <Route path="/admin/facilities" element={<FacilitiesList />} />

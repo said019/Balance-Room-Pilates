@@ -4,7 +4,7 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
-import { Loader2, DollarSign, TrendingUp, CreditCard, Wallet } from 'lucide-react';
+import { Loader2, DollarSign, TrendingUp, CreditCard, Wallet } from '@/components/brand/icons';
 import api from '@/lib/api';
 import { format, subDays } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -60,7 +60,7 @@ export default function ReportsRevenue() {
                         <p className="text-muted-foreground">Desglose de ventas y métodos de pago.</p>
                     </div>
                     <Select value={period} onValueChange={setPeriod}>
-                        <SelectTrigger className="w-[180px]">
+                        <SelectTrigger aria-label="Periodo del reporte" className="w-[180px]">
                             <SelectValue placeholder="Periodo" />
                         </SelectTrigger>
                         <SelectContent>
@@ -71,7 +71,7 @@ export default function ReportsRevenue() {
                     </Select>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Ingresos Totales</CardTitle>
@@ -110,8 +110,8 @@ export default function ReportsRevenue() {
                     </Card>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                    <Card className="col-span-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <Card className="md:col-span-2">
                         <CardHeader>
                             <CardTitle>Tendencia de Ingresos</CardTitle>
                             <CardDescription>Ventas diarias</CardDescription>
@@ -129,7 +129,7 @@ export default function ReportsRevenue() {
                                         labelFormatter={(val) => format(new Date(val), 'dd MMM yyyy')}
                                         formatter={(val: number) => [formatCurrency(val), 'Ventas']}
                                     />
-                                    <Line type="monotone" dataKey="total" stroke="#8884d8" activeDot={{ r: 8 }} />
+                                    <Line type="monotone" dataKey="total" stroke="#5F632C" activeDot={{ r: 8 }} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </CardContent>
@@ -146,9 +146,9 @@ export default function ReportsRevenue() {
                                     <XAxis type="number" hide />
                                     <YAxis dataKey="label" type="category" width={120} />
                                     <Tooltip formatter={(val: number) => [formatCurrency(val), 'Total']} />
-                                    <Bar dataKey="total" fill="#82ca9d" radius={[0, 4, 4, 0]}>
+                                    <Bar dataKey="total" fill="#5F632C" radius={[0, 4, 4, 0]}>
                                         {revenueStats?.byMethod?.map((entry: any, index: number) => (
-                                            <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042'][index % 4]} />
+                                            <Cell key={`cell-${index}`} fill={['#5F632C', '#7F6146', '#CFBD9D', '#1C1C19'][index % 4]} />
                                         ))}
                                     </Bar>
                                 </BarChart>

@@ -24,7 +24,7 @@ import {
   Loader2,
   RefreshCw,
   Smartphone,
-} from 'lucide-react';
+} from '@/components/brand/icons';
 
 interface TotalPassBooking {
   bookingId: string;

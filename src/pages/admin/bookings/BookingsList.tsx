@@ -27,7 +27,7 @@ import { WellhubBadge } from '@/components/partners/WellhubBadge';
 import { TotalPassBadge } from '@/components/partners/TotalPassBadge';
 import api, { getErrorMessage } from '@/lib/api';
 import type { BookingAdmin } from '@/types/booking';
-import { CheckCircle2, Loader2, Search } from 'lucide-react';
+import { CheckCircle2, Loader2, Search } from '@/components/brand/icons';
 
 interface BookingsListProps {
   title?: string;
@@ -98,18 +98,19 @@ export default function BookingsList({
             <p className="text-muted-foreground">{description}</p>
           </div>
 
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="relative w-full md:max-w-sm">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="relative w-full xl:max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar por cliente o clase..."
+                aria-label="Buscar reservas por miembro o clase"
+                placeholder="Buscar miembro o clase"
                 className="pl-10"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
 
-            <div className="flex w-full flex-col gap-2 sm:flex-row md:w-auto">
+            <div className="flex w-full flex-col gap-2 sm:flex-row xl:w-auto xl:shrink-0">
               <Select value={channel} onValueChange={setChannel}>
                 <SelectTrigger aria-label="Filtrar por origen" className="w-full sm:w-52">
                   <SelectValue placeholder="Origen" />
@@ -118,7 +119,7 @@ export default function BookingsList({
                   <SelectItem value="all">Todos los orígenes</SelectItem>
                   <SelectItem value="wellhub">Wellhub</SelectItem>
                   <SelectItem value="totalpass">TotalPass</SelectItem>
-                  <SelectItem value="balance">Balance</SelectItem>
+                  <SelectItem value="balance">Altitud</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -138,101 +139,115 @@ export default function BookingsList({
             </div>
           </div>
 
-          <div className="rounded-md border bg-card">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Origen</TableHead>
-                  <TableHead>Clase</TableHead>
-                  <TableHead>Horario</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Check-in</TableHead>
-                  <TableHead className="text-right">Acciones</TableHead>
+          <div className="overflow-hidden rounded-xl border bg-card">
+            <Table className="admin-record-table" role="table">
+              <TableHeader role="rowgroup">
+                <TableRow role="row">
+                  <TableHead role="columnheader">Cliente</TableHead>
+                  <TableHead role="columnheader">Origen</TableHead>
+                  <TableHead role="columnheader">Clase</TableHead>
+                  <TableHead role="columnheader">Horario</TableHead>
+                  <TableHead role="columnheader">Estado</TableHead>
+                  <TableHead role="columnheader">Check-in</TableHead>
+                  <TableHead role="columnheader" className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody role="rowgroup">
                 {isLoading ? (
-                  <TableRow>
+                  <TableRow role="row">
                     <TableCell colSpan={7} className="text-center py-8">
                       <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
                     </TableCell>
                   </TableRow>
                 ) : bookings.length === 0 ? (
-                  <TableRow>
+                  <TableRow role="row">
                     <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                       No se encontraron reservas.
                     </TableCell>
                   </TableRow>
                 ) : (
                   bookings.map((booking) => (
-                    <TableRow key={booking.booking_id}>
-                      <TableCell>
-                        <div className="font-medium">{booking.user_name}</div>
-                        <div className="text-xs text-muted-foreground">{booking.user_email}</div>
-                      </TableCell>
-                      <TableCell>
-                        {booking.channel === 'wellhub' ? (
-                          <WellhubBadge />
-                        ) : booking.channel === 'totalpass' ? (
-                          <TotalPassBadge />
-                        ) : (
-                          <Badge
-                            variant="outline"
-                            className="border-altitud-sand/70 bg-altitud-cream/65 text-altitud-dark/65"
-                          >
-                            Balance
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-medium">{booking.class_name}</div>
-                        <div className="text-xs text-muted-foreground">{booking.instructor_name}</div>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        <div className="font-medium">
-                          {format(parseISO(booking.class_date), "EEE d MMM", { locale: es })}
-                        </div>
-                        <div className="text-muted-foreground">
-                          {booking.class_start_time?.slice(0, 5)} - {booking.class_end_time?.slice(0, 5)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={statusStyles[booking.booking_status]}>
-                          {statusLabel[booking.booking_status] || booking.booking_status}
-                        </Badge>
-                        {booking.booking_status === 'waitlist' && booking.waitlist_position !== null && (
-                          <div className="text-xs text-muted-foreground mt-1">
-                            Posición #{booking.waitlist_position}
+                    <TableRow role="row" key={booking.booking_id}>
+                      <TableCell role="cell" data-label="Miembro" data-primary>
+                          <div className="admin-record-value">
+                            <div className="font-medium">{booking.user_name}</div>
+                            <div className="text-xs text-muted-foreground">{booking.user_email}</div>
                           </div>
-                        )}
                       </TableCell>
-                      <TableCell className="text-sm">
-                        {booking.checked_in_at ? (
-                          new Date(booking.checked_in_at).toLocaleTimeString()
-                        ) : (
-                          <span className="text-muted-foreground">Sin check-in</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {booking.booking_status === 'confirmed' && (
-                          <Button
-                            disabled={checkInMutation.isPending}
-                            size="sm"
-                            variant="ghost"
-                            className="text-success hover:text-success hover:bg-success/10"
-                            onClick={() => checkInMutation.mutate(booking.booking_id)}
-                          >
-                            {checkInMutation.isPending && checkInMutation.variables === booking.booking_id ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <TableCell role="cell" data-label="Origen">
+                          <div className="admin-record-value">
+                            {booking.channel === 'wellhub' ? (
+                              <WellhubBadge />
+                            ) : booking.channel === 'totalpass' ? (
+                              <TotalPassBadge />
                             ) : (
-                              <CheckCircle2 className="mr-2 h-4 w-4" />
+                              <Badge
+                                variant="outline"
+                                className="border-altitud-sand/70 bg-altitud-cream/65 text-altitud-dark/65"
+                              >
+                                Altitud
+                              </Badge>
                             )}
-                            {checkInMutation.isPending && checkInMutation.variables === booking.booking_id
-                              ? 'Registrando...'
-                              : 'Check-in'}
-                          </Button>
-                        )}
+                          </div>
+                      </TableCell>
+                      <TableCell role="cell" data-label="Clase">
+                          <div className="admin-record-value">
+                            <div className="font-medium">{booking.class_name}</div>
+                            <div className="text-xs text-muted-foreground">{booking.instructor_name}</div>
+                          </div>
+                      </TableCell>
+                      <TableCell className="text-sm" role="cell" data-label="Horario">
+                          <div className="admin-record-value">
+                            <div className="font-medium">
+                              {format(parseISO(booking.class_date), "EEE d MMM", { locale: es })}
+                            </div>
+                            <div className="text-muted-foreground">
+                              {booking.class_start_time?.slice(0, 5)} - {booking.class_end_time?.slice(0, 5)}
+                            </div>
+                          </div>
+                      </TableCell>
+                      <TableCell role="cell" data-label="Estado">
+                          <div className="admin-record-value">
+                            <Badge variant="outline" className={statusStyles[booking.booking_status]}>
+                              {statusLabel[booking.booking_status] || booking.booking_status}
+                            </Badge>
+                            {booking.booking_status === 'waitlist' && booking.waitlist_position !== null && (
+                              <div className="text-xs text-muted-foreground mt-1">
+                                Posición #{booking.waitlist_position}
+                              </div>
+                            )}
+                          </div>
+                      </TableCell>
+                      <TableCell className="text-sm" role="cell" data-label="Asistencia">
+                          <div className="admin-record-value">
+                            {booking.checked_in_at ? (
+                              new Date(booking.checked_in_at).toLocaleTimeString()
+                            ) : (
+                              <span className="text-muted-foreground">Sin check-in</span>
+                            )}
+                          </div>
+                      </TableCell>
+                      <TableCell className="text-right" role="cell" data-label="Acciones" data-actions>
+                          <div className="admin-record-value">
+                            {booking.booking_status === 'confirmed' && (
+                              <Button
+                                disabled={checkInMutation.isPending}
+                                size="sm"
+                                variant="ghost"
+                                className="text-success hover:text-success hover:bg-success/10"
+                                onClick={() => checkInMutation.mutate(booking.booking_id)}
+                              >
+                                {checkInMutation.isPending && checkInMutation.variables === booking.booking_id ? (
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                                )}
+                                {checkInMutation.isPending && checkInMutation.variables === booking.booking_id
+                                  ? 'Registrando...'
+                                  : 'Check-in'}
+                              </Button>
+                            )}
+                          </div>
                       </TableCell>
                     </TableRow>
                   ))

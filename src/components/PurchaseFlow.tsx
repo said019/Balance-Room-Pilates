@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Check, CreditCard, Building2, AlertCircle, Star, ArrowRight } from 'lucide-react';
+import { Loader2, Check, CreditCard, Building2, AlertCircle, Star, ArrowRight } from '@/components/brand/icons';
 import api from '@/lib/api';
 import {
   getClassesLabel,

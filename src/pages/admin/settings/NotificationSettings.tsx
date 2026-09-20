@@ -194,7 +194,7 @@ export default function NotificationSettings() {
                         </div>
                         <div className="flex items-center gap-2">
                             <TemplateButtons settingKey="send_class_reminder" />
-                            <Switch
+                            <Switch aria-label="Enviar recordatorios de clase"
                                 checked={settings.send_class_reminder}
                                 onCheckedChange={(checked) => setSettings({
                                     ...settings,
@@ -223,7 +223,7 @@ export default function NotificationSettings() {
                         </div>
                         <div className="flex items-center gap-2">
                             <TemplateButtons settingKey="send_booking_confirmation" />
-                            <Switch
+                            <Switch aria-label="Confirmar reservas"
                                 checked={settings.send_booking_confirmation}
                                 onCheckedChange={(checked) => setSettings({
                                     ...settings,
@@ -242,7 +242,7 @@ export default function NotificationSettings() {
                         </div>
                         <div className="flex items-center gap-2">
                             <TemplateButtons settingKey="send_cancellation_notice" />
-                            <Switch
+                            <Switch aria-label="Avisar cancelaciones"
                                 checked={settings.send_cancellation_notice}
                                 onCheckedChange={(checked) => setSettings({
                                     ...settings,
@@ -271,7 +271,7 @@ export default function NotificationSettings() {
                         </div>
                         <div className="flex items-center gap-2">
                             <TemplateButtons settingKey="send_membership_expiring" />
-                            <Switch
+                            <Switch aria-label="Avisar membresías por vencer"
                                 checked={settings.send_membership_expiring}
                                 onCheckedChange={(checked) => setSettings({
                                     ...settings,

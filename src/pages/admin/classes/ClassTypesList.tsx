@@ -1,3 +1,4 @@
+import { DisciplineIcon, disciplineForName } from '@/components/brand/DisciplineIcon';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
@@ -70,7 +71,7 @@ export default function ClassTypesList() {
         defaultValues: {
             level: 'all',
             durationMinutes: 60,
-            maxCapacity: 6,
+            maxCapacity: 12,
             color: '#5F632C',
             isActive: true,
         },
@@ -161,10 +162,10 @@ export default function ClassTypesList() {
                 <div className="space-y-6">
                     <div className="flex flex-col gap-4 rounded-[1.6rem] border border-altitud-olive/25 bg-altitud-olive/10 p-5 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-altitud-olive">Visible para clientas</p>
+                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-altitud-olive">Disciplinas del studio</p>
                             <h1 className="mt-1 text-2xl font-bold tracking-tight text-altitud-dark">Disciplinas y clases</h1>
                             <p className="max-w-2xl text-sm text-altitud-dark/65">
-                                Edita las clases que se ofrecen en el studio. Las disciplinas activas se usan para agenda, reservas en `/app` y se pueden reflejar en el landing.
+                                Administra las disciplinas que aparecen en la agenda y las reservas de tus miembros.
                             </p>
                         </div>
                         <Button onClick={handleCreate} className="bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90">
@@ -202,7 +203,7 @@ export default function ClassTypesList() {
                                     classTypes?.map((item) => (
                                         <TableRow key={item.id}>
                                             <TableCell className="font-medium">
-                                                {item.name}
+                                                <span className="flex items-center gap-3">{disciplineForName(item.name) && <DisciplineIcon name={disciplineForName(item.name)!} size={36} className="shrink-0 object-contain bg-altitud-cream p-1" />}<span>{item.name}</span></span>
                                             </TableCell>
                                             <TableCell className="capitalize">{item.level}</TableCell>
                                             <TableCell>{item.duration_minutes} min</TableCell>

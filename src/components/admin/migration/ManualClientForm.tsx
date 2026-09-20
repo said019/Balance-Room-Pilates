@@ -25,7 +25,7 @@ import api from '@/lib/api';
 import { calculateEndDate, formatDateForInput } from '@/services/migrationServiceAPI';
 import { PAYMENT_METHOD_OPTIONS } from '@/types/migration.types';
 import type { MigrateClientParams, Package } from '@/types/migration.types';
-import { AlertCircle, UserPlus, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, UserPlus, CheckCircle2 } from '@/components/brand/icons';
 
 interface ManualClientFormProps {
   onSuccess?: (result: { 

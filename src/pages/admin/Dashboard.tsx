@@ -24,7 +24,7 @@ import {
     Cake,
     ArrowUpRight,
     BadgeCheck,
-} from 'lucide-react';
+} from '@/components/brand/icons';
 
 export default function AdminDashboard() {
     const { data: stats, isLoading: statsLoading } = useQuery<AdminStats>({
@@ -100,7 +100,7 @@ export default function AdminDashboard() {
         {
             title: 'Paquetes activos',
             value: stats?.activeMemberships || 0,
-            detail: 'clientas con créditos',
+            detail: 'miembros con créditos',
             icon: BadgeCheck,
             tone: 'cream',
         },
@@ -118,14 +118,19 @@ export default function AdminDashboard() {
     return (
         <AuthGuard requiredRoles={['admin', 'instructor']}>
             <AdminLayout>
-                <div className="space-y-6">
+                <div className="space-y-5 sm:space-y-6">
+                    <header>
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-altitud-olive">Tu studio, al día</p>
+                        <h1 className="mt-1 text-3xl font-heading text-altitud-dark">Resumen de hoy</h1>
+                        <p className="mt-1 text-sm capitalize text-muted-foreground">{format(new Date(), "EEEE d 'de' MMMM", { locale: es })}</p>
+                    </header>
                     <section className="grid gap-4">
-                        <div className="rounded-[2rem] bg-altitud-olive p-6">
+                        <div className="rounded-[1.5rem] bg-altitud-olive p-4 sm:p-6">
                             <div className="flex items-center justify-between">
                                 <span className="text-sm font-semibold uppercase tracking-[0.2em] text-altitud-cream">Atención</span>
                                 <span className="rounded-full bg-altitud-cream/20 px-2.5 py-1 text-xs font-bold text-altitud-cream">{totalAttention}</span>
                             </div>
-                            <div className="mt-4 space-y-3">
+                            <div className="mt-4 grid gap-2 sm:grid-cols-3">
                                 <FocusRow icon={Banknote} label="Pagos por revisar" value={pendingVerificationOrders.length} />
                                 <FocusRow icon={AlertCircle} label="Paquetes pendientes" value={pendingMemberships} />
                                 <FocusRow icon={Ticket} label="Eventos pendientes" value={pendingEventRegs.length} />
@@ -173,7 +178,7 @@ export default function AdminDashboard() {
                         </div>
                     )}
 
-                    <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
                         {kpis.map((kpi) => (
                             <MetricCard key={kpi.title} kpi={kpi} loading={statsLoading} />
                         ))}
@@ -193,7 +198,7 @@ export default function AdminDashboard() {
                         </section>
                     )}
 
-                    <section className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+                    <section className="grid min-w-0 grid-cols-1 gap-5 xl:grid-cols-2">
                         <div>
                             <PanelShell
                                 title="Movimientos recientes"
@@ -220,11 +225,11 @@ export default function AdminDashboard() {
                                                     <p className="truncate text-sm font-semibold text-altitud-dark transition-colors group-hover:text-altitud-olive">
                                                         {membership.user_name}
                                                     </p>
-                                                    <p className="mt-1 truncate text-xs text-altitud-dark/55">
+                                                    <p className="mt-1 truncate text-xs text-altitud-dark/65">
                                                         {membership.plan_name} · {translateMembershipStatus(membership.status)}
                                                     </p>
                                                 </div>
-                                                <span className="shrink-0 text-[11px] text-altitud-dark/45">
+                                                <span className="shrink-0 text-[11px] text-altitud-dark/65">
                                                     {new Date(membership.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
                                                 </span>
                                             </Link>
@@ -264,7 +269,7 @@ export default function AdminDashboard() {
                                                     </div>
                                                     <div className="min-w-0 flex-1">
                                                         <p className="truncate text-sm font-semibold text-altitud-dark transition-colors group-hover:text-altitud-olive">{reg.user_name}</p>
-                                                        <p className="mt-1 truncate text-xs text-altitud-dark/55">
+                                                        <p className="mt-1 truncate text-xs text-altitud-dark/65">
                                                             {reg.event_title} · {formatMoney(Number(reg.amount))}
                                                         </p>
                                                     </div>
@@ -325,7 +330,7 @@ export default function AdminDashboard() {
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <p className="truncate text-sm font-semibold">{b.display_name}</p>
-                                                <p className={`truncate text-xs ${isToday ? 'text-altitud-sand' : 'text-altitud-dark/55'}`}>
+                                                <p className={`truncate text-xs ${isToday ? 'text-altitud-sand' : 'text-altitud-dark/65'}`}>
                                                     {isToday ? 'Cumple años hoy' : `${day} de ${format(bday, 'MMMM', { locale: es })}`}
                                                 </p>
                                             </div>
@@ -343,7 +348,7 @@ export default function AdminDashboard() {
 
 function FocusRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: number }) {
     return (
-        <div className="flex items-center justify-between gap-3 rounded-[1rem] bg-white/15 px-3 py-2.5">
+        <div className="flex items-center justify-between gap-3 rounded-[1rem] bg-altitud-dark/15 px-3 py-2.5">
             <span className="flex min-w-0 items-center gap-2 text-sm text-altitud-cream">
                 <Icon className="h-4 w-4 shrink-0" />
                 <span className="truncate">{label}</span>
@@ -405,21 +410,21 @@ function MetricCard({
     }[kpi.tone] || 'bg-altitud-cream text-altitud-dark';
 
     return (
-        <div className="group rounded-[1.6rem] border border-altitud-sand/65 bg-[hsl(var(--admin-panel))] p-4 shadow-[0_18px_58px_-48px_rgba(51,42,34,0.72)] transition-all duration-200 hover:-translate-y-0.5 hover:border-altitud-olive/35">
+        <div className="group min-w-0 rounded-[1.35rem] border border-altitud-sand/65 bg-[hsl(var(--admin-panel))] p-4 shadow-[0_18px_58px_-48px_rgba(51,42,34,0.72)] transition-all duration-200 hover:-translate-y-0.5 hover:border-altitud-olive/35">
             <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-semibold text-altitud-dark/62">{kpi.title}</span>
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] ${toneClass}`}>
+                <span className="text-xs font-semibold leading-5 text-altitud-dark/70 sm:text-sm">{kpi.title}</span>
+                <div className={`hidden h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] sm:flex ${toneClass}`}>
                     <Icon className="h-[18px] w-[18px]" />
                 </div>
             </div>
             {loading ? (
                 <Skeleton className="mt-5 h-9 w-24 rounded-xl" />
             ) : (
-                <p className="mt-5 text-3xl font-semibold tabular-nums tracking-[-0.05em] text-altitud-dark">
+                <p className="mt-3 break-words text-2xl font-semibold tabular-nums sm:mt-5 sm:text-3xl tracking-[-0.05em] text-altitud-dark">
                     {kpi.value}
                 </p>
             )}
-            <p className="mt-1 text-xs font-medium text-altitud-dark/50">{kpi.detail}</p>
+            <p className="mt-1 text-xs font-medium text-altitud-dark/65">{kpi.detail}</p>
         </div>
     );
 }
@@ -442,7 +447,7 @@ function PanelShell({
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                 <div>
                     <h3 className="text-lg font-semibold tracking-[-0.03em] text-altitud-dark">{title}</h3>
-                    <p className="mt-1 text-sm text-altitud-dark/55">{description}</p>
+                    <p className="mt-1 text-sm text-altitud-dark/65">{description}</p>
                 </div>
                 <Link
                     to={to}
@@ -472,7 +477,7 @@ function PaymentRow({ order }: { order: Order }) {
                 <p className="truncate text-sm font-semibold text-altitud-dark transition-colors group-hover:text-altitud-olive">
                     {order.user_name}
                 </p>
-                <p className="mt-1 truncate text-xs text-altitud-dark/55">
+                <p className="mt-1 truncate text-xs text-altitud-dark/65">
                     {order.plan_name} · {formatMoney(Number(order.total))}
                 </p>
             </div>
@@ -481,7 +486,7 @@ function PaymentRow({ order }: { order: Order }) {
                     <Clock className="mr-1 h-3 w-3" />
                     {isVerification ? 'Verificar' : 'Cobrar'}
                 </Badge>
-                <p className="mt-1 text-[11px] text-altitud-dark/45">
+                <p className="mt-1 text-[11px] text-altitud-dark/65">
                     {format(parseISO(order.created_at), 'd MMM', { locale: es })}
                 </p>
             </div>

@@ -98,7 +98,7 @@ export default function MemberNew() {
         <AdminLayout>
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" asChild>
+              <Button variant="ghost" size="icon" aria-label="Volver a comunidad" asChild>
                 <Link to="/admin/members">
                   <ArrowLeft className="h-4 w-4" />
                 </Link>
@@ -166,7 +166,7 @@ export default function MemberNew() {
                   </ul>
                 </div>
 
-                <div className="flex gap-2 pt-4">
+                <div className="flex flex-col gap-2 pt-4 sm:flex-row sm:flex-wrap">
                   <Button onClick={() => navigate('/admin/members')}>
                     Ver todos los miembros
                   </Button>
@@ -216,7 +216,7 @@ export default function MemberNew() {
         <AdminLayout>
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" asChild>
+              <Button variant="ghost" size="icon" aria-label="Volver a comunidad" asChild>
                 <Link to="/admin/members">
                   <ArrowLeft className="h-4 w-4" />
                 </Link>
@@ -249,7 +249,7 @@ export default function MemberNew() {
       <AdminLayout>
         <div className="space-y-6">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild>
+            <Button variant="ghost" size="icon" aria-label="Volver a comunidad" asChild>
               <Link to="/admin/members">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
