@@ -50,7 +50,8 @@ export default function GeneralSettings() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            await api.put('/settings/general_settings', { value: settings });
+            const { maintenance_mode: _unavailableMaintenance, ...editableSettings } = settings;
+            await api.put('/settings/general_settings', { value: editableSettings });
             toast({
                 title: 'Configuración guardada',
                 description: 'Los ajustes generales se han guardado correctamente.',
@@ -180,15 +181,12 @@ export default function GeneralSettings() {
                         <div className="space-y-0.5">
                             <Label>Modo Mantenimiento</Label>
                             <p className="text-sm text-muted-foreground">
-                                Cuando está activo, solo administradores pueden acceder al sistema
+                                No disponible. Este ajuste todavía no puede restringir el acceso al studio.
                             </p>
                         </div>
-                        <Switch aria-label="Modo de mantenimiento"
-                            checked={settings.maintenance_mode}
-                            onCheckedChange={(checked) => setSettings({
-                                ...settings,
-                                maintenance_mode: checked
-                            })}
+                        <Switch aria-label="Modo de mantenimiento no disponible"
+                            checked={false}
+                            disabled
                         />
                     </div>
                 </CardContent>
