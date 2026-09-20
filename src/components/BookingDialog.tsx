@@ -44,7 +44,6 @@ interface Membership {
   end_date: string;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
 
 export function BookingDialog({ classData, open, onOpenChange }: BookingDialogProps) {
   const { user, isAuthenticated } = useAuth();

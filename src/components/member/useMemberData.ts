@@ -112,8 +112,8 @@ export function useMemberData(preview: boolean, start: Date) {
     ? {
         id: "preview",
         status: "active",
-        plan_name: "12 clases",
-        plan_price: 1399,
+        plan_name: "Créditos de muestra",
+        plan_price: null,
         plan_currency: "MXN",
         plan_duration_days: 30,
         start_date: dateKey(addDays(new Date(), -8)),

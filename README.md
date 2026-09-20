@@ -1,50 +1,49 @@
 # 2707 Altitud
 
-Sitio de entrenamiento híbrido y funcional, rediseñado a partir del manual de marca y del briefing del studio.
+Frontend del sitio público, app de miembros y administración del studio. La API y sus migraciones pertenecen al proyecto backend; este repositorio no conecta directamente a PostgreSQL ni contiene herramientas para sembrar planes.
 
-## Vista local
+## Desarrollo local
 
 ```sh
 npm install
 npm run dev -- --host 127.0.0.1 --port 2707
 ```
 
-Abrir http://127.0.0.1:2707.
+Configura `VITE_API_URL` con la API de 2707 Altitud para consultar datos. Para el proxy del mismo origen usa `VITE_API_URL=/api` también al compilar. Sin configuración explícita, el acceso se mantiene en modo de preparación. Un catálogo vacío o no disponible se muestra como tal, sin paquetes de reemplazo.
 
-## Identidad
+Para servir una compilación real con proxy local:
 
-- Carrois Gothic Regular y Source Sans 3 Light, alojadas localmente.
-- Carbón `#1C1C19`, marfil `#F6F4EE`, arena `#CFBD9D`, olivo `#5F632C`, tierra `#7F6146`.
-- Los tres logotipos vectoriales y las fotografías de `public/brand` se extrajeron del PDF proporcionado. Los trazos, proporciones y colores de los logos son los originales; se excluyeron los fondos y textos de presentación del manual mediante recorte de vista y eliminación del fondo de página.
-- La asociación entre nombres y colores sigue el briefing del usuario; la página de colores del PDF intercambia las etiquetas de tierra y olivo.
+```sh
+VITE_API_URL=/api npm run build
+PORT=2707 HOST=127.0.0.1 API_PROXY_TARGET=http://127.0.0.1:3001/api npm start
+```
 
-## Recorridos
+El puerto de la API es un ejemplo local: usa el del backend que hayas iniciado. No pongas credenciales ni `DATABASE_URL` en variables `VITE_*`.
 
-- `/`: portada, studio, entrenamientos, comunidad, membresías y preguntas frecuentes.
-- `/reservar`: agenda de muestra con filtros, fechas, confirmación, persistencia local y cancelación.
-- `/pricing`: estado de preparación de membresías, sin precios inventados.
-- `/login`, `/register`, `/forgot-password`: nueva experiencia de acceso.
-- `/privacy`, `/terms`, `/cancellation-policy`: documentos pendientes de aprobación del nuevo studio.
+## Identidad y contenido
 
-La agenda es explícitamente ilustrativa. No cobra ni crea reservas reales. Las muestras solo se guardan en el navegador con la clave `altitud2707-preview-bookings`.
+Se conservan los logotipos oficiales, fotografías del manual y fotografías de entrenamiento entregadas para Altitud bajo `public/brand`. Tipografías locales: Carrois Gothic y Source Sans 3. Paleta: carbón `#1C1C19`, marfil `#F6F4EE`, arena `#CFBD9D`, olivo `#5F632C`, tierra `#7F6146`.
 
-El frontend ya no apunta al servicio anterior. Antes de habilitar cuentas y operación real, configurar una API propia mediante `VITE_API_URL`, además de horarios, cupos, tarifas, contactos, ubicación exacta y políticas oficiales. No reutilizar bases de datos, proveedores de pago o credenciales del negocio anterior.
+- `/`, `/pricing` y `/app/checkout` consultan los planes activos de la API. Nombre, precio y vigencia se administran desde el backend. Una lectura nunca crea paquetes.
+- Los planes con procedencia pendiente aparecen en «Planes por revisar» en administración; no se borran ni se desactivan automáticamente desde la interfaz.
+- `/reservar` requiere inicio de sesión y continúa en `/app/book`.
+- `/app/preview` permite explorar la app sin una cuenta. Sus 12 créditos son de muestra, no un plan a la venta. Consulta las sesiones publicadas, pero guarda sus acciones sólo en el navegador (`altitud2707-member-preview-v3`).
+- Las reglas de cancelación públicas y de la app provienen de la configuración operativa de la API.
 
-La aplicación conserva sus rutas de gestión y clientes, con identidad y estilos nuevos. Estas requieren un servicio de 2707 Altitud configurado; no se validaron contra datos de producción.
+Los precios confirmados originalmente en el briefing se conservan como antecedente en `PRODUCT.md`; no son un catálogo de respaldo ni una instrucción para regenerar planes. Las credenciales, proveedores y datos bancarios se configuran en el backend.
+
+## Imágenes y compilación
+
+En desarrollo se usan los archivos fuente de `public/brand`. La compilación genera `dist/media-migration-manifest.json`, retira las copias multimedia y utiliza las rutas `/api/media/...` del backend. El catálogo multimedia del entorno debe contener esos archivos. Ver [STORAGE.md](STORAGE.md).
 
 ## Verificación
 
 ```sh
-npm run build
+npm run test:unit
 npx tsc --noEmit -p tsconfig.app.json
+npm run build
 ```
 
-## App de usuario
+Las suites actuales de integración están en `tests/e2e-audit` y `tests/e2e-configuration`, con guardas explícitas para bases locales desechables y usuarios sintéticos. No se ejecutan contra producción. Las pruebas antiguas de `e2e/` se conservan como referencia; requieren cuentas autorizadas en variables de entorno y ya no incluyen credenciales de otro negocio.
 
-Vista recorrible sin credenciales: `/app/preview`.
-
-La app comparte el nuevo diseño entre las pantallas de cliente y la vista previa: navegación lateral, barra inferior móvil, inicio, calendario, reservas, membresía y perfil. Las pantallas existentes de edición de datos, pagos, órdenes y eventos conservan sus operaciones dentro de la nueva navegación.
-
-La vista previa utiliza `altitud2707-member-preview-v1` para guardar localmente reservas, cancelaciones y ajustes de ejemplo. No establece una sesión, no envía notificaciones, no realiza cobros y no hace peticiones a la API. Las rutas reales `/app` conservan su control de acceso y sus integraciones existentes.
-
-Verificado en navegador: filtros y enlaces a disciplinas, confirmación y cancelación de reservas, crédito descontado/devuelto, persistencia al recargar, edición del perfil, preferencias y adaptación de las diez secciones a 320 px. La operación real con usuarios del studio requiere configurar su API.
+`docs/audit` conserva evidencia histórica. Otros documentos históricos están identificados como tales y no sustituyen esta guía ni la configuración del entorno actual.

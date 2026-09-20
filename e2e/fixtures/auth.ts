@@ -14,24 +14,11 @@ export interface UserCredentials {
 
 /** Resolves credentials from env vars at test-run time */
 export function credentialsFor(role: UserRole): UserCredentials {
-  const map: Record<UserRole, UserCredentials> = {
-    admin: {
-      email: process.env.ADMIN_EMAIL ?? "admin@balanceroom.mx",
-      password: process.env.ADMIN_PASSWORD ?? "AdminTest123!",
-      role: "admin",
-    },
-    client: {
-      email: process.env.CLIENT_EMAIL ?? "cliente@balanceroom.mx",
-      password: process.env.CLIENT_PASSWORD ?? "ClientTest123!",
-      role: "client",
-    },
-    coach: {
-      email: process.env.COACH_EMAIL ?? "coach@balanceroom.mx",
-      password: process.env.COACH_PASSWORD ?? "CoachTest123!",
-      role: "coach",
-    },
-  };
-  return map[role];
+  const prefix = role.toUpperCase();
+  const email = process.env[`${prefix}_EMAIL`];
+  const password = process.env[`${prefix}_PASSWORD`];
+  if (!email || !password) throw new Error(`Configura ${prefix}_EMAIL y ${prefix}_PASSWORD para una cuenta de pruebas autorizada.`);
+  return { email, password, role };
 }
 
 // ──────────────────────────────────────────────────────────────

@@ -4,6 +4,7 @@
  *         Public pages (StudioHome, StudioPricing, StudioSchedule, StudioInstructors)
  */
 import { test, expect } from "@playwright/test";
+import { credentialsFor } from "../fixtures/auth";
 import { AuthPage } from "../pages/AuthPage";
 import { testUsers, unique } from "../fixtures/test-data";
 import AxeBuilder from "@axe-core/playwright";
@@ -63,8 +64,8 @@ test.describe("Auth – Inicio de Sesión", () => {
     const authPage = new AuthPage(page);
     await authPage.gotoLogin();
     await authPage.login(
-      process.env.CLIENT_EMAIL ?? "cliente@balanceroom.mx",
-      process.env.CLIENT_PASSWORD ?? "ClientTest123!"
+      credentialsFor("client").email,
+      credentialsFor("client").password
     );
     await authPage.assertRedirectedToDashboard();
   });
@@ -72,7 +73,7 @@ test.describe("Auth – Inicio de Sesión", () => {
   test("edge case: contraseña incorrecta muestra error", async ({ page }) => {
     const authPage = new AuthPage(page);
     await authPage.gotoLogin();
-    await authPage.login("cliente@balanceroom.mx", "wrongpassword");
+    await authPage.login("invalid-client@example.invalid", "wrongpassword");
     await authPage.assertError(/contraseña|password|credenciales|invalid/i);
     await expect(page).toHaveURL(/login/);
   });
@@ -99,8 +100,8 @@ test.describe("Auth – Inicio de Sesión", () => {
     const authPage = new AuthPage(page);
     await authPage.gotoLogin();
     await authPage.login(
-      process.env.CLIENT_EMAIL ?? "cliente@balanceroom.mx",
-      process.env.CLIENT_PASSWORD ?? "ClientTest123!"
+      credentialsFor("client").email,
+      credentialsFor("client").password
     );
     await authPage.assertRedirectedToDashboard();
     const urlAfterLogin = page.url();
@@ -133,7 +134,7 @@ test.describe("Auth – Registro de Cuenta Nueva", () => {
     // Use a known existing email
     await authPage.register(
       "Existente",
-      process.env.CLIENT_EMAIL ?? "cliente@balanceroom.mx",
+      credentialsFor("client").email,
       "cualquierClave1!"
     );
     await authPage.assertError(/ya registrado|already|existe|taken/i);
@@ -161,7 +162,7 @@ test.describe("Auth – Recuperación de Contraseña", () => {
     const authPage = new AuthPage(page);
     await authPage.gotoForgotPassword();
     await authPage.requestPasswordReset(
-      process.env.CLIENT_EMAIL ?? "cliente@balanceroom.mx"
+      credentialsFor("client").email
     );
     await expect(
       page.getByText(/correo enviado|email sent|revisa tu correo|check your email/i)

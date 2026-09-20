@@ -1,0 +1,3 @@
+import {fileURLToPath} from 'node:url';
+import {defineConfig} from '@playwright/test';
+export default defineConfig({workers:1,retries:0,timeout:150000,reporter:[['list'],['json',{outputFile:fileURLToPath(new URL('../../evidence/brandcleanup/regression-playwright.json',import.meta.url))}]],use:{baseURL:'http://127.0.0.1:3531',actionTimeout:15000,trace:'retain-on-failure'},outputDir:'test-results/brandcleanup-regression',projects:[{name:'configuration',testDir:'./tests/e2e-configuration',testMatch:['operational-settings.spec.ts','series.spec.ts','calendar-history.spec.ts']},{name:'pwa',testDir:'./tests/e2e-audit',testMatch:'**/*.spec.ts'}]});

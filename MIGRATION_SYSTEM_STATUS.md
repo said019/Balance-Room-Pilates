@@ -1,3 +1,5 @@
+> Documento histórico de una implementación anterior. Se conserva como antecedente; sus comandos, dominios y condiciones no describen la operación actual de Altitud. Consulta [README.md](README.md) para el proyecto vigente.
+
 # ✅ ESTADO DEL SISTEMA DE MIGRACIÓN DE CLIENTES
 
 **Fecha:** 01 de Febrero, 2026  

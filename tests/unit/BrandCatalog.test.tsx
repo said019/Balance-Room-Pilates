@@ -1,0 +1,22 @@
+import React from 'react';
+import {render,renderHook,screen,cleanup} from '@testing-library/react';
+import {MemoryRouter} from 'react-router-dom';
+import {QueryClient,QueryClientProvider} from '@tanstack/react-query';
+import {PriceTable,FoundingOffer} from '@/components/altitud/StudioDetails';
+import Checkout from '@/pages/client/Checkout';
+import {AttendeeChannelFilter} from '@/components/partners/AttendeeChannelFilter';
+import {useMemberData} from '@/components/member/useMemberData';
+import api from '@/lib/api';
+jest.mock('@/lib/api',()=>({__esModule:true,default:{get:jest.fn(),post:jest.fn()},getErrorMessage:(e:any)=>e.message}));
+jest.mock('@/components/layout/AuthGuard',()=>({AuthGuard:({children}:any)=>children}));
+jest.mock('@/components/layout/ClientLayout',()=>({ClientLayout:({children}:any)=>children}));
+jest.mock('@/stores/authStore',()=>({useAuthStore:()=>({user:null})}));
+jest.mock('@/hooks/use-toast',()=>({useToast:()=>({toast:jest.fn()})}));
+function wrapper({children}:any){return <QueryClientProvider client={new QueryClient({defaultOptions:{queries:{retry:false,gcTime:0}}})}><MemoryRouter>{children}</MemoryRouter></QueryClientProvider>}
+beforeEach(()=>{localStorage.clear();(api.get as jest.Mock).mockImplementation(async(path:string)=>({data:path==='/plans'?[]:path==='/settings/payment-methods'?{cash:true,card:false,bank_transfer:false}:[]}));});afterEach(()=>{cleanup();jest.clearAllMocks()});
+it('public empty catalog does not substitute hardcoded plans or promotions',async()=>{render(<><PriceTable/><FoundingOffer/></>,{wrapper});await screen.findByText('Los paquetes se publicarán aquí cuando el studio los habilite.');expect(screen.queryByRole('rowheader',{name:/4 clases|8 clases|12 clases/})).toBeNull();expect(screen.queryByText(/\$1,299|\$649|\$1,099|\$1,399/)).toBeNull();expect(api.post).not.toHaveBeenCalled()});
+it('public prices and validity come from the active database catalog',async()=>{(api.get as jest.Mock).mockResolvedValue({data:[{id:'custom-active',name:'Ritmo del studio',price:'321',duration_days:17,class_limit:3,is_active:true,description:'Configurado por administración'},{id:'old-hidden',name:'Paquete anterior',price:1450,duration_days:30,class_limit:8,is_active:false}]});render(<PriceTable/>,{wrapper});expect(await screen.findByRole('rowheader',{name:/Ritmo del studio/})).toBeVisible();expect(screen.getByText('$321')).toBeVisible();expect(screen.getByText('17 días')).toBeVisible();expect(screen.queryByText('Paquete anterior')).toBeNull();expect(screen.queryByText('$649')).toBeNull()});
+it('public failed catalog stays unavailable with retry, without substitute pricing',async()=>{(api.get as jest.Mock).mockRejectedValue(new Error('Offline'));render(<PriceTable/>,{wrapper});expect(await screen.findByRole('alert')).toHaveTextContent('No pudimos cargar los paquetes disponibles.');expect(screen.getByRole('button',{name:'Volver a intentar'})).toBeVisible();expect(screen.queryByText('$649')).toBeNull()});
+it('empty checkout contains no fixed introductory or membership offers',async()=>{render(<Checkout/>,{wrapper});await screen.findByText(/Los paquetes se habilitarán aquí/);expect(screen.queryByText(/\$100|\$500|\$1,299/)).toBeNull();expect(screen.queryByRole('button',{name:/Confirmar orden/})).toBeNull();expect(api.post).not.toHaveBeenCalled()});
+it('preview credits remain a labelled demonstration without a sale price',()=>{const {result}=renderHook(()=>useMemberData(true,new Date()),{wrapper});expect(result.current.membership?.plan_name).toBe('Créditos de muestra');expect(result.current.membership?.plan_price).toBeNull();expect(result.current.membership?.classes_remaining).toBe(12);expect(api.post).not.toHaveBeenCalled()});
+it('direct studio channel uses Altitud while keeping the API transport value',()=>{render(<AttendeeChannelFilter value="balance" onValueChange={()=>{}} totalCount={1} wellhubCount={0} totalPassCount={0} balanceCount={1}/>);expect(screen.getByRole('button',{name:'Altitud 1'})).toHaveAttribute('aria-pressed','true');expect(screen.queryByRole('button',{name:'Balance 1'})).toBeNull()});

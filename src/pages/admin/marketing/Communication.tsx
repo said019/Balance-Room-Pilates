@@ -196,7 +196,7 @@ export default function Communication() {
                                 <Label htmlFor="discount">Código de descuento (opcional)</Label>
                                 <Input
                                     id="discount"
-                                    placeholder="Ej. BALANCE20"
+                                    placeholder="Ej. ALTITUD20"
                                     value={discountCode}
                                     onChange={(e) => setDiscountCode(e.target.value)}
                                     maxLength={50}

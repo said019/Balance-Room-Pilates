@@ -1,3 +1,4 @@
+import { CatalogPlanReview } from './CatalogPlanReview';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm, Controller } from 'react-hook-form';
@@ -137,6 +138,8 @@ export default function PlansList() {
         queryClient.invalidateQueries({ queryKey: ['plans'] });
         queryClient.invalidateQueries({ queryKey: ['plans', 'admin'] });
         queryClient.invalidateQueries({ queryKey: ['public-plans'] });
+        queryClient.invalidateQueries({ queryKey: ['plans-active'] });
+        queryClient.invalidateQueries({ queryKey: ['catalog-plan-review'] });
     };
 
     const savePlanMutation = useMutation({
@@ -272,6 +275,8 @@ export default function PlansList() {
                             <Plus className="mr-2 h-4 w-4" /> Nuevo paquete
                         </Button>
                     </div>
+
+                    <CatalogPlanReview onEdit={handleEdit} />
 
                     <div className="overflow-hidden rounded-xl border bg-card">
                         <Table className="admin-record-table" role="table">

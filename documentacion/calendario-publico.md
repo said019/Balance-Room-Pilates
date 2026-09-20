@@ -1,3 +1,5 @@
+> Documento histórico de una implementación anterior. Se conserva como antecedente; sus comandos, dominios y condiciones no describen la operación actual de Altitud. Consulta [README.md](../README.md) para el proyecto vigente.
+
 # Calendario Público de Clases — Documentación Completa
 
 > **Componente:** `src/components/Schedule.tsx` (524 líneas)

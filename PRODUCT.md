@@ -93,9 +93,7 @@ retains its sand mountain and clear space.
 - Bank details belong only in the authenticated payment flow and secure server
   configuration, never the public marketing bundle or this document.
 
-The shared editorial source is src/lib/studio.ts. Its plan IDs are content keys,
-not database purchase IDs. Official names will replace the descriptive labels
-when the studio provides them.
+The shared editorial source is src/lib/studio.ts. The live plan catalog comes only from the API database: do not recreate plans from this historical briefing, substitute static prices when the catalog is empty, or infer the origin of a custom plan from its amount. Administration identifies catalog entries that require manual review.
 
 ## Studio visual and editorial update, 10 September 2026
 

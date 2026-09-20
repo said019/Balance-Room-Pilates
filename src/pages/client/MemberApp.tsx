@@ -804,7 +804,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
             </dl>
             <p>
               {preview
-                ? "Esta membresía es un ejemplo de 12 clases para explorar la app. Consulta los paquetes disponibles para comenzar."
+                ? "Estos 12 créditos son de muestra para explorar la app; no representan un paquete a la venta. Consulta el catálogo del studio para comenzar."
                 : "Consulta la vigencia y los créditos de tu membresía antes de reservar."}
             </p>
             <Link

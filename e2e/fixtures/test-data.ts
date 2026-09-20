@@ -1,5 +1,5 @@
 /**
- * Shared test-data helpers for Balance Room E2E suite.
+ * Shared test-data helpers for 2707 Altitud E2E suite.
  * Generates unique identifiers so parallel test runs don't collide.
  */
 
@@ -9,7 +9,7 @@ export const unique = (prefix: string) =>
 export const testUsers = {
   newClient: () => ({
     name: "Test Cliente",
-    email: unique("test") + "@mailinator.com",
+    email: unique("test") + "@example.invalid",
     password: "Test123!@#",
     phone: "5512345678",
   }),

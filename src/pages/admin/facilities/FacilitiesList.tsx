@@ -365,7 +365,7 @@ export default function FacilitiesList() {
                                     <Textarea
                                         id="description"
                                         {...register('description')}
-                                        placeholder="Sala principal con equipos reformer..."
+                                        placeholder="Sala para entrenamiento de fuerza y funcional..."
                                         rows={2}
                                     />
                                 </div>
@@ -391,7 +391,7 @@ export default function FacilitiesList() {
                                     <Input
                                         id="equipment"
                                         {...register('equipment')}
-                                        placeholder="Reformer, Mat, Props, Barril..."
+                                        placeholder="Mancuernas, kettlebells, trineo..."
                                     />
                                     <p className="text-xs text-muted-foreground">
                                         Separa los elementos con comas

@@ -1,3 +1,5 @@
+> Documento histórico de una implementación anterior. Se conserva como antecedente; sus comandos, dominios y condiciones no describen la operación actual de Altitud. Consulta [README.md](README.md) para el proyecto vigente.
+
 # 🔄 Sistema de Migración de Clientes Existentes
 
 > **Registra clientes que ya pagaron antes de la plataforma sin inflar los reportes de ventas**

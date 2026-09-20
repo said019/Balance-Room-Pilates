@@ -25,26 +25,6 @@ export const TRAIN_DETAILS = [
   'Aquí no se trata de moverte más rápido, sino de moverte mejor: cargar, controlar y progresar.',
 ] as const;
 
-export type StudioPlan = {
-  id: string;
-  name: string;
-  classes: number | null;
-  price: number;
-  validityDays: number | null;
-  firstVisit: boolean;
-  note: string;
-};
-
-export const STUDIO_PLANS: readonly StudioPlan[] = [
-  { id: 'trial', name: 'Clase prueba', classes: 1, price: 100, validityDays: null, firstVisit: true, note: 'Tu primer acercamiento al studio.' },
-  { id: 'single', name: 'Clase suelta', classes: 1, price: 190, validityDays: null, firstVisit: false, note: 'Una sesión para seguir en movimiento.' },
-  { id: 'first-five', name: 'Primera vez · 5 clases', classes: 5, price: 500, validityDays: null, firstVisit: true, note: 'Paquete de prueba para tu primera vez.' },
-  { id: 'four', name: '4 clases', classes: 4, price: 649, validityDays: 30, firstVisit: false, note: 'Dale un lugar al entrenamiento en tu semana.' },
-  { id: 'eight', name: '8 clases', classes: 8, price: 1099, validityDays: 30, firstVisit: false, note: 'Encuentra una rutina que te acompañe.' },
-  { id: 'twelve', name: '12 clases', classes: 12, price: 1399, validityDays: 30, firstVisit: false, note: 'Haz de la constancia tu siguiente paso.' },
-  { id: 'unlimited', name: 'Unlimited', classes: null, price: 1599, validityDays: 30, firstVisit: false, note: 'Acceso Unlimited a las clases incluidas.' },
-];
-
 export const FOUNDING_50 = {
   price: 1299,
   regularPrice: 1599,
@@ -61,7 +41,7 @@ export const FOUNDING_50 = {
     'Aplican las políticas generales de reservación, cancelación y no-show de Altitud.',
   ],
   benefits: [
-    'Precio especial de $1,299 al mes durante 6 meses, frente a $1,599 del precio regular.',
+    'Precio especial de $1,299 al mes durante el beneficio.',
     'Acceso Unlimited a las clases incluidas en la membresía.',
     'Prioridad de reservación antes de liberar horarios al público general.',
     'Acceso anticipado a clases especiales, workshops y eventos de Altitud.',

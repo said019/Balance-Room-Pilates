@@ -28,7 +28,7 @@ export function AttendeeChannelFilter({
         { value: 'all', label: 'Todas', count: totalCount },
         { value: 'wellhub', label: 'Wellhub', count: wellhubCount },
         { value: 'totalpass', label: 'TotalPass', count: totalPassCount },
-        { value: 'balance', label: 'Balance', count: balanceCount },
+        { value: 'balance', label: 'Altitud', count: balanceCount },
     ];
 
     return (

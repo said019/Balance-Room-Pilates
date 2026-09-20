@@ -1,3 +1,5 @@
+> Documento histórico de una implementación anterior. Se conserva como antecedente; sus comandos, dominios y condiciones no describen la operación actual de Altitud. Consulta [README.md](../README.md) para el proyecto vigente.
+
 # Módulo de Videos — Documentación Completa
 
 > **Propósito:** Documentación integral del sistema de videos de Balance Room Pilates. Cubre base de datos, API backend, componentes frontend (admin y cliente), flujo de compra por transferencia, almacenamiento (Google Drive como almacenamiento principal), y configuración de entorno. Escrita como prompt replicable para IA.

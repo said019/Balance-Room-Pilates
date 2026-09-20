@@ -3,7 +3,7 @@
  * Covers: Full E2E substitution flow:
  *   Coach A requests → Coach B receives notification → Admin sees calendar update → payment assigned
  */
-import { test, expect } from "../fixtures/auth";
+import { test, expect, credentialsFor } from "../fixtures/auth";
 import { CoachPage } from "../pages/CoachPage";
 import { AdminPage } from "../pages/AdminPage";
 
@@ -71,10 +71,10 @@ test.describe("Coach – Flujo E2E de Sustituciones", () => {
 
       const emailInput = coachPage.getByLabel(/correo|email/i);
       if (await emailInput.isVisible()) {
-        await emailInput.fill(process.env.COACH_EMAIL ?? "coach@balanceroom.mx");
+        await emailInput.fill(credentialsFor("coach").email);
         await coachPage
           .getByLabel(/contraseña|password/i)
-          .fill(process.env.COACH_PASSWORD ?? "CoachTest123!");
+          .fill(credentialsFor("coach").password);
         await coachPage.getByRole("button", { name: /iniciar|login/i }).click();
         await coachPage.waitForURL((url) => !url.pathname.includes("/login"), {
           timeout: 15_000,
@@ -96,10 +96,10 @@ test.describe("Coach – Flujo E2E de Sustituciones", () => {
       await adminPage_.goto(`${base}/login`);
       await adminPage_
         .getByLabel(/correo|email/i)
-        .fill(process.env.ADMIN_EMAIL ?? "admin@balanceroom.mx");
+        .fill(credentialsFor("admin").email);
       await adminPage_
         .getByLabel(/contraseña|password/i)
-        .fill(process.env.ADMIN_PASSWORD ?? "AdminTest123!");
+        .fill(credentialsFor("admin").password);
       await adminPage_.getByRole("button", { name: /iniciar|login/i }).click();
       await adminPage_.waitForURL((url) => !url.pathname.includes("/login"), {
         timeout: 15_000,

@@ -355,7 +355,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                                                 <p className="text-sm font-medium">Sin actividad reciente</p>
                                             </div>
                                         ) : (
-                                            <div className="divide-y divide-balance-sand/45">
+                                            <div className="divide-y divide-altitud-sand/45">
                                                 {notifications.map((n: any) => {
                                                     const isRecent = new Date(n.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
                                                     const icon = n.type === 'payment' ? (

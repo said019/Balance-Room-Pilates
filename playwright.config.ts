@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.test" });
 
 /**
- * Playwright E2E Configuration — Balance Room Pilates
+ * Playwright E2E Configuration — 2707 Altitud
  * Skill: e2e-testing-patterns
  */
 export default defineConfig({

@@ -1,3 +1,5 @@
+> Documento histórico de una implementación anterior. Se conserva como antecedente; sus comandos, dominios y condiciones no describen la operación actual de Altitud. Consulta [README.md](../README.md) para el proyecto vigente.
+
 # Módulo de Eventos — Documentación Completa
 
 > **Propósito:** Documentación integral del sistema de eventos especiales de Balance Room Pilates. Cubre base de datos, API backend, panel de administración (lista, detalle, crear/editar, check-in) y vista de cliente (exploración, inscripción, pago por transferencia o en studio). Escrita como prompt replicable para IA.

@@ -14,28 +14,18 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import api, { getErrorMessage } from '@/lib/api';
-import { STUDIO, STUDIO_PLANS, FOUNDING_50, formatMxn } from '@/lib/studio';
+import { STUDIO, formatMxn } from '@/lib/studio';
+import { useActivePlans, activePlanDescription } from '@/hooks/use-active-plans';
 import type { OrderPaymentMethod, CreateOrderRequest, Order, BankInfo } from '@/types/order';
 import { CreditCard, Building2, Banknote, ChevronRight, ArrowRight, CheckCircle2, ArrowLeft, Copy, Check } from '@/components/brand/icons';
 
-interface Plan {
-  id: string;
-  name: string;
-  price: number;
-  duration_days: number;
-  class_limit: number | null;
-  description: string | null;
-  is_active: boolean;
-  is_unlimited: boolean;
-  sort_order?: number;
-}
 type PaymentAvailability = { bank_transfer: boolean; cash: boolean; card: boolean };
 const methodOptions = [
   { value: 'bank_transfer', label: 'Transferencia bancaria', icon: Building2, description: 'Sube tu comprobante. El studio valida el pago y activa tu plan.' },
   { value: 'cash', label: 'Pago en el studio', icon: Banknote, description: 'Genera tu orden y presenta su número al pagar en recepción.' },
   { value: 'card', label: 'Tarjeta de crédito o débito', icon: CreditCard, description: 'Completa tu pago en la página segura del proveedor.' },
 ] as const;
-const planSummary = (plan: Plan) => `${plan.is_unlimited || plan.class_limit == null ? 'Clases ilimitadas' : `${plan.class_limit} clases`} · ${plan.duration_days} días`;
+const planSummary = activePlanDescription;
 
 export default function Checkout() {
   const [searchParams] = useSearchParams();
@@ -48,14 +38,7 @@ export default function Checkout() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [step, setStep] = useState<'plan' | 'payment' | 'confirm'>('plan');
 
-  const plansQuery = useQuery<Plan[]>({
-    queryKey: ['plans-active'],
-    queryFn: async () => {
-      const res = await api.get('/plans');
-      return res.data.filter((plan: Plan) => plan.is_active)
-        .sort((a: Plan, b: Plan) => (a.sort_order || 0) - (b.sort_order || 0));
-    },
-  });
+  const plansQuery = useActivePlans();
   const methodsQuery = useQuery<PaymentAvailability>({
     queryKey: ['payment-methods'],
     queryFn: async () => (await api.get('/settings/payment-methods')).data,
@@ -139,24 +122,7 @@ export default function Checkout() {
                   </button>)}
                 </div>
               ) : <p className="py-8">Los paquetes se habilitarán aquí cuando estén disponibles. <a href={STUDIO.whatsappHref} target="_blank" rel="noreferrer" className="underline">Consulta con el studio</a>.</p>}
-              <p className="mt-4 text-sm text-muted-foreground">Los paquetes de 4, 8 y 12 clases y Unlimited tienen vigencia de 30 días. Las clases no utilizadas no son acumulables ni transferibles, salvo excepción autorizada por Altitud.</p>
-            </section>
-            <section className="space-y-4 py-3" aria-labelledby="first-session-heading">
-              <h2 id="first-session-heading" className="text-2xl">Conoce el studio.</h2>
-              <dl className="divide-y divide-altitud-sand/50">
-                {STUDIO_PLANS.filter((plan) => plan.validityDays == null).map((plan) => <div key={plan.id} className="flex items-center justify-between gap-4 py-3"><dt>{plan.name}</dt><dd className="shrink-0">{formatMxn(plan.price)} MXN</dd></div>)}
-              </dl>
-              <p className="text-sm text-muted-foreground">Para clase prueba, clase suelta y primera vez de 5 clases, confirma la vigencia y la compra con el studio.</p>
-              <Button variant="outline" asChild><a href={STUDIO.whatsappHref} target="_blank" rel="noreferrer">Consultar por WhatsApp <ArrowRight className="ml-2 h-4 w-4" /></a></Button>
-            </section>
-            <section className="space-y-4 rounded-2xl bg-altitud-sand/25 p-6" aria-labelledby="founding-heading">
-              <p className="text-xs uppercase tracking-widest">PROMOCIÓN DE LANZAMIENTO</p>
-              <h2 id="founding-heading" className="text-3xl">Founding 50</h2>
-              <p className="text-xl">Unlimited · {formatMxn(FOUNDING_50.price)} MXN al mes</p>
-              <p className="max-w-2xl text-sm">Precio congelado durante 6 meses desde la activación. Exclusivo para las primeras 50 personas que realicen su primer pago y mantengan la membresía activa con pagos consecutivos.</p>
-              <details className="text-sm"><summary className="cursor-pointer py-2 font-semibold">Ver beneficios y requisitos</summary><h3 className="mt-4 font-semibold">Beneficios</h3><ul className="mt-2 list-disc space-y-2 pl-5">{FOUNDING_50.benefits.map((item) => <li key={item}>{item}</li>)}</ul><h3 className="mt-5 font-semibold">Requisitos</h3><ul className="mt-2 list-disc space-y-2 pl-5">{FOUNDING_50.requirements.map((item) => <li key={item}>{item}</li>)}</ul></details>
-              <Button asChild className="rounded-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90"><a href={FOUNDING_50.whatsappHref} target="_blank" rel="noreferrer">Consultar disponibilidad <ArrowRight className="ml-2 h-4 w-4" /></a></Button>
-              <p className="text-xs text-muted-foreground">El studio confirma la disponibilidad y el proceso para asegurar tu lugar.</p>
+              <p className="mt-4 text-sm text-muted-foreground">Consulta la vigencia indicada en cada paquete. Las clases no utilizadas no son acumulables ni transferibles, salvo excepción autorizada por Altitud.</p>
             </section>
           </>}
 
