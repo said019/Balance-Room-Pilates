@@ -26,7 +26,15 @@ export default function WalkinPanel({person:initial,onDone}:{person?:Person;onDo
     <label className="my-4 flex items-start gap-3"><input type="checkbox" checked={paid} disabled={busy||saleDone} onChange={e=>setPaid(e.target.checked)}/><span>Confirmo que recibí ${plan?Number(plan.price).toLocaleString('es-MX'):'—'} MXN en efectivo.</span></label>
     <Button type="button" disabled={busy||saleDone||!paid||!plan} onClick={()=>void run(async()=>{await postFinancialOperation('/memberships/assign-cash',{userId:person.id,planId:plan!.id,amountPaid:Number(plan!.price),paymentMethod:'cash'});setSaleDone(true);setNotice('Pago registrado. Continúa para reservar y registrar la llegada.');})}>{saleDone?'Pago registrado':'Registrar efectivo recibido'}</Button>
    </details>
-   <Button type="button" disabled={busy||!classId} onClick={()=>void run(async()=>{let id=bookingId;if(!id){const r=await api.post('/bookings/admin-book',{userId:person.id,classId});id=r.data.id;setBookingId(id);}await api.post('/checkin/manual',{bookingId:id});setNotice('Reserva y asistencia registradas.');onDone();})}>{busy?'Procesando…':bookingId?'Reintentar asistencia':'Reservar y registrar asistencia'}</Button>
+   <Button type="button" disabled={busy||!classId} onClick={()=>void run(async()=>{let id=bookingId;if(!id){try{const r=await api.post('/bookings/admin-book',{userId:person.id,classId});id=r.data.id;}catch(error){
+     const failure=error as {response?:{data?:{code?:string}}};
+     if(failure.response&&failure.response.data?.code!=='ALREADY_BOOKED')throw error;
+     // A failed response can hide a committed booking. Recover only authoritative exact identity.
+     const roster=(await api.get(`/checkin/class/${classId}`)).data;
+     const matches=roster.class?.id===classId?roster.attendees?.filter((a:{user_id:string;status:string})=>a.user_id===person.id&&['confirmed','checked_in'].includes(a.status)):[];
+     if(matches?.length!==1||!matches[0].booking_id)throw error;
+     id=matches[0].booking_id;
+    }setBookingId(id);}await api.post('/checkin/manual',{bookingId:id});setNotice('Reserva y asistencia registradas.');onDone();})}>{busy?'Procesando…':bookingId?'Reintentar asistencia':'Reservar y registrar asistencia'}</Button>
   </>}
   {(sessions.isError||plans.isError)&&<p role="alert">No pudimos cargar clases o paquetes. <button className="underline" onClick={()=>{void sessions.refetch();void plans.refetch();}}>Volver a cargar</button></p>}
   {error&&<p role="alert" className="text-destructive">{error}{bookingId?' La reserva ya está creada; reintenta sólo la asistencia.':''}</p>}{notice&&<p role="status">{notice}</p>}
