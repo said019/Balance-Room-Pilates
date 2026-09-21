@@ -1,0 +1,2 @@
+import {fileURLToPath} from 'node:url';import {defineConfig} from '@playwright/test';
+export default defineConfig({testDir:'./tests/e2e-configuration',testMatch:'events-removal.spec.ts',workers:1,retries:0,timeout:120000,reporter:[['list'],['json',{outputFile:fileURLToPath(new URL('../../evidence/remove-events/playwright.json',import.meta.url))}]],use:{baseURL:'http://127.0.0.1:3531',actionTimeout:15000,trace:'retain-on-failure'},outputDir:'test-results/events-removal'});

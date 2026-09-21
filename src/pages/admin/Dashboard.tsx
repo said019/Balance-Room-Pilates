@@ -20,7 +20,6 @@ import {
     Receipt,
     Clock,
     Banknote,
-    Ticket,
     Cake,
     ArrowUpRight,
     BadgeCheck,
@@ -51,14 +50,6 @@ export default function AdminDashboard() {
         },
     });
 
-    const { data: pendingEventRegs = [] } = useQuery<any[]>({
-        queryKey: ['pending-event-registrations'],
-        queryFn: async () => {
-            const { data } = await api.get('/events/registrations/pending');
-            return data;
-        },
-    });
-
     const { data: birthdays = [] } = useQuery<any[]>({
         queryKey: ['admin-birthdays'],
         queryFn: async () => {
@@ -76,7 +67,7 @@ export default function AdminDashboard() {
         o.status === 'pending_verification' || o.status === 'pending_payment'
     ) || [];
 
-    const totalAttention = pendingVerificationOrders.length + pendingMemberships + pendingEventRegs.length;
+    const totalAttention = pendingVerificationOrders.length + pendingMemberships;
 
     const grossToday = (stats as any)?.revenueGross ?? stats?.revenue ?? 0;
     const netToday = (stats as any)?.revenueNet ?? stats?.revenue ?? 0;
@@ -130,10 +121,9 @@ export default function AdminDashboard() {
                                 <span className="text-sm font-semibold uppercase tracking-[0.2em] text-altitud-cream">Atención</span>
                                 <span className="rounded-full bg-altitud-cream/20 px-2.5 py-1 text-xs font-bold text-altitud-cream">{totalAttention}</span>
                             </div>
-                            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                            <div className="mt-4 grid gap-2 sm:grid-cols-2">
                                 <FocusRow icon={Banknote} label="Pagos por revisar" value={pendingVerificationOrders.length} />
                                 <FocusRow icon={AlertCircle} label="Paquetes pendientes" value={pendingMemberships} />
-                                <FocusRow icon={Ticket} label="Eventos pendientes" value={pendingEventRegs.length} />
                             </div>
                             <Link
                                 to="/admin/payments"
@@ -244,7 +234,7 @@ export default function AdminDashboard() {
                         <div>
                             <PanelShell
                                 title="Cobros por resolver"
-                                description="Transferencias, eventos y pagos en físico"
+                                description="Transferencias y pagos en físico"
                                 to="/admin/payments"
                                 action="Ir a pagos"
                             >
@@ -253,30 +243,10 @@ export default function AdminDashboard() {
                                         Array(4).fill(0).map((_, i) => (
                                             <ListSkeleton key={i} />
                                         ))
-                                    ) : (pendingVerificationOrders.length > 0 || pendingEventRegs.length > 0) ? (
+                                    ) : pendingVerificationOrders.length > 0 ? (
                                         <>
                                             {pendingVerificationOrders.slice(0, 5).map((order) => (
                                                 <PaymentRow key={order.id} order={order} />
-                                            ))}
-                                            {pendingEventRegs.slice(0, 5).map((reg: any) => (
-                                                <Link
-                                                    key={reg.id}
-                                                    to="/admin/events"
-                                                    className="group flex items-start gap-3 rounded-[1.15rem] bg-altitud-cream/55 p-3 transition-all duration-200 hover:bg-altitud-cream active:scale-[0.995]"
-                                                >
-                                                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] bg-altitud-sand/35 text-altitud-dark">
-                                                        <Ticket className="h-[18px] w-[18px]" />
-                                                    </div>
-                                                    <div className="min-w-0 flex-1">
-                                                        <p className="truncate text-sm font-semibold text-altitud-dark transition-colors group-hover:text-altitud-olive">{reg.user_name}</p>
-                                                        <p className="mt-1 truncate text-xs text-altitud-dark/65">
-                                                            {reg.event_title} · {formatMoney(Number(reg.amount))}
-                                                        </p>
-                                                    </div>
-                                                    <Badge variant="outline" className="rounded-full border-altitud-sand/80 bg-altitud-sand/25 text-[10px] text-altitud-dark/70">
-                                                        Evento
-                                                    </Badge>
-                                                </Link>
                                             ))}
                                         </>
                                     ) : (

@@ -105,7 +105,7 @@ export default function ProfilePreferences() {
                   <div className="flex items-center justify-between rounded-lg border p-3">
                     <div>
                       <p className="font-medium">Promociones</p>
-                      <p className="text-xs text-muted-foreground">Ofertas, eventos y novedades del estudio.</p>
+                      <p className="text-xs text-muted-foreground">Ofertas y novedades del estudio.</p>
                     </div>
                     <Switch checked={receivePromotions} onCheckedChange={setReceivePromotions} />
                   </div>

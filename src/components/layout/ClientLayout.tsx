@@ -9,7 +9,6 @@ import {
   ExitIcon,
   ArrowTopRightIcon,
   CardStackIcon,
-  RocketIcon,
 } from "@/components/brand/radix-icons";
 import { CalendarPlus as CalendarIcon } from "@/components/brand/icons";
 import { useAuthStore } from "@/stores/authStore";
@@ -35,7 +34,6 @@ const navigation = [
     short: "Membresía",
     icon: CardStackIcon,
   },
-  { path: "/events", label: "Comunidad", short: "Comunidad", icon: RocketIcon },
   { path: "/profile", label: "Mi perfil", short: "Perfil", icon: PersonIcon },
 ];
 export function ClientLayout({
@@ -187,7 +185,6 @@ export function ClientLayout({
         aria-label="Navegación móvil de usuario"
       >
         {navigation
-          .filter((n) => n.path !== "/events")
           .map((n) => (
             <Link
               key={n.path}

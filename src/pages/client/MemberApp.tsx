@@ -944,39 +944,6 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
         save={data.saveProfile}
       />
     );
-  else if (path === "/events")
-    content = (
-      <>
-        <PageHeading
-          label="MÁS FUERTES, JUNTOS"
-          title="Tu comunidad."
-          description="La energía de entrenar va más allá de una clase."
-        />
-        <section className="member-community-banner">
-          <PrivateMediaImage
-            src="/brand/studio/run-progress.webp"
-            alt="Corredores de la comunidad Altitud"
-          />
-          <div>
-            <span className="member-kicker">PERFORMANCE MEETS LIFESTYLE</span>
-            <h2>
-              EL IMPULSO
-              <br />
-              DE PERTENECER.
-            </h2>
-            <p>
-              Entrenamiento, retos y experiencias compartidas.
-              <br />
-              Aquí nos movemos juntos.
-            </p>
-          </div>
-        </section>
-        <Empty
-          title="Lo que viene, lo vivimos juntos."
-          description="Los próximos eventos de 2707 Altitud aparecerán aquí cuando se confirmen."
-        />
-      </>
-    );
   else if (path === "/notifications")
     content = (
       <>

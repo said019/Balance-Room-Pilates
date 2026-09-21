@@ -426,12 +426,6 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         },
     });
 
-    // Events overlaid on the calendar/agenda (published events).
-    const { data: calendarEvents = [] } = useQuery<Array<{ id: string; title: string; date: string; startTime: string; endTime: string; location: string }>>({
-        queryKey: ['calendar-events'],
-        queryFn: async () => (await api.get('/events')).data,
-    });
-
     // Closed days for visual indicator
     const { data: closedDays = [] } = useQuery<{ id: string; date: string; reason: string }[]>({
         queryKey: ['closed-days-range', startStr, endStr],
@@ -721,14 +715,6 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                 (totalpassClassFilter === 'not_published' && !c.totalpass_published);
             return dateMatch && typeMatch && studioMatch && cancelledMatch && wellhubMatch && totalpassMatch;
         }) || [];
-    };
-
-    const getEventsForDay = (day: Date) => {
-        return (calendarEvents || []).filter((e) => {
-            const dateStr = (e.date || '').split('T')[0];
-            if (!dateStr) return false;
-            return isSameDay(parseISO(dateStr + 'T00:00:00'), day);
-        });
     };
 
     const getInitials = (name: string) => {
@@ -1095,7 +1081,6 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 <div className="grid lg:grid-cols-7">
                                     {weekDays.map((day, dayIndex) => {
                                         const dayClasses = getClassesForDay(day);
-                                        const dayEvents = getEventsForDay(day);
                                         const isClosed = closedDaySet.has(format(day, 'yyyy-MM-dd'));
                                         const closedReason = getClosedReason(day);
                                         return (
@@ -1118,27 +1103,12 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                 )}
 
                                                 <div className="space-y-2.5">
-                                                    {dayEvents.map(ev => (
-                                                        <Link
-                                                            key={ev.id}
-                                                            to="/admin/events"
-                                                            className="block rounded-[1.1rem] border border-altitud-gold/45 bg-altitud-gold/12 p-2.5 text-left transition-colors hover:bg-altitud-gold/20"
-                                                        >
-                                                            <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-altitud-gold">
-                                                                <Sparkles className="h-3 w-3" /> Evento
-                                                            </div>
-                                                            <div className="mt-0.5 truncate text-sm font-semibold text-altitud-dark">{ev.title}</div>
-                                                            <div className="text-xs text-altitud-dark/60">
-                                                                {(ev.startTime || '').slice(0, 5)}{ev.endTime ? `–${ev.endTime.slice(0, 5)}` : ''}
-                                                            </div>
-                                                        </Link>
-                                                    ))}
                                                     {dayClasses.map(c => (
-                                                        <ClassEventCard key={c.id} item={c} onClick={() => handleClassClick(c)} />
+                                                        <ClassCard key={c.id} item={c} onClick={() => handleClassClick(c)} />
                                                     ))}
                                                 </div>
 
-                                                {dayClasses.length === 0 && dayEvents.length === 0 && !isClosed && (
+                                                {dayClasses.length === 0 && !isClosed && (
                                                     <button
                                                         type="button"
                                                         className="mt-2 flex min-h-[10rem] w-full flex-col items-center justify-center rounded-[1.1rem] border border-dashed border-altitud-sand/70 bg-altitud-cream/35 text-center text-altitud-dark/48 transition-colors hover:border-altitud-olive/40 hover:bg-altitud-olive/8 hover:text-altitud-olive"
@@ -1149,7 +1119,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                     </button>
                                                 )}
 
-                                                {(dayClasses.length > 0 || dayEvents.length > 0) && (
+                                                {dayClasses.length > 0 && (
                                                     <Button
                                                         variant="ghost"
                                                         className="mt-3 h-9 w-full rounded-full border border-dashed border-altitud-sand/65 text-xs text-altitud-dark/55 hover:border-altitud-olive/40 hover:bg-altitud-olive/8 hover:text-altitud-olive"
@@ -1972,7 +1942,7 @@ function CalendarStat({ label, value }: { label: string; value: number }) {
     );
 }
 
-function ClassEventCard({ item, onClick }: { item: Class; onClick: () => void }) {
+function ClassCard({ item, onClick }: { item: Class; onClick: () => void }) {
     const baseColor = item.class_type_color || '#5F632C';
     const isFree = !!item.is_free;
     const isMexico = (item.theme || 'none') === 'mexico';

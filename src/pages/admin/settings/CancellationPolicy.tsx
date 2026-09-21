@@ -21,7 +21,7 @@ export default function CancellationPolicy() {
           <CardContent><p>Las cancelaciones tardías y las inasistencias consumen la clase. No hay un límite adicional de cancelaciones realizadas a tiempo por paquete.</p></CardContent></Card>
         <Card><CardHeader><CardTitle className="flex items-center gap-3"><CalendarCheck className="h-5 w-5 text-altitud-olive" />Vigencia de los paquetes</CardTitle></CardHeader>
           <CardContent><p>Los paquetes de 4, 8 y 12 clases y Unlimited tienen 30 días de vigencia. Las clases no utilizadas no son acumulables ni transferibles.</p></CardContent></Card>
-        <p className="text-sm text-muted-foreground">Esta es la política vigente de 2707 Altitud para clases regulares. Los eventos pueden tener condiciones propias.</p>
+        <p className="text-sm text-muted-foreground">Esta es la política vigente de 2707 Altitud para clases regulares.</p>
       </>}
     </div>
   </AdminLayout></AuthGuard>;

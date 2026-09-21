@@ -41,7 +41,6 @@ const News = lazy(() => import("./pages/client/News"));
 const ClientCheckout = lazy(() => import("./pages/client/Checkout"));
 const ClientOrders = lazy(() => import("./pages/client/Orders"));
 const ClientOrderDetail = lazy(() => import("./pages/client/OrderDetail"));
-const ClientEvents = lazy(() => import("./pages/client/Events"));
 const Checkout = lazy(() => import("./pages/AltitudMemberships"));
 
 // Admin pages
@@ -84,7 +83,6 @@ const InstructorDetail = lazy(() => import("./pages/admin/reports/InstructorDeta
 // Orders/Payments verification page
 
 
-const EventsManager = lazy(() => import("./pages/admin/events/EventsManager"));
 const DiscountCodes = lazy(() => import("./pages/admin/discount-codes/DiscountCodes"));
 const FacilitiesList = lazy(() => import("./pages/admin/facilities/FacilitiesList"));
 
@@ -170,6 +168,7 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Client Routes */}
+            <Route path="/app/preview/events/*" element={<Navigate to="/app/preview" replace />} />
             <Route path="/app/preview/*" element={<MemberPreview preview />} />
             <Route path="/coach" element={<CoachDashboard />} />
             <Route path="/coach/dashboard" element={<CoachDashboard />} />
@@ -187,13 +186,13 @@ const App = () => (
             <Route path="/app/checkout" element={<ClientCheckout />} />
             <Route path="/app/orders" element={<ClientOrders />} />
             <Route path="/app/orders/:orderId" element={<ClientOrderDetail />} />
-            <Route path="/app/events" element={<ClientEvents />} />
+            <Route path="/app/events/*" element={<Navigate to="/app" replace />} />
 
             {/* Admin Routes */}
             <Route element={<AuthGuard requiredRoles={['admin','super_admin','reception']} />}>
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/events" element={<EventsManager />} />
+            <Route path="/admin/events/*" element={<Navigate to="/admin/calendar" replace />} />
             <Route path="/admin/marketing" element={<IntegrationNotice type="communication" />} />
             <Route path="/admin/discount-codes" element={<DiscountCodes />} />
             <Route path="/admin/calendar" element={<ClassesCalendar />} />
