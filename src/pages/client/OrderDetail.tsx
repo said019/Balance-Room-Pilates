@@ -301,6 +301,7 @@ export default function OrderDetail() {
           </div>
 
           {/* Order Details Card */}
+          {order.health_acceptance && <details className="rounded-xl border p-5"><summary className="cursor-pointer font-semibold">Declaración aceptada en esta compra</summary><p className="mt-3 text-sm text-muted-foreground">Versión {order.health_acceptance.version} · {new Date(order.health_acceptance.accepted_at).toLocaleString('es-MX', {timeZone:'America/Mexico_City'})}</p><h3 className="mt-3 font-medium">{order.health_acceptance.title}</h3><p className="mt-2 whitespace-pre-line text-sm leading-relaxed">{order.health_acceptance.body}</p></details>}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Detalles de la orden</CardTitle>

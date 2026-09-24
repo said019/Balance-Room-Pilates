@@ -46,6 +46,7 @@ export const test=base.extend<{fixture:Fixture}>({
   await pool.query('DELETE FROM booking_credit_ledger WHERE booking_id IN (SELECT id FROM bookings WHERE user_id=ANY($1::uuid[]))',[[ids.client,ids.other]]);
   await pool.query('DELETE FROM bookings WHERE user_id=ANY($1::uuid[])',[[ids.client,ids.other]]);
   await pool.query('DELETE FROM classes WHERE class_type_id=$1',[ids.classType]);
+  await pool.query('DELETE FROM order_health_acceptances WHERE user_id=ANY($1::uuid[])',[[ids.client,ids.other]]);
   await pool.query('DELETE FROM orders WHERE user_id=ANY($1::uuid[])',[[ids.client,ids.other]]);
   await pool.query('DELETE FROM memberships WHERE user_id=ANY($1::uuid[])',[[ids.client,ids.other]]);
   await pool.query('DELETE FROM instructors WHERE id=ANY($1::uuid[])',[[ids.coach,ids.coachOther]]);

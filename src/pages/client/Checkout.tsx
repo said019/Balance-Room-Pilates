@@ -19,6 +19,7 @@ import { useActivePlans, activePlanDescription } from '@/hooks/use-active-plans'
 import type { OrderPaymentMethod, CreateOrderRequest, Order, BankInfo } from '@/types/order';
 import { CreditCard, Building2, Banknote, ChevronRight, ArrowRight, CheckCircle2, ArrowLeft, Copy, Check } from '@/components/brand/icons';
 
+type PurchaseConsent = { version: number; title: string; body: string };
 type PaymentAvailability = { bank_transfer: boolean; cash: boolean; card: boolean };
 const methodOptions = [
   { value: 'bank_transfer', label: 'Transferencia bancaria', icon: Building2, description: 'Sube tu comprobante. El studio valida el pago y activa tu plan.' },
@@ -38,6 +39,9 @@ export default function Checkout() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [step, setStep] = useState<'plan' | 'payment' | 'confirm'>('plan');
 
+  const [acceptedVersion, setAcceptedVersion] = useState<number | null>(null);
+  const consentQuery = useQuery<PurchaseConsent>({ queryKey: ['purchase-consent'], queryFn: async () => (await api.get('/purchase-consent/public')).data, staleTime: 0 });
+  const consentAccepted = Boolean(consentQuery.data && acceptedVersion === consentQuery.data.version);
   const plansQuery = useActivePlans();
   const methodsQuery = useQuery<PaymentAvailability>({
     queryKey: ['payment-methods'],
@@ -65,10 +69,11 @@ export default function Checkout() {
       toast({ title: 'Orden creada', description: 'Completa el pago para que el studio pueda activar tu plan.' });
       navigate(`/app/orders/${order.id}`);
     },
-    onError: (error) => toast({ title: 'No pudimos crear tu orden', description: getErrorMessage(error), variant: 'destructive' }),
+    onError: (error: any) => { if (error.response?.status === 409) { setAcceptedVersion(null); void consentQuery.refetch(); } toast({ title: 'No pudimos crear tu orden', description: getErrorMessage(error), variant: 'destructive' }); },
   });
   const selectPlan = (id: string) => {
     setSelectedPlanId(id);
+    setAcceptedVersion(null);
     if (!methodAvailable && methods.length) setSelectedPaymentMethod(methods[0].value);
     setStep('payment');
   };
@@ -82,8 +87,8 @@ export default function Checkout() {
     }
   };
   const confirm = () => {
-    if (!selectedPlan || !methodAvailable || (selectedPaymentMethod === 'bank_transfer' && !bankReady)) return;
-    createOrder.mutate({ plan_id: selectedPlan.id, payment_method: selectedPaymentMethod, notes: notes.trim() || undefined });
+    if (!consentAccepted || !consentQuery.data || !selectedPlan || !methodAvailable || (selectedPaymentMethod === 'bank_transfer' && !bankReady)) return;
+    createOrder.mutate({ plan_id: selectedPlan.id, payment_method: selectedPaymentMethod, notes: notes.trim() || undefined, health_acceptance: { accepted: true, version: consentQuery.data.version } });
   };
 
   return (
@@ -146,6 +151,18 @@ export default function Checkout() {
                 <div className="flex flex-wrap items-center justify-between gap-2 text-sm"><span>Método de pago</span><strong>{methodOptions.find((method) => method.value === selectedPaymentMethod)?.label}</strong></div>
                 <Separator />
                 <p className="text-sm leading-relaxed"><CancellationTerms /> Las cancelaciones tardías y las inasistencias cuentan como clase utilizada y no se recuperan.</p>
+                <section aria-labelledby="health-title" className="space-y-4 border-y py-5">
+                  <h3 id="health-title" className="text-lg font-semibold">Tu salud, en cada compra</h3>
+                  {consentQuery.isLoading ? <Skeleton className="h-28 w-full" /> : consentQuery.isError || !consentQuery.data ? <div role="alert"><p>No pudimos consultar la declaración. Cárgala para continuar.</p><Button variant="outline" onClick={() => void consentQuery.refetch()}>Cargar declaración</Button></div> : <>
+                    <p className="font-medium">{consentQuery.data.title}</p>
+                    <div className="max-w-prose whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{consentQuery.data.body}</div>
+                    <label className="flex cursor-pointer items-start gap-3 rounded-xl bg-altitud-sand/20 p-4">
+                      <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-[#5F632C]" checked={consentAccepted} onChange={event => setAcceptedVersion(event.target.checked ? consentQuery.data!.version : null)} />
+                      <span className="text-sm leading-relaxed">He leído la declaración y confirmo mi aceptación para esta compra.</span>
+                    </label>
+                    <p className="text-xs text-muted-foreground">Se guarda la versión aceptada junto con tu orden. Te pediremos una nueva aceptación en tu próxima compra.</p>
+                  </>}
+                </section>
                 <div className="space-y-2"><Label htmlFor="notes">Comentario para el studio (opcional)</Label><Textarea id="notes" value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="¿Algo que debamos saber sobre tu compra?" rows={2} maxLength={500} /></div>
                 {selectedPaymentMethod === 'bank_transfer' && <section className="space-y-3 rounded-xl bg-altitud-sand/20 p-4"><h3 className="flex items-center gap-2 font-semibold"><Building2 className="h-4 w-4" /> Datos de transferencia</h3>
                   {bankQuery.isLoading ? <Skeleton className="h-36 w-full" /> : bankReady && bankInfo ? <>
@@ -158,7 +175,7 @@ export default function Checkout() {
                 {selectedPaymentMethod === 'cash' && <p className="rounded-xl bg-altitud-sand/20 p-4 text-sm">Tu orden queda pendiente hasta que pagues en el studio y el staff valide el pago. Presenta tu número de orden en recepción.</p>}
                 <div className="flex items-center justify-between gap-4 border-t border-altitud-sand/60 pt-4"><span>Total</span><strong className="text-2xl font-normal text-altitud-olive">{formatMxn(Number(selectedPlan.price))} MXN</strong></div>
               </CardContent>
-              <CardFooter className="flex-col gap-3"><Button className="w-full rounded-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90" onClick={confirm} disabled={createOrder.isPending || !methodAvailable || (selectedPaymentMethod === 'bank_transfer' && !bankReady)}>{createOrder.isPending ? 'Creando orden…' : <><CheckCircle2 className="mr-2 h-4 w-4" />Confirmar orden</>}</Button><p className="text-center text-xs text-muted-foreground">Al confirmar, aceptas las <Link to="/terms" className="underline">políticas y condiciones de Altitud</Link>.</p></CardFooter>
+              <CardFooter className="flex-col gap-3"><Button className="w-full rounded-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90" onClick={confirm} disabled={createOrder.isPending || !consentAccepted || !methodAvailable || (selectedPaymentMethod === 'bank_transfer' && !bankReady)}>{createOrder.isPending ? 'Creando orden…' : <><CheckCircle2 className="mr-2 h-4 w-4" />Confirmar orden</>}</Button><p className="text-center text-xs text-muted-foreground">Al confirmar, aceptas las <Link to="/terms" className="underline">políticas y condiciones de Altitud</Link>.</p></CardFooter>
             </Card>}
           </>}
         </div>

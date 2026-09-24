@@ -1,5 +1,6 @@
 import { CancellationTerms } from '@/hooks/use-cancellation-policy';
 import { useState } from 'react';
+import { OpeningClassesSection } from '@/components/altitud/OpeningClassesSection';
 import { TrainingSection } from '@/components/altitud/TrainingSection';
 import { Link } from 'react-router-dom';
 import { SiteHeader, SiteFooter, Arrow } from '@/components/altitud/SiteShell';
@@ -25,6 +26,7 @@ export default function Index() {
     <section className="alt-section alt-intro" id="studio"><div className="alt-eyebrow">01 / NUESTRA ESENCIA</div><div><h2>Un lugar para entrenar.<br /><span>Una comunidad para<br className="alt-desktop-break" /> llegar más lejos.</span></h2><div className="alt-intro-bottom"><p>Nacimos en Zinacantepec, a 2707 metros sobre el nivel del mar. Inspirados en el Nevado de Toluca, hacemos de cada entrenamiento una oportunidad para evolucionar.</p><p>Entrenamiento de alto nivel, atención cercana y un espacio donde cabes tal como eres. Aquí el progreso es personal. La energía es de todos.</p></div></div></section>
     <TrainingSection />
     <section className="alt-community"><div className="alt-community-image"><img src="/brand/studio/hybrid-ski.webp" alt="Atletas acompañándose durante una prueba de entrenamiento híbrido" loading="lazy" width="1920" height="1080" /></div><div className="alt-community-copy"><div className="alt-eyebrow">03 / EL PODER DE ENTRENAR JUNTOS</div><h2>El esfuerzo es tuyo.<br /><span>El impulso,<br />de todos.</span></h2><p>Más que un lugar donde entrenas. Una comunidad a la que quieres pertenecer.</p><ul><li><span>01</span>Hasta 12 personas, atención real.</li><li><span>02</span>Coaching que conoce tu proceso.</li><li><span>03</span>Energía que se contagia.</li></ul><Link className="alt-button alt-button-cream" to="/reservar">Encuentra tu lugar <Arrow /></Link></div></section>
+    <OpeningClassesSection />
     <StudioHours />
     <section className="alt-section alt-memberships" id="membresias"><div><div className="alt-eyebrow">04 / HAZLO PARTE DE TU VIDA</div><h2>Haz espacio<br />para tu<br /><span>mejor versión.</span></h2><p>Entrenar una vez es empezar.<br />Volver es lo que te transforma.</p></div><div className="alt-membership-options"><PlanHighlights /></div></section>
     <section className="alt-section alt-faq" id="preguntas"><div><div className="alt-eyebrow">ANTES DE EMPEZAR</div><h2>Llega con ganas.<br />Y sin dudas.</h2><p>Tu primera clase, con confianza.</p></div><div>{questions.map(([q,a],i)=><div className="alt-faq-item" key={q}><h3><button aria-expanded={openQuestion===i} aria-controls={`answer-${i}`} onClick={()=>setOpenQuestion(openQuestion===i?null:i)}>{q}<span aria-hidden="true">{openQuestion===i?'−':'+'}</span></button></h3><div id={`answer-${i}`} hidden={openQuestion!==i}><p>{i === 3 && <><CancellationTerms /> </>}{a}</p></div></div>)}</div></section>

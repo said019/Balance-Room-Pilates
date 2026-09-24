@@ -1,5 +1,5 @@
-// Confirmed studio information. Promotional names and unconfirmed validity periods
-// remain descriptive until the studio supplies them. Never store bank details here.
+// Official names confirmed on 24 September 2026. Live plans and validity come from
+// the database. Never store bank details here.
 export const STUDIO = {
   name: '2707 Altitud',
   capacity: 12,
@@ -15,9 +15,9 @@ export const STUDIO = {
 } as const;
 
 export const STUDIO_SERVICES = [
-  { id: 'hybrid', name: 'Híbrido / funcional', label: 'FUERZA + RESISTENCIA', description: 'Fuerza, capacidad cardiovascular y movimientos funcionales para construir una condición física completa.' },
-  { id: 'train', name: 'TRAIN', label: 'HIPERTROFIA AL RITMO DE LA MÚSICA', description: 'TRAIN es nuestra clase de hipertrofia guiada por la música, donde cada movimiento tiene intención y cada repetición sigue el ritmo.' },
-  { id: 'running', name: 'Running', label: 'SESIONES DE CARRERA', description: 'Sesiones enfocadas en carrera para acompañar tu entrenamiento y ayudarte a avanzar hacia tu siguiente reto.' },
+  { id: 'hybrid', name: 'ALT. ELEVATE', label: 'FUERZA + CARDIO + CAPACIDAD ATLÉTICA', description: 'Fuerza, capacidad cardiovascular y movimientos funcionales para construir una condición física completa.' },
+  { id: 'train', name: 'ALT. TRAIN', label: 'FUERZA + HIPERTROFIA + CONTROL', description: 'ALT. TRAIN es nuestra clase de hipertrofia guiada por la música, donde cada movimiento tiene intención y cada repetición sigue el ritmo.' },
+  { id: 'running', name: 'ALT. RACE', label: 'RUNNING + TÉCNICA + RENDIMIENTO', description: 'Sesiones enfocadas en carrera para acompañar tu entrenamiento y ayudarte a avanzar hacia tu siguiente reto.' },
 ] as const;
 
 export const TRAIN_DETAILS = [

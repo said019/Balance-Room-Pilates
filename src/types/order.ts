@@ -11,6 +11,7 @@ export type OrderPaymentMethod = 'bank_transfer' | 'cash' | 'card' | 'online';
 
 // Order interface
 export interface Order {
+  health_acceptance?: { version: number; title: string; body: string; accepted_at: string; user_id: string } | null;
   id: string;
   order_number: string;
   user_id: string;
@@ -63,6 +64,7 @@ export interface OrderWithProofs extends Order {
 
 // Create order request
 export interface CreateOrderRequest {
+  health_acceptance?: { accepted: boolean; version: number };
   plan_id: string;
   payment_method: OrderPaymentMethod;
   notes?: string;

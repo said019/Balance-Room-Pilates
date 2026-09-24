@@ -390,7 +390,7 @@ function MemberHome({
         <div className="member-explore-grid">
           {STUDIO_SERVICES.map((service) => (
             <Link key={service.id} to={`${base}/book?tipo=${encodeURIComponent(service.name)}`}>
-              <PrivateMediaImage className={`member-discipline-photo member-discipline-${service.id}`} src={service.id === "hybrid" ? "/brand/studio/hybrid-carry.webp" : service.id === "running" ? "/brand/studio/run-community.webp" : "/brand/performance-disciplines.jpg"} alt={`Entrenamiento ${service.name}`} loading="lazy" />
+              <PrivateMediaImage className={`member-discipline-photo member-discipline-${service.id}`} src={service.id === "hybrid" ? "/brand/studio/alt-elevate-20260924.png" : service.id === "running" ? "/brand/studio/alt-race-20260924.png" : "/brand/studio/alt-train-20260924.png"} alt={`Entrenamiento ${service.name}`} loading="lazy" />
               <div>
                 <DisciplineIcon name={service.id} size={44} /><span>{service.label}</span>
                 <h3>{service.name}</h3>

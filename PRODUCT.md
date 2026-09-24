@@ -21,7 +21,7 @@ Introduce 2707 Altitud as a boutique hybrid and functional training studio in
 Zinacantepec. Help people understand the experience, find their training and
 reserve with motivation and confidence. Public booking links require sign-in and return the member to the booking
 calendar after login or registration. The explicitly labelled member preview
-remains a demonstration. Business prices, weekday class times, contact details and cancellation rules were confirmed by the studio on 7 September 2026. Weekend times remain tentative. Official class and package names and validity for the trial, single class and first-five offer are pending. Use descriptive names and never invent missing conditions, operating details, statistics or testimonials.
+remains a demonstration. Business prices, weekday class times, contact details and cancellation rules were confirmed by the studio on 7 September 2026. Weekend times remain tentative. Official class and package names were confirmed on 24 September 2026. Validity for the trial, single class and first-five offer remains pending. Use confirmed names and never invent missing conditions, operating details, statistics or testimonials.
 
 ## Brand Personality
 
@@ -64,7 +64,7 @@ retains its sand mountain and clear space.
 
 ## Confirmed service and operating information
 
-- Services: hybrid / functional training, TRAIN (strength), Running.
+- Services: ALT. ELEVATE (fuerza + cardio + capacidad atlética), ALT. TRAIN (fuerza + hipertrofia + control), ALT. RACE (running + técnica + rendimiento).
 - Capacity: 12 people per class.
 - Weekday starts: 6:00, 7:00, 8:00, 9:00 AM; 6:00, 7:00, 8:00 PM.
 - Saturday and Sunday: two classes per day, tentatively 8:00 and 9:00 AM,
@@ -98,3 +98,8 @@ The shared editorial source is src/lib/studio.ts. The live plan catalog comes on
 ## Studio visual and editorial update, 10 September 2026
 
 TRAIN is music-guided hypertrophy: intentional movement, rhythm, control, technique and time under tension. Use the supplied complete description on the public training section. Refer to hybrid training and hybrid competitions in editorial copy. Use the original discipline pictograms from the provided identity sheet, without redrawing. The three outdoor running photographs are for Running; carry, ski and sled photographs are for hybrid training. Preserve supplied photography.
+
+## Confirmed names and photographs, 24 September 2026
+
+Packages: PRIMERA ALTITUD (1 trial), DROP IN (1 class), BASE (4), ASCENSO (8), CUMBRE (12), 2707 (unlimited), FOUNDING 50 (unlimited). Rename known official catalog records without altering prices, historical purchases or custom plans. The previous first-five offer remains pending administrator review, not silently deleted.
+The supplied three complete photographic compositions belong to ALT. TRAIN, ALT. RACE and ALT. ELEVATE respectively. Preserve the originals and serve production images through the Drive media catalog; do not place binary images in the deploy.

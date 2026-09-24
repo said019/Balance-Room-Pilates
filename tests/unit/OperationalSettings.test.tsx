@@ -9,6 +9,9 @@ jest.mock('@/lib/api', () => ({ __esModule: true, default: { get: jest.fn(), put
 jest.mock('@/components/layout/AdminLayout', () => ({ AdminLayout: ({ children }: any) => <main>{children}</main> }));
 jest.mock('@/components/layout/AuthGuard', () => ({ AuthGuard: ({ children }: any) => children }));
 jest.mock('@/pages/admin/settings/FoundingPolicySettings', () => ({ FoundingPolicySettings: () => null }));
+// Independent settings panels have separate API contracts and browser coverage.
+jest.mock('@/pages/admin/settings/OpeningClassesSettings', () => ({ OpeningClassesSettings: () => null }));
+jest.mock('@/pages/admin/settings/PurchaseConsentSettings', () => ({ PurchaseConsentSettings: () => null }));
 const settings = {
     version: 3, cancellation_hours: 4, booking_advance_days: null, max_active_bookings: null, max_bookings_per_day: null,
     decisions: { booking_advance_days: 'pending', max_active_bookings: 'pending', max_bookings_per_day: 'pending' },

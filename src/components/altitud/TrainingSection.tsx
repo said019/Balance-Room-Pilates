@@ -6,18 +6,14 @@ import { Arrow } from './SiteShell';
 import './training-section.css';
 
 const programs = [
-  { ...STUDIO_SERVICES[0], title: 'Híbrido', subtitle: 'Fuerza que resiste.', focus: 'FUERZA / RESISTENCIA / CONTROL', photos: [
-    { file: 'studio/hybrid-carry.webp', alt: 'Atletas de Altitud realizando un acarreo con pesas' },
-    { file: 'studio/hybrid-ski.webp', alt: 'Entrenamiento híbrido en SkiErg' },
-    { file: 'studio/hybrid-sled.webp', alt: 'Atleta empujando un trineo en una competencia híbrida' },
+  { ...STUDIO_SERVICES[0], title: STUDIO_SERVICES[0].name, subtitle: 'Fuerza que resiste.', focus: STUDIO_SERVICES[0].label, photos: [
+    { file: 'studio/alt-elevate-20260924.png', alt: 'ALT. ELEVATE: trabajo con balón y empuje de trineo', width: 1536, height: 1024 },
   ] },
-  { ...STUDIO_SERVICES[1], title: 'TRAIN', subtitle: 'La fuerza tiene ritmo.', focus: 'MÚSICA / TÉCNICA / HIPERTROFIA', photos: [
-    { file: 'performance-disciplines.jpg', alt: 'Trabajo de fuerza y movimiento en el studio' },
+  { ...STUDIO_SERVICES[1], title: STUDIO_SERVICES[1].name, subtitle: 'La fuerza tiene ritmo.', focus: STUDIO_SERVICES[1].label, photos: [
+    { file: 'studio/alt-train-20260924.png', alt: 'ALT. TRAIN: fuerza con mancuernas y espacio de entrenamiento', width: 1280, height: 1100 },
   ] },
-  { ...STUDIO_SERVICES[2], title: 'Running', subtitle: 'Tu ritmo. Más lejos.', focus: 'CARRERA / CONSTANCIA / COMUNIDAD', photos: [
-    { file: 'studio/run-community.webp', alt: 'Corredores de Altitud compartiendo una carrera' },
-    { file: 'studio/run-race.webp', alt: 'Corredores de Altitud avanzando juntos durante una carrera' },
-    { file: 'studio/run-progress.webp', alt: 'La comunidad de Altitud disfrutando su progreso en carrera' },
+  { ...STUDIO_SERVICES[2], title: STUDIO_SERVICES[2].name, subtitle: 'Tu ritmo. Más lejos.', focus: STUDIO_SERVICES[2].label, photos: [
+    { file: 'studio/alt-race-20260924.png', alt: 'ALT. RACE: corredores de Altitud avanzando juntos', width: 1312, height: 1199 },
   ] },
 ];
 
@@ -49,7 +45,7 @@ export function TrainingSection() {
     {programs.map((item, index) => <div key={item.id} id={`program-panel-${item.id}`} role="tabpanel" aria-labelledby={`program-tab-${item.id}`} hidden={selected !== index} tabIndex={0}>
       {selected === index && <div className={`alt-program-story alt-program-${program.id}`}>
         <div className="alt-program-visual">
-          <div className="alt-program-photo"><img key={photo.file} src={`/brand/${photo.file}`} alt={photo.alt} width="853" height="1280" loading="lazy" /></div>
+          <div className="alt-program-photo"><img key={photo.file} src={`/brand/${photo.file}`} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" /></div>
           <div className="alt-program-photo-bar"><span>2707 ALTITUD <span className="alt-program-photo-location">/ EN MOVIMIENTO</span></span>
             {program.photos.length > 1 && <div className="alt-program-photo-controls"><button type="button" onClick={() => movePhoto(-1)} aria-label={`Foto anterior de ${program.title}`}>←</button><span role="status" aria-live="polite">{String(photoIndex + 1).padStart(2, '0')} <span>/ {String(program.photos.length).padStart(2, '0')}</span></span><button type="button" onClick={() => movePhoto(1)} aria-label={`Foto siguiente de ${program.title}`}>→</button></div>}
           </div>

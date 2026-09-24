@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import api, { getErrorMessage } from '@/lib/api';
+import { OpeningClassesSettings } from './OpeningClassesSettings';
+import { PurchaseConsentSettings } from './PurchaseConsentSettings';
 import { FoundingPolicySettings } from './FoundingPolicySettings';
 
 type RuleKey = 'cancellation_hours' | 'booking_advance_days' | 'max_active_bookings' | 'max_bookings_per_day';
@@ -142,6 +144,8 @@ export function OperationalSettingsContent() {
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><p role="status" className="text-sm text-muted-foreground">{saved ? 'Configuración guardada.' : dirty ? 'Tienes cambios sin guardar.' : 'Los valores mostrados son los vigentes.'}</p><Button type="submit" disabled={saving || !dirty || conflict}>{saving ? 'Guardando…' : 'Guardar configuración'}</Button></div>
                 </div>
             </form>}
+        <OpeningClassesSettings />
+        <PurchaseConsentSettings />
         <FoundingPolicySettings />
         <section className="border-t pt-6"><h2 className="text-lg font-semibold">Horarios, cupos y paquetes</h2><p className="mt-2 max-w-prose text-sm text-muted-foreground">Administra cada sesión y sus condiciones en su sección habitual.</p><div className="mt-4 flex flex-wrap gap-3"><Button asChild variant="outline"><Link to="/admin/calendar">Abrir agenda</Link></Button><Button asChild variant="outline"><Link to="/admin/memberships/paquetes">Ver planes</Link></Button></div></section>
     </div>;
