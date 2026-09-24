@@ -5,7 +5,7 @@ mkdirSync(out,{recursive:true});
 test('updated photos and admin opening setup render on mobile',async({page,fixture:f})=>{
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(origin+'/');
- for(const name of ['train','race','elevate']){await page.getByRole('tab',{name:'ALT. '+name.toUpperCase(),exact:true}).click();const img=page.locator(`img[src*="alt-${name}-20260924"]`).first();await expect(img).toBeVisible();await expect.poll(()=>img.evaluate((e:HTMLImageElement)=>e.naturalWidth)).toBeGreaterThan(0);}
+ for(const name of ['train','race','elevate']){const img=page.locator(`img[src*="alt-${name}-20260924"]`).first();await img.scrollIntoViewIfNeeded();await expect(img).toBeVisible();await expect.poll(()=>img.evaluate((e:HTMLImageElement)=>e.naturalWidth)).toBeGreaterThan(0);}
  await page.screenshot({path:out+'landing-mobile.png',fullPage:true});
  await new LoginPage(page).login(f.email('admin'),f.password,'/admin/settings/operations');
  await expect(page.getByRole('heading',{name:'Semana de apertura · 21 al 23 de octubre'})).toBeVisible();
