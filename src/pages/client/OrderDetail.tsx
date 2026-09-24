@@ -362,7 +362,7 @@ export default function OrderDetail() {
             </p>
           )}
 
-          {/* Stripe card payment (backend devuelve la URL de Stripe como mp_checkout_url) */}
+          {/* Checkout Pro de Mercado Pago; la confirmación se verifica en el backend */}
           {canPayWithCard && (
             <Card className="rounded-[1.75rem] border-altitud-sand/65 bg-[hsl(var(--card))]/88">
               <CardHeader>
