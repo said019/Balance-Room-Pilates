@@ -101,17 +101,7 @@ const sidebarItems: SidebarItem[] = [
         ],
     },
     { href: '/admin/payments', label: 'Pagos', icon: CreditCard },
-    {
-        label: 'Reportes',
-        icon: TrendingUp,
-        children: [
-            { href: '/admin/reports/overview', label: 'Vista general' },
-            { href: '/admin/reports/classes', label: 'Clases' },
-            { href: '/admin/reports/revenue', label: 'Ingresos' },
-            { href: '/admin/reports/retention', label: 'Retención' },
-            { href: '/admin/reports/instructors', label: 'Coaches' },
-        ],
-    },
+    { href: '/admin/reports', label: 'Reportes', icon: TrendingUp },
     {
         label: 'Ajustes',
         icon: Settings,
