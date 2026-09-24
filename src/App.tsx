@@ -70,13 +70,7 @@ const NotificationSettings = lazy(() => import("./pages/admin/settings/Notificat
 const WhatsAppSettings = lazy(() => import("./pages/admin/settings/WhatsAppSettings"));
 const Plataformas = lazy(() => import("./pages/admin/settings/Plataformas"));
 
-// Reports pages
-const ReportsOverview = lazy(() => import("./pages/admin/reports/ReportsOverview"));
-const ReportsClasses = lazy(() => import("./pages/admin/reports/ReportsClasses"));
-const ReportsRevenue = lazy(() => import("./pages/admin/reports/ReportsRevenue"));
-const ReportsRetention = lazy(() => import("./pages/admin/reports/ReportsRetention"));
-const ReportsInstructors = lazy(() => import("./pages/admin/reports/ReportsInstructors"));
-const InstructorDetail = lazy(() => import("./pages/admin/reports/InstructorDetail"));
+const Reports = lazy(() => import("./pages/admin/Reports"));
 
 // Orders/Payments verification page
 
@@ -220,12 +214,8 @@ const App = () => (
             <Route path="/admin/payments/register" element={<Navigate to="/admin/payments" replace />} />
             <Route path="/admin/payments/reports" element={<Navigate to="/admin/payments" replace />} />
 
-            <Route path="/admin/reports/overview" element={<ReportsOverview />} />
-            <Route path="/admin/reports/classes" element={<ReportsClasses />} />
-            <Route path="/admin/reports/revenue" element={<ReportsRevenue />} />
-            <Route path="/admin/reports/retention" element={<ReportsRetention />} />
-            <Route path="/admin/reports/instructors/:id" element={<InstructorDetail />} />
-            <Route path="/admin/reports/instructors" element={<ReportsInstructors />} />
+            <Route path="/admin/reports" element={<Reports />} />
+            <Route path="/admin/reports/*" element={<Navigate to="/admin/reports" replace />} />
 
             <Route path="/admin/settings/general" element={<GeneralSettings />} />
             <Route path="/admin/settings/studio" element={<StudioSettings />} />
