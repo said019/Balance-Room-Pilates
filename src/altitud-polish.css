@@ -64,7 +64,7 @@
 .alt-home .alt-hero-bottom > span:first-child { font-size: 17px; letter-spacing: 0; }
 .alt-home .alt-hero-bottom > span:last-child { font-size: 10px; letter-spacing: 1px; color: var(--muted); text-align: right; }
 .alt-home .alt-hero-visual { border-radius: var(--radius); min-height: 600px; }
-.alt-home .alt-hero-visual > img { object-position: 46% center; }
+.alt-home .alt-hero-visual > img { object-position: 60% center; }
 .alt-home .alt-image-top { top: 24px; left: 24px; right: 24px; font-size: 10px; letter-spacing: 1px; }
 .alt-home .alt-image-top > span:last-child { opacity: .85; }
 .alt-home .alt-image-bottom { bottom: 28px; left: 28px; right: 28px; gap: 20px; align-items: end; }
