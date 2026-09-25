@@ -1,5 +1,6 @@
 import { DisciplineIcon, disciplineForName } from '@/components/brand/DisciplineIcon';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -79,7 +80,7 @@ export default function ClassTypesList() {
     const selectedColor = watch('color');
 
     const { data: classTypes, isLoading } = useQuery<ClassType[]>({
-        queryKey: ['class-types'],
+        queryKey: ['class-types', 'admin', 'all'],
         queryFn: async () => {
             const { data } = await api.get('/class-types?all=true');
             return data;
@@ -173,6 +174,10 @@ export default function ClassTypesList() {
                         </Button>
                     </div>
 
+                    <div className="rounded-xl border border-altitud-olive/20 p-4 text-sm">
+                        <p>Las disciplinas inactivas también aparecen aquí para que puedas configurarlas.</p>
+                        <Link className="mt-2 inline-block font-medium text-altitud-olive underline underline-offset-4" to="/admin/settings/operations#opening-title">Configurar las 12 clases gratuitas del 21 al 23 de octubre →</Link>
+                    </div>
                     <div className="rounded-md border bg-card">
                         <Table>
                             <TableHeader>
