@@ -30,13 +30,22 @@ export function PriceTable() {
   return <div className="alt-price-table-wrap">
     <table className="alt-price-table"><caption>Clases y membresías de 2707 Altitud. Todos los precios están en pesos mexicanos.</caption>
       <thead><tr><th scope="col">Tu entrenamiento</th><th scope="col">Precio MXN</th><th scope="col">Vigencia</th></tr></thead>
-      <tbody>{plans.data.map(plan => <tr key={plan.id} className={plan.is_unlimited || plan.class_limit == null ? 'alt-plan-unlimited' : undefined}>
+      <tbody>
+        {opening.data?.introductory_offers?.filter((offer: any) => !plans.data.some(plan => plan.name === offer.name)).map((offer: any) => (
+          <tr key={offer.name}>
+            <th scope="row">{offer.name}<small>{offer.name === 'PRIMERA ALTITUD' ? '1 clase de prueba · tu primer entrenamiento' : '1 clase · entrena a tu ritmo'}</small></th>
+            <td><PlanPrice plan={offer} /></td>
+            <td>{offer.duration_days ? `${offer.duration_days} días` : <span>Consulta en<br />el studio</span>}</td>
+          </tr>
+        ))}
+        {plans.data.map(plan => <tr key={plan.id} className={plan.is_unlimited || plan.class_limit == null ? 'alt-plan-unlimited' : undefined}>
         <th scope="row">{plan.name}<small>{plan.description || activePlanDescription(plan)}</small></th>
         <td><PlanPrice plan={plan} /></td>
         <td>{plan.duration_days ? `${plan.duration_days} días` : <span>Consulta en<br />el studio</span>}</td>
       </tr>)}</tbody>
     </table>
-    {opening.data?.active && <p className="alt-price-note">10% de apertura hasta el 24 de octubre. {opening.data.introductory_offers.map((offer:any)=><span key={offer.name} className="block">{offer.name}: <PlanPrice plan={offer}/> MXN. Consulta disponibilidad y vigencia con el studio.</span>)}</p>}
+    {opening.isError && <p className="alt-price-note" role="alert">No pudimos consultar las clases individuales. <button className="underline" onClick={() => void opening.refetch()}>Reintentar</button></p>}
+    {opening.data?.active && <p className="alt-price-note">10% de apertura en los paquetes señalados, hasta el 24 de octubre.</p>}
     <p className="alt-price-note">Consulta la vigencia de cada paquete. Las clases no utilizadas no son acumulables ni transferibles, salvo excepción autorizada por Altitud.</p>
   </div>;
 }
