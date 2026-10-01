@@ -8,6 +8,7 @@ import { useAuthStore } from "@/stores/authStore";
 import type { BookingClient } from "@/types/booking";
 import type { Class } from "@/types/class";
 import type { ClientMembership } from "@/types/membership";
+import { membershipCoversClass, type EligibilityMembership } from "@/lib/booking-eligibility";
 
 export const dateKey = (d: Date) => format(d, "yyyy-MM-dd");
 const key = "altitud2707-member-preview-v3";
@@ -70,6 +71,11 @@ export function useMemberData(preview: boolean, start: Date) {
     queryFn: fetchMyMembership,
     enabled,
   });
+  const packagesQuery = useQuery<EligibilityMembership[]>({
+    queryKey: ["my-memberships"],
+    queryFn: async () => (await api.get("/memberships/my")).data,
+    enabled,
+  });
   const bookingsQuery = useQuery<BookingClient[]>({
     queryKey: ["my-bookings"],
     queryFn: async () => (await api.get("/bookings/my-bookings")).data,
@@ -101,6 +107,7 @@ export function useMemberData(preview: boolean, start: Date) {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["my-bookings"] }),
       queryClient.invalidateQueries({ queryKey: ["my-membership"] }),
+      queryClient.invalidateQueries({ queryKey: ["my-memberships"] }),
       queryClient.invalidateQueries({ queryKey: ["classes-public"] }),
     ]);
   }
@@ -123,6 +130,11 @@ export function useMemberData(preview: boolean, start: Date) {
       }
     : membershipQuery.data || null;
   const classes = classesQuery.data || [];
+  /** Unknown (loading or failed) never blocks: the server remains the authority. */
+  function coversClass(c: Class) {
+    if (preview || !Array.isArray(packagesQuery.data)) return true;
+    return membershipCoversClass(packagesQuery.data, c);
+  }
   async function book(c: Class) {
     if (preview) {
       if (
@@ -181,9 +193,9 @@ export function useMemberData(preview: boolean, start: Date) {
     await refresh();
     return response.data;
   }
-  async function reschedule(b: BookingClient, c: Class) {
+  async function reschedule(b: BookingClient, c: Class, matNumber?: number) {
     if (preview) throw new Error("Inicia sesión para reagendar una reserva real.");
-    const response = await api.post(`/bookings/${b.booking_id}/reschedule`, { classId: c.id });
+    const response = await api.post(`/bookings/${b.booking_id}/reschedule`, { classId: c.id, ...(matNumber ? { matNumber } : {}) });
     await refresh();
     return response.data;
   }
@@ -202,6 +214,7 @@ export function useMemberData(preview: boolean, start: Date) {
           reminders: user?.receive_reminders ?? false,
           news: user?.receive_promotions ?? false,
         },
+    coversClass,
     book,
     joinWaitlist,
     reschedule,

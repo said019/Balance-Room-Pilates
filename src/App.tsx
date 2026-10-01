@@ -1,3 +1,4 @@
+import Inauguration from '@/pages/Inauguration';
 import Founding50 from '@/pages/admin/memberships/Founding50';
 import { AuthGuard } from '@/components/layout/AuthGuard';
 import CoachDashboard from '@/pages/coach/CoachDashboard';
@@ -145,10 +146,21 @@ const App = () => (
         <RoutePosition />
         <AuthInitializer>
           <Suspense fallback={<div className="alt-loading" role="status" aria-label="Cargando página"><div /><div /><div /><span>Cargando 2707 Altitud…</span></div>}>
+            <AppRoutes />
+          </Suspense>
+        </AuthInitializer>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export function AppRoutes() {
+  return (
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/reservar" element={<BookingRedirect />} />
+            <Route path="/inauguracion" element={<Inauguration />} />
             <Route path="/pricing" element={<Checkout />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
@@ -182,17 +194,22 @@ const App = () => (
             <Route path="/app/orders/:orderId" element={<ClientOrderDetail />} />
             <Route path="/app/events/*" element={<Navigate to="/app" replace />} />
 
-            {/* Admin Routes */}
+            {/* Staff routes open to reception */}
             <Route element={<AuthGuard requiredRoles={['admin','super_admin','reception']} />}>
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="/admin/bookings" element={<BookingsList />} />
+            <Route path="/admin/bookings/waitlist" element={<Waitlist />} />
+            <Route path="/admin/founding50" element={<Founding50 />} />
+            </Route>
+
+            {/* Admin-only routes: the page mounts (and queries) only after the role check */}
+            <Route element={<AuthGuard requiredRoles={['admin']} />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/events/*" element={<Navigate to="/admin/calendar" replace />} />
             <Route path="/admin/marketing" element={<IntegrationNotice type="communication" />} />
             <Route path="/admin/discount-codes" element={<DiscountCodes />} />
             <Route path="/admin/calendar" element={<ClassesCalendar />} />
 
-            <Route path="/admin/bookings" element={<BookingsList />} />
-            <Route path="/admin/bookings/waitlist" element={<Waitlist />} />
             <Route path="/admin/totalpass/checkins" element={<IntegrationNotice type="platforms" />} />
 
             <Route path="/admin/classes/schedules" element={<WeeklySchedule />} />
@@ -209,7 +226,6 @@ const App = () => (
             <Route path="/admin/memberships/pending" element={<PendingMemberships />} />
             <Route path="/admin/memberships/active" element={<MembershipsActive />} />
             <Route path="/admin/memberships/expiring" element={<MembershipsExpiring />} />
-            <Route path="/admin/founding50" element={<Founding50 />} />
             <Route path="/admin/memberships/all" element={<MembershipsAll />} />
             <Route path="/admin/memberships/paquetes" element={<PlansList />} />
             <Route path="/admin/memberships" element={<Navigate to="/admin/memberships/all" replace />} />
@@ -261,11 +277,7 @@ const App = () => (
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </Suspense>
-        </AuthInitializer>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+  );
+}
 
 export default App;

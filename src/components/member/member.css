@@ -1281,6 +1281,22 @@
   font-size: 22px;
   padding: 0 5px;
 }
+.member-block-note {
+  padding: 13px 15px;
+  background: #f4ebe2;
+  border: 1px solid #e2cdb8;
+  border-radius: 4px;
+  color: #6b3f22;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+.member-block-note .member-text-link {
+  padding: 4px 0 0;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .member-error {
   color: #a33c2a;
   font-size: 13px;

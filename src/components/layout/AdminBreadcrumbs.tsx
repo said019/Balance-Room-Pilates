@@ -11,7 +11,7 @@ import {
 
 const labelMap: Record<string, string> = {
   admin: 'Admin',
-  dashboard: 'Pulso',
+  dashboard: 'Dashboard',
   calendar: 'Agenda',
   bookings: 'Reservas',
   totalpass: 'TotalPass',

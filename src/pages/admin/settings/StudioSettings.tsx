@@ -57,6 +57,7 @@ export default function StudioSettings() {
         clabe: '',
         reference_instructions: '',
     });
+    const [bankConfigured, setBankConfigured] = useState<boolean | null>(null);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -72,6 +73,7 @@ export default function StudioSettings() {
             if (studioRes?.data?.value) {
                 setSettings(prev => ({ ...prev, ...studioRes.data.value }));
             }
+            if (bankRes) setBankConfigured(Boolean(bankRes.data));
             if (bankRes?.data) {
                 setBankInfo(prev => ({ ...prev, ...bankRes.data }));
             }
@@ -105,6 +107,7 @@ export default function StudioSettings() {
         setSavingBank(true);
         try {
             await api.put('/settings/bank-info', bankInfo);
+            setBankConfigured(true);
             toast({
                 title: 'Datos bancarios guardados',
                 description: 'La información de depósito se ha actualizado correctamente.',
@@ -271,6 +274,11 @@ export default function StudioSettings() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                    {bankConfigured === false && (
+                        <p role="status" className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                            Datos bancarios no configurados. Las clientas no verán datos de transferencia hasta que los guardes.
+                        </p>
+                    )}
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="bank_name">Banco</Label>

@@ -217,6 +217,7 @@ export default function ClientDetail() {
         emergencyContactName: '',
         emergencyContactPhone: '',
         healthNotes: '',
+        coachAlert: '',
     });
 
     const openEditDialog = () => {
@@ -227,6 +228,7 @@ export default function ClientDetail() {
             emergencyContactName: client?.emergency_contact_name || '',
             emergencyContactPhone: client?.emergency_contact_phone || '',
             healthNotes: client?.health_notes || '',
+            coachAlert: client?.alert_message || '',
         });
         setEditDialogOpen(true);
     };
@@ -251,6 +253,9 @@ export default function ClientDetail() {
             }
             if (data.healthNotes !== (client?.health_notes || '')) {
                 payload.healthNotes = data.healthNotes || null;
+            }
+            if (data.coachAlert.trim() !== (client?.alert_message || '')) {
+                payload.coachAlert = data.coachAlert.trim() || null;
             }
             if (Object.keys(payload).length === 0) {
                 return { data: { user: client } };
@@ -286,13 +291,15 @@ export default function ClientDetail() {
         },
     });
 
+    const [bookingCancelReason, setBookingCancelReason] = useState('');
     const cancelBookingMutation = useMutation({
         mutationFn: async (bookingId: string) => {
-            return await api.post(`/bookings/${bookingId}/cancel`);
+            return await api.post(`/bookings/${bookingId}/cancel`, { reason: bookingCancelReason.trim() });
         },
-        onSuccess: () => {
+        onSuccess: (response) => {
             queryClient.invalidateQueries({ queryKey: ['client', id] });
-            toast({ title: 'Reserva cancelada', description: 'Crédito devuelto al cliente.' });
+            setBookingCancelReason('');
+            toast({ title: 'Reserva cancelada', description: response.data?.message || 'Reserva cancelada.' });
         },
         onError: (error) => {
             toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(error) });
@@ -584,6 +591,12 @@ export default function ClientDetail() {
                                             <p className="font-body">{client.health_notes}</p>
                                         </div>
                                     )}
+                                    {client.alert_message && (
+                                        <div className="w-full mt-3 p-3.5 bg-amber-50 text-amber-900 rounded-xl text-sm text-left border border-amber-100">
+                                            <div className="font-semibold mb-1 font-heading">Aviso para coach</div>
+                                            <p className="font-body">{client.alert_message}</p>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
 
@@ -793,7 +806,7 @@ export default function ClientDetail() {
                                                                                     b.status}
                                                                 </Badge>
                                                                 {(b.status === 'confirmed' || b.status === 'waitlist') && (
-                                                                    <AlertDialog>
+                                                                    <AlertDialog onOpenChange={(open) => { if (open) setBookingCancelReason(''); }}>
                                                                         <AlertDialogTrigger asChild>
                                                                             <Button aria-label={`Cancelar reserva de ${b.class_name}`} variant="ghost" size="sm" className="h-11 w-11 text-destructive hover:text-destructive hover:bg-destructive/10">
                                                                                 <X className="h-3.5 w-3.5" />
@@ -803,12 +816,18 @@ export default function ClientDetail() {
                                                                             <AlertDialogHeader>
                                                                                 <AlertDialogTitle>¿Cancelar reserva?</AlertDialogTitle>
                                                                                 <AlertDialogDescription>
-                                                                                    Se devolverá el crédito al cliente automáticamente.
+                                                                                    Se aplica la política de cancelación vigente: si cancela a tiempo, el crédito regresa a su paquete.
                                                                                 </AlertDialogDescription>
                                                                             </AlertDialogHeader>
+                                                                            <div className="space-y-2">
+                                                                                <Label htmlFor={`cancel-reason-${b.id}`}>Motivo (queda en la bitácora)</Label>
+                                                                                <Textarea id={`cancel-reason-${b.id}`} value={bookingCancelReason} maxLength={500} onChange={(e) => setBookingCancelReason(e.target.value)} placeholder="Ej. La clienta avisó por WhatsApp que no puede asistir" />
+                                                                                {bookingCancelReason.trim().length > 0 && bookingCancelReason.trim().length < 5 && <p className="text-xs text-destructive">Escribe al menos 5 caracteres.</p>}
+                                                                            </div>
                                                                             <AlertDialogFooter>
                                                                                 <AlertDialogCancel>Volver</AlertDialogCancel>
                                                                                 <AlertDialogAction
+                                                                                    disabled={bookingCancelReason.trim().length < 5 || cancelBookingMutation.isPending}
                                                                                     onClick={() => cancelBookingMutation.mutate(b.id)}
                                                                                     className="bg-destructive hover:bg-destructive/90"
                                                                                 >
@@ -911,6 +930,20 @@ export default function ClientDetail() {
                                     className="rounded-xl font-body"
                                     rows={3}
                                 />
+                                <p className="text-xs text-muted-foreground font-body">Sólo la administración ve este texto. Si hay nota, la coach asignada ve un aviso para preguntar a la alumna.</p>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="edit-coach-alert" className="font-body">Aviso para coach</Label>
+                                <Textarea
+                                    id="edit-coach-alert"
+                                    value={editForm.coachAlert}
+                                    onChange={(e) => setEditForm(f => ({ ...f, coachAlert: e.target.value }))}
+                                    placeholder="Ej.: evitar flexión profunda de columna"
+                                    className="rounded-xl font-body"
+                                    maxLength={280}
+                                    rows={2}
+                                />
+                                <p className="text-xs text-muted-foreground font-body">La coach asignada lo ve en su lista de asistentes. Escribe sólo la adaptación necesaria, sin diagnóstico.</p>
                             </div>
                             <DialogFooter>
                                 <Button

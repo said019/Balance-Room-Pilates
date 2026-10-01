@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import type { User, UserRole } from '@/types/auth';
+import { hasRequiredRole } from '@/components/layout/AuthGuard';
 
 interface UseAuthReturn {
     user: User | null;
@@ -103,9 +104,9 @@ export function useRequireAuth(requiredRoles?: UserRole[]) {
             return;
         }
 
-        if (requiredRoles && user && !requiredRoles.includes(user.role)) {
+        if (requiredRoles && user && !hasRequiredRole(user.role, requiredRoles)) {
             // User doesn't have required role, redirect to their dashboard
-            if (user.role === 'admin' || user.role === 'instructor') {
+            if (user.role === 'admin' || user.role === 'super_admin' || user.role === 'instructor') {
                 navigate('/admin/dashboard', { replace: true });
             } else {
                 navigate('/app', { replace: true });

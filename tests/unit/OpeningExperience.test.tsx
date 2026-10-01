@@ -1,0 +1,20 @@
+import React from 'react';
+import {render,screen,waitFor,cleanup} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import {MemoryRouter,Routes,Route} from 'react-router-dom';
+import {QueryClient,QueryClientProvider} from '@tanstack/react-query';
+import api from '@/lib/api';
+import BookClassConfirm from '@/pages/client/BookClassConfirm';
+import Inauguration from '@/pages/Inauguration';
+jest.mock('@/lib/api',()=>({__esModule:true,default:{get:jest.fn(),post:jest.fn()},getErrorMessage:(e:any)=>e.message}));
+jest.mock('@/hooks/useAuth',()=>({useAuth:()=>({isAuthenticated:true,isLoading:false})}));
+jest.mock('@/components/layout/AuthGuard',()=>({AuthGuard:({children}:any)=>children}));
+jest.mock('@/components/layout/ClientLayout',()=>({ClientLayout:({children}:any)=>children}));
+jest.mock('@/components/altitud/SiteShell',()=>({SiteHeader:()=>null,SiteFooter:()=>null,Arrow:()=>null}));
+jest.mock('@/components/ui/use-toast',()=>({useToast:()=>({toast:jest.fn()})}));
+const session={id:'class',date:'2026-10-21',start_time:'08:10:00',end_time:'09:00:00',max_capacity:12,current_bookings:1,status:'scheduled',class_type_name:'ALT. TRAIN',instructor_name:'Olivia',requires_mat:true,occupied_mats:[2],is_free:true};
+function mount(element:React.ReactNode,path='/app/book/class'){return render(<QueryClientProvider client={new QueryClient({defaultOptions:{queries:{retry:false,gcTime:0}}})}><MemoryRouter initialEntries={[path]}><Routes><Route path="/app/book/:classId" element={element}/><Route path="/inauguracion" element={element}/></Routes></MemoryRouter></QueryClientProvider>);}
+afterEach(()=>{cleanup();jest.clearAllMocks();jest.useRealTimers();});
+it('requires a free TRAIN mat and posts its number',async()=>{jest.spyOn(Date,'now').mockReturnValue(new Date('2026-10-01T12:00:00Z').getTime());(api.get as jest.Mock).mockResolvedValue({data:session});(api.post as jest.Mock).mockResolvedValue({data:{}});mount(<BookClassConfirm/>);expect(await screen.findByRole('button',{name:'Mat 2, ocupado'})).toBeDisabled();expect(screen.getByRole('button',{name:'Confirmar reserva'})).toBeDisabled();await userEvent.click(screen.getByRole('button',{name:'Mat 3',exact:true}));await userEvent.click(screen.getByRole('button',{name:'Confirmar reserva'}));await waitFor(()=>expect(api.post).toHaveBeenCalledWith('/bookings',{classId:'class',matNumber:3}));});
+it('full class offers waitlist without a mat reservation',async()=>{jest.spyOn(Date,'now').mockReturnValue(new Date('2026-10-01T12:00:00Z').getTime());(api.get as jest.Mock).mockResolvedValue({data:{...session,current_bookings:12}});(api.post as jest.Mock).mockResolvedValue({data:{}});mount(<BookClassConfirm/>);await userEvent.click(await screen.findByRole('button',{name:'Entrar a lista de espera'}));await waitFor(()=>expect(api.post).toHaveBeenCalledWith('/bookings/waitlist',{classId:'class'}));expect(screen.queryByRole('button',{name:'Mat 1',exact:true})).toBeNull();});
+it('inauguration saves the three answers separately from class bookings',async()=>{(api.get as jest.Mock).mockImplementation(async(path:string)=>({data:path.endsWith('/me')?null:{title:'Inauguración',date:'2026-10-24',startTime:'10:00',endTime:'12:00',location:'Plaza Bosques',registrationOpen:true,schedulePending:false}}));(api.post as jest.Mock).mockResolvedValue({data:{}});mount(<Inauguration/>,'/inauguracion');const count=await screen.findByLabelText(/Cuántas personas/);await userEvent.clear(count);await userEvent.type(count,'3');await userEvent.click(screen.getAllByLabelText('Sí')[0]);await userEvent.type(screen.getByLabelText('¿Qué tipo de ejercicio?'),'Running');await userEvent.click(screen.getAllByLabelText('Sí')[1]);await userEvent.click(screen.getByRole('button',{name:'Confirmar mi asistencia'}));await waitFor(()=>expect(api.post).toHaveBeenCalledWith('/inauguration/registrations',{attendeeCount:3,exercisesRegularly:true,exerciseType:'Running',activitiesInterest:true}));});

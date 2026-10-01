@@ -103,6 +103,10 @@ function Metric({ label, value, hint, tone = '#7E8579', loading = false }: {
 }
 
 export default function Reports() {
+    return <AuthGuard requiredRoles={['admin']}><AdminLayout><ReportsContent /></AdminLayout></AuthGuard>;
+}
+
+function ReportsContent() {
     const [rangeStart, setRangeStart] = useState(monthStartKey());
     const [rangeEnd, setRangeEnd] = useState(todayKey());
     const validRange = Boolean(rangeStart && rangeEnd && rangeStart <= rangeEnd);
@@ -171,8 +175,6 @@ export default function Reports() {
     };
 
     return (
-        <AuthGuard requiredRoles={['admin']}>
-            <AdminLayout>
                 <div className="mx-auto max-w-6xl space-y-7">
                     <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
@@ -265,7 +267,5 @@ export default function Reports() {
                         <CardContent>{loadingCoaches ? <Skeleton className="h-48 w-full" /> : coachRows.length === 0 ? <p className="py-8 text-center italic text-altitud-dark/55">Sin coaches activos.</p> : <div className="overflow-x-auto"><table className="w-full min-w-[620px] text-sm"><thead><tr className="border-b border-altitud-sand/60 text-[10px] font-semibold uppercase tracking-[0.13em] text-altitud-dark/50"><th className="py-2 pr-4 text-left">Coach</th><th className="px-3 py-2 text-right">Clases</th><th className="px-3 py-2 text-right">Reservas</th><th className="px-3 py-2 text-right">Promedio</th><th className="px-3 py-2 text-right">Ocupación</th><th className="py-2 pl-3 text-right">Calificación</th></tr></thead><tbody>{coachRows.map((row) => <tr key={row.id} className="border-b border-altitud-sand/35 last:border-0"><td className="py-3 pr-4 font-medium text-altitud-dark">{row.display_name}</td><td className="px-3 text-right font-semibold tabular-nums text-altitud-dark">{numberOf(row.total_classes)}</td><td className="px-3 text-right tabular-nums text-altitud-dark/65">{numberOf(row.total_students)}</td><td className="px-3 text-right tabular-nums text-altitud-dark/65">{numberOf(row.avg_attendance).toFixed(1)}</td><td className="px-3 text-right font-semibold tabular-nums text-altitud-olive">{Math.round(numberOf(row.avg_occupancy))}%</td><td className="pl-3 text-right tabular-nums text-altitud-dark/65">{numberOf(row.avg_rating) > 0 ? `${numberOf(row.avg_rating).toFixed(1)} ★` : '—'}</td></tr>)}</tbody></table></div>}</CardContent>
                     </Card>
                 </div>
-            </AdminLayout>
-        </AuthGuard>
     );
 }

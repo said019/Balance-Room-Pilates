@@ -7,8 +7,9 @@ import type { Class } from '@/types/class';
 import { isLateCancellation } from './useMemberData';
 import { useCancellationPolicy } from '@/hooks/use-cancellation-policy';
 
-export function RescheduleDialog({ booking, onClose, onChange }: { booking: BookingClient | null; onClose: () => void; onChange: (booking: BookingClient, target: Class) => Promise<unknown> }) {
+export function RescheduleDialog({ booking, onClose, onChange }: { booking: BookingClient | null; onClose: () => void; onChange: (booking: BookingClient, target: Class, matNumber?: number) => Promise<unknown> }) {
   const [target,setTarget]=useState('');
+  const [mat,setMat]=useState<number | null>(null);
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState('');
   const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -19,17 +20,20 @@ export function RescheduleDialog({ booking, onClose, onChange }: { booking: Book
   const needsPolicy=!!booking&&booking.booking_status!=='waitlist';
   const policyUnknown=needsPolicy&&(policy.hours===null||policy.isFetching);
   const late=needsPolicy&&isLateCancellation(booking!,Date.now(),policy.hours);
-  async function submit(){const chosen=available.find(c=>c.id===target);if(!chosen||!booking)return;setBusy(true);setError('');try{await onChange(booking,chosen);setTarget('');onClose();}catch(e){setError(getErrorMessage(e));}finally{setBusy(false);}}
+  const chosen=available.find(c=>c.id===target);
+  const needsMat=!!chosen?.requires_mat;
+  async function submit(){const chosen=available.find(c=>c.id===target);if(!chosen||!booking||(chosen.requires_mat&&!mat))return;setBusy(true);setError('');try{if(chosen.requires_mat)await onChange(booking,chosen,mat!);else await onChange(booking,chosen);setTarget('');setMat(null);onClose();}catch(e){setError(getErrorMessage(e));}finally{setBusy(false);}}
   return <Dialog open={!!booking} onOpenChange={open=>{if(!open&&!busy){setTarget('');setError('');onClose();}}}><DialogContent className="member-dialog">
     <DialogTitle>Cambiar de sesión</DialogTitle><DialogDescription>Elige otra sesión. Tu reserva actual se conserva si el cambio no puede completarse.</DialogDescription>
     {policyUnknown ? <p role={policy.isError?'alert':'status'}>{policy.isError?'No pudimos consultar el plazo vigente.':'Consultando el plazo para reagendar…'}{policy.isError&&<> <button className="underline" onClick={()=>void policy.refetch()}>Volver a consultar el plazo</button></>}</p> : late ? <p role="alert">El plazo de {policy.hours} horas para reagendar terminó.</p> : <>
       {classes.isLoading&&<p role="status">Buscando sesiones…</p>}
       {classes.isError&&<p role="alert">No pudimos consultar la agenda. <button onClick={()=>classes.refetch()}>Reintentar</button></p>}
-      {!classes.isLoading&&!classes.isError&&<label className="grid gap-2">Nueva sesión<select className="min-h-12 w-full rounded-lg border bg-background px-3 text-base" value={target} onChange={e=>setTarget(e.target.value)}><option value="">Selecciona una sesión</option>{available.map(c=><option key={c.id} value={c.id}>{c.date.slice(0,10)} · {c.start_time.slice(0,5)} · {c.class_type_name}</option>)}</select></label>}
+      {!classes.isLoading&&!classes.isError&&<label className="grid gap-2">Nueva sesión<select className="min-h-12 w-full rounded-lg border bg-background px-3 text-base" value={target} onChange={e=>{setTarget(e.target.value);setMat(null);}}><option value="">Selecciona una sesión</option>{available.map(c=><option key={c.id} value={c.id}>{c.date.slice(0,10)} · {c.start_time.slice(0,5)} · {c.class_type_name}</option>)}</select></label>}
+      {needsMat&&chosen&&<fieldset className="grid gap-3"><legend>Elige tu mat</legend><div className="grid grid-cols-4 gap-2">{Array.from({length:chosen.max_capacity},(_,i)=>i+1).map(n=><button type="button" key={n} aria-label={`Mat ${n}`} aria-pressed={mat===n} disabled={busy||chosen.occupied_mats?.includes(n)} onClick={()=>setMat(n)} className={`min-h-12 rounded-lg border disabled:opacity-30 ${mat===n?'bg-primary text-primary-foreground':'bg-background'}`}>{n}</button>)}</div><p className="text-sm">Los mats atenuados ya están reservados. Tu lugar se confirma al completar el cambio.</p></fieldset>}
       {!classes.isLoading&&!classes.isError&&!available.length&&<p>No hay otras sesiones disponibles en las próximas cuatro semanas.</p>}
     </>}
     {error&&<p role="alert" className="member-error">{error}</p>}
-    <button className="member-button" disabled={busy||!target||!!late||policyUnknown} onClick={()=>void submit()}>{busy?'Cambiando…':'Confirmar cambio'}</button>
+    <button className="member-button" disabled={busy||!target||!!late||policyUnknown||(needsMat&&!mat)} onClick={()=>void submit()}>{busy?'Cambiando…':'Confirmar cambio'}</button>
     <button className="member-subtle-button" disabled={busy} onClick={onClose}>Conservar mi sesión</button>
   </DialogContent></Dialog>;
 }

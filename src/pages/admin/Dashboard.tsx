@@ -38,6 +38,10 @@ type Metric = {
 };
 
 export default function AdminDashboard() {
+    return <AuthGuard requiredRoles={['admin', 'instructor']}><AdminLayout><DashboardContent /></AdminLayout></AuthGuard>;
+}
+
+function DashboardContent() {
     const { data: stats, isLoading: statsLoading, isError: statsError } = useQuery<AdminStats>({
         queryKey: ['admin-stats'],
         queryFn: async () => (await api.get('/admin/stats')).data,
@@ -83,8 +87,6 @@ export default function AdminDashboard() {
     const hasQueryError = statsError || membershipsError || ordersError;
 
     return (
-        <AuthGuard requiredRoles={['admin', 'instructor']}>
-            <AdminLayout>
                 <div className="mx-auto max-w-[1480px] space-y-5 pb-4 sm:space-y-6">
                     <header className="animate-fade-up flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                         <div className="max-w-2xl">
@@ -95,7 +97,7 @@ export default function AdminDashboard() {
                                 </span>
                                 Operación en vivo
                             </div>
-                            <h1 className="mt-2 text-[2.15rem] font-heading leading-none text-altitud-dark sm:text-[2.65rem]">Pulso del studio</h1>
+                            <h1 className="mt-2 text-[2.15rem] font-heading leading-none text-altitud-dark sm:text-[2.65rem]">Dashboard</h1>
                             <p className="mt-2 text-sm capitalize text-altitud-dark/65 sm:text-base">
                                 {format(new Date(), "EEEE d 'de' MMMM", { locale: es })}
                             </p>
@@ -173,8 +175,6 @@ export default function AdminDashboard() {
 
                     {birthdays.length > 0 && <BirthdayRail birthdays={birthdays} />}
                 </div>
-            </AdminLayout>
-        </AuthGuard>
     );
 }
 

@@ -13,7 +13,7 @@ export function OpeningClassesSettings(){
  return <section className="space-y-5 border-t pt-8" aria-labelledby="opening-title"><header><h2 id="opening-title" className="text-xl font-semibold">Semana de apertura · 21 al 23 de octubre</h2><p className="mt-2 max-w-prose text-sm text-muted-foreground">12 sesiones gratuitas, 12 lugares por sesión. Confirma el coach y la hora de término para habilitar el registro. Horario de Ciudad de México.</p></header>
  {sessions.isLoading?<p role="status">Consultando sesiones…</p>:sessions.isError?<Button variant="outline" onClick={()=>void sessions.refetch()}>Volver a consultar sesiones</Button>:<div className="divide-y">{sessions.data?.map(s=><OpeningRow key={s.id} session={s} coaches={coaches.data||[]} refresh={()=>void sessions.refetch()}/>)}</div>}
  {coaches.isError&&<p role="alert">No pudimos consultar coaches. <button className="underline" onClick={()=>void coaches.refetch()}>Reintentar</button></p>}
- <p className="text-sm text-muted-foreground">Registro del acto de inauguración: fecha y hora pendientes de confirmar.</p>
+ <p className="text-sm text-muted-foreground">El registro del evento de inauguración se administra por separado, en la sección siguiente.</p>
  </section>;
 }
 function OpeningRow({session:s,coaches,refresh}:{session:Session;coaches:Coach[];refresh:()=>void}){

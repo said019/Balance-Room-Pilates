@@ -4,6 +4,7 @@ import api from '@/lib/api';
 export type ActivePlan = {
   id: string; name: string; price: number; duration_days: number | null;
   class_limit: number | null; description: string | null; is_active: boolean;
+  effective_price?: number; promo_active?: boolean; promo_label?: string | null;
   is_unlimited?: boolean; sort_order?: number;
 };
 // This ID identifies the studio's Unlimited plan used by the separate Founding flow.

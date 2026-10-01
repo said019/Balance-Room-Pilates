@@ -1,10 +1,12 @@
+import { MemberOpeningRegistration } from '@/components/altitud/MemberOpeningRegistration';
 import { useCancellationPolicy, CancellationTerms } from '@/hooks/use-cancellation-policy';
 import { RescheduleDialog } from '@/components/member/RescheduleDialog';
 import { PublishedHours } from '@/components/schedule/PublishedHours';
 import { PrivateMediaImage } from '@/components/PrivateMediaImage';
 import { DisciplineIcon } from '@/components/brand/DisciplineIcon';
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useLocation } from "react-router-dom";
+import axios from "axios";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { addDays, format, startOfWeek, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -43,6 +45,7 @@ import type { BookingClient } from "@/types/booking";
 import type { Class } from "@/types/class";
 
 type MemberData = ReturnType<typeof useMemberData>;
+const MEMBERSHIP_CODES = new Set(["MEMBERSHIP_REQUIRED", "NO_CREDITS"]);
 const classDate = (date: string, time: string) =>
   new Date(`${date.slice(0, 10)}T${time.slice(0, 8)}`);
 const friendlyDate = (date: string) =>
@@ -140,7 +143,7 @@ function BookingLine({
         <p>
           {friendlyDate(booking.date)} · {booking.start_time.slice(0, 5)}
         </p>
-        <span>{booking.instructor_name}</span>
+        <span>{booking.instructor_name}{booking.mat_number ? ` · Mat ${booking.mat_number}` : ""}</span>
       </div>
       <span
         className={`member-pill ${booking.booking_status === "cancelled" ? "member-pill-muted" : ""}`}
@@ -428,6 +431,7 @@ function StudioInformation() {
 }
 function MemberWorkspace({ preview }: { preview: boolean }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const base = preview ? "/app/preview" : "/app";
   const path = location.pathname.slice(base.length) || "/";
   const [start, setStart] = useState(() => new Date());
@@ -442,6 +446,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
   const [joinWaiting, setJoinWaiting] = useState(false);
   const [busy, setBusy] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [rejected, setRejected] = useState<false | "membership" | "other">(false);
   const [message, setMessage] = useState("");
   const [passwordOpen, setPasswordOpen] = useState(false);
   useEffect(() => {
@@ -468,6 +473,9 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
       setSuccess(true);
     } catch (e) {
       data.setActionError(getErrorMessage(e));
+      const status = axios.isAxiosError(e) ? e.response?.status : undefined;
+      // A 4xx will not change by retrying; network or server failures may.
+      if (status && status < 500) setRejected(MEMBERSHIP_CODES.has(e.response?.data?.code) ? "membership" : "other");
     } finally {
       setBusy(false);
     }
@@ -486,7 +494,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           : preview
             ? "Reserva de muestra cancelada a tiempo. Recuperaste tu crédito de ejemplo."
             : cancellation?.requiresCreditReview
-              ? "Reserva cancelada. El studio revisará el crédito de esta reserva anterior; aún no se ha sumado a tu saldo."
+              ? (cancellation.message || "Reserva cancelada. El studio revisará el crédito de esta reserva; aún no se ha sumado a tu saldo.")
               : "Reserva cancelada a tiempo. Consulta tu saldo actualizado.",
       );
     } catch (e) {
@@ -522,6 +530,8 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
         (filter === "Todas" || c.class_type_name === filter),
     )
     .sort((a, b) => a.start_time.localeCompare(b.start_time));
+  const isBooked = (c: Class) => data.bookings.some((b) => b.class_id === c.id && b.booking_status !== "cancelled");
+  const isBlocked = (c: Class) => !isBooked(c) && classDate(c.date, c.start_time) > new Date() && !data.coversClass(c);
   let content: React.ReactNode;
   if (path === "/")
     content = (
@@ -606,14 +616,19 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
             {preview ? " DE EJEMPLO" : ""}
           </span>
         </div>
+        {sessions.some((c) => isBlocked(c)) && (
+          <p id="booking-block-reason" className="member-block-note" role="note">
+            Ningún paquete tuyo cubre este día: para reservar o entrar a la lista de espera necesitas un paquete activo, con créditos y vigente en la fecha de la clase.{" "}
+            <Link className="member-text-link" to={base + "/profile/membership"}>Mi membresía</Link>
+          </p>
+        )}
         <div className="member-session-list">
           {sessions.length ? (
             sessions.map((c) => {
-              const booked = data.bookings.some(
-                (b) => b.class_id === c.id && b.booking_status !== "cancelled",
-              );
+              const booked = isBooked(c);
               const full = c.current_bookings >= c.max_capacity;
               const past = classDate(c.date, c.start_time) <= new Date();
+              const blocked = isBlocked(c);
               return (
                 <article key={c.id} data-class-id={c.id}>
                   <div className="member-session-time">
@@ -653,11 +668,14 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
                         ? "member-button member-button-light"
                         : "member-button"
                     }
-                    disabled={booked || past || (preview && full)}
+                    disabled={booked || past || blocked || (preview && full)}
+                    aria-describedby={blocked ? "booking-block-reason" : undefined}
                     onClick={() => {
+                      if (!preview && !full && c.requires_mat) { navigate(`/app/book/${c.id}`); return; }
                       setChosen(c);
                       setJoinWaiting(full);
                       setSuccess(false);
+                      setRejected(false);
                       data.setActionError("");
                     }}
                   >
@@ -668,6 +686,8 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
                       </>
                     ) : past ? (
                       "Finalizada"
+                    ) : blocked ? (
+                      "Sin paquete vigente"
                     ) : full ? (
                       "Entrar a lista de espera"
                     ) : (
@@ -830,6 +850,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           title="A tu manera."
           description="Tu información y preferencias, en un solo lugar."
         />
+        {!preview && <MemberOpeningRegistration />}
         <div className="member-profile-grid">
           <section className="member-profile-card">
             <div className="member-profile-avatar">
@@ -1051,6 +1072,9 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
               {data.actionError}
             </p>
           )}
+          {rejected === "membership" && (
+            <Link className="member-text-link" to={base + "/profile/membership"} onClick={() => setChosen(null)}>Mi membresía</Link>
+          )}
           {success ? (
             <Link
               to={base + "/classes"}
@@ -1063,7 +1087,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
             <button
               className="member-button"
               onClick={() => void confirm()}
-              disabled={busy}
+              disabled={busy || !!rejected}
             >
               {busy
                 ? "Confirmando…"
@@ -1126,7 +1150,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           </button>
         </DialogContent>
       </Dialog>
-      <RescheduleDialog key={moving?.booking_id || "closed"} booking={moving} onClose={() => setMoving(null)} onChange={async (b,c) => { await data.reschedule(b,c); setMessage("Tu sesión se cambió. Consulta tu reserva actualizada."); }} />
+      <RescheduleDialog key={moving?.booking_id || "closed"} booking={moving} onClose={() => setMoving(null)} onChange={async (b,c,matNumber) => { await data.reschedule(b,c,matNumber); setMessage("Tu sesión se cambió. Consulta tu reserva actualizada."); }} />
       {!preview && (
         <ChangePasswordDialog
           open={passwordOpen}

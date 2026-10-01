@@ -14,6 +14,7 @@ export interface User {
     emergency_contact_name: string | null;
     emergency_contact_phone: string | null;
     health_notes: string | null;
+    alert_message?: string | null;
     accepts_communications: boolean;
     date_of_birth: string | null;
     receive_reminders: boolean;

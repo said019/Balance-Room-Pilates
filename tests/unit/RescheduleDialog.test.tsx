@@ -14,3 +14,26 @@ it('keeps the original reservation dialog recoverable after an atomic change is 
 it('offers retry on an unavailable agenda without any invented options',async()=>{(api.get as jest.Mock).mockRejectedValue(new Error('Offline'));mount();await waitFor(()=>expect(screen.getByRole('alert')).toHaveTextContent('No pudimos consultar'));expect(screen.queryByLabelText('Nueva sesión')).toBeNull();expect(screen.getByRole('button',{name:'Confirmar cambio'})).toBeDisabled();});
 
 it('keeps rescheduling disabled when the current cancellation policy is unavailable',async()=>{(api.get as jest.Mock).mockImplementation(async(path:string)=>{if(path==='/operational-settings/public')throw new Error('Offline');return {data:[target]};});mount();await screen.findByText('No pudimos consultar el plazo vigente.');expect(screen.getByRole('button',{name:'Confirmar cambio'})).toBeDisabled();expect(screen.getByRole('button',{name:'Volver a consultar el plazo'})).toBeEnabled();});
+
+it('requires a free numbered mat for TRAIN and passes it with the atomic change',async()=>{
+ const train={...target,requires_mat:true,occupied_mats:[2]};
+ (api.get as jest.Mock).mockImplementation(async(path:string)=>({data:path==='/operational-settings/public'?{cancellation_hours:6,version:1}:[train]}));
+ const {onChange}=mount();
+ await userEvent.selectOptions(await screen.findByLabelText('Nueva sesión'),'target-class');
+ expect(screen.getByRole('button',{name:'Confirmar cambio'})).toBeDisabled();
+ expect(screen.getByRole('button',{name:'Mat 2',exact:true})).toBeDisabled();
+ await userEvent.click(screen.getByRole('button',{name:'Mat 3',exact:true}));
+ await userEvent.click(screen.getByRole('button',{name:'Confirmar cambio'}));
+ expect(onChange).toHaveBeenCalledWith(booking,train,3);
+});
+
+it('drops the selected mat when switching to ELEVATE',async()=>{
+ const train={...target,requires_mat:true,occupied_mats:[]};const elevate={...target,id:'elevate',class_type_name:'ALT. ELEVATE',requires_mat:false};
+ (api.get as jest.Mock).mockImplementation(async(path:string)=>({data:path==='/operational-settings/public'?{cancellation_hours:6,version:1}:[train,elevate]}));
+ const {onChange}=mount();await userEvent.selectOptions(await screen.findByLabelText('Nueva sesión'),'target-class');
+ await userEvent.click(screen.getByRole('button',{name:'Mat 3',exact:true}));
+ await userEvent.selectOptions(screen.getByLabelText('Nueva sesión'),'elevate');
+ expect(screen.queryByRole('button',{name:'Mat 3',exact:true})).toBeNull();
+ await userEvent.click(screen.getByRole('button',{name:'Confirmar cambio'}));
+ expect(onChange).toHaveBeenCalledWith(booking,elevate);
+});

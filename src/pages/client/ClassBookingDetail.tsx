@@ -75,7 +75,7 @@ export default function ClassBookingDetail() {
       queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
       queryClient.invalidateQueries({ queryKey: ['my-membership'] });
       toast({ title: 'Reserva cancelada', description: response.data.requiresCreditReview
-        ? 'El studio revisará el crédito de esta reserva anterior. Aún no se ha sumado al saldo.'
+        ? (response.data.message || 'El studio revisará el crédito de esta reserva. Aún no se ha sumado al saldo.')
         : 'Consulta tu saldo actualizado; la devolución conserva la vigencia del paquete.' });
       navigate('/app/classes');
     },

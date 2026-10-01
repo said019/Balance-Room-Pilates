@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -24,6 +25,8 @@ interface ClassDetail {
   class_type_color: string;
   instructor_name: string;
   instructor_photo: string | null;
+  requires_mat?: boolean;
+  occupied_mats?: number[];
   is_free?: boolean;
   free_label?: string | null;
 }
@@ -43,18 +46,20 @@ export default function BookClassConfirm() {
     enabled: Boolean(classId),
   });
 
-  const canBook = Boolean(classId);
+  const [matNumber,setMatNumber] = useState<number|null>(null);
+  const canBook = Boolean(classId) && !!data;
   const bookMutation = useMutation({
     mutationFn: async () => {
-      return await api.post('/bookings', { classId });
+      return await api.post(isFull ? '/bookings/waitlist' : '/bookings', { classId, ...(!isFull && data?.requires_mat ? {matNumber} : {}) });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['classes-public'] });
       queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
-      toast({ title: '¡Reserva exitosa!', description: 'Te esperamos en clase.' });
+      toast({ title: isFull ? 'Estás en la lista de espera' : '¡Reserva exitosa!', description: isFull ? 'Tu lugar todavía no está confirmado.' : 'Te esperamos en clase.' });
       navigate('/app/classes');
     },
     onError: (err) => {
+      void queryClient.invalidateQueries({queryKey:['class-detail',classId]});
       toast({
         variant: 'destructive',
         title: 'No se pudo reservar',
@@ -65,7 +70,7 @@ export default function BookClassConfirm() {
 
   const isFull = (data?.current_bookings || 0) >= (data?.max_capacity || 0);
   const isCancelled = data?.status === 'cancelled';
-  const isPast = data ? parseISO(`${data.date.slice(0, 10)}T${data.start_time}`).getTime() <= Date.now() : false;
+  const isPast = data ? new Date(`${data.date.slice(0, 10)}T${data.start_time}-06:00`).getTime() <= Date.now() : false;
   const lugaresLabel = data ? `${Math.max(0, data.max_capacity - data.current_bookings)} disponibles de ${data.max_capacity}` : '';
 
   return (
@@ -151,15 +156,17 @@ export default function BookClassConfirm() {
             </Card>
           )}
 
-          <div className="flex gap-3">
+          {data?.requires_mat && !isFull && !isCancelled && !isPast && <fieldset className="space-y-3"><legend className="text-lg font-semibold">Elige tu número de mat</legend><p className="text-sm text-muted-foreground">Los mats ocupados no se pueden seleccionar. El lugar se confirma al reservar.</p><div className="grid grid-cols-4 gap-3 sm:grid-cols-6">{Array.from({length:data.max_capacity},(_,i)=>i+1).map(n=>{const occupied=data.occupied_mats?.includes(n);return <button key={n} type="button" aria-label={`Mat ${n}${occupied?', ocupado':''}`} aria-pressed={matNumber===n} disabled={occupied||bookMutation.isPending} onClick={()=>setMatNumber(n)} className={`min-h-14 rounded-lg border text-lg font-medium disabled:cursor-not-allowed disabled:opacity-30 ${matNumber===n?'bg-altitud-olive text-altitud-cream':'bg-background'}`}>{n}</button>;})}</div></fieldset>}
+          {isFull && <p className="text-sm text-muted-foreground">Esta clase está llena. Puedes registrarte en la lista de espera. {data?.requires_mat?'Elegirás tu mat al confirmar un lugar disponible.':''}</p>}
+          <div className="flex flex-wrap gap-3">
             <Button variant="outline" onClick={() => navigate('/app/book')}>
               Volver al calendario
             </Button>
             <Button
               onClick={() => bookMutation.mutate()}
-              disabled={!canBook || bookMutation.isPending || isFull || isCancelled || isPast}
+              disabled={!canBook || bookMutation.isPending || isCancelled || isPast || (!isFull && !!data?.requires_mat && (!matNumber || !!data.occupied_mats?.includes(matNumber)))}
             >
-              {bookMutation.isPending ? 'Reservando...' : isPast ? 'Clase ya pasada' : 'Confirmar reserva'}
+              {bookMutation.isPending ? 'Guardando…' : isPast ? 'Clase ya pasada' : isFull ? 'Entrar a lista de espera' : 'Confirmar reserva'}
             </Button>
           </div>
         </div>

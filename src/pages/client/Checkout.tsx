@@ -1,3 +1,4 @@
+import { PlanPrice } from '@/components/altitud/PlanPrice';
 import { CancellationTerms } from '@/hooks/use-cancellation-policy';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -34,7 +35,7 @@ export default function Checkout() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(searchParams.get('plan'));
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<OrderPaymentMethod>('bank_transfer');
+  const [chosenPaymentMethod, setSelectedPaymentMethod] = useState<OrderPaymentMethod | null>(null);
   const [notes, setNotes] = useState('');
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [step, setStep] = useState<'plan' | 'payment' | 'confirm'>('plan');
@@ -47,14 +48,16 @@ export default function Checkout() {
     queryKey: ['payment-methods'],
     queryFn: async () => (await api.get('/settings/payment-methods')).data,
   });
-  const bankQuery = useQuery<BankInfo>({
+  const methods = methodOptions.filter((method) => methodsQuery.data?.[method.value]);
+  // The server may withdraw a method (e.g. no bank details) or answer after the plan is picked.
+  const selectedPaymentMethod = methods.find((method) => method.value === chosenPaymentMethod)?.value ?? methods[0]?.value ?? null;
+  const methodAvailable = selectedPaymentMethod !== null;
+  const bankQuery = useQuery<BankInfo | null>({
     queryKey: ['bank-info'],
     queryFn: async () => (await api.get('/settings/bank-info')).data,
-    enabled: selectedPaymentMethod === 'bank_transfer' && methodsQuery.data?.bank_transfer === true,
+    enabled: selectedPaymentMethod === 'bank_transfer',
   });
   const selectedPlan = plansQuery.data?.find((plan) => plan.id === selectedPlanId);
-  const methods = methodOptions.filter((method) => methodsQuery.data?.[method.value]);
-  const methodAvailable = methods.some((method) => method.value === selectedPaymentMethod);
   const bankInfo = bankQuery.data;
   const bankReady = Boolean(bankInfo?.bank_name && bankInfo?.account_holder && bankInfo?.clabe);
 
@@ -74,7 +77,6 @@ export default function Checkout() {
   const selectPlan = (id: string) => {
     setSelectedPlanId(id);
     setAcceptedVersion(null);
-    if (!methodAvailable && methods.length) setSelectedPaymentMethod(methods[0].value);
     setStep('payment');
   };
   const copy = async (value: string, field: string) => {
@@ -87,7 +89,7 @@ export default function Checkout() {
     }
   };
   const confirm = () => {
-    if (!consentAccepted || !consentQuery.data || !selectedPlan || !methodAvailable || (selectedPaymentMethod === 'bank_transfer' && !bankReady)) return;
+    if (!consentAccepted || !consentQuery.data || !selectedPlan || !selectedPaymentMethod || (selectedPaymentMethod === 'bank_transfer' && !bankReady)) return;
     createOrder.mutate({ plan_id: selectedPlan.id, payment_method: selectedPaymentMethod, notes: notes.trim() || undefined, health_acceptance: { accepted: true, version: consentQuery.data.version } });
   };
 
@@ -123,7 +125,7 @@ export default function Checkout() {
                 <div className="divide-y divide-altitud-sand/60 border-y border-altitud-sand/60">
                   {plansQuery.data.map((plan) => <button key={plan.id} type="button" className="flex w-full flex-wrap items-center justify-between gap-4 px-3 py-6 text-left transition-colors hover:bg-altitud-sand/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-altitud-olive" onClick={() => selectPlan(plan.id)}>
                     <div><h2 className="text-2xl">{plan.name}</h2><p className="mt-1 text-sm text-muted-foreground">{planSummary(plan)}</p>{plan.description && <p className="mt-2 max-w-lg text-sm text-muted-foreground">{plan.description}</p>}</div>
-                    <span className="flex items-center gap-6"><strong className="whitespace-nowrap text-2xl font-normal text-altitud-olive">{formatMxn(Number(plan.price))}<small className="ml-1 text-xs">MXN</small></strong><ArrowRight className="h-5 w-5" aria-hidden="true" /></span>
+                    <span className="flex items-center gap-6"><strong className="whitespace-nowrap text-2xl font-normal text-altitud-olive"><PlanPrice plan={plan} /><small className="ml-1 text-xs">MXN</small></strong><ArrowRight className="h-5 w-5" aria-hidden="true" /></span>
                   </button>)}
                 </div>
               ) : <p className="py-8">Los paquetes se habilitarán aquí cuando estén disponibles. <a href={STUDIO.whatsappHref} target="_blank" rel="noreferrer" className="underline">Consulta con el studio</a>.</p>}
@@ -132,12 +134,12 @@ export default function Checkout() {
           </>}
 
           {step !== 'plan' && selectedPlan && <>
-            <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-altitud-sand/20 p-5"><div><h2 className="text-xl">{selectedPlan.name}</h2><p className="mt-1 text-sm text-muted-foreground">{planSummary(selectedPlan)}</p></div><strong className="text-2xl font-normal">{formatMxn(Number(selectedPlan.price))} MXN</strong></div>
+            <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-altitud-sand/20 p-5"><div><h2 className="text-xl">{selectedPlan.name}</h2><p className="mt-1 text-sm text-muted-foreground">{planSummary(selectedPlan)}</p></div><strong className="text-2xl font-normal"><PlanPrice plan={selectedPlan} /> MXN</strong></div>
             {step === 'payment' && <Card className="rounded-2xl border-altitud-sand/60">
               <CardHeader><CardTitle className="text-xl">Selecciona cómo pagar</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 {methodsQuery.isLoading ? <Skeleton className="h-36 w-full" /> : methodsQuery.isError ? <div role="alert" className="space-y-3"><p>No pudimos consultar las formas de pago.</p><Button variant="outline" onClick={() => void methodsQuery.refetch()}>Volver a intentar</Button></div> : methods.length ? (
-                  <RadioGroup value={selectedPaymentMethod} onValueChange={(value) => setSelectedPaymentMethod(value as OrderPaymentMethod)} className="space-y-3">
+                  <RadioGroup value={selectedPaymentMethod ?? ''} onValueChange={(value) => setSelectedPaymentMethod(value as OrderPaymentMethod)} className="space-y-3">
                     {methods.map((method) => <Label key={method.value} htmlFor={method.value} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 ${selectedPaymentMethod === method.value ? 'border-altitud-olive bg-altitud-olive/5' : 'border-altitud-sand/60'}`}><RadioGroupItem value={method.value} id={method.value} className="mt-1" /><span><span className="flex items-center gap-2 font-semibold"><method.icon className="h-5 w-5 text-altitud-olive" />{method.label}</span><span className="mt-2 block text-sm font-normal leading-relaxed text-muted-foreground">{method.description}</span></span></Label>)}
                   </RadioGroup>
                 ) : <p>Consulta las formas de pago disponibles con el studio por <a className="underline" href={STUDIO.whatsappHref} target="_blank" rel="noreferrer">WhatsApp</a>.</p>}
@@ -170,10 +172,10 @@ export default function Checkout() {
                       ['Banco', bankInfo.bank_name], ['Titular', bankInfo.account_holder], ['Número de cuenta', bankInfo.account_number], ['CLABE', bankInfo.clabe],
                     ] as const).filter(([, value]) => value).map(([label, value]) => <div key={label} className="flex items-center justify-between gap-2 py-3"><div className="min-w-0"><dt className="text-xs text-muted-foreground">{label}</dt><dd className="break-all text-sm font-medium">{value}</dd></div><Button variant="ghost" size="icon" aria-label={`Copiar ${label}`} className="shrink-0" onClick={() => void copy(value, label)}>{copiedField === label ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}</Button></div>)}</dl>
                     <p className="text-sm">Confirma la orden, realiza la transferencia y sube tu comprobante. Tu plan se activará cuando el studio valide el pago.</p>
-                  </> : <div role="alert" className="space-y-2"><p className="text-sm">No pudimos cargar los datos bancarios. Reintenta antes de transferir.</p><Button variant="outline" onClick={() => void bankQuery.refetch()}>Cargar datos bancarios</Button></div>}
+                  </> : bankQuery.isSuccess && !bankInfo ? <p role="status" className="text-sm">El studio aún no configura los datos bancarios. Elige otro método de pago o escribe al studio por <a className="underline" href={STUDIO.whatsappHref} target="_blank" rel="noreferrer">WhatsApp</a> antes de transferir.</p> : <div role="alert" className="space-y-2"><p className="text-sm">No pudimos cargar los datos bancarios. Reintenta antes de transferir.</p><Button variant="outline" onClick={() => void bankQuery.refetch()}>Cargar datos bancarios</Button></div>}
                 </section>}
                 {selectedPaymentMethod === 'cash' && <p className="rounded-xl bg-altitud-sand/20 p-4 text-sm">Tu orden queda pendiente hasta que pagues en el studio y el staff valide el pago. Presenta tu número de orden en recepción.</p>}
-                <div className="flex items-center justify-between gap-4 border-t border-altitud-sand/60 pt-4"><span>Total</span><strong className="text-2xl font-normal text-altitud-olive">{formatMxn(Number(selectedPlan.price))} MXN</strong></div>
+                <div className="flex items-center justify-between gap-4 border-t border-altitud-sand/60 pt-4"><span>Total</span><strong className="text-2xl font-normal text-altitud-olive"><PlanPrice plan={selectedPlan} /> MXN</strong></div>
               </CardContent>
               <CardFooter className="flex-col gap-3"><Button className="w-full rounded-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90" onClick={confirm} disabled={createOrder.isPending || !consentAccepted || !methodAvailable || (selectedPaymentMethod === 'bank_transfer' && !bankReady)}>{createOrder.isPending ? 'Creando orden…' : <><CheckCircle2 className="mr-2 h-4 w-4" />Confirmar orden</>}</Button><p className="text-center text-xs text-muted-foreground">Al confirmar, aceptas las <Link to="/terms" className="underline">políticas y condiciones de Altitud</Link>.</p></CardFooter>
             </Card>}

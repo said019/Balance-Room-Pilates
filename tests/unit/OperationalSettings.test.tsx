@@ -10,6 +10,8 @@ jest.mock('@/components/layout/AdminLayout', () => ({ AdminLayout: ({ children }
 jest.mock('@/components/layout/AuthGuard', () => ({ AuthGuard: ({ children }: any) => children }));
 jest.mock('@/pages/admin/settings/FoundingPolicySettings', () => ({ FoundingPolicySettings: () => null }));
 // Independent settings panels have separate API contracts and browser coverage.
+jest.mock('@/pages/admin/settings/InaugurationSettings', () => ({ InaugurationSettings: () => null }));
+jest.mock('@/pages/admin/settings/OpeningPromotionSettings', () => ({ OpeningPromotionSettings: () => null }));
 jest.mock('@/pages/admin/settings/OpeningClassesSettings', () => ({ OpeningClassesSettings: () => null }));
 jest.mock('@/pages/admin/settings/PurchaseConsentSettings', () => ({ PurchaseConsentSettings: () => null }));
 const settings = {

@@ -1,6 +1,6 @@
 export interface Instructor {
     id: string;
-    user_id: string;
+    user_id: string | null;
     display_name: string;
     bio: string | null;
     photo_url: string | null;
@@ -51,6 +51,8 @@ export interface Schedule {
 }
 
 export interface Class {
+    requires_mat?: boolean;
+    occupied_mats?: number[];
     id: string;
     schedule_id?: string;
     is_exception?: boolean;

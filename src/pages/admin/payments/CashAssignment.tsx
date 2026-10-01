@@ -1,3 +1,4 @@
+import { ConsentSaleNotice } from '@/components/admin/ConsentSaleNotice';
 import { postFinancialOperation } from '@/lib/financial-intent';
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -172,14 +173,14 @@ const fadeInUp = {
 
 /** Embeddable content version (no AuthGuard/AdminLayout wrapper) */
 export function CashAssignmentContent() {
-  return <CashAssignmentInner />;
+  return <ConsentSaleNotice reviewLink />;
 }
 
 export default function CashAssignmentPage() {
   return (
     <AuthGuard requiredRoles={['admin', 'instructor']}>
       <AdminLayout>
-        <CashAssignmentInner />
+        <ConsentSaleNotice reviewLink />
       </AdminLayout>
     </AuthGuard>
   );

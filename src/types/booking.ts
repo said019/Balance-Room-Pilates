@@ -20,6 +20,7 @@ export interface BookingAdmin {
 }
 
 export interface BookingClient {
+  mat_number?: number | null;
   booking_id: string;
   class_id: string;
   date: string;

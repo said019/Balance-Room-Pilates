@@ -74,11 +74,7 @@ export default function PaymentsTransactions({
       if (search) params.append('search', search);
       if (paymentMethod !== 'all') params.append('paymentMethod', paymentMethod);
       if (startDate) params.append('startDate', startDate);
-      if (endDate) {
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
-        params.append('endDate', end.toISOString());
-      }
+      if (endDate) params.append('endDate', endDate);
       const { data } = await api.get(`/payments/transactions?${params.toString()}`);
       return data;
     },

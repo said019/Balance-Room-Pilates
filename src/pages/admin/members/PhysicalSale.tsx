@@ -9,7 +9,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PhysicalSaleForm } from '@/components/admin/members/PhysicalSaleForm';
+import { ConsentSaleNotice } from '@/components/admin/ConsentSaleNotice';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { AuthGuard } from '@/components/layout/AuthGuard';
 import api from '@/lib/api';
@@ -27,14 +27,6 @@ export default function PhysicalSale() {
     },
     enabled: !!userId,
   });
-
-  const handleSuccess = () => {
-    navigate(`/admin/members/${userId}`);
-  };
-
-  const handleCancel = () => {
-    navigate(`/admin/members/${userId}`);
-  };
 
   if (isLoading) {
     return (
@@ -88,12 +80,7 @@ export default function PhysicalSale() {
           </div>
 
           {/* Formulario */}
-          <PhysicalSaleForm
-            userId={userId!}
-            userName={user.display_name || user.email}
-            onSuccess={handleSuccess}
-            onCancel={handleCancel}
-          />
+          <ConsentSaleNotice reviewLink />
         </div>
       </AdminLayout>
     </AuthGuard>

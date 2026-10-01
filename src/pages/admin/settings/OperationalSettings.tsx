@@ -1,3 +1,5 @@
+import { OpeningPromotionSettings } from './OpeningPromotionSettings';
+import { InaugurationSettings } from './InaugurationSettings';
 import { FormEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AdminLayout } from '@/components/layout/AdminLayout';
@@ -145,6 +147,8 @@ export function OperationalSettingsContent() {
                 </div>
             </form>}
         <OpeningClassesSettings />
+        <InaugurationSettings />
+        <OpeningPromotionSettings />
         <PurchaseConsentSettings />
         <FoundingPolicySettings />
         <section className="border-t pt-6"><h2 className="text-lg font-semibold">Horarios, cupos y paquetes</h2><p className="mt-2 max-w-prose text-sm text-muted-foreground">Administra cada sesión y sus condiciones en su sección habitual.</p><div className="mt-4 flex flex-wrap gap-3"><Button asChild variant="outline"><Link to="/admin/calendar">Abrir agenda</Link></Button><Button asChild variant="outline"><Link to="/admin/memberships/paquetes">Ver planes</Link></Button></div></section>

@@ -5,6 +5,12 @@ import { useAuthStore } from '@/stores/authStore';
 import type { UserRole } from '@/types/auth';
 import { Loader2 } from 'lucide-react';
 
+/** The owner account (super_admin) holds every admin permission. */
+export function hasRequiredRole(role: UserRole, requiredRoles?: UserRole[]) {
+    if (!requiredRoles) return true;
+    return requiredRoles.includes(role) || (role === 'super_admin' && requiredRoles.includes('admin'));
+}
+
 interface AuthGuardProps {
     children?: ReactNode; // Make optional
     requiredRoles?: UserRole[];
@@ -32,7 +38,7 @@ export function AuthGuard({ children, requiredRoles, redirectTo = '/login' }: Au
         }
 
         // Check role if specified
-        if (requiredRoles && user && !requiredRoles.includes(user.role)) {
+        if (requiredRoles && user && !hasRequiredRole(user.role, requiredRoles)) {
             // Redirect to appropriate dashboard based on role
             if (user.role === 'admin' || user.role === 'super_admin') {
                 navigate('/admin/dashboard', { replace: true });
@@ -77,7 +83,7 @@ export function AuthGuard({ children, requiredRoles, redirectTo = '/login' }: Au
         return null;
     }
 
-    if (requiredRoles && user && !requiredRoles.includes(user.role)) {
+    if (requiredRoles && user && !hasRequiredRole(user.role, requiredRoles)) {
         return null;
     }
 

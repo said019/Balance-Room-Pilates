@@ -60,7 +60,7 @@ type SidebarItem = {
 };
 
 const sidebarItems: SidebarItem[] = [
-    { href: '/admin/dashboard', label: 'Pulso', icon: LayoutDashboard },
+    { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/marketing', label: 'Comunicación', icon: Megaphone },
     { href: '/admin/discount-codes', label: 'Descuentos', icon: Tag },
     { href: '/admin/calendar', label: 'Agenda', icon: Calendar },
@@ -118,7 +118,7 @@ const sidebarItems: SidebarItem[] = [
 ];
 
 const pageNames: Record<string, string> = {
-    dashboard: 'Pulso del studio',
+    dashboard: 'Dashboard',
     marketing: 'Comunicación',
     'discount-codes': 'Descuentos',
     calendar: 'Agenda',
@@ -474,7 +474,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 </main>
                 <nav className="admin-bottom-nav lg:hidden" aria-label="Accesos principales">
                     {[
-                        { href: '/admin/dashboard', label: 'Pulso', icon: LayoutDashboard },
+                        { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
                         { href: '/admin/calendar', label: 'Agenda', icon: Calendar },
                         { href: '/admin/members', label: 'Comunidad', icon: Users },
                         { href: '/admin/payments', label: 'Pagos', icon: CreditCard },

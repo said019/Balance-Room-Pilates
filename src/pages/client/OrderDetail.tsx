@@ -92,7 +92,7 @@ export default function OrderDetail() {
   });
 
   // Fetch bank info
-  const { data: bankInfo } = useQuery<BankInfo>({
+  const { data: bankInfo, isSuccess: bankInfoLoaded } = useQuery<BankInfo | null>({
     queryKey: ['bank-info'],
     queryFn: async () => (await api.get('/settings/bank-info')).data,
     enabled: order?.payment_method === 'bank_transfer',
@@ -405,6 +405,11 @@ export default function OrderDetail() {
           )}
 
           {/* Bank Transfer Instructions */}
+          {order.payment_method === 'bank_transfer' && bankInfoLoaded && !bankInfo && canUploadProof && (
+            <p role="status" className="rounded-lg bg-muted px-4 py-3 text-sm">
+              El studio aún no configura los datos bancarios. Escríbele antes de transferir.
+            </p>
+          )}
           {order.payment_method === 'bank_transfer' && bankInfo && canUploadProof && (
             <Card>
               <CardHeader>

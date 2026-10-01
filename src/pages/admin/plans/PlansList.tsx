@@ -152,7 +152,7 @@ export default function PlansList() {
             toast({
                 title: variables.id ? 'Plan actualizado' : 'Plan creado',
                 description: variables.id
-                    ? 'Los cambios se aplicaron y las vigencias de membresías activas se recalcularon.'
+                    ? 'Los cambios aplican a las ventas nuevas. Los paquetes ya vendidos conservan su vigencia.'
                     : 'El plan se ha creado exitosamente.',
             });
             setIsDialogOpen(false);
@@ -406,7 +406,7 @@ export default function PlansList() {
                             <DialogHeader>
                                 <DialogTitle>{editingPlan ? 'Editar precio o paquete' : 'Crear precio o paquete'}</DialogTitle>
                                 <DialogDescription>
-                                    Los cambios se reflejan en la landing, checkout y /app. La vigencia actualiza el fin de membresías activas.
+                                    Los cambios se reflejan en la landing, checkout y /app. La vigencia sólo aplica a ventas nuevas.
                                 </DialogDescription>
                             </DialogHeader>
 
@@ -436,7 +436,7 @@ export default function PlansList() {
                                         {errors.durationDays && <p className="text-xs text-destructive">{errors.durationDays.message}</p>}
                                         {editingPlan && (
                                             <p className="text-xs text-muted-foreground">
-                                                Se recalculará el fin de las membresías activas del paquete.
+                                                Aplica a ventas nuevas. Los paquetes ya vendidos conservan su fecha de fin.
                                             </p>
                                         )}
                                     </div>

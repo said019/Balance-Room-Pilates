@@ -1,3 +1,4 @@
+import type { InaugurationConfig } from '@/pages/Inauguration';
 import {SeriesChangePanel} from '@/pages/admin/schedules/SeriesChangePanel';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
@@ -66,6 +67,17 @@ import {
 
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
 
+function askStaffReason(message: string): string | null {
+    const answer = window.prompt(message);
+    if (answer === null) return null;
+    const reason = answer.trim();
+    if (reason.length < 5) {
+        window.alert('El motivo debe tener al menos 5 caracteres. No se canceló nada.');
+        return null;
+    }
+    return reason.slice(0, 500);
+}
+
 const generateSchema = z.object({
     startDate: z.date(),
     endDate: z.date(),
@@ -111,6 +123,7 @@ interface Attendee {
 }
 
 interface WellhubClassStatus {
+    available?: boolean;
     published: boolean;
     quota: number;
     booked: number;
@@ -119,6 +132,7 @@ interface WellhubClassStatus {
 }
 
 interface TotalPassClassStatus {
+    available?: boolean;
     published: boolean;
     quota: number;
     booked: number;
@@ -126,7 +140,21 @@ interface TotalPassClassStatus {
     externalSlotId: string | null;
 }
 
-function WellhubClassControl({ classId }: { classId: string }) {
+function PartnerUnavailable({ logo, name, status }: { logo: React.ReactNode; name: string; status: WellhubClassStatus }) {
+    return (
+        <div className="rounded-xl border border-altitud-sand/55 bg-altitud-cream/45 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+                {logo}
+                <Switch aria-label={status.published ? `Despublicar de ${name}` : `Publicar en ${name}`} checked={status.published} disabled />
+            </div>
+            <p className="text-xs text-muted-foreground">
+                {status.published ? `Publicada en ${name} · cupo ${status.booked}/${status.quota}` : 'No publicada · sin convenio activo'}
+            </p>
+        </div>
+    );
+}
+
+export function WellhubClassControl({ classId }: { classId: string }) {
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const [quota, setQuota] = useState(2);
@@ -176,6 +204,10 @@ function WellhubClassControl({ classId }: { classId: string }) {
         return <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />;
     }
 
+    if (status?.available === false) {
+        return <PartnerUnavailable logo={<WellhubLogo className="h-[1.15rem]" />} name="Wellhub" status={status} />;
+    }
+
     return (
         <div className="rounded-xl border border-altitud-sand/55 bg-altitud-cream/45 p-3 space-y-2">
             <div className="flex items-center justify-between">
@@ -213,7 +245,7 @@ function WellhubClassControl({ classId }: { classId: string }) {
     );
 }
 
-function TotalPassClassControl({
+export function TotalPassClassControl({
     classId,
     maxCapacity,
 }: {
@@ -275,6 +307,10 @@ function TotalPassClassControl({
         return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
     }
 
+    if (status?.available === false) {
+        return <PartnerUnavailable logo={<TotalPassLogo />} name="TotalPass" status={status} />;
+    }
+
     const isPending = publishMutation.isPending || unpublishMutation.isPending;
 
     return (
@@ -332,6 +368,7 @@ interface ClassesCalendarProps {
 }
 
 export default function ClassesCalendar({ initialGenerateOpen = false }: ClassesCalendarProps) {
+    const inauguration = useQuery<InaugurationConfig & {stats:{registrations:number;attendees:number}}>({queryKey:['inauguration-admin'],queryFn:async()=>(await api.get('/inauguration/admin')).data});
     const [currentDate, setCurrentDate] = useState(new Date());
     const [mobileDayIndex, setMobileDayIndex] = useState(new Date().getDay());
     const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 0 }));
@@ -550,7 +587,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     });
 
     const cancelMutation = useMutation({
-        mutationFn: async (id: string) => api.delete(`/classes/${id}`),
+        mutationFn: async ({ id, reason }: { id: string; reason: string }) => api.delete(`/classes/${id}`, { data: { reason } }),
         onSuccess: (response) => {
             queryClient.invalidateQueries({ queryKey: ['classes'] });
             const data = response.data;
@@ -635,13 +672,13 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
     });
 
     const cancelBookingMutation = useMutation({
-        mutationFn: async (bookingId: string) => {
-            return await api.post(`/bookings/${bookingId}/cancel`);
+        mutationFn: async ({ bookingId, reason }: { bookingId: string; reason: string }) => {
+            return await api.post(`/bookings/${bookingId}/cancel`, { reason });
         },
-        onSuccess: () => {
+        onSuccess: (response) => {
             refetchAttendees();
             queryClient.invalidateQueries({ queryKey: ['classes'] });
-            toast({ title: 'Reserva cancelada', description: 'Crédito devuelto si aplicaba.' });
+            toast({ title: 'Reserva cancelada', description: response.data?.message || 'Reserva cancelada.' });
         },
         onError: (err) => toast({ variant: 'destructive', title: 'Error', description: getErrorMessage(err) }),
     });
@@ -844,6 +881,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                         </div>
                     </section>
 
+                    {inauguration.data?.date && <button type="button" className="text-left text-sm font-medium text-altitud-olive underline underline-offset-4" onClick={()=>{setCurrentDate(new Date(`${inauguration.data!.date}T12:00:00`));setMobileDayIndex(new Date(`${inauguration.data!.date}T12:00:00`).getDay());}}>Ver inauguración en calendario · {inauguration.data.date.split('-').reverse().join('/')} · {inauguration.data.startTime} a {inauguration.data.endTime}</button>}
                     <details className="rounded-2xl border border-altitud-sand/60 bg-altitud-cream/40 p-4">
                         <summary className="cursor-pointer text-sm font-semibold text-altitud-dark">Filtros de agenda <span className="ml-2 font-normal text-muted-foreground">Tipo de clase y plataformas</span></summary>
                         <div className="mt-4 space-y-4">
@@ -1103,6 +1141,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                 )}
 
                                                 <div className="space-y-2.5">
+                                                    {inauguration.data?.date === format(day,'yyyy-MM-dd') && <a href="/admin/settings/operations#inauguration-settings" className="block space-y-2 rounded-xl border border-altitud-olive/30 bg-altitud-olive/10 p-3 text-altitud-dark"><p className="text-xs font-semibold">{inauguration.data.startTime} – {inauguration.data.endTime}</p><h3 className="font-semibold">Inauguración</h3><p className="text-xs">Evento · {inauguration.data.stats.attendees} asistentes · {inauguration.data.stats.registrations} registros</p><span className="block text-xs underline">Ver asistentes y administrar →</span></a>}
                                                     {dayClasses.map(c => (
                                                         <ClassCard key={c.id} item={c} onClick={() => handleClassClick(c)} />
                                                     ))}
@@ -1188,9 +1227,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                             variant="destructive"
                                             className="flex-1"
                                             onClick={() => {
-                                                if (confirm('¿Cancelar esta clase? Se cancelaran todas las reservas y se reembolsaran los creditos.')) {
-                                                    cancelMutation.mutate(selectedClass.id);
-                                                }
+                                                const reason = askStaffReason('¿Cancelar esta clase? Se cancelarán todas las reservas y se devolverán los créditos que apliquen.\n\nEscribe el motivo (mínimo 5 caracteres). Queda en la bitácora.');
+                                                if (reason) cancelMutation.mutate({ id: selectedClass.id, reason });
                                             }}
                                         >
                                             <Trash2 className="mr-2 h-4 w-4" /> Cancelar Clase
@@ -1432,9 +1470,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                                 size="sm"
                                                                 variant="outline"
                                                                 onClick={() => {
-                                                                    if (confirm('¿Cancelar la reserva del cliente? Se devolverá su crédito si aplica.')) {
-                                                                        cancelBookingMutation.mutate(attendee.booking_id);
-                                                                    }
+                                                                    const reason = askStaffReason('¿Cancelar la reserva de la clienta? Se devolverá su crédito si aplica.\n\nEscribe el motivo (mínimo 5 caracteres). Queda en la bitácora.');
+                                                                    if (reason) cancelBookingMutation.mutate({ bookingId: attendee.booking_id, reason });
                                                                 }}
                                                                 disabled={cancelBookingMutation.isPending}
                                                             >
