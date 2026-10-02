@@ -43,6 +43,7 @@ export const FOUNDING_50 = {
   benefits: [
     'Precio especial de $1,299 al mes durante 6 meses, frente a $1,599 del precio regular.',
     'Acceso Unlimited a las clases incluidas en la membresía.',
+    '1 evaluación InBody mensual: análisis de composición corporal para conocer tu masa muscular, grasa y agua corporal, y dar seguimiento a tu progreso.',
     'Prioridad de reservación antes de liberar horarios al público general.',
     'Acceso anticipado a clases especiales, workshops y eventos de Altitud.',
     'Kit Founding Member: termo o gorra a elegir, más playera de edición especial personalizada y numerada.',
