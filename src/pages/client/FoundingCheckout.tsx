@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { AuthGuard } from '@/components/layout/AuthGuard';
 import { ClientLayout } from '@/components/layout/ClientLayout';
 import { Button } from '@/components/ui/button';
+import { FoundingBenefits } from '@/components/member/FoundingBenefits';
 import api, { getErrorMessage } from '@/lib/api';
 
 export default function FoundingCheckout() {
@@ -19,6 +20,7 @@ export default function FoundingCheckout() {
   <p className="text-3xl">$1,299 <span className="text-base">MXN</span></p>
   <p>Tu primer periodo de 30 días con clases ilimitadas. Precio de $1,299 durante 6 meses, con pagos consecutivos y membresía activa. No incluye cobros automáticos.</p>
   <p className="rounded-xl bg-altitud-sand/20 p-4">Al continuar reservamos un lugar durante 30 minutos. Se confirma cuando Mercado Pago aprueba tu pago. Si el pago llega después y ya no hay lugar, el studio deberá revisarlo antes de activar la membresía.</p>
+  <FoundingBenefits checkout />
   <section className="space-y-4 border-y py-5"><h2 className="text-xl">Tu salud, en cada compra</h2>
    {consent.isPending?<p role="status">Cargando declaración…</p>:consent.isError?<p role="alert">No se pudo cargar la declaración. <button onClick={()=>void consent.refetch()} className="underline">Reintentar</button></p>:<>
     <h3>{consent.data.title}</h3><p className="whitespace-pre-line text-sm leading-relaxed">{consent.data.body}</p>

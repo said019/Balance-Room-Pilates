@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { FOUNDING_50, formatMxn } from '@/lib/studio';
 
-export function FoundingBenefits() {
+export function FoundingBenefits({ checkout = false }: { checkout?: boolean }) {
   return (
     <section id="founding-benefits" aria-labelledby="founding-benefits-title" className="my-8 overflow-hidden rounded-2xl border border-altitud-sand bg-white/40">
       <header className="space-y-3 bg-altitud-olive px-6 py-7 text-altitud-cream sm:px-8">
@@ -19,7 +19,7 @@ export function FoundingBenefits() {
           <Link className="member-text-link mt-5 inline-block" to="/cancellation-policy">Consultar políticas de cancelación →</Link>
         </div>
       </div>
-      <p className="border-t border-altitud-sand/50 px-6 py-4 text-sm text-muted-foreground sm:px-8">Estos beneficios corresponden a una membresía FOUNDING 50 activa. Consulta arriba el estado y la vigencia de tu plan.</p>
+      <p className="border-t border-altitud-sand/50 px-6 py-4 text-sm text-muted-foreground sm:px-8">{checkout ? 'Tu lugar y estos beneficios se confirman cuando se aprueba el primer pago y se activa tu membresía FOUNDING 50.' : 'Estos beneficios corresponden a una membresía FOUNDING 50 activa. Consulta arriba el estado y la vigencia de tu plan.'}</p>
     </section>
   );
 }
