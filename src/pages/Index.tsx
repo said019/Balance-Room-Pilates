@@ -1,10 +1,11 @@
+import { MembershipsSection } from './AltitudMemberships';
 import { CancellationTerms } from '@/hooks/use-cancellation-policy';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { OpeningClassesSection } from '@/components/altitud/OpeningClassesSection';
 import { TrainingSection } from '@/components/altitud/TrainingSection';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { SiteHeader, SiteFooter, Arrow } from '@/components/altitud/SiteShell';
-import { StudioHours, StudioContact, PlanHighlights } from '@/components/altitud/StudioDetails';
+import { StudioHours, StudioContact } from '@/components/altitud/StudioDetails';
 
 const questions = [
   ['¿Puedo entrenar si estoy empezando?', 'Sí. Aquí tu punto de partida es tuyo. El coaching cercano nos permite adaptar el trabajo a tu nivel, cuidar tu técnica y acompañarte para construir una base sólida.'],
@@ -16,6 +17,10 @@ const questions = [
   ['¿Cómo reservo mi lugar?', 'Selecciona Reservar clase e inicia sesión o crea tu cuenta. Después elige una sesión disponible y confirma tu lugar desde tu app con un paquete o membresía activo. Entrenamos en grupos de hasta 12 personas.'],
 ];
 export default function Index() {
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (hash) requestAnimationFrame(() => document.getElementById(hash.slice(1))?.scrollIntoView());
+  }, [hash]);
   const [openQuestion, setOpenQuestion] = useState<number | null>(0);
   return <div className="alt-site alt-home"><a href="#contenido" className="alt-skip">Ir al contenido</a><SiteHeader /><main id="contenido">
     <section className="alt-hero">
@@ -28,7 +33,7 @@ export default function Index() {
     <section className="alt-community"><div className="alt-community-image"><img src="/brand/studio/hybrid-ski.webp" alt="Atletas acompañándose durante una prueba de entrenamiento híbrido" loading="lazy" width="1920" height="1080" /></div><div className="alt-community-copy"><div className="alt-eyebrow">03 / EL PODER DE ENTRENAR JUNTOS</div><h2>El esfuerzo es tuyo.<br /><span>El impulso,<br />de todos.</span></h2><p>Más que un lugar donde entrenas. Una comunidad a la que quieres pertenecer.</p><ul><li><span>01</span>Hasta 12 personas, atención real.</li><li><span>02</span>Coaching que conoce tu proceso.</li><li><span>03</span>Energía que se contagia.</li></ul><Link className="alt-button alt-button-cream" to="/reservar">Encuentra tu lugar <Arrow /></Link></div></section>
     <OpeningClassesSection />
     <StudioHours />
-    <section className="alt-section alt-memberships" id="membresias"><div><div className="alt-eyebrow">04 / HAZLO PARTE DE TU VIDA</div><h2>Haz espacio<br />para tu<br /><span>mejor versión.</span></h2><p>Entrenar una vez es empezar.<br />Volver es lo que te transforma.</p></div><div className="alt-membership-options"><PlanHighlights /></div></section>
+    <MembershipsSection />
     <section className="alt-section alt-faq" id="preguntas"><div><div className="alt-eyebrow">ANTES DE EMPEZAR</div><h2>Llega con ganas.<br />Y sin dudas.</h2><p>Tu primera clase, con confianza.</p></div><div>{questions.map(([q,a],i)=><div className="alt-faq-item" key={q}><h3><button aria-expanded={openQuestion===i} aria-controls={`answer-${i}`} onClick={()=>setOpenQuestion(openQuestion===i?null:i)}>{q}<span aria-hidden="true">{openQuestion===i?'−':'+'}</span></button></h3><div id={`answer-${i}`} hidden={openQuestion!==i}><p>{i === 3 && <><CancellationTerms /> </>}{a}</p></div></div>)}</div></section>
     <StudioContact />
     <section className="alt-final-cta"><div className="alt-eyebrow">EL PRIMER PASO TAMBIÉN CUENTA.</div><div><h2>Nos vemos<br />en Altitud.</h2><Link className="alt-button alt-button-dark" to="/reservar">Vamos a entrenar <Arrow /></Link></div><span className="alt-cta-coordinate">ZINACANTEPEC, MÉXICO · 2707 M S. N. M.</span></section>

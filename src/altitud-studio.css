@@ -34,7 +34,7 @@
 .alt-site .alt-membership-options .alt-pricing-link { margin-top: 24px; }
 .alt-site .alt-pricing-page { max-width: 1280px; padding: 72px var(--page-gutter) 100px; margin-inline: auto; }
 .alt-site .alt-pricing-heading { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 48px; padding-bottom: 48px; }
-.alt-site .alt-pricing-heading h1 { font-size: clamp(48px, 6vw, 76px); margin-bottom: 0; }
+.alt-site .alt-pricing-heading :is(h1, h2) { font-size: clamp(48px, 6vw, 76px); margin-bottom: 0; }
 .alt-site .alt-pricing-heading p { font-size: 20px; line-height: 1.65; color: var(--muted); margin-bottom: 24px; max-width: 36ch; }
 .alt-site .alt-price-table { width: 100%; border-collapse: collapse; text-align: left; }
 .alt-site .alt-price-table caption { text-align: left; font-size: 14px; color: var(--muted); padding-bottom: 20px; }
