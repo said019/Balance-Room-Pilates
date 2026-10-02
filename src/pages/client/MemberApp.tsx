@@ -1,3 +1,4 @@
+import { FoundingBenefits } from '@/components/member/FoundingBenefits';
 import { MemberOpeningRegistration } from '@/components/altitud/MemberOpeningRegistration';
 import { useCancellationPolicy, CancellationTerms } from '@/hooks/use-cancellation-policy';
 import { RescheduleDialog } from '@/components/member/RescheduleDialog';
@@ -839,6 +840,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
             </Link>
           </section>
         </div>
+        <FoundingBenefits />
         <StudioInformation />
       </>
     );
@@ -886,7 +888,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
                 <CalendarIcon />
                 <span>
                   <strong>Mi membresía</strong>
-                  <small>Créditos, vigencia y tu próximo paso</small>
+                  <small>Créditos, vigencia y beneficios FOUNDING 50</small>
                 </span>
               </div>
               <ArrowTopRightIcon />

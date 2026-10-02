@@ -41,7 +41,7 @@ export const FOUNDING_50 = {
     'Aplican las políticas generales de reservación, cancelación y no-show de Altitud.',
   ],
   benefits: [
-    'Precio especial de $1,299 al mes durante el beneficio.',
+    'Precio especial de $1,299 al mes durante 6 meses, frente a $1,599 del precio regular.',
     'Acceso Unlimited a las clases incluidas en la membresía.',
     'Prioridad de reservación antes de liberar horarios al público general.',
     'Acceso anticipado a clases especiales, workshops y eventos de Altitud.',
