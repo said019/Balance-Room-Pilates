@@ -1,3 +1,4 @@
+import { useIsFetching } from '@tanstack/react-query';
 import { MembershipsSection } from './AltitudMemberships';
 import { CancellationTerms } from '@/hooks/use-cancellation-policy';
 import { useEffect, useState } from 'react';
@@ -18,9 +19,10 @@ const questions = [
 ];
 export default function Index() {
   const { hash } = useLocation();
+  const loadingSections = useIsFetching();
   useEffect(() => {
-    if (hash) requestAnimationFrame(() => document.getElementById(hash.slice(1))?.scrollIntoView());
-  }, [hash]);
+    if (hash && loadingSections === 0) requestAnimationFrame(() => document.getElementById(hash.slice(1))?.scrollIntoView());
+  }, [hash, loadingSections]);
   const [openQuestion, setOpenQuestion] = useState<number | null>(0);
   return <div className="alt-site alt-home"><a href="#contenido" className="alt-skip">Ir al contenido</a><SiteHeader /><main id="contenido">
     <section className="alt-hero">
