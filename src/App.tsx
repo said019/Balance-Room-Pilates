@@ -1,3 +1,4 @@
+import FoundingCheckout from '@/pages/client/FoundingCheckout';
 import Inauguration from '@/pages/Inauguration';
 import Founding50 from '@/pages/admin/memberships/Founding50';
 import { AuthGuard } from '@/components/layout/AuthGuard';
@@ -189,6 +190,7 @@ export function AppRoutes() {
             <Route path="/app/profile/preferences" element={<ProfilePreferences />} />
             <Route path="/app/notifications" element={<Notifications />} />
             <Route path="/app/news" element={<News />} />
+            <Route path="/app/founding50" element={<FoundingCheckout />} />
             <Route path="/app/checkout" element={<ClientCheckout />} />
             <Route path="/app/orders" element={<ClientOrders />} />
             <Route path="/app/orders/:orderId" element={<ClientOrderDetail />} />
