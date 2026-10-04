@@ -1,11 +1,18 @@
-name: Training image variants
+name: Public landing image variants
 on:
   pull_request:
     branches: [main]
     paths:
       - src/components/altitud/TrainingSection.tsx
+      - src/components/altitud/AdditionalPublicImage.tsx
+      - src/components/altitud/OpeningClassesSection.tsx
+      - src/pages/Index.tsx
+      - src/altitud.css
+      - src/altitud-polish.css
       - tests/unit/TrainingImages.test.tsx
+      - tests/unit/AdditionalPublicImages.test.tsx
       - scripts/test-training-image-browser.mjs
+      - scripts/test-additional-image-browser.mjs
       - .github/workflows/training-image-variants.yml
   workflow_dispatch:
 permissions:
@@ -25,3 +32,4 @@ jobs:
           VITE_API_URL: /api
       - run: npx --no-install playwright install --with-deps chromium
       - run: node scripts/test-training-image-browser.mjs
+      - run: node scripts/test-additional-image-browser.mjs
