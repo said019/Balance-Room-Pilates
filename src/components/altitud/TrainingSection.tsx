@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DisciplineIcon } from '@/components/brand/DisciplineIcon';
 import { STUDIO_SERVICES, TRAIN_DETAILS } from '@/lib/studio';
@@ -6,15 +7,27 @@ import './training-section.css';
 
 const programs = [
   { ...STUDIO_SERVICES[0], title: STUDIO_SERVICES[0].name, subtitle: 'Fuerza que resiste.', focus: STUDIO_SERVICES[0].label, photos: [
-    { file: 'studio/alt-elevate-20260924.png', publicUrl: 'https://api.2707altitud.com.mx/api/media/public/e01241c1-f0a2-42d5-b62a-63afd232eada', alt: 'ALT. ELEVATE: trabajo con balón y empuje de trineo', width: 1536, height: 1024 },
+    { file: 'studio/alt-elevate-20260924.png', publicUrl: 'https://api.2707altitud.com.mx/api/media/public/e01241c1-f0a2-42d5-b62a-63afd232eada', variantWidths: [640, 1280] as const, alt: 'ALT. ELEVATE: trabajo con balón y empuje de trineo', width: 1536, height: 1024 },
   ] },
   { ...STUDIO_SERVICES[1], title: STUDIO_SERVICES[1].name, subtitle: 'La fuerza tiene ritmo.', focus: STUDIO_SERVICES[1].label, photos: [
-    { file: 'studio/alt-train-20260924.png', publicUrl: 'https://api.2707altitud.com.mx/api/media/public/04e2fae7-9d55-40ad-9cf3-75c3d758a66e', alt: 'ALT. TRAIN: fuerza con mancuernas y espacio de entrenamiento', width: 1280, height: 1100 },
+    { file: 'studio/alt-train-20260924.png', publicUrl: 'https://api.2707altitud.com.mx/api/media/public/04e2fae7-9d55-40ad-9cf3-75c3d758a66e', variantWidths: [640, 1280] as const, alt: 'ALT. TRAIN: fuerza con mancuernas y espacio de entrenamiento', width: 1280, height: 1100 },
   ] },
   { ...STUDIO_SERVICES[2], title: STUDIO_SERVICES[2].name, subtitle: 'Tu ritmo. Más lejos.', focus: STUDIO_SERVICES[2].label, photos: [
-    { file: 'studio/alt-race-20260924.png', publicUrl: 'https://api.2707altitud.com.mx/api/media/public/6fe991b2-a20e-4eb8-a899-30269a7b8e05', alt: 'ALT. RACE: corredores de Altitud avanzando juntos', width: 1312, height: 1199 },
+    { file: 'studio/alt-race-20260924.png', publicUrl: 'https://api.2707altitud.com.mx/api/media/public/6fe991b2-a20e-4eb8-a899-30269a7b8e05', variantWidths: [640, 1280] as const, alt: 'ALT. RACE: corredores de Altitud avanzando juntos', width: 1312, height: 1199 },
   ] },
 ];
+
+function TrainingPhoto({ photo }: { photo: (typeof programs)[number]['photos'][number] }) {
+  const [variantsAvailable, setVariantsAvailable] = useState(true);
+  return <picture>
+    {variantsAvailable && <source type="image/webp"
+      srcSet={photo.variantWidths.map(width => `${photo.publicUrl}/variants/${width}.webp ${width}w`).join(', ')}
+      sizes="(max-width: 767px) 88vw, 44vw" />}
+    <img src={photo.publicUrl} referrerPolicy="no-referrer" alt={photo.alt}
+      width={photo.width} height={photo.height} loading="lazy"
+      onError={() => setVariantsAvailable(false)} />
+  </picture>;
+}
 
 export function TrainingSection() {
   return <section className="alt-programs" id="entrenamientos" aria-labelledby="programs-title">
@@ -27,7 +40,7 @@ export function TrainingSection() {
       const photo = program.photos[0];
       return <article key={program.id} className={`alt-program-story alt-program-${program.id}`} aria-labelledby={`program-title-${program.id}`}>
         <div className="alt-program-visual">
-          <div className="alt-program-photo"><img key={photo.file} src={photo.publicUrl} referrerPolicy="no-referrer" alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" /></div>
+          <div className="alt-program-photo"><TrainingPhoto key={photo.file} photo={photo} /></div>
           <div className="alt-program-photo-bar"><span>2707 ALTITUD <span className="alt-program-photo-location">/ EN MOVIMIENTO</span></span>
 
           </div>

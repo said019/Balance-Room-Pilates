@@ -1,0 +1,27 @@
+name: Training image variants
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - src/components/altitud/TrainingSection.tsx
+      - tests/unit/TrainingImages.test.tsx
+      - scripts/test-training-image-browser.mjs
+      - .github/workflows/training-image-variants.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.3
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run test:unit
+      - run: npm run build
+        env:
+          VITE_API_URL: /api
+      - run: npx --no-install playwright install --with-deps chromium
+      - run: node scripts/test-training-image-browser.mjs
