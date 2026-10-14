@@ -3,7 +3,7 @@ import {render,screen,fireEvent} from '@testing-library/react';
 import {PaymentNotice} from '@/components/layout/PaymentNotice';
 jest.mock('@/lib/api',()=>({getStoredToken:()=> 'native-session'}));
 jest.mock('@/components/layout/paymentNoticeBanner.js',()=>({
- montarAviso:(_el:any,options:any)=>{options.onNotice({fecha:'2026-10-30',ciclo:'2026-10',texto:'Tu fecha de pago'});return ()=>{};}
+ montarAviso:(_el:any,options:any)=>{options.onNotice({fecha:'2026-10-30',ciclo:'2026-10',texto:'Tu fecha de pago',frequencyKey:'2026-10-14:morning'});return ()=>{};}
 }));
 test('owner sees dismissible popup and customer never sees it',()=>{
  const {rerender}=render(<PaymentNotice role="admin"/>);
