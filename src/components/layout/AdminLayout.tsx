@@ -42,6 +42,7 @@ import {
 import { cn } from '@/lib/utils';
 import { AdminBreadcrumbs } from '@/components/layout/AdminBreadcrumbs';
 import api from '@/lib/api';
+import { PaymentNotice } from './PaymentNotice';
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -469,6 +470,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                         <div className="mb-5">
                             <AdminBreadcrumbs />
                         </div>
+                        <PaymentNotice role={user?.role} />
                         {children}
                     </div>
                 </main>
