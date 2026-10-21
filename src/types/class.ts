@@ -51,6 +51,7 @@ export interface Schedule {
 }
 
 export interface Class {
+    training_focus?: string | null;
     requires_mat?: boolean;
     occupied_mats?: number[];
     id: string;

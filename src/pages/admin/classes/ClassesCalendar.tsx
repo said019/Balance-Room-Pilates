@@ -1183,7 +1183,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
 
                     {/* Attendees Sheet */}
                     <Sheet open={isAttendeesOpen && !!selectedClass} onOpenChange={(open) => { setIsAttendeesOpen(open); if (!open) setSelectedClass(null); }}>
-                        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+                        <SheetContent className="admin-class-panel overflow-y-auto">
                             <SheetHeader>
                                 <SheetTitle className="flex items-center gap-2">
                                     {selectedClass?.class_type_name}
@@ -1196,7 +1196,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 </SheetDescription>
                             </SheetHeader>
 
-                            <div className="mt-6 space-y-6">
+                            <div className="mt-6 space-y-5">
+                                {selectedClass?.training_focus && <div className="rounded-xl bg-altitud-olive/10 px-5 py-4"><p className="text-xs uppercase tracking-widest text-altitud-olive">Enfoque de la clase</p><p className="mt-1 text-2xl font-semibold">{selectedClass.training_focus}</p></div>}
                                 {/* Class Info */}
                                 <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                                     <div>
@@ -1208,96 +1209,6 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                         <p className="font-medium">{selectedClass?.current_bookings}/{selectedClass?.max_capacity}</p>
                                     </div>
                                 </div>
-
-                                {selectedClass?.status !== 'cancelled' && selectedClass?.id && (
-                                    <div className="space-y-3">
-                                        <WellhubClassControl classId={selectedClass.id} />
-                                        <TotalPassClassControl
-                                            classId={selectedClass.id}
-                                            maxCapacity={selectedClass.max_capacity}
-                                        />
-                                    </div>
-                                )}
-
-                                {/* Actions */}
-                                {selectedClass?.status !== 'cancelled' && (
-                                    <div className="flex gap-2">
-                                        <Button variant="outline" className="flex-1" onClick={handleEditClass}>
-                                            <Edit className="mr-2 h-4 w-4" /> Editar
-                                        </Button>
-                                        <Button
-                                            variant="destructive"
-                                            className="flex-1"
-                                            onClick={() => {
-                                                const reason = askStaffReason('¿Cancelar esta clase? Se cancelarán todas las reservas y se devolverán los créditos que apliquen.\n\nEscribe el motivo (mínimo 5 caracteres). Queda en la bitácora.');
-                                                if (reason) cancelMutation.mutate({ id: selectedClass.id, reason });
-                                            }}
-                                        >
-                                            <Trash2 className="mr-2 h-4 w-4" /> Cancelar Clase
-                                        </Button>
-                                    </div>
-                                )}
-
-                                {/* Hard-delete for already-cancelled classes */}
-                                {selectedClass?.status === 'cancelled' && (
-                                    <Button
-                                        variant="destructive"
-                                        className="w-full"
-                                        disabled={hardDeleteMutation.isPending}
-                                        onClick={() => {
-                                            if (selectedClass && confirm('¿Eliminar esta clase permanentemente? Esta acción no se puede deshacer.')) {
-                                                hardDeleteMutation.mutate(selectedClass.id);
-                                            }
-                                        }}
-                                    >
-                                        <Trash2 className="mr-2 h-4 w-4" /> {hardDeleteMutation.isPending ? 'Eliminando...' : 'Eliminar definitivamente'}
-                                    </Button>
-                                )}
-
-                                {/* Free class toggle */}
-                                {selectedClass?.status !== 'cancelled' && (
-                                    <div className={`rounded-xl border p-3 ${selectedClass?.is_free ? 'border-emerald-300 bg-emerald-50' : 'border-altitud-sand/55 bg-altitud-cream/45'}`}>
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div>
-                                                <p className="text-sm font-semibold">Clase gratis</p>
-                                                <p className="text-[11px] text-muted-foreground">
-                                                    Sin cobro, sin descontar crédito. Usuarios sin paquete pueden reservar.
-                                                </p>
-                                            </div>
-                                            <Switch
-                                                checked={!!selectedClass?.is_free}
-                                                onCheckedChange={(v) => {
-                                                    if (!selectedClass) return;
-                                                    toggleFreeMutation.mutate({
-                                                        id: selectedClass.id,
-                                                        is_free: v,
-                                                        free_label: v ? (selectedClass.free_label || 'Clase gratis') : undefined,
-                                                    });
-                                                }}
-                                                disabled={toggleFreeMutation.isPending}
-                                            />
-                                        </div>
-                                        {selectedClass?.is_free && (
-                                            <div className="flex items-center gap-2 mt-2">
-                                                <Input
-                                                    placeholder="Etiqueta visible (ej. Opening Day)"
-                                                    defaultValue={selectedClass.free_label || ''}
-                                                    onBlur={(e) => {
-                                                        const v = e.target.value.trim() || 'Clase gratis';
-                                                        if (v !== selectedClass.free_label) {
-                                                            toggleFreeMutation.mutate({
-                                                                id: selectedClass.id,
-                                                                is_free: true,
-                                                                free_label: v,
-                                                            });
-                                                        }
-                                                    }}
-                                                    className="h-8 text-xs"
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
 
                                 {selectedClass?.requires_mat && <ClassMatMap capacity={Number(selectedClass.max_capacity)} attendees={attendees || []} loading={attendeesLoading} error={attendeesError} onRetry={() => void refetchAttendees()} />}
 
@@ -1491,6 +1402,97 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                         ))
                                     )}
                                 </div>
+                                <details className="rounded-xl border border-altitud-sand p-4"><summary className="min-h-11 cursor-pointer font-semibold">Ajustes de la clase</summary><div className="mt-4 space-y-4">                                {selectedClass?.status !== 'cancelled' && selectedClass?.id && (
+                                    <div className="space-y-3">
+                                        <WellhubClassControl classId={selectedClass.id} />
+                                        <TotalPassClassControl
+                                            classId={selectedClass.id}
+                                            maxCapacity={selectedClass.max_capacity}
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Actions */}
+                                {selectedClass?.status !== 'cancelled' && (
+                                    <div className="flex gap-2">
+                                        <Button variant="outline" className="flex-1" onClick={handleEditClass}>
+                                            <Edit className="mr-2 h-4 w-4" /> Editar
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="flex-1 text-destructive"
+                                            onClick={() => {
+                                                const reason = askStaffReason('¿Cancelar esta clase? Se cancelarán todas las reservas y se devolverán los créditos que apliquen.\n\nEscribe el motivo (mínimo 5 caracteres). Queda en la bitácora.');
+                                                if (reason) cancelMutation.mutate({ id: selectedClass.id, reason });
+                                            }}
+                                        >
+                                            <Trash2 className="mr-2 h-4 w-4" /> Cancelar Clase
+                                        </Button>
+                                    </div>
+                                )}
+
+                                {/* Hard-delete for already-cancelled classes */}
+                                {selectedClass?.status === 'cancelled' && (
+                                    <Button
+                                        variant="destructive"
+                                        className="w-full"
+                                        disabled={hardDeleteMutation.isPending}
+                                        onClick={() => {
+                                            if (selectedClass && confirm('¿Eliminar esta clase permanentemente? Esta acción no se puede deshacer.')) {
+                                                hardDeleteMutation.mutate(selectedClass.id);
+                                            }
+                                        }}
+                                    >
+                                        <Trash2 className="mr-2 h-4 w-4" /> {hardDeleteMutation.isPending ? 'Eliminando...' : 'Eliminar definitivamente'}
+                                    </Button>
+                                )}
+
+                                {/* Free class toggle */}
+                                {selectedClass?.status !== 'cancelled' && (
+                                    <div className={`rounded-xl border p-3 ${selectedClass?.is_free ? 'border-emerald-300 bg-emerald-50' : 'border-altitud-sand/55 bg-altitud-cream/45'}`}>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div>
+                                                <p className="text-sm font-semibold">Clase gratis</p>
+                                                <p className="text-[11px] text-muted-foreground">
+                                                    Sin cobro, sin descontar crédito. Usuarios sin paquete pueden reservar.
+                                                </p>
+                                            </div>
+                                            <Switch
+                                                checked={!!selectedClass?.is_free}
+                                                onCheckedChange={(v) => {
+                                                    if (!selectedClass) return;
+                                                    toggleFreeMutation.mutate({
+                                                        id: selectedClass.id,
+                                                        is_free: v,
+                                                        free_label: v ? (selectedClass.free_label || 'Clase gratis') : undefined,
+                                                    });
+                                                }}
+                                                disabled={toggleFreeMutation.isPending}
+                                            />
+                                        </div>
+                                        {selectedClass?.is_free && (
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <Input
+                                                    placeholder="Etiqueta visible (ej. Opening Day)"
+                                                    defaultValue={selectedClass.free_label || ''}
+                                                    onBlur={(e) => {
+                                                        const v = e.target.value.trim() || 'Clase gratis';
+                                                        if (v !== selectedClass.free_label) {
+                                                            toggleFreeMutation.mutate({
+                                                                id: selectedClass.id,
+                                                                is_free: true,
+                                                                free_label: v,
+                                                            });
+                                                        }
+                                                    }}
+                                                    className="h-8 text-xs"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+</div></details>
                             </div>
                         </SheetContent>
                     </Sheet>
@@ -2060,6 +2062,7 @@ function ClassCard({ item, onClick }: { item: Class; onClick: () => void }) {
             </div>
 
             <p className="mt-2 truncate text-sm font-semibold leading-5 text-altitud-dark">{item.class_type_name}</p>
+            {item.training_focus && <p className="mt-1 text-xs font-semibold text-altitud-olive">{item.training_focus}</p>}
             <div className="mt-2 space-y-1.5 text-[11px] text-altitud-dark/56">
                 <p className="flex min-w-0 items-center gap-1.5">
                     <Users className="h-3.5 w-3.5 shrink-0" />

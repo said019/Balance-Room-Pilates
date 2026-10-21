@@ -649,6 +649,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
                       {STUDIO_SERVICES.find((service) => service.name.toLowerCase() === c.class_type_name?.toLowerCase())?.label || "ENTRENAMIENTO ALTITUD"}
                     </span>
                     <h3>{c.class_type_name}</h3>
+                    {c.training_focus && <p className="mt-1 text-sm font-semibold text-altitud-olive">{c.training_focus}</p>}
                     <p>
                       {c.instructor_name} ·{" "}
                       {c.facility_name || "Studio Altitud"}
