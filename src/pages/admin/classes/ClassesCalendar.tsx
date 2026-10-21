@@ -110,6 +110,7 @@ type ClassForm = z.infer<typeof classSchema>;
 type EditClassForm = z.infer<typeof editClassSchema>;
 
 interface Attendee {
+    mat_number?: number | null;
     booking_id: string;
     status: string;
     checked_in_at: string | null;
@@ -1414,6 +1415,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                                     </Link>
                                                     <div>
                                                         <p className="break-words font-medium">{attendee.display_name}</p>
+                                                        {attendee.mat_number != null && <Badge variant="outline" className="my-1 border-altitud-olive text-altitud-olive">Mat {attendee.mat_number}</Badge>}
                                                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                                             {attendee.channel === 'wellhub' ? (
                                                                 <WellhubBadge />
