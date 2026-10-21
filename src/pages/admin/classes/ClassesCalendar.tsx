@@ -1,3 +1,4 @@
+import { ClassMatMap } from '@/components/admin/ClassMatMap';
 import type { InaugurationConfig } from '@/pages/Inauguration';
 import {SeriesChangePanel} from '@/pages/admin/schedules/SeriesChangePanel';
 import { useState, useEffect, useMemo, useRef } from 'react';
@@ -426,7 +427,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
         queryFn: async () => (await api.get('/facilities')).data,
     });
 
-    const { data: attendees, isLoading: attendeesLoading, refetch: refetchAttendees } = useQuery<Attendee[]>({
+    const { data: attendees, isLoading: attendeesLoading, isError: attendeesError, refetch: refetchAttendees } = useQuery<Attendee[]>({
         queryKey: ['attendees', selectedClass?.id],
         queryFn: async () => (await api.get(`/bookings/class/${selectedClass?.id}`)).data,
         enabled: !!selectedClass?.id && isAttendeesOpen,
@@ -1297,6 +1298,8 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                         )}
                                     </div>
                                 )}
+
+                                {selectedClass?.requires_mat && <ClassMatMap capacity={Number(selectedClass.max_capacity)} attendees={attendees || []} loading={attendeesLoading} error={attendeesError} onRetry={() => void refetchAttendees()} />}
 
                                 {/* Attendees Stats */}
                                 <div className="flex gap-4 text-sm">
