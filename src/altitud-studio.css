@@ -136,25 +136,35 @@
 .alt-site .alt-running-thumbnails button:focus-visible { outline: 2px solid var(--olive); outline-offset: 3px; }
 .alt-site .alt-running-thumbnails img { width: 100%; height: 100%; object-fit: cover; border-radius: 2px; }
 
-/* Weekly public agenda: aligned days and time slots, with horizontal access on mobile. */
+/* Compact weekly columns inspired by the studio reference. */
 .alt-site .alt-studio-hours { display: block; }
-.alt-site .alt-studio-hours > div:first-child { margin-bottom: 36px; }
+.alt-site .alt-studio-hours > div:first-child { margin-bottom: 32px; }
 .alt-site .alt-studio-hours h2 br { display: none; }
 .alt-site .alt-studio-hours > div > p { max-width: 62ch; }
 .alt-hours-calendar { min-width: 0; }
-.alt-week-scroll { overflow-x: auto; margin-top: 20px; border: 1px solid var(--line); }
-.alt-week-grid { display: grid; grid-template-columns: 64px repeat(7,minmax(140px,1fr)); min-width: 1044px; }
-.alt-week-row { display: contents; }
-.alt-week-day { text-align: center; padding: 18px 8px; background: #eae7dd; border-left: 1px solid var(--line); }
-.alt-week-day span { display: block; text-transform: uppercase; font-size: 12px; letter-spacing: .12em; }
-.alt-week-day strong { font-size: 26px; font-weight: 400; }
-.alt-week-corner, .alt-week-time { padding: 18px 8px; font-size: 12px; font-variant-numeric: tabular-nums; }
-.alt-week-time { border-top: 1px solid var(--line); }
-.alt-week-cell { padding: 6px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
-.alt-week-class { display: flex; flex-direction: column; gap: 7px; padding: 12px 10px; background: #e9e9dc; border-left: 3px solid #5f632c; height: 100%; font-size: 13px; transition: background .15s; }
-.alt-week-class:hover, .alt-week-class:focus-visible { background: #dcdcc6; outline: 2px solid #5f632c; outline-offset: -2px; }
-.alt-week-class h4 { font-size: 17px; line-height: 1.25; }
-.alt-week-duration { font-size: 11px; }
-.alt-week-focus { font-size: 11px; letter-spacing: .03em; color: #5f632c; }
-.alt-week-book { margin-top: auto; padding-top: 6px; font-size: 11px; }
+.alt-week-scroll { overflow-x: auto; margin-top: 20px; padding: 18px; background: #1c1c19; border-radius: 16px; scrollbar-color: #cfbd9d #1c1c19; scroll-snap-type: x proximity; }
+.alt-week-grid { display: grid; grid-template-columns: repeat(7,minmax(124px,1fr)); gap: 10px; min-width: 928px; align-items: start; }
+.alt-week-column { min-width: 0; scroll-snap-align: start; border-radius: 12px; }
+.alt-week-column.is-today { background: #353720; }
+.alt-week-day { position: relative; text-align: center; padding: 14px 6px; background: #f6f4ee; color: #1c1c19; border-radius: 11px; min-height: 76px; }
+.alt-week-day span { display: block; text-transform: uppercase; font-size: 14px; letter-spacing: .08em; font-weight: 600; }
+.alt-week-day strong { font-size: 19px; font-weight: 600; }
+.alt-week-day small { display: block; color: #5f632c; font-size: 10px; text-transform: uppercase; }
+.alt-week-stack { display: flex; flex-direction: column; gap: 14px; padding: 16px 3px; }
+.alt-week-class { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 9px; min-height: 160px; padding: 18px 8px; background: #1c1c19; color: #f6f4ee; border: 1px solid #cfbd9d; border-radius: 10px; transition: background .15s; }
+.alt-week-class:hover, .alt-week-class:focus-visible { background: #353720; outline: 2px solid #cfbd9d; outline-offset: 2px; }
+.alt-week-class h4 { font-size: 17px; line-height: 1.25; letter-spacing: .035em; }
+.alt-week-duration { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.alt-week-focus { font-size: 11px; letter-spacing: .04em; color: #cfbd9d; line-height: 1.4; }
+.alt-week-coach { font-size: 14px; }
+.alt-week-empty { color: #cfbd9d; text-align: center; font-size: 12px; padding: 16px 0; }
 .alt-hours-calendar > div:last-child:not(.public-class-agenda) { margin-top: 24px; font-size: 14px; }
+@media(max-width: 767px) {
+  .alt-week-scroll { margin-left: -12px; margin-right: -12px; padding: 10px; border-radius: 12px; }
+  .alt-week-grid { grid-template-columns: repeat(7,112px); min-width: 0; width: max-content; gap: 7px; }
+  .alt-week-class { min-height: 150px; padding: 14px 5px; }
+  .alt-week-class h4 { font-size: 14px; }
+  .alt-week-focus { font-size: 10px; }
+  .alt-week-coach { font-size: 12px; }
+  .alt-week-duration { font-size: 18px; }
+}

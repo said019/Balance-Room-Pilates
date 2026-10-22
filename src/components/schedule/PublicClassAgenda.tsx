@@ -17,26 +17,24 @@ export function PublicClassAgenda() {
     </div>
     {query.isPending ? <p role="status">Cargando clases…</p> : query.isError ? <p role="alert">No pudimos cargar la agenda. <button className="underline" onClick={() => void query.refetch()}>Reintentar</button></p> : <div className="alt-week-scroll" tabIndex={0} role="region" aria-label="Calendario semanal de clases">
       <div className="alt-week-grid">
-        <div className="alt-week-corner">Hora</div>
-        {Array.from({ length: 7 }, (_, i) => <div className="alt-week-day" key={i}><span>{format(addDays(week,i), 'EEE', {locale:es})}</span><strong>{format(addDays(week,i),'d')}</strong></div>)}
-        {Array.from(new Set((query.data || []).filter(c => c.status !== 'cancelled').map(c => c.start_time.slice(0,5)))).sort().map(time => <div className="alt-week-row" key={time}>
-          <div className="alt-week-time">{time}</div>
-          {Array.from({length:7},(_,i) => {
-            const date = format(addDays(week,i),'yyyy-MM-dd');
-            const sessions = (query.data || []).filter(c => c.date.slice(0,10) === date && c.start_time.slice(0,5) === time && c.status !== 'cancelled');
-            return <div className="alt-week-cell" key={date}>{sessions.map(c => <Link key={c.id} to={`/app/book/${c.id}`} className="alt-week-class" aria-label={`Ver clase → ${c.class_type_name}, ${date}, ${time}`}>
-              <span className="alt-week-duration">{time} – {c.end_time.slice(0,5)}</span>
+        {Array.from({length:7},(_,i) => {
+          const day = addDays(week,i), date = format(day,'yyyy-MM-dd');
+          const sessions = (query.data || []).filter(c => c.date.slice(0,10) === date && c.status !== 'cancelled').sort((a,b) => a.start_time.localeCompare(b.start_time));
+          const today = date === format(new Date(),'yyyy-MM-dd');
+          return <section className={`alt-week-column${today ? ' is-today' : ''}`} key={date} aria-label={format(day,'EEEE d MMMM',{locale:es})}>
+            <header className="alt-week-day"><span>{format(day,'EEE',{locale:es})}</span><strong>{format(day,'dd/MM')}</strong>{today && <small>Hoy</small>}</header>
+            <div className="alt-week-stack">{sessions.map(c => <Link key={c.id} to={`/app/book/${c.id}`} className="alt-week-class" aria-label={`Ver clase → ${c.class_type_name}, ${date}, ${c.start_time.slice(0,5)}`}>
               <h4>{c.class_type_name}</h4>
               {c.training_focus && <strong className="alt-week-focus">{c.training_focus}</strong>}
-              <span>{c.instructor_name}</span>
-              <span className="alt-week-book">Ver clase ↗</span>
-            </Link>)}</div>;
-          })}
-        </div>)}
+              <span className="alt-week-coach">{c.instructor_name}</span>
+              <time className="alt-week-duration">{c.start_time.slice(0,5)}</time>
+            </Link>)}{!sessions.length && <span className="alt-week-empty">Sin clases</span>}</div>
+          </section>;
+        })}
       </div>
       {!query.data?.some(c => c.status !== 'cancelled') && <p className="py-6">Sin clases programadas esta semana.</p>}
     </div>}
 
-    <p className="mt-4 text-xs text-muted-foreground">Hora del studio · Ciudad de México</p>
+    <p className="mt-4 text-xs text-muted-foreground">Hora del studio · Ciudad de México · Selecciona una clase para reservar</p>
   </div>;
 }
