@@ -9,7 +9,7 @@ import { FOUNDING_50, STUDIO, formatMxn } from '@/lib/studio';
 
 export function StudioHours() {
   return <section className="alt-section alt-studio-hours" id="horarios">
-    <div><div className="alt-eyebrow">TU ENTRENAMIENTO, EN TU DÍA</div><h2>Hazle espacio<br /><span>a tu progreso.</span></h2><p>Sesiones de hasta {STUDIO.capacity} personas para cuidar tu técnica y acompañar tu proceso.</p><Link to="/reservar" className="alt-text-link">Consultar disponibilidad <Arrow /></Link></div>
+    <div><div className="alt-eyebrow">TU ENTRENAMIENTO, EN TU DÍA</div><h2>Hazle espacio <br /><span>a tu progreso.</span></h2><p>Sesiones de hasta {STUDIO.capacity} personas para cuidar tu técnica y acompañar tu proceso.</p><Link to="/reservar" className="alt-text-link">Consultar disponibilidad <Arrow /></Link></div>
     <div className="alt-hours-calendar">
       <PublicClassAgenda />
       <div><h3>Atención en el studio</h3><p>La atención está ligada al horario de clases publicado.</p></div>
