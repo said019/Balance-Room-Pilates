@@ -1,3 +1,4 @@
+import { CardPaymentStatus } from '@/components/payments/CardPaymentStatus';
 import { PrivateMediaImage } from '@/components/PrivateMediaImage';
 import { useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
@@ -68,6 +69,8 @@ export default function OrderDetail() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [paymentNeedsReview, setPaymentNeedsReview] = useState(false);
+  const [openingCheckout, setOpeningCheckout] = useState(false);
   const [transferReference, setTransferReference] = useState('');
   const [transferDate, setTransferDate] = useState('');
   const [proofNotes, setProofNotes] = useState('');
@@ -77,13 +80,14 @@ export default function OrderDetail() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Fetch order details
-  const { data: order, isLoading } = useQuery<OrderWithProofs>({
+  const { data: order, isLoading, refetch } = useQuery<OrderWithProofs>({
     queryKey: ['order', orderId],
     queryFn: async () => {
       const { data } = await api.get(`/orders/${orderId}`);
       return { ...data, payment_method: data.payment_method === 'transfer' ? 'bank_transfer' : data.payment_method };
     },
     enabled: !!orderId,
+    refetchInterval: query => query.state.data?.status === 'pending_payment' && query.state.data?.payment_method === 'card' ? 10000 : false,
   });
 
   const { data: paymentMethods } = useQuery<{ card: boolean }>({
@@ -277,7 +281,7 @@ export default function OrderDetail() {
   const statusInfo = statusConfig[order.status];
   const canUploadProof = order.status === 'pending_payment' && order.payment_method === 'bank_transfer';
   const hasProofs = order.payment_proofs && order.payment_proofs.length > 0;
-  const canPayWithCard = order.status === 'pending_payment' && paymentMethods?.card === true;
+  const canPayWithCard = !paymentNeedsReview && order.payment_method === 'card' && order.status === 'pending_payment' && paymentMethods?.card === true;
 
   return (
     <AuthGuard requiredRoles={['client']}>
@@ -363,6 +367,8 @@ export default function OrderDetail() {
             </p>
           )}
 
+          {order.payment_method === 'card' && order.status === 'pending_payment' && order.payment_provider === 'mercadopago' && <CardPaymentStatus orderId={order.id} providerStatus={order.mp_payment_status} onReview={() => setPaymentNeedsReview(true)} onRefresh={() => { void refetch(); queryClient.invalidateQueries({ queryKey: ['memberships'] }); }} />}
+
           {/* Checkout Pro de Mercado Pago; la confirmación se verifica en el backend */}
           {canPayWithCard && (
             <Card className="rounded-[1.75rem] border-altitud-sand/65 bg-[hsl(var(--card))]/88">
@@ -378,27 +384,25 @@ export default function OrderDetail() {
                 </p>
                 <Button
                   className="w-full rounded-full bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90"
+                  disabled={openingCheckout}
                   onClick={async () => {
+                    setOpeningCheckout(true);
                     try {
-                      if (order.mp_checkout_url) {
-                        window.location.href = order.mp_checkout_url;
-                        return;
-                      }
                       const res = await api.post(`/orders/${order.id}/pay-with-card`);
                       if (res.data?.mp_checkout_url) {
                         window.location.href = res.data.mp_checkout_url;
-                      }
+                      } else { throw new Error('No se recibió el enlace de pago'); }
                     } catch (err: any) {
                       toast({
                         title: 'Error',
-                        description: err.response?.data?.error || 'No se pudo generar el checkout',
+                        description: err.response?.data?.error === 'MP_PAYMENT_REQUIRES_REVIEW' ? 'Tu pago requiere revisión. No vuelvas a pagar; contacta al studio con tu número de orden.' : err.response?.data?.error === 'FOUNDING_CHECKOUT_EXPIRED' ? 'Tu apartado Founding venció. Vuelve a FOUNDING 50 para comprobar disponibilidad e iniciar otro apartado.' : 'No pudimos abrir Mercado Pago. Tu orden está guardada; vuelve a intentarlo en un momento.',
                         variant: 'destructive',
                       });
-                    }
+                    } finally { setOpeningCheckout(false); }
                   }}
                 >
                   <CreditCard className="h-4 w-4 mr-2" />
-                  Ir a pagar
+                  {openingCheckout ? 'Abriendo Mercado Pago…' : 'Ir a pagar'}
                 </Button>
               </CardContent>
             </Card>

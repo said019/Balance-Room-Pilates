@@ -72,7 +72,7 @@ export default function Checkout() {
       toast({ title: 'Orden creada', description: 'Completa el pago para que el studio pueda activar tu plan.' });
       navigate(`/app/orders/${order.id}`);
     },
-    onError: (error: any) => { if (error.response?.status === 409) { setAcceptedVersion(null); void consentQuery.refetch(); } toast({ title: 'No pudimos crear tu orden', description: getErrorMessage(error), variant: 'destructive' }); },
+    onError: (error: any) => { const savedOrder = error.response?.data?.order_id || error.response?.data?.existingOrderId; if (typeof savedOrder === 'string' && /^[0-9a-f-]{36}$/i.test(savedOrder)) { toast({ title: 'Tu orden está guardada', description: 'Continúa o verifica el pago desde tu orden, sin crear otra compra.' }); navigate(`/app/orders/${savedOrder}`); return; } if (error.response?.status === 409) { setAcceptedVersion(null); void consentQuery.refetch(); } toast({ title: 'No pudimos crear tu orden', description: getErrorMessage(error), variant: 'destructive' }); },
   });
   const selectPlan = (id: string) => {
     setSelectedPlanId(id);

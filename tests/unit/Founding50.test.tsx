@@ -7,6 +7,7 @@ import api from '@/lib/api';
 import {postFinancialOperation} from '@/lib/financial-intent';
 jest.mock('@/lib/api',()=>({__esModule:true,default:{get:jest.fn(),post:jest.fn()},getStoredToken:()=>null,getErrorMessage:(e:any)=>e.message}));
 jest.mock('@/lib/financial-intent',()=>({postFinancialOperation:jest.fn()}));
+jest.mock('@/components/layout/AdminLayout',()=>({AdminLayout:({children}:any)=>children}));
 const member={can_renew:true,requires_policy_confirmation:false,renewal_block_reason:null,effective_benefit_mode:null,id:'enrollment',user_id:'client-1',display_name:'Marina QA',member_number:1,current_cycle:1,effective_status:'active',activated_on:'2026-09-20',paid_through:'2026-10-19',benefit_ends_on:'2027-03-20'};
 function mount(){const q=new QueryClient({defaultOptions:{queries:{retry:false,gcTime:0},mutations:{retry:false}}});return render(<QueryClientProvider client={q}><Founding50Content/></QueryClientProvider>);}
 beforeEach(()=>jest.clearAllMocks());afterEach(cleanup);
