@@ -23,3 +23,10 @@ it.each(['order_id','existingOrderId'])('opens the saved order after %s instead 
  mount();await userEvent.click(await screen.findByRole('button',{name:/BASE/}));await userEvent.click(await screen.findByLabelText(/Pago en el studio/));await userEvent.click(screen.getByRole('button',{name:'Continuar'}));await userEvent.click(screen.getByRole('checkbox'));await userEvent.click(screen.getByRole('button',{name:'Confirmar orden'}));
  await waitFor(()=>expect(navigate).toHaveBeenCalledWith('/app/orders/'+id));
 });
+
+it('offers Founding at 1299 through its dedicated checkout alongside regular packages',async()=>{
+ mount();await screen.findByRole('button',{name:/BASE/});
+ expect(screen.getByRole('link',{name:/Comprar FOUNDING 50 por \$1,299/})).toHaveAttribute('href','/app/founding50');
+ expect(screen.getByText(/El precio regular de 2707 es \$1,599/)).toBeVisible();
+ expect(api.post).not.toHaveBeenCalled();
+});

@@ -16,7 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import api, { getErrorMessage } from '@/lib/api';
 import { STUDIO, formatMxn } from '@/lib/studio';
-import { useActivePlans, activePlanDescription } from '@/hooks/use-active-plans';
+import { useActivePlans, activePlanDescription, OFFICIAL_UNLIMITED_PLAN_ID } from '@/hooks/use-active-plans';
 import type { OrderPaymentMethod, CreateOrderRequest, Order, BankInfo } from '@/types/order';
 import { CreditCard, Building2, Banknote, ChevronRight, ArrowRight, CheckCircle2, ArrowLeft, Copy, Check } from '@/components/brand/icons';
 
@@ -116,6 +116,18 @@ export default function Checkout() {
               </span>
             ))}
           </nav>
+
+          {(step === 'plan' || selectedPlanId === OFFICIAL_UNLIMITED_PLAN_ID) && (
+            <section aria-label="Promoción FOUNDING 50" className="rounded-2xl border border-altitud-olive bg-altitud-olive p-6 text-altitud-cream sm:p-8">
+              <p className="text-xs uppercase tracking-[0.18em]">Promoción de lanzamiento · primeros 50</p>
+              <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
+                <div><h2 className="text-3xl">FOUNDING 50</h2><p className="mt-2">Clases ilimitadas · periodos de 30 días</p></div>
+                <p className="text-3xl">$1,299 <span className="text-sm">MXN / mes</span></p>
+              </div>
+              <p className="mt-4 max-w-xl text-sm leading-relaxed">Precio congelado durante 6 meses con pagos consecutivos. El precio regular de 2707 es $1,599. Tu lugar Founding se confirma al aprobarse el primer pago, sujeto a disponibilidad.</p>
+              <Button asChild className="mt-5 rounded-full bg-altitud-cream text-altitud-charcoal hover:bg-altitud-cream/90"><Link to="/app/founding50">Comprar FOUNDING 50 por $1,299 <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+            </section>
+          )}
 
           {step === 'plan' && <>
             <section aria-label="Paquetes disponibles">
