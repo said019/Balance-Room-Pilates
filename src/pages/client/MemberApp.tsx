@@ -1,4 +1,4 @@
-import {RunningClinic} from '@/components/altitud/RunningClinic';
+import {MemberEventsSection} from '@/components/altitud/RunningClinic';
 import { FoundingBenefits } from '@/components/member/FoundingBenefits';
 import { useCancellationPolicy, CancellationTerms } from '@/hooks/use-cancellation-policy';
 import { RescheduleDialog } from '@/components/member/RescheduleDialog';
@@ -853,7 +853,7 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           title="A tu manera."
           description="Tu información y preferencias, en un solo lugar."
         />
-        {!preview && <RunningClinic compact />}
+        {!preview && <MemberEventsSection compact />}
         <div className="member-profile-grid">
           <section className="member-profile-card">
             <div className="member-profile-avatar">

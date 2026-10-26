@@ -1,0 +1,10 @@
+import {render,screen,fireEvent} from '@testing-library/react';import {MemoryRouter} from 'react-router-dom';
+import MemberEvents from '@/pages/admin/events/MemberEvents';import {useQuery,useMutation,useQueryClient} from '@tanstack/react-query';
+jest.mock('@tanstack/react-query',()=>({useQuery:jest.fn(),useMutation:jest.fn(),useQueryClient:jest.fn()}));
+jest.mock('@/components/layout/AdminLayout',()=>({AdminLayout:({children}:any)=><div>{children}</div>}));
+jest.mock('@/lib/api',()=>({__esModule:true,default:{get:jest.fn(),post:jest.fn(),put:jest.fn()},getErrorMessage:()=>''}));
+const mutate=jest.fn();beforeEach(()=>{(useMutation as jest.Mock).mockReturnValue({mutate,reset:jest.fn()});(useQueryClient as jest.Mock).mockReturnValue({invalidateQueries:jest.fn()});(useQuery as jest.Mock).mockImplementation(({queryKey}:any)=>({data:queryKey[0]==='event-plans'?[{id:'asc',name:'ASCENSO'}]:[]}));});
+function create(){render(<MemoryRouter><MemberEvents/></MemoryRouter>);fireEvent.click(screen.getByRole('button',{name:'Crear evento'}));}
+test('new event stays a draft and cannot save without an allowed plan',()=>{create();expect(screen.getByRole('button',{name:'Guardar borrador'})).toBeDisabled();expect(screen.getByLabelText('Aceptar reservas')).toBeDisabled();fireEvent.click(screen.getByLabelText('ASCENSO'));expect(screen.getByRole('button',{name:'Guardar borrador'})).toBeEnabled();});
+test('unpublishing also closes registration',()=>{create();fireEvent.click(screen.getByLabelText('Mostrar en el inicio y la app'));fireEvent.click(screen.getByLabelText('Aceptar reservas'));expect(screen.getByLabelText('Aceptar reservas')).toBeChecked();fireEvent.click(screen.getByLabelText('Mostrar en el inicio y la app'));expect(screen.getByLabelText('Aceptar reservas')).not.toBeChecked();expect(screen.getByLabelText('Aceptar reservas')).toBeDisabled();});
+test('invalid upload gives an explicit error',()=>{create();fireEvent.change(screen.getByLabelText('Imagen del evento'),{target:{files:[new File(['data'],'file.pdf',{type:'application/pdf'})]}});expect(screen.getByRole('alert')).toHaveTextContent('JPG, PNG o WebP');});

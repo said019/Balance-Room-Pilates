@@ -71,6 +71,7 @@ const PaymentsHub = lazy(() => import("./pages/admin/payments/PaymentsHub"));
 const GeneralSettings = lazy(() => import("./pages/admin/settings/GeneralSettings"));
 const StudioSettings = lazy(() => import("./pages/admin/settings/StudioSettings"));
 const PoliciesSettings = lazy(() => import("./pages/admin/settings/PoliciesSettings"));
+const MemberEvents = lazy(() => import('./pages/admin/events/MemberEvents'));
 const OperationalSettings = lazy(() => import("./pages/admin/settings/OperationalSettings"));
 const AdminCancellationPolicy = lazy(() => import("./pages/admin/settings/CancellationPolicy"));
 const NotificationSettings = lazy(() => import("./pages/admin/settings/NotificationSettings"));
@@ -163,6 +164,7 @@ export function AppRoutes() {
             <Route path="/" element={<Index />} />
             <Route path="/reservar" element={<BookingRedirect />} />
             <Route path="/clinica-running" element={<RunningClinicPage />} />
+            <Route path="/experiencias/:eventId" element={<RunningClinicPage />} />
             <Route path="/inauguracion" element={<Inauguration />} />
             <Route path="/pricing" element={<Checkout />} />
             <Route path="/privacy" element={<Privacy />} />
@@ -209,7 +211,7 @@ export function AppRoutes() {
             {/* Admin-only routes: the page mounts (and queries) only after the role check */}
             <Route element={<AuthGuard requiredRoles={['admin']} />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/events/*" element={<Navigate to="/admin/calendar" replace />} />
+            <Route path="/admin/events/*" element={<MemberEvents />} />
             <Route path="/admin/marketing" element={<IntegrationNotice type="communication" />} />
             <Route path="/admin/discount-codes" element={<DiscountCodes />} />
             <Route path="/admin/calendar" element={<ClassesCalendar />} />

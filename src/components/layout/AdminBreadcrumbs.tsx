@@ -13,6 +13,7 @@ const labelMap: Record<string, string> = {
   admin: 'Admin',
   dashboard: 'Dashboard',
   calendar: 'Agenda',
+  events: 'Eventos',
   bookings: 'Reservas',
   totalpass: 'TotalPass',
   checkins: 'Check-ins',

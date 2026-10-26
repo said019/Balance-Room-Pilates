@@ -65,6 +65,7 @@ const sidebarItems: SidebarItem[] = [
     { href: '/admin/marketing', label: 'Comunicación', icon: Megaphone },
     { href: '/admin/discount-codes', label: 'Descuentos', icon: Tag },
     { href: '/admin/calendar', label: 'Agenda', icon: Calendar },
+    { href: '/admin/events', label: 'Eventos', icon: CalendarCheck },
     {
         label: 'Reservas',
         icon: ClipboardList,
@@ -123,6 +124,7 @@ const pageNames: Record<string, string> = {
     marketing: 'Comunicación',
     'discount-codes': 'Descuentos',
     calendar: 'Agenda',
+    events: 'Eventos',
     bookings: 'Reservas',
     totalpass: 'TotalPass',
     classes: 'Clases',
@@ -478,6 +480,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     {[
                         { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
                         { href: '/admin/calendar', label: 'Agenda', icon: Calendar },
+    { href: '/admin/events', label: 'Eventos', icon: CalendarCheck },
                         { href: '/admin/members', label: 'Comunidad', icon: Users },
                         { href: '/admin/payments', label: 'Pagos', icon: CreditCard },
                     ].map(({ href, label, icon: Icon }) => <Link key={href} to={href}
