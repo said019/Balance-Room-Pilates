@@ -1,5 +1,4 @@
 import { FoundingBenefits } from '@/components/member/FoundingBenefits';
-import { MemberOpeningRegistration } from '@/components/altitud/MemberOpeningRegistration';
 import { useCancellationPolicy, CancellationTerms } from '@/hooks/use-cancellation-policy';
 import { RescheduleDialog } from '@/components/member/RescheduleDialog';
 import { PublishedHours } from '@/components/schedule/PublishedHours';
@@ -853,7 +852,6 @@ function MemberWorkspace({ preview }: { preview: boolean }) {
           title="A tu manera."
           description="Tu información y preferencias, en un solo lugar."
         />
-        {!preview && <MemberOpeningRegistration />}
         <div className="member-profile-grid">
           <section className="member-profile-card">
             <div className="member-profile-avatar">
