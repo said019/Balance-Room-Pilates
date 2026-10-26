@@ -1,0 +1,11 @@
+import {render,screen} from '@testing-library/react';import {MemoryRouter} from 'react-router-dom';
+import {RunningClinic} from '@/components/altitud/RunningClinic';import {useQuery,useMutation} from '@tanstack/react-query';
+jest.mock('@tanstack/react-query',()=>({useQuery:jest.fn(),useMutation:jest.fn()}));
+jest.mock('@/hooks/useAuth',()=>({useAuth:()=>({isAuthenticated:true,isLoading:false})}));
+jest.mock('@/lib/api',()=>({__esModule:true,default:{get:jest.fn(),post:jest.fn()},getErrorMessage:()=>''}));
+const config={title:'Clínica de Running',date:'2026-11-07',start_time:'08:00',end_time:'10:00',capacity:12,registered:0,registration_open:true,image_url:'/api/media/test'};
+const mount=(c:any,mine:any)=>{(useQuery as jest.Mock).mockImplementation(({queryKey}:any)=>({data:queryKey[0]==='member-clinic'?c:mine}));(useMutation as jest.Mock).mockReturnValue({mutate:jest.fn()});render(<MemoryRouter><RunningClinic/></MemoryRouter>);};
+test('ineligible member has no reservation or purchase button',()=>{mount(config,{eligible:false});expect(screen.getByText(/BASE, DROP IN y PRIMERA ALTITUD/)).toBeVisible();expect(screen.queryByRole('button',{name:'Reservar mi lugar gratis'})).toBeNull();});
+test('eligible member can reserve for free without buying credits',()=>{mount(config,{eligible:true});expect(screen.getByRole('button',{name:'Reservar mi lugar gratis'})).toBeEnabled();expect(screen.getByText(/No consume clases/)).toBeVisible();});
+test('unconfigured clinic cannot accept reservations',()=>{mount({...config,registration_open:false,capacity:null,end_time:null},{eligible:true});expect(screen.getByText(/Registro pendiente de apertura/)).toBeVisible();expect(screen.queryByRole('button',{name:'Reservar mi lugar gratis'})).toBeNull();});
+test('registered member sees confirmation instead of another reservation',()=>{mount(config,{eligible:true,registration:{id:'saved'}});expect(screen.getByText('Tu lugar está confirmado.')).toBeVisible();expect(screen.queryByRole('button',{name:'Reservar mi lugar gratis'})).toBeNull();});

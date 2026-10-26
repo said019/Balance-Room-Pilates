@@ -1,3 +1,4 @@
+import RunningClinicPage from '@/pages/RunningClinicPage';
 import FoundingCheckout from '@/pages/client/FoundingCheckout';
 import Inauguration from '@/pages/Inauguration';
 import Founding50 from '@/pages/admin/memberships/Founding50';
@@ -161,6 +162,7 @@ export function AppRoutes() {
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/reservar" element={<BookingRedirect />} />
+            <Route path="/clinica-running" element={<RunningClinicPage />} />
             <Route path="/inauguracion" element={<Inauguration />} />
             <Route path="/pricing" element={<Checkout />} />
             <Route path="/privacy" element={<Privacy />} />

@@ -1,3 +1,4 @@
+import {RunningClinicSettings} from './RunningClinicSettings';
 import { OpeningPromotionSettings } from './OpeningPromotionSettings';
 import { InaugurationSettings } from './InaugurationSettings';
 import { FormEvent, useEffect, useState } from 'react';
@@ -147,6 +148,7 @@ export function OperationalSettingsContent() {
                 </div>
             </form>}
         <OpeningClassesSettings />
+        <RunningClinicSettings />
         <InaugurationSettings />
         <OpeningPromotionSettings />
         <PurchaseConsentSettings />
