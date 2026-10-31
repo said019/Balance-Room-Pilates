@@ -847,12 +847,6 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 <Button className="min-h-11 bg-altitud-olive text-altitud-cream hover:bg-altitud-olive/90" onClick={() => handleDayClick(weekDays[mobileDayIndex])}>
                                     <Plus className="mr-2 h-4 w-4" /> Nueva clase
                                 </Button>
-                                <details className="min-w-0 flex-1 rounded-xl border border-altitud-sand/70 bg-altitud-cream/70">
-                                    <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-semibold text-altitud-dark">Herramientas de agenda</summary>
-                                    <div className="grid gap-2 px-3 pb-3 sm:grid-cols-2">
-                                <Button variant="outline" className="border-altitud-sand/70 bg-altitud-cream/70" onClick={() => setIsGenerateOpen(true)}>
-                                    <Repeat className="mr-2 h-4 w-4" /> Generar semana
-                                </Button>
                                 <Button
                                     variant="outline"
                                     className="border-altitud-sand/70 bg-altitud-cream/70"
@@ -864,6 +858,13 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                 >
                                     <Copy className="mr-2 h-4 w-4" /> Copiar semana anterior
                                 </Button>
+                                <details className="min-w-0 flex-1 rounded-xl border border-altitud-sand/70 bg-altitud-cream/70">
+                                    <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-semibold text-altitud-dark">Herramientas de agenda</summary>
+                                    <div className="grid gap-2 px-3 pb-3 sm:grid-cols-2">
+                                <Button variant="outline" className="border-altitud-sand/70 bg-altitud-cream/70" onClick={() => setIsGenerateOpen(true)}>
+                                    <Repeat className="mr-2 h-4 w-4" /> Generar semana
+                                </Button>
+
                                 <Button
                                     variant="outline"
                                     className={cn('border-altitud-sand/70 bg-altitud-cream/70', showCancelled && 'border-destructive/40 bg-destructive/10 text-destructive')}
@@ -1569,11 +1570,12 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                             <DialogHeader>
                                 <DialogTitle>Copiar semana anterior</DialogTitle>
                                 <DialogDescription>
-                                    Copia las clases de la semana anterior a la semana visible (mismos días y horas). Elige qué sala copiar.
+                                    Copia las clases de la semana anterior a la que estás viendo. Conserva días, horas, coaches, cupo y mats; omite horarios existentes y días cerrados.
                                 </DialogDescription>
                             </DialogHeader>
 
                             <div className="space-y-3 py-2">
+                                <p className="text-sm text-muted-foreground">La semana va de domingo a sábado. No copia asistentes ni la gratuidad: las nuevas sesiones consumen crédito. Si alguna será gratis, ajústala después desde la agenda.</p>
                                 <div className="space-y-1.5">
                                     <Label>Sala</Label>
                                     <Select
@@ -1604,7 +1606,7 @@ export default function ClassesCalendar({ initialGenerateOpen = false }: Classes
                                             {copyPreview.skippedClosedDays > 0 && ` · ${copyPreview.skippedClosedDays} en días cerrados`}.
                                         </>
                                     ) : copyPreview ? (
-                                        'No hay clases en la semana anterior para esta sala.'
+                                        'No hay clases nuevas para copiar: revisa la sala, los horarios existentes o los días cerrados.'
                                     ) : (
                                         'Selecciona una sala para ver el conteo.'
                                     )}
