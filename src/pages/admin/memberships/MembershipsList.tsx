@@ -1,3 +1,4 @@
+import {PurchaseLink} from '@/components/admin/PurchaseLink';
 import { postFinancialOperation } from '@/lib/financial-intent';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -354,89 +355,12 @@ export default function MembershipsList({
                     <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
                         <DialogContent>
                             <DialogHeader>
-                                <DialogTitle>Asignar Membresía Manual</DialogTitle>
+                                <DialogTitle>Preparar compra de membresía</DialogTitle>
                                 <DialogDescription>
-                                    Asigna un plan a un cliente existente.
+                                    Comparte el enlace y valida el pago después de la aceptación del cliente.
                                 </DialogDescription>
                             </DialogHeader>
-                            <form onSubmit={handleSubmit(onSubmitAssign)} className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Cliente</Label>
-                                    <Select onValueChange={(val) => setValue('userId', val)}>
-                                        <SelectTrigger aria-label="Cliente">
-                                            <SelectValue placeholder="Seleccionar cliente" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {users?.map(u => (
-                                                <SelectItem key={u.id} value={u.id}>
-                                                    {u.display_name} ({u.email})
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.userId && <p className="text-xs text-destructive">{errors.userId.message}</p>}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>Plan</Label>
-                                    <Select onValueChange={(val) => setValue('planId', val)}>
-                                        <SelectTrigger aria-label="Plan">
-                                            <SelectValue placeholder="Seleccionar plan" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {plans?.map(p => (
-                                                <SelectItem key={p.id} value={p.id}>
-                                                    {p.name} - ${p.price}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.planId && <p className="text-xs text-destructive">{errors.planId.message}</p>}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>Estado Inicial</Label>
-                                    <Select onValueChange={(val: any) => setValue('status', val)} defaultValue="active">
-                                        <SelectTrigger aria-label="Estado inicial">
-                                            <SelectValue placeholder="Seleccionar estado" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="active">Activa (Inicia hoy)</SelectItem>
-                                            <SelectItem value="pending_payment">Pendiente de Pago</SelectItem>
-                                            <SelectItem value="pending_activation">Pendiente de Activación</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>Método de pago recibido (para activar)</Label>
-                                    <Select onValueChange={(val) => setValue('paymentMethod', val)}>
-                                        <SelectTrigger aria-label="Método de pago">
-                                            <SelectValue placeholder="Seleccionar método" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="cash">Efectivo</SelectItem>
-                                            <SelectItem value="card">Tarjeta</SelectItem>
-                                            <SelectItem value="transfer">Transferencia</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                {watchedPaymentMethod && watchedPaymentMethod !== 'cash' && <div className="space-y-2">
-                                    <Label htmlFor="assign-payment-reference">Folio del pago recibido *</Label>
-                                    <Input id="assign-payment-reference" {...register('paymentReference')} required />
-                                </div>}
-
-                                <DialogFooter>
-                                    <Button type="button" variant="ghost" onClick={() => setIsAssignDialogOpen(false)}>
-                                        Cancelar
-                                    </Button>
-                                    <Button type="submit" disabled={isSubmitting}>
-                                        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                        Asignar
-                                    </Button>
-                                </DialogFooter>
-                            </form>
+                            <PurchaseLink />
                         </DialogContent>
                     </Dialog>
 
