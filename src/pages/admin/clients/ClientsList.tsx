@@ -1,4 +1,4 @@
-import { postFinancialOperation } from '@/lib/financial-intent';
+import { PurchaseLink } from '@/components/admin/PurchaseLink';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -45,15 +45,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { Loader2, MoreHorizontal, Search, Eye, ShoppingCart, UserPlus, Trash2, Coins, Plus, Minus } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 
-interface Plan {
-    id: string;
-    name: string;
-    price: number;
-    currency: string;
-    duration_days: number;
-    class_limit: number | null;
-}
-
 interface UserWithMembership extends User {
     membership_id?: string;
     membership_status?: string;
@@ -99,9 +90,6 @@ export default function ClientsList() {
     const [page, setPage] = useState(0);
     const [assignDialogOpen, setAssignDialogOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserWithMembership | null>(null);
-    const [selectedPlanId, setSelectedPlanId] = useState('');
-    const [paymentMethod, setPaymentMethod] = useState<string>('cash');
-    const [paymentReference, setPaymentReference] = useState('');
     const [creditsDialogOpen, setCreditsDialogOpen] = useState(false);
     const [creditsUser, setCreditsUser] = useState<UserWithMembership | null>(null);
     const [creditsReason, setCreditsReason] = useState('');
@@ -127,70 +115,9 @@ export default function ClientsList() {
         placeholderData: (previousData) => previousData,
     });
 
-    const { data: plans } = useQuery<Plan[]>({
-        queryKey: ['plans'],
-        queryFn: async () => {
-            const { data } = await api.get('/plans');
-            return data;
-        },
-    });
-
-    const assignMutation = useMutation({
-        mutationFn: async ({
-            userId,
-            planId,
-            paymentMethod,
-        }: {
-            userId: string;
-            planId: string;
-            paymentMethod: string;
-        }) => {
-            return await postFinancialOperation('/memberships/assign', {
-                userId,
-                planId,
-                status: 'active',
-                paymentMethod,
-                paymentReference,
-            });
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['users'] });
-            toast({
-                title: 'Plan asignado',
-                description: 'El plan ha sido asignado exitosamente al miembro.',
-            });
-            closeAssignDialog();
-        },
-        onError: (error) => {
-            toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: getErrorMessage(error),
-            });
-        },
-    });
-
     const openAssignDialog = (user: UserWithMembership) => {
         setSelectedUser(user);
-        setSelectedPlanId('');
-        setPaymentMethod('cash');
-        setPaymentReference('');
         setAssignDialogOpen(true);
-    };
-
-    const closeAssignDialog = () => {
-        setAssignDialogOpen(false);
-        setSelectedUser(null);
-        setSelectedPlanId('');
-    };
-
-    const handleAssignPlan = () => {
-        if (!selectedUser || !selectedPlanId) return;
-        assignMutation.mutate({
-            userId: selectedUser.id,
-            planId: selectedPlanId,
-            paymentMethod,
-        });
     };
 
     const creditsMutation = useMutation({
@@ -404,7 +331,7 @@ export default function ClientsList() {
                                                                 </Link>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem onClick={() => openAssignDialog(user)}>
-                                                                <ShoppingCart className="mr-2 h-4 w-4" /> Asignar Plan
+                                                                <ShoppingCart className="mr-2 h-4 w-4" /> Preparar compra
                                                             </DropdownMenuItem>
                                                             {user.membership_status === 'active' && user.membership_id && (user.class_limit ?? 0) > 0 && (
                                                                 <DropdownMenuItem onClick={() => openCreditsDialog(user)}>
@@ -530,84 +457,13 @@ export default function ClientsList() {
                     </DialogContent>
                 </Dialog>
 
-                {/* Dialog para asignar plan */}
                 <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-                    <DialogContent>
+                    <DialogContent className="max-h-[85dvh] overflow-y-auto">
                         <DialogHeader>
-                            <DialogTitle>Asignar Plan</DialogTitle>
-                            <DialogDescription>
-                                Asigna un plan de membresia a {selectedUser?.display_name}
-                            </DialogDescription>
+                            <DialogTitle>Preparar compra de membresía</DialogTitle>
+                            <DialogDescription>Enlace de compra para {selectedUser?.display_name}</DialogDescription>
                         </DialogHeader>
-
-                        <div className="space-y-4 py-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="plan">Plan</Label>
-                                <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
-                                    <SelectTrigger id="plan">
-                                        <SelectValue placeholder="Selecciona un plan" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {plans?.map((plan) => (
-                                            <SelectItem key={plan.id} value={plan.id}>
-                                                {plan.name} - ${plan.price} {plan.currency} ({plan.duration_days} dias)
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="paymentMethod">Metodo de pago</Label>
-                                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                                    <SelectTrigger id="paymentMethod">
-                                        <SelectValue placeholder="Selecciona metodo de pago" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="cash">Efectivo</SelectItem>
-                                        <SelectItem value="transfer">Transferencia</SelectItem>
-                                        <SelectItem value="card">Tarjeta</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            {paymentMethod !== 'cash' && <div className="space-y-2">
-                                <Label htmlFor="assign-reference">Folio del pago recibido *</Label>
-                                <Input id="assign-reference" value={paymentReference} onChange={e => setPaymentReference(e.target.value)} required />
-                            </div>}
-                            {selectedPlanId && plans && (
-                                <div className="p-3 bg-muted rounded-md text-sm">
-                                    <p className="font-medium">Resumen:</p>
-                                    {(() => {
-                                        const plan = plans.find((p) => p.id === selectedPlanId);
-                                        if (!plan) return null;
-                                        return (
-                                            <ul className="mt-1 space-y-1 text-muted-foreground">
-                                                <li>Plan: {plan.name}</li>
-                                                <li>Precio: ${plan.price} {plan.currency}</li>
-                                                <li>Duracion: {plan.duration_days} dias</li>
-                                                <li>
-                                                    Creditos: {plan.class_limit ? `${plan.class_limit} clases` : 'Ilimitado'}
-                                                </li>
-                                            </ul>
-                                        );
-                                    })()}
-                                </div>
-                            )}
-                        </div>
-
-                        <DialogFooter>
-                            <Button variant="outline" onClick={closeAssignDialog}>
-                                Cancelar
-                            </Button>
-                            <Button
-                                onClick={handleAssignPlan}
-                                disabled={!selectedPlanId || assignMutation.isPending}
-                            >
-                                {assignMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Asignar Plan
-                            </Button>
-                        </DialogFooter>
+                        <PurchaseLink />
                     </DialogContent>
                 </Dialog>
             </AdminLayout>
