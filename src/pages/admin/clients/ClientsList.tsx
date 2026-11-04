@@ -1,4 +1,4 @@
-import { PurchaseLink } from '@/components/admin/PurchaseLink';
+import { StudioSale } from '@/components/admin/StudioSale';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -331,7 +331,7 @@ export default function ClientsList() {
                                                                 </Link>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem onClick={() => openAssignDialog(user)}>
-                                                                <ShoppingCart className="mr-2 h-4 w-4" /> Preparar compra
+                                                                <ShoppingCart className="mr-2 h-4 w-4" /> Asignar plan
                                                             </DropdownMenuItem>
                                                             {user.membership_status === 'active' && user.membership_id && (user.class_limit ?? 0) > 0 && (
                                                                 <DropdownMenuItem onClick={() => openCreditsDialog(user)}>
@@ -460,10 +460,10 @@ export default function ClientsList() {
                 <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
                     <DialogContent className="max-h-[85dvh] overflow-y-auto">
                         <DialogHeader>
-                            <DialogTitle>Preparar compra de membresía</DialogTitle>
-                            <DialogDescription>Enlace de compra para {selectedUser?.display_name}</DialogDescription>
+                            <DialogTitle>Asignar plan en el estudio</DialogTitle>
+                            <DialogDescription>Asignar paquete a {selectedUser?.display_name}</DialogDescription>
                         </DialogHeader>
-                        <PurchaseLink />
+                        <StudioSale userId={selectedUser?.id} />
                     </DialogContent>
                 </Dialog>
             </AdminLayout>

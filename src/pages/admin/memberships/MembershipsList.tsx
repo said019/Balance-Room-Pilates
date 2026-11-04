@@ -1,4 +1,4 @@
-import {PurchaseLink} from '@/components/admin/PurchaseLink';
+import {StudioSale} from '@/components/admin/StudioSale';
 import { postFinancialOperation } from '@/lib/financial-intent';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -353,14 +353,14 @@ export default function MembershipsList({
                     </div>
 
                     <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
-                        <DialogContent>
+                        <DialogContent className="max-h-[85dvh] overflow-y-auto">
                             <DialogHeader>
-                                <DialogTitle>Preparar compra de membresía</DialogTitle>
+                                <DialogTitle>Asignar plan en el estudio</DialogTitle>
                                 <DialogDescription>
-                                    Comparte el enlace y valida el pago después de la aceptación del cliente.
+                                    Registra el pago recibido y activa el paquete directamente.
                                 </DialogDescription>
                             </DialogHeader>
-                            <PurchaseLink />
+                            <StudioSale />
                         </DialogContent>
                     </Dialog>
 
@@ -380,7 +380,7 @@ export default function MembershipsList({
                             if (!nextOpen && !cancelMutation.isPending) setCancellationMembership(null);
                         }}
                     >
-                        <DialogContent>
+                        <DialogContent className="max-h-[85dvh] overflow-y-auto">
                             <DialogHeader>
                                 <DialogTitle>Cancelar membresía</DialogTitle>
                                 <DialogDescription>
