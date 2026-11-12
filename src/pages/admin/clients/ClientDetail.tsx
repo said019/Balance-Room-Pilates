@@ -20,7 +20,7 @@ import { useToast } from '@/components/ui/use-toast';
 import {
     Loader2, ArrowLeft, Mail, Phone, Calendar, Heart,
     MessageSquare, CreditCard, DollarSign, Trash2, Power, Pencil, Check, X,
-    Coins, Plus, Minus, KeyRound
+    Coins, Plus, Minus, KeyRound, CalendarDays
 } from '@/components/brand/icons';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -46,6 +46,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { MonthBookingDialog } from '@/components/admin/MonthBookingDialog';
 import { formatDbDate } from '@/lib/date';
+import { EditMembershipDatesDialog, type EditableMembershipDates } from '@/components/memberships/EditMembershipDatesDialog';
 
 const statusLabels: Record<string, string> = {
     active: 'Activo',
@@ -73,6 +74,7 @@ type NoteForm = z.infer<typeof noteSchema>;
 
 export default function ClientDetail() {
     const { id } = useParams();
+    const [datesMembership, setDatesMembership] = useState<EditableMembershipDates | null>(null);
     const navigate = useNavigate();
     const { toast } = useToast();
     const queryClient = useQueryClient();
@@ -702,6 +704,17 @@ export default function ClientDetail() {
                                                             <div className="text-xs text-muted-foreground">
                                                                 ${m.price_paid ?? m.plan_price ?? 0} MXN
                                                             </div>
+                                                            {['active', 'expired', 'paused'].includes(m.status) && (
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="mt-1"
+                                                                    aria-label={`Editar vigencia de ${m.plan_name}`}
+                                                                    onClick={() => setDatesMembership({ ...m, user_name: client.display_name })}
+                                                                >
+                                                                    <CalendarDays className="mr-2 h-3.5 w-3.5" /> Vigencia
+                                                                </Button>
+                                                            )}
                                                             {m.status === 'active' && (m.class_limit ?? 0) > 0 && (
                                                                 <Button
                                                                     variant="outline"
@@ -1059,6 +1072,10 @@ export default function ClientDetail() {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+                <EditMembershipDatesDialog
+                    membership={datesMembership}
+                    onOpenChange={(open) => { if (!open) setDatesMembership(null); }}
+                />
             </AdminLayout>
         </AuthGuard>
     );

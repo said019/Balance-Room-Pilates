@@ -40,8 +40,10 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Search, CheckCircle2, XCircle, Plus } from '@/components/brand/icons';
+import { Loader2, Search, CheckCircle2, XCircle, Plus, CalendarDays } from '@/components/brand/icons';
 import { MembershipActivationDialog, ActivationForm } from '@/components/memberships/MembershipActivationDialog';
+import { EditMembershipDatesDialog } from '@/components/memberships/EditMembershipDatesDialog';
+import { formatDbDate } from '@/lib/date';
 
 // Schema for assigning membership
 const assignSchema = z.object({
@@ -72,6 +74,7 @@ export default function MembershipsList({
     const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
     const [activationMembership, setActivationMembership] = useState<Membership | null>(null);
     const [cancellationMembership, setCancellationMembership] = useState<Membership | null>(null);
+    const [datesMembership, setDatesMembership] = useState<Membership | null>(null);
     const [cancelReason, setCancelReason] = useState('');
     const [cancelRefund, setCancelRefund] = useState(false);
     const { toast } = useToast();
@@ -303,8 +306,8 @@ export default function MembershipsList({
                                                 <div className="admin-record-value">
                                                     {m.start_date ? (
                                                         <>
-                                                            <div className="text-muted-foreground">Inicio: {new Date(m.start_date).toLocaleDateString()}</div>
-                                                            <div>Fin: {new Date(m.end_date!).toLocaleDateString()}</div>
+                                                            <div className="text-muted-foreground">Inicio: {formatDbDate(m.start_date)}</div>
+                                                            <div>Fin: {formatDbDate(m.end_date)}</div>
                                                         </>
                                                     ) : '-'}
                                                 </div>
@@ -325,6 +328,16 @@ export default function MembershipsList({
                                                                 onClick={() => setActivationMembership(m)}
                                                             >
                                                                 <CheckCircle2 className="h-4 w-4 mr-1" /> Activar
+                                                            </Button>
+                                                        )}
+                                                        {['active', 'expired', 'paused'].includes(m.status) && (
+                                                            <Button
+                                                                size="sm"
+                                                                variant="ghost"
+                                                                aria-label={`Editar vigencia de ${m.user_name}`}
+                                                                onClick={() => setDatesMembership(m)}
+                                                            >
+                                                                <CalendarDays className="mr-1 h-4 w-4" /> Vigencia
                                                             </Button>
                                                         )}
                                                         {m.status === 'active' && (
@@ -372,6 +385,11 @@ export default function MembershipsList({
                             if (!nextOpen) setActivationMembership(null);
                         }}
                         onActivate={handleActivate}
+                    />
+
+                    <EditMembershipDatesDialog
+                        membership={datesMembership}
+                        onOpenChange={(open) => { if (!open) setDatesMembership(null); }}
                     />
 
                     <Dialog
