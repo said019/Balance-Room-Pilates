@@ -144,7 +144,7 @@ function BookingLine({
         <p>
           {friendlyDate(booking.date)} · {booking.start_time.slice(0, 5)}
         </p>
-        <span>{booking.instructor_name}{booking.mat_number ? ` · Mat ${booking.mat_number}` : ""}</span>
+        <span>{booking.instructor_name}</span>
       </div>
       <span
         className={`member-pill ${booking.booking_status === "cancelled" ? "member-pill-muted" : ""}`}

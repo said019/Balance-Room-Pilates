@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -47,11 +46,10 @@ export default function BookClassConfirm() {
     enabled: Boolean(classId),
   });
 
-  const [matNumber,setMatNumber] = useState<number|null>(null);
   const canBook = Boolean(classId) && !!data;
   const bookMutation = useMutation({
     mutationFn: async () => {
-      return await api.post(isFull ? '/bookings/waitlist' : '/bookings', { classId, ...(!isFull && data?.requires_mat ? {matNumber} : {}) });
+      return await api.post(isFull ? '/bookings/waitlist' : '/bookings', { classId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['classes-public'] });
@@ -158,15 +156,14 @@ export default function BookClassConfirm() {
           )}
 
           {data?.training_focus && <div className="rounded-xl bg-altitud-olive/10 p-4"><p className="text-xs uppercase tracking-widest">Enfoque de la clase</p><p className="text-xl font-semibold">{data.training_focus}</p></div>}
-          {data?.requires_mat && !isFull && !isCancelled && !isPast && <fieldset className="space-y-3"><legend className="text-lg font-semibold">Elige tu número de mat</legend><p className="text-sm text-muted-foreground">Los mats ocupados no se pueden seleccionar. El lugar se confirma al reservar.</p><div className="grid grid-cols-4 gap-3 sm:grid-cols-6">{Array.from({length:data.max_capacity},(_,i)=>i+1).map(n=>{const occupied=data.occupied_mats?.includes(n);return <button key={n} type="button" aria-label={`Mat ${n}${occupied?', ocupado':''}`} aria-pressed={matNumber===n} disabled={occupied||bookMutation.isPending} onClick={()=>setMatNumber(n)} className={`min-h-14 rounded-lg border text-lg font-medium disabled:cursor-not-allowed disabled:opacity-30 ${matNumber===n?'bg-altitud-olive text-altitud-cream':'bg-background'}`}>{n}</button>;})}</div></fieldset>}
-          {isFull && <p className="text-sm text-muted-foreground">Esta clase está llena. Puedes registrarte en la lista de espera. {data?.requires_mat?'Elegirás tu mat al confirmar un lugar disponible.':''}</p>}
+          {isFull && <p className="text-sm text-muted-foreground">Esta clase está llena. Puedes registrarte en la lista de espera.</p>}
           <div className="flex flex-wrap gap-3">
             <Button variant="outline" onClick={() => navigate('/app/book')}>
               Volver al calendario
             </Button>
             <Button
               onClick={() => bookMutation.mutate()}
-              disabled={!canBook || bookMutation.isPending || isCancelled || isPast || (!isFull && !!data?.requires_mat && (!matNumber || !!data.occupied_mats?.includes(matNumber)))}
+              disabled={!canBook || bookMutation.isPending || isCancelled || isPast}
             >
               {bookMutation.isPending ? 'Guardando…' : isPast ? 'Clase ya pasada' : isFull ? 'Entrar a lista de espera' : 'Confirmar reserva'}
             </Button>
